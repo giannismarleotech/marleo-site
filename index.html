@@ -1596,6 +1596,30 @@ tbody tr:last-child td{border-bottom:none}
 .syncbadge .sdot{width:7px;height:7px;border-radius:50%;background:#86EFAC;box-shadow:0 0 8px #86EFAC}
 .syncbadge .sdot.off{background:#FCA5A5;box-shadow:none}
 .syncbadge .srefresh{font-size:.9rem;opacity:.7}
+
+.taskpop{position:fixed;bottom:22px;right:22px;width:340px;max-width:calc(100vw - 32px);background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px -12px rgba(0,0,0,.6),0 0 0 1px rgba(233,30,123,.15);z-index:400;overflow:hidden;animation:tpIn .35s cubic-bezier(.2,.8,.3,1)}
+@keyframes tpIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}
+.tp-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;background:var(--grad);color:#fff;font-weight:700;font-size:.92rem;font-family:var(--disp)}
+.tp-x{background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:7px;cursor:pointer;font-size:.8rem}
+.tp-x:hover{background:rgba(255,255,255,.35)}
+.tp-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.tp-item.hoog{background:rgba(239,64,86,.06)}
+.tp-check{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:2px solid #86EFAC;background:transparent;color:#86EFAC;cursor:pointer;font-size:.85rem;font-weight:700;transition:all .15s}
+.tp-check:hover{background:#86EFAC;color:#08080E}
+.tp-body{flex:1;min-width:0}
+.tp-title{font-weight:600;font-size:.87rem;line-height:1.3;color:var(--text)}
+.tp-meta{font-size:.72rem;color:var(--muted);margin-top:2px}
+.tp-snooze{flex-shrink:0;background:var(--panel2);border:1px solid var(--line);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:.9rem}
+.tp-snooze:hover{border-color:var(--orange)}
+.tp-more{padding:8px 14px;font-size:.76rem;color:var(--muted);text-align:center}
+.tp-all{width:100%;padding:11px;background:var(--panel2);border:none;border-top:1px solid var(--line);color:var(--text);font-weight:600;font-size:.83rem;cursor:pointer;font-family:var(--body)}
+.tp-all:hover{background:var(--panel)}
+
+.contactbar{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0}
+.contactbar .lbl{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+
+.cbadge{display:inline-block;font-size:.8rem;vertical-align:middle;margin-left:2px}
+.dnext{font-size:.72rem;color:var(--muted);margin-top:4px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1723,7 +1747,7 @@ function enterApp(){
   document.getElementById('uRole').textContent=SESSION.role==='admin'?'Beheerder':'Klant';
   document.getElementById('uAvatar').textContent=SESSION.name.charAt(0).toUpperCase();
   buildMenu();go(SESSION.role==='admin'?'dashboard':'cportal');
-  if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);}
+  if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);startTaskPopups();}
   if(!storageOK)toast("Opslag geblokkeerd, open via https zodat wijzigingen bewaard blijven",true);
 }
 function logout(){location.reload()}
@@ -2356,8 +2380,10 @@ async function atPull(silent){
       var ex=DATA.deals.find(function(d){return d.atId===rec.id||d.naam.toLowerCase()===String(f['Naam']).toLowerCase()});
       var stage=atStage(f['Status']);
       var o={atId:rec.id,naam:f['Naam'],tel:f['Telefoon']||'',email:f['E-mailadres']||'',plaats:f['Plaats']||'',cat:f['Categorie']||'',
-             note:(f['Notities']||'')+(f['Rating']?' \\u00b7 '+f['Rating']+'\\u2605'+(f['Reviews']?' ('+f['Reviews']+')':''):''),
-             follow:f['Actie deadline']||''};
+             rating:f['Rating']||'',reviews:f['Reviews']||'',online:f['Online aanwezigheid']||'',prio:f['Prio']||'',
+             kanaal:f['Kanaal']||'',laatstContact:f['Laatste contact']||'',volgendeActie:f['Volgende actie']||'',
+             demoLink:f['Demo-link']||'',bericht:f['Bericht']||'',waLink:f['WhatsApp-link']||'',onderwerp:f['Onderwerp']||'',
+             note:f['Notities']||'',follow:f['Actie deadline']||''};
       if(ex){var wasStage=ex.stage;Object.assign(ex,o);if(['nieuw'].indexOf(ex.stage)>=0)ex.stage=stage;if(!ex.log)ex.log=[];if(wasStage!==ex.stage)ex.log.push({t:Date.now(),txt:'Airtable-sync: fase \\u2192 '+stageLabel(ex.stage)});updated++}
       else{o.id=nid('deal');o.stage=stage;o.value=250;o.log=[{t:Date.now(),txt:'Ge\\u00efmporteerd uit Airtable'}];o.created=Date.now();DATA.deals.push(o);added++}
     });
@@ -2372,9 +2398,36 @@ async function atPull(silent){
 async function atPushOne(d){
   var c=atCfg();if(!c.token||!d||!d.atId)return;
   try{
-    await fetch(atUrl('/'+d.atId),{method:'PATCH',headers:atHeaders(),
-      body:JSON.stringify({fields:{'Status':AT_STAGE2ST[d.stage]||d.stage,'Laatste contact':new Date().toISOString().slice(0,10)},typecast:true})});
+    var flds={'Status':AT_STAGE2ST[d.stage]||d.stage,'Laatste contact':(d.laatstContact||new Date().toISOString().slice(0,10))};
+    if(d.kanaal)flds['Kanaal']=d.kanaal;
+    if(d.volgendeActie)flds['Volgende actie']=d.volgendeActie;
+    if(d.follow)flds['Actie deadline']=d.follow;
+    if(d.note)flds['Notities']=d.note;
+    await fetch(atUrl('/'+d.atId),{method:'PATCH',headers:atHeaders(),body:JSON.stringify({fields:flds,typecast:true})});
   }catch(e){}
+}
+/* ===== contact-opvolging: gebeld / gemaild / geappt markeren ===== */
+function logContact(id,kanaal){
+  var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
+  var vandaag=new Date().toISOString().slice(0,10);
+  d.kanaal=kanaal;d.laatstContact=vandaag;
+  if(d.stage==='nieuw')d.stage='gecontacteerd';
+  (d.contacten=d.contacten||[]).push({t:Date.now(),kanaal:kanaal});
+  (d.log=d.log||[]).push({t:Date.now(),txt:'\\ud83d\\udcde '+kanaal+' geregistreerd'});
+  logAct(kanaal+' bij '+d.naam);
+  atPushOne(d);saveData();
+  toast('\\u2705 '+kanaal+' genoteerd bij '+d.naam);
+  if(document.getElementById('ptModal'))vDeal(id);else go(VIEW);
+}
+function setVolgende(id){
+  var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
+  var actie=prompt('Volgende actie voor '+d.naam+':',d.volgendeActie||'Opvolgen');
+  if(actie===null)return;
+  var datum=prompt('Op welke datum? (JJJJ-MM-DD)',d.follow||new Date().toISOString().slice(0,10));
+  d.volgendeActie=actie;if(datum)d.follow=datum;
+  (d.log=d.log||[]).push({t:Date.now(),txt:'\\ud83d\\udcc5 Volgende actie: '+actie+(datum?' ('+datum+')':'')});
+  atPushOne(d);saveData();toast('Volgende actie ingesteld');
+  if(document.getElementById('ptModal'))vDeal(id);else go(VIEW);
 }
 async function atPush(){
   var c=atCfg();if(!c.token){toast('Vul eerst je Airtable-token in',true);return}
@@ -2422,9 +2475,12 @@ function rPipeline(){
 function dealCard(d){
   var today=new Date().toISOString().slice(0,10);
   var late=d.follow&&d.follow<=today;
+  var ico={Gebeld:'\\ud83d\\udcde',Gemaild:'\\u2709',WhatsApp:'\\ud83d\\udcac'};
+  var contact=d.kanaal?'<span class="cbadge" title="'+esc(d.kanaal)+(d.laatstContact?' op '+fmtD(d.laatstContact):'')+'">'+(ico[d.kanaal]||'\\u2713')+'</span>':'';
   return '<div class="dealcard'+(late?' late':'')+'" onclick="vDeal(\\''+d.id+'\\')">'+
-  '<b>'+esc(d.naam)+'</b><div class="dmeta">'+esc(d.cat||'')+' \\u00b7 '+esc(d.plaats||'')+'</div>'+
-  '<div class="drow"><span>'+eur(d.value)+'</span>'+(d.follow?'<span class="'+(late?'flate':'fok')+'">\\u23f0 '+fmtD(d.follow)+'</span>':'')+'</div></div>';
+  '<b>'+esc(d.naam)+'</b> '+contact+'<div class="dmeta">'+esc(d.cat||'')+' \\u00b7 '+esc(d.plaats||'')+'</div>'+
+  '<div class="drow"><span>'+eur(d.value)+'</span>'+(d.follow?'<span class="'+(late?'flate':'fok')+'">\\u23f0 '+fmtD(d.follow)+'</span>':'')+'</div>'+
+  (d.volgendeActie?'<div class="dnext">\\u2192 '+esc(d.volgendeActie)+'</div>':'')+'</div>';
 }
 function vDeal(id){
   var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
@@ -2434,14 +2490,27 @@ function vDeal(id){
   '<div><div class="lbl">Waarde</div><b>'+eur(d.value)+'</b></div>'+
   '<div><div class="lbl">Telefoon</div>'+esc(d.tel||', ')+'</div>'+
   '<div><div class="lbl">E-mail</div>'+esc(d.email||', ')+'</div>'+
-  '<div><div class="lbl">Opvolgen op</div>'+(d.follow?fmtD(d.follow):', ')+'</div>'+
-  '<div><div class="lbl">Categorie</div>'+esc(d.cat||'')+' \\u00b7 '+esc(d.plaats||'')+'</div>'+
+  '<div><div class="lbl">Plaats</div>'+esc(d.plaats||', ')+'</div>'+
+  '<div><div class="lbl">Categorie</div>'+esc(d.cat||', ')+'</div>'+
+  (d.rating?'<div><div class="lbl">Rating</div>'+esc(String(d.rating))+'\\u2605'+(d.reviews?' ('+esc(String(d.reviews))+')':'')+'</div>':'')+
+  (d.online?'<div><div class="lbl">Online</div>'+esc(d.online)+'</div>':'')+
+  (d.prio?'<div><div class="lbl">Prioriteit</div>'+esc(String(d.prio))+'</div>':'')+
+  '<div><div class="lbl">Laatste contact</div>'+(d.laatstContact?fmtD(d.laatstContact):'nog niet')+(d.kanaal?' \\u00b7 '+esc(d.kanaal):'')+'</div>'+
+  '<div><div class="lbl">Volgende actie</div>'+(d.volgendeActie?esc(d.volgendeActie):', ')+(d.follow?' ('+fmtD(d.follow)+')':'')+'</div>'+
   '</div>'+
   (d.note?'<div class="notecard"><div class="meta">Notitie</div><p>'+esc(d.note)+'</p></div>':'')+
+  (d.bericht?'<div class="notecard"><div class="meta">Klaargezet bericht</div><p>'+esc(d.bericht)+'</p></div>':'')+
+  '<div class="contactbar"><div class="lbl" style="margin-bottom:6px">Registreer contact</div><div style="display:flex;gap:8px;flex-wrap:wrap">'+
+   '<button class="btn sm" onclick="logContact(\\''+d.id+'\\',\\'Gebeld\\')">\\ud83d\\udcde Gebeld</button>'+
+   '<button class="btn sm" onclick="logContact(\\''+d.id+'\\',\\'Gemaild\\')">\\u2709 Gemaild</button>'+
+   '<button class="btn sm" onclick="logContact(\\''+d.id+'\\',\\'WhatsApp\\')">\\ud83d\\udcac Geappt</button>'+
+   '<button class="btn sm subtle" onclick="setVolgende(\\''+d.id+'\\')">\\ud83d\\udcc5 Volgende actie</button>'+
+  '</div></div>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">'+
-   (d.tel?'<a class="btn sm" href="'+dealWa(d)+'" target="_blank" onclick="logDeal(\\''+d.id+'\\',\\'WhatsApp geopend\\')">\\ud83d\\udcac WhatsApp</a>':'')+
-   (d.email?'<a class="btn sm" href="'+dealMail(d)+'">\\u2709 Mail</a>':'')+
-   (d.tel?'<a class="btn sm subtle" href="tel:'+esc(d.tel)+'">\\ud83d\\udcde Bel</a>':'')+
+   (d.tel?'<a class="btn sm" href="'+dealWa(d)+'" target="_blank" onclick="logContact(\\''+d.id+'\\',\\'WhatsApp\\')">\\ud83d\\udcac Open WhatsApp</a>':'')+
+   (d.email?'<a class="btn sm" href="'+dealMail(d)+'" onclick="logContact(\\''+d.id+'\\',\\'Gemaild\\')">\\u2709 Open mail</a>':'')+
+   (d.tel?'<a class="btn sm subtle" href="tel:'+esc(d.tel)+'" onclick="logContact(\\''+d.id+'\\',\\'Gebeld\\')">\\ud83d\\udcde Bel</a>':'')+
+   (d.demoLink?'<a class="btn sm subtle" href="'+esc(d.demoLink)+'" target="_blank">\\ud83d\\udd17 Demo</a>':'')+
    '<a class="btn sm subtle" href="https://www.google.com/search?q='+encodeURIComponent(d.naam+' '+(d.plaats||'')+' email contact')+'" target="_blank">\\ud83d\\udd0d Zoek e-mail</a>'+
   '</div>'+
   '<label>Verplaats naar fase</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+
@@ -2453,10 +2522,72 @@ function vDeal(id){
 }
 function setStage(id,st){
   var d=DATA.deals.find(function(x){return x.id===id});
+  var vorige=d.stage;
   d.stage=st;(d.log=d.log||[]).push({t:Date.now(),txt:'Fase \\u2192 '+stageLabel(st)});atPushOne(d);
-  logAct('Deal '+d.naam+' \\u2192 '+stageLabel(st));saveData();closeM();
-  if(st==='gewonnen'){toast('\\ud83c\\udf89 Deal gewonnen!');vDeal(id)}else{go(VIEW)}
+  logAct('Deal '+d.naam+' \\u2192 '+stageLabel(st));
+  if(st==='gewonnen'&&vorige!=='gewonnen'){autoWin(d)}
+  saveData();closeM();
+  if(st==='gewonnen'){toast('\\ud83c\\udf89 Deal gewonnen! Klant + taken aangemaakt');vDeal(id)}else{go(VIEW)}
 }
+function autoWin(d){
+  // 1) automatisch klant aanmaken (indien nog niet bestaat)
+  var c=DATA.customers.find(function(x){return x.name.toLowerCase()===d.naam.toLowerCase()});
+  if(!c){c={id:nid('cust'),name:d.naam,address:(d.plaats||''),vat:'',phone:d.tel||'',email:d.email||'',status:'actief',type:'klant',tags:['uit deal'],note:d.note||'',created:Date.now()};DATA.customers.push(c);logAct('\\u2705 Automatisch klant aangemaakt: '+d.naam)}
+  d.customerId=c.id;
+  // 2) automatisch onboarding-taken aanmaken
+  var vandaag=new Date();
+  function plus(dagen){var x=new Date(vandaag);x.setDate(x.getDate()+dagen);return x.toISOString().slice(0,10)}
+  var taken=[
+    {title:'Factuur opmaken voor '+d.naam,due:plus(1),prio:'hoog'},
+    {title:'Welkomstmail + gegevens opvragen ('+d.naam+')',due:plus(1),prio:'hoog'},
+    {title:'Demo/website bouwen voor '+d.naam,due:plus(3),prio:'normaal'},
+    {title:'Oplevering + review vragen aan '+d.naam,due:plus(10),prio:'normaal'}
+  ];
+  taken.forEach(function(t){DATA.tasks.push({id:nid('task'),title:t.title,desc:'Automatisch aangemaakt bij winst van deal',customerId:c.id,due:t.due,prio:t.prio,done:false})});
+  logAct('\\ud83d\\udccb 4 onboarding-taken aangemaakt voor '+d.naam);
+}
+
+/* ============ TAKEN-POPUP (HubSpot-stijl herinneringen) ============ */
+var _taskPopTimer=null;
+var TASKPOP_MS=120000; // elke 2 min opnieuw checken
+function dueTasks(){
+  var vandaag=new Date().toISOString().slice(0,10);
+  return DATA.tasks.filter(function(t){return !t.done && t.due && t.due<=vandaag});
+}
+function checkTaskPopups(){
+  if(SESSION&&SESSION.role!=='admin')return;
+  var due=dueTasks();
+  if(!due.length){var ex=document.getElementById('taskPop');if(ex)ex.remove();return}
+  showTaskPop(due);
+}
+function showTaskPop(due){
+  var ex=document.getElementById('taskPop');if(ex)ex.remove();
+  var vandaag=new Date().toISOString().slice(0,10);
+  var wrap=document.createElement('div');wrap.id='taskPop';wrap.className='taskpop';
+  var items=due.slice(0,5).map(function(t){
+    var laat=t.due<vandaag;
+    return '<div class="tp-item '+(t.prio==='hoog'?'hoog':'')+'">'+
+      '<button class="tp-check" title="Afvinken" onclick="popDone(\\''+t.id+'\\')">\\u2713</button>'+
+      '<div class="tp-body"><div class="tp-title">'+esc(t.title)+'</div>'+
+      '<div class="tp-meta">'+(laat?'\\u26a0\\ufe0f Te laat sinds ':'\\ud83d\\udcc5 Vandaag: ')+fmtD(t.due)+
+      (t.customerId?' \\u00b7 '+esc(custName(t.customerId)):'')+'</div></div>'+
+      '<button class="tp-snooze" title="Morgen herinneren" onclick="popSnooze(\\''+t.id+'\\')">\\u23f0</button></div>';
+  }).join('');
+  var meer=due.length>5?'<div class="tp-more">+'+(due.length-5)+' meer, zie Taken</div>':'';
+  wrap.innerHTML='<div class="tp-head"><span>\\ud83d\\udd14 '+due.length+' taak'+(due.length>1?'en':'')+' te doen</span>'+
+    '<button class="tp-x" onclick="document.getElementById(\\'taskPop\\').remove()">\\u2715</button></div>'+
+    items+meer+
+    '<button class="tp-all" onclick="document.getElementById(\\'taskPop\\').remove();go(\\'tasks\\')">Alle taken bekijken</button>';
+  document.body.appendChild(wrap);
+}
+function popDone(id){var t=DATA.tasks.find(function(x){return x.id===id});if(t){t.done=true;logAct('\\u2713 Taak afgevinkt: '+t.title);saveData()}checkTaskPopups();if(VIEW==='tasks')go('tasks');if(VIEW==='dashboard')go('dashboard')}
+function popSnooze(id){var t=DATA.tasks.find(function(x){return x.id===id});if(t){var x=new Date();x.setDate(x.getDate()+1);t.due=x.toISOString().slice(0,10);saveData()}checkTaskPopups()}
+function startTaskPopups(){
+  if(_taskPopTimer)clearInterval(_taskPopTimer);
+  setTimeout(checkTaskPopups,1500); // kort na inloggen
+  _taskPopTimer=setInterval(function(){if(document.visibilityState==='visible')checkTaskPopups()},TASKPOP_MS);
+}
+
 function logDeal(id,txt){var d=DATA.deals.find(function(x){return x.id===id});(d.log=d.log||[]).push({t:Date.now(),txt:txt});saveData()}
 function mDeal(id){
   var d=id?DATA.deals.find(function(x){return x.id===id}):null;
