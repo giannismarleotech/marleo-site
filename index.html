@@ -72,7 +72,7 @@ body.loaded .hexstage{opacity:0;animation:heroPop 1s .4s cubic-bezier(.2,.8,.3,1
 
 /* ============ CANVAS + ORBS ============ */
 #net{position:fixed;inset:0;z-index:0;pointer-events:none}
-.orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:.22;pointer-events:none;z-index:0;will-change:transform}
+.orb{position:fixed;border-radius:50%;filter:blur(140px);opacity:.13;pointer-events:none;z-index:0;will-change:transform}
 .o1{width:560px;height:560px;background:var(--orange);top:-180px;left:-160px}
 .o2{width:480px;height:480px;background:var(--pink);top:34vh;right:-200px}
 .o3{width:440px;height:440px;background:var(--red);top:130vh;left:-140px}
@@ -119,6 +119,29 @@ nav{display:flex;align-items:center;justify-content:space-between;height:74px;ga
   will-change:transform;
 }
 .btn:hover{box-shadow:0 16px 44px -10px rgba(233,30,123,.65)}
+
+/* respecteer 'verminder beweging' voorkeur */
+@media(prefers-reduced-motion:reduce){
+  .orb,.hexglow,.chip,.hexring,.band .track,.footbar .mono i,#chatbtn .dot{animation:none!important}
+  *{scroll-behavior:auto!important}
+}
+/* ============ ZICHTBARE KLIK-FEEDBACK ============ */
+.btn:active{transform:scale(.95) translateY(1px);box-shadow:0 4px 16px -8px rgba(233,30,123,.7)!important;transition:transform .06s}
+.btn.ghost:active,.nav-cta:active{transform:scale(.95) translateY(1px)}
+.navlinks>a:active{transform:scale(.94);opacity:.7}
+.lang-btn:active,.lang-menu button:active{transform:scale(.94);background:rgba(233,30,123,.18)}
+.faq-q:active{background:rgba(255,255,255,.04)}
+.menu-btn:active{transform:scale(.88)}
+.chat-foot button:active,.chatbubble:active{transform:scale(.88)}
+.card:active{transform:scale(.99)}
+/* ripple-achtige puls op elke .btn bij klik */
+.btn::after{content:"";position:absolute;inset:0;border-radius:inherit;background:rgba(255,255,255,.35);opacity:0;transform:scale(.6);pointer-events:none;transition:opacity .4s,transform .4s}
+.btn:active::after{opacity:0;transform:scale(1);transition:0s}
+.btn.clicked::after{animation:btnpulse .5s ease-out}
+@keyframes btnpulse{0%{opacity:.5;transform:scale(.7)}100%{opacity:0;transform:scale(1.05)}}
+/* algemene tap-feedback voor alles wat cursor:pointer heeft */
+button:active,[onclick]:active,[role=button]:active{filter:brightness(1.08)}
+
 .btn.ghost{
   background:transparent;box-shadow:none;color:var(--text);border:1px solid transparent;
   background-image:linear-gradient(var(--bg),var(--bg)),var(--grad);
@@ -147,16 +170,16 @@ h1{font-family:var(--disp);font-weight:700;letter-spacing:-.035em;font-size:clam
 .hexlayer.l3{transform:translateZ(0);filter:drop-shadow(0 30px 70px rgba(233,30,123,.4))}
 .hexring{
   position:absolute;inset:-8%;border-radius:50%;border:1px dashed rgba(239,64,86,.35);
-  animation:ringspin 26s linear infinite;transform-style:preserve-3d;
+  animation:ringspin 44s linear infinite;transform-style:preserve-3d;
 }
 .hexring::before{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--grad);top:-5px;left:50%;box-shadow:0 0 18px var(--pink)}
 @keyframes ringspin{to{transform:rotate(360deg)}}
-.hexglow{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(239,64,86,.4),transparent 65%);filter:blur(34px);z-index:-1;animation:pulseglow 4s ease-in-out infinite}
+.hexglow{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(239,64,86,.4),transparent 65%);filter:blur(34px);z-index:-1;animation:pulseglow 7s ease-in-out infinite}
 @keyframes pulseglow{0%,100%{opacity:.65;transform:scale(1)}50%{opacity:1;transform:scale(1.14)}}
 .chip{
   position:absolute;font-family:var(--mono);font-size:.72rem;background:rgba(18,18,29,.9);border:1px solid var(--line);
   border-radius:10px;padding:9px 14px;backdrop-filter:blur(8px);white-space:nowrap;
-  box-shadow:0 14px 34px -10px rgba(0,0,0,.7);animation:chipfloat 6s ease-in-out infinite;transform:translateZ(70px);
+  box-shadow:0 14px 34px -10px rgba(0,0,0,.7);animation:chipfloat 9s ease-in-out infinite;transform:translateZ(70px);
 }
 .chip b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .chip.c1{top:4%;left:-8%;animation-delay:.4s}
@@ -174,7 +197,7 @@ h2{font-family:var(--disp);font-weight:700;letter-spacing:-.03em;font-size:clamp
 .sec-head p{color:var(--muted);font-size:1.08rem}
 
 .band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;overflow:hidden;white-space:nowrap;position:relative;z-index:2;background:rgba(13,13,22,.65)}
-.band .track{display:inline-block;animation:marquee 26s linear infinite;font-family:var(--mono);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.band .track{display:inline-block;animation:marquee 42s linear infinite;font-family:var(--mono);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .band .track em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0 26px}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
@@ -1145,6 +1168,12 @@ function showToast(msg){
 /* Webhook-URL: vervang door je n8n Production-URL na import van workflow 4.
    Laat leeg om terug te vallen op een mailto-link. */
 var MARLEO_WEBHOOK="https://marleotech.app.n8n.cloud/webhook/marleo-aanvraag";
+/* globale klik-puls op alle knoppen */
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.btn');
+  if(btn){btn.classList.remove('clicked');void btn.offsetWidth;btn.classList.add('clicked');setTimeout(function(){btn.classList.remove('clicked')},500);}
+},true);
+
 document.getElementById('contactForm').addEventListener('submit',function(e){
   e.preventDefault();
   var n=document.getElementById('fname').value.trim(),m=document.getElementById('fmail').value.trim(),msg=document.getElementById('fmsg').value.trim();
@@ -1650,6 +1679,14 @@ tbody tr:last-child td{border-bottom:none}
 .custkpis .val{font-family:var(--disp);font-size:1.4rem;font-weight:700}
 .custcols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 @media(max-width:760px){.custcols{grid-template-columns:1fr}}
+
+.docgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:760px){.docgrid{grid-template-columns:1fr}}
+.doccard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;transition:border-color .2s,transform .2s}
+.doccard:hover{border-color:rgba(233,30,123,.4);transform:translateY(-2px)}
+.docicon{font-size:32px;margin-bottom:12px}
+.doccard h3{font-family:var(--disp);font-size:1.15rem;margin-bottom:6px}
+.doccard p{color:var(--muted);font-size:.9rem;line-height:1.55}
 </style>
 </head>
 <body>
@@ -1709,9 +1746,12 @@ var ADMIN_HASH_DEFAULT="b846def1fc1f43648164cd84e24d5aea325c49643336258b6bd4f3d8
 var LS_KEY="marleo_hq_v1";var LS_OLD="marleo_crm_v2";
 var VAT_RATE=0.21;
 
+function coCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.company)DATA.settings.company={name:'Marleo',legal:'Marleo',vat:'BE 0751.641.419',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen.'};var co=DATA.settings.company;if(!co.pay)co.pay='overschrijving';if(!co.deflang)co.deflang='nl';return co}
+
+
 /* ============ SEED ============ */
 function seedData(){
-  return {customers:[],deals:[],invoices:[],expenses:[],tasks:[],notes:[],clients:[],activity:[{t:Date.now(),txt:'Welkom in Marleo HQ, koppel Airtable via Instellingen om je pipeline te laden'}],settings:{airtable:{token:'',base:'appqZHTc5zbx3hNSh',table:'tblU5dzzAenFL6qbp'}},seq:{invoice:2026001}};
+  return {customers:[],deals:[],invoices:[],expenses:[],tasks:[],notes:[],clients:[],activity:[{t:Date.now(),txt:'Welkom in Marleo HQ, koppel Airtable via Instellingen om je pipeline te laden'}],settings:{airtable:{token:'',base:'appqZHTc5zbx3hNSh',table:'tblU5dzzAenFL6qbp'},company:{name:'Marleo',legal:'Marleo',vat:'BE 0751.641.419',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen. Bij laattijdige betaling is van rechtswege en zonder ingebrekestelling een verwijlintrest verschuldigd.'}},seq:{invoice:2026001}};
 }
 
 /* ============ STORAGE ============ */
@@ -1750,10 +1790,13 @@ function invStatus(iv){
 }
 function custName(id){var c=DATA.customers.find(function(x){return x.id===id});return c?c.name:', '}
 function customer(id){return DATA.customers.find(function(x){return x.id===id})}
-function nextRef(){
-  var nums=DATA.invoices.map(function(i){var m=/(\\d{4})-(\\d+)/.exec(i.ref||'');return m?parseInt(m[2],10):0});
-  var mx=nums.length?Math.max.apply(null,nums):140;
-  return new Date().getFullYear()+'-'+String(mx+1).padStart(4,'0');
+function nextRef(type){
+  type=type||'factuur';
+  var prefix=type==='offerte'?'OFF':'FACT';
+  var yr=new Date().getFullYear();
+  var nums=DATA.invoices.filter(function(i){return (i.type||'factuur')===type}).map(function(i){var m=/(\\d+)\\s*$/.exec(i.ref||'');return m?parseInt(m[1],10):0});
+  var mx=nums.length?Math.max.apply(null,nums):0;
+  return prefix+'-'+yr+'-'+String(mx+1).padStart(4,'0');
 }
 
 /* ============ AUTH ============ */
@@ -1820,6 +1863,7 @@ var IC={
  rep:'<path d="M18 20V10M12 20V4M6 20v-6"/>',
  task:'<path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>',
  note:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+ doc:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM14 2v6h6M9 13h6M9 17h4"/>',
  set:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>'
 };
 var MENU_ADMIN=[
@@ -1837,6 +1881,7 @@ var MENU_ADMIN=[
   ['customers','Klanten',IC.cust],
   ['tasks','Taken',IC.task],
   ['notes','Notities',IC.note],
+  ['documents','Documenten',IC.doc],
   ['settings','Instellingen',IC.set]
 ];
 var MENU_CLIENT=[['cportal','Mijn overzicht',IC.dash],['cinvoices','Mijn facturen',IC.inv],['ctickets','Mijn tickets',IC.task]];
@@ -1852,7 +1897,7 @@ function buildMenu(){
 function go(v){
   VIEW=v;
   document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
-  var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
+  var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,documents:rDocuments,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
   (R[v]||rDash)();window.scrollTo(0,0);
   if(typeof updateSyncBadge==='function')setTimeout(updateSyncBadge,50);
 }
@@ -1971,13 +2016,14 @@ function drawChart(){
 var INVFILTER='alle',INVQ='';
 function invTable(list){
   if(!list.length)return '<div class="empty"><span class="big">\\uD83D\\uDCC4</span>Geen facturen gevonden</div>';
-  return '<div style="overflow-x:auto"><table><thead><tr><th>Nr.</th><th>Klant</th><th>Datum</th><th>Vervalt</th><th class="num">Excl. btw</th><th class="num">Totaal</th><th>Status</th><th></th></tr></thead><tbody>'+
+  return '<div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>Nr.</th><th>Klant</th><th>Datum</th><th>Vervalt</th><th class="num">Totaal</th><th>Status</th><th></th></tr></thead><tbody>'+
   list.map(function(iv){
-    var st=invStatus(iv);
-    return '<tr onclick="vInvoice(\\''+iv.id+'\\')"><td><b>'+esc(iv.ref)+'</b></td><td>'+esc(custName(iv.customerId))+'</td>'+
-    '<td>'+fmtD(iv.date)+'</td><td>'+fmtD(iv.due)+'</td><td class="num">'+eur(invSub(iv))+'</td><td class="num"><b>'+eur(invTot(iv))+'</b></td>'+
-    '<td><span class="pill '+st+'">'+st+'</span></td>'+
+    var st=invStatus(iv);var isOff=(iv.type==='offerte');
+    return '<tr onclick="vInvoice(\\''+iv.id+'\\')"><td><span class="pill '+(isOff?'normaal':'bezig')+'">'+(isOff?'Offerte':'Factuur')+'</span></td><td><b>'+esc(iv.ref)+'</b></td><td>'+esc(custName(iv.customerId))+'</td>'+
+    '<td>'+fmtD(iv.date)+'</td><td>'+fmtD(iv.due)+'</td><td class="num"><b>'+eur(invTot(iv))+'</b></td>'+
+    '<td>'+(isOff?'<span class="pill normaal">offerte</span>':'<span class="pill '+st+'">'+st+'</span>')+'</td>'+
     '<td><div class="rowactions">'+(st!=='betaald'?'<button class="iconbtn ok" onclick="event.stopPropagation();payInv(\\''+iv.id+'\\')" title="Markeer als betaald">\\u2713</button>':'<button class="iconbtn" onclick="event.stopPropagation();unpayInv(\\''+iv.id+'\\')" title="Zet terug op openstaand">\\u21BA</button>')+
+    '<button class="iconbtn" onclick="event.stopPropagation();invPdf(\\''+iv.id+'\\')" title="Download PDF">\\ud83d\\udcc4</button>'+
     '<button class="iconbtn" onclick="event.stopPropagation();mInvoice(\\''+iv.id+'\\')" title="Bewerken">\\u270E</button>'+
     '<button class="iconbtn del" onclick="event.stopPropagation();delInv(\\''+iv.id+'\\')" title="Verwijderen">\\uD83D\\uDDD1</button></div></td></tr>';
   }).join('')+'</tbody></table></div>';
@@ -1990,10 +2036,10 @@ function rInvoices(){
   var counts={alle:DATA.invoices.length,openstaand:0,betaald:0,vervallen:0};
   DATA.invoices.forEach(function(iv){var s=invStatus(iv);if(counts[s]!==undefined)counts[s]++});
   main().innerHTML=
-  '<div class="topbar"><div><h2>Facturen</h2><div class="sub">'+eur(t.open)+' openstaand \\u00B7 '+eur(t.paid)+' ontvangen</div></div>'+
+  '<div class="topbar"><div><h2>Facturen &amp; offertes</h2><div class="sub">'+eur(t.open)+' openstaand \\u00B7 '+eur(t.paid)+' ontvangen</div></div>'+
   '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
   '<div class="searchbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input id="invSearch" placeholder="Zoek op nr. of klant\\u2026" value="'+esc(INVQ)+'"></div>'+
-  '<button class="btn" onclick="mInvoice()">+ Nieuwe factuur</button></div></div>'+
+  '<button class="btn subtle" onclick="mInvoice();setTimeout(function(){var t=document.getElementById(\\'i_type\\');if(t){t.value=\\'offerte\\';t.onchange();}},100)">+ Offerte</button><button class="btn" onclick="mInvoice()">+ Factuur</button></div></div>'+
   '<div class="tabs">'+['alle','openstaand','vervallen','betaald'].map(function(f){
     return '<button class="tab'+(INVFILTER===f?' active':'')+'" onclick="INVFILTER=\\''+f+'\\';rInvoices()">'+f.charAt(0).toUpperCase()+f.slice(1)+' ('+(counts[f]||0)+')</button>';
   }).join('')+'</div>'+
@@ -2004,7 +2050,8 @@ function rInvoices(){
 function vInvoice(id){
   var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;
   var c=customer(iv.customerId)||{},st=invStatus(iv);
-  openM('Factuur '+iv.ref,
+  var isOff=(iv.type==='offerte');
+  openM((isOff?'Offerte ':'Factuur ')+iv.ref,
   '<div class="detail-grid">'+
   '<div><div class="lbl">Klant</div><b>'+esc(c.name||', ')+'</b><br><span style="color:var(--muted);font-size:.85rem">'+esc(c.address||'')+(c.vat?'<br>BTW '+esc(c.vat):'')+'</span></div>'+
   '<div><div class="lbl">Status</div><span class="pill '+st+'">'+st+'</span>'+(iv.paidDate?'<br><span style="color:var(--muted);font-size:.8rem">betaald op '+fmtD(iv.paidDate)+'</span>':'')+'</div>'+
@@ -2018,8 +2065,10 @@ function vInvoice(id){
   '<div class="totline"><span>BTW 21%</span><b>'+eur(invVat(iv))+'</b></div>'+
   '<div class="totline big"><span>Totaal</span><b class="gtext">'+eur(invTot(iv))+'</b></div></div>'+
   (iv.note?'<div class="notecard" style="margin-top:14px"><div class="meta">Notitie</div><p>'+esc(iv.note)+'</p></div>':''),
-  (st!=='betaald'?'<button class="btn" onclick="payInv(\\''+iv.id+'\\');closeM()">\\u2713 Markeer als betaald</button>':'<button class="btn subtle" onclick="unpayInv(\\''+iv.id+'\\');closeM()">\\u21BA Terug op openstaand</button>')+
-  '<button class="btn subtle" onclick="closeM();mInvoice(\\''+iv.id+'\\')">Bewerken</button>',true);
+  '<button class="btn" onclick="invPdf(\\''+iv.id+'\\')">\\ud83d\\udcc4 Download PDF</button>'+
+  (isOff?'':(st!=='betaald'?'<button class="btn subtle" onclick="payInv(\\''+iv.id+'\\');closeM()">\\u2713 Betaald</button>':'<button class="btn subtle" onclick="unpayInv(\\''+iv.id+'\\');closeM()">\\u21BA Openstaand</button>'))+
+  '<button class="btn subtle" onclick="closeM();mInvoice(\\''+iv.id+'\\')">Bewerken</button>'+
+  (isOff?'<button class="btn subtle" onclick="offToInvoice(\\''+iv.id+'\\')">\\u2192 Zet om naar factuur</button>':''),true);
 }
 function payInv(id){
   var iv=DATA.invoices.find(function(x){return x.id===id});
@@ -2038,12 +2087,23 @@ function delInv(id){
   logAct('Factuur '+iv.ref+' verwijderd');saveData();toast('Factuur verwijderd');go(VIEW);
 }
 var EDITLINES=[];
+
+function offToInvoice(id){
+  var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;
+  if(!confirm('Offerte '+iv.ref+' omzetten naar een factuur?'))return;
+  iv.type='factuur';iv.ref=nextRef('factuur');iv.status='openstaand';iv.date=today();
+  logAct('Offerte omgezet naar factuur '+iv.ref);saveData();closeM();toast('Factuur '+iv.ref+' aangemaakt');go(VIEW);
+}
+
 function mInvoice(id){
   var iv=id?DATA.invoices.find(function(x){return x.id===id}):null;
   EDITLINES=iv?iv.lines.map(function(l){return{d:l.d,q:l.q,p:l.p}}):[{d:'',q:1,p:0}];
   openM(id?'Factuur bewerken':'Nieuwe factuur',
-  '<div class="frow"><div class="fgroup"><label>Factuurnummer *</label><input id="i_ref" value="'+esc(iv?iv.ref:nextRef())+'"></div>'+
-  '<div class="fgroup"><label>Klant *</label><select id="i_cust">'+DATA.customers.map(function(c){return '<option value="'+c.id+'" '+(iv&&iv.customerId===c.id?'selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Type</label><select id="i_type" onchange="document.getElementById(\\'i_ref\\').value=this.value===\\'offerte\\'?nextRef(\\'offerte\\'):nextRef(\\'factuur\\')">'+['factuur','offerte'].map(function(t){return '<option value="'+t+'" '+(iv&&iv.type===t?'selected':(!iv&&t==='factuur'?'selected':''))+'>'+(t==='offerte'?'Offerte':'Factuur')+'</option>'}).join('')+'</select></div>'+
+  '<div class="fgroup"><label>Nummer *</label><input id="i_ref" value="'+esc(iv?iv.ref:nextRef('factuur'))+'"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Klant *</label><select id="i_cust">'+DATA.customers.map(function(c){return '<option value="'+c.id+'" '+(iv&&iv.customerId===c.id?'selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="fgroup"><label>Uw referentie (optioneel)</label><input id="i_yourref" value="'+esc(iv&&iv.yourref?iv.yourref:'')+'" placeholder="bestelbon, dossier..."></div></div>'+
+  '<div class="fgroup"><label>Taal van het document</label><select id="i_lang">'+[['nl','Nederlands'],['en','Engels'],['fr','Frans']].map(function(o){var cur=(iv&&iv.lang)?iv.lang:coCfg().deflang;return '<option value="'+o[0]+'" '+(cur===o[0]?'selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
   '<div class="frow"><div class="fgroup"><label>Factuurdatum</label><input id="i_date" type="date" value="'+(iv?iv.date:today())+'"></div>'+
   '<div class="fgroup"><label>Vervaldatum</label><input id="i_due" type="date" value="'+(iv?iv.due:'')+'"></div></div>'+
   '<div class="fgroup"><label>Status</label><select id="i_status">'+['concept','openstaand','betaald'].map(function(s){return '<option '+(iv&&iv.status===s?'selected':(!iv&&s==='openstaand'?'selected':''))+'>'+s+'</option>'}).join('')+'</select></div>'+
@@ -2075,11 +2135,104 @@ function saveInvoice(id){
   if(!ref){toast('Factuurnummer is verplicht',true);return}
   var lines=EDITLINES.filter(function(l){return l.d.trim()||l.p});
   if(!lines.length){toast('Voeg minstens één factuurlijn toe',true);return}
-  var obj={ref:ref,customerId:document.getElementById('i_cust').value,date:document.getElementById('i_date').value,
+  var obj={ref:ref,type:(document.getElementById('i_type')||{value:'factuur'}).value,yourref:(document.getElementById('i_yourref')||{value:''}).value.trim(),lang:(document.getElementById('i_lang')||{value:'nl'}).value,customerId:document.getElementById('i_cust').value,date:document.getElementById('i_date').value,
     due:document.getElementById('i_due').value,status:document.getElementById('i_status').value,lines:lines,note:document.getElementById('i_note').value.trim()};
   if(id){var iv=DATA.invoices.find(function(x){return x.id===id});Object.assign(iv,obj);logAct('Factuur '+ref+' bijgewerkt')}
   else{obj.id=nid('inv');obj.paidDate=obj.status==='betaald'?today():null;DATA.invoices.push(obj);logAct('Nieuwe factuur '+ref+' aangemaakt')}
   saveData();closeM();toast('Factuur opgeslagen');go(VIEW);
+}
+
+
+/* ============ PDF-GENERATOR (factuur/offerte) ============ */
+function invPdf(id){
+  var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;
+  var co=coCfg();var c=customer(iv.customerId)||{};
+  var isOff=(iv.type==='offerte');
+  var L=iv.lang||co.deflang||'nl';
+  var T={
+    nl:{factuur:'FACTUUR',offerte:'OFFERTE',datum:'Datum',vervalt:'Vervaldatum',geldig:'Geldig tot',uwref:'Uw ref',van:'Van',factVoor:'Factuur voor',offVoor:'Offerte voor',btwNr:'BTW',oms:'Omschrijving',aantal:'Aantal',prijs:'Prijs',bedrag:'Bedrag',subtot:'Subtotaal excl. btw',btw:'BTW 21%',tebet:'Te betalen',totaal:'Totaal',
+      payOver:function(t,ib,bic,ref){return 'Gelieve <b>'+t+'</b> te storten op <b>'+ib+'</b>'+(bic?' (BIC '+bic+')':'')+' met vermelding <b>'+ref+'</b>.';},
+      payCash:function(t){return 'Te betalen: <b>'+t+'</b>, contant bij oplevering.';},
+      payOther:function(t){return 'Te betalen: <b>'+t+'</b>. Betaalinstructies worden apart bezorgd.';},
+      offTekst:function(dt){return 'Deze offerte is vrijblijvend'+(dt?' en geldig tot '+dt:'')+'. Akkoord? Antwoord op deze mail of teken voor akkoord.';}},
+    en:{factuur:'INVOICE',offerte:'QUOTE',datum:'Date',vervalt:'Due date',geldig:'Valid until',uwref:'Your ref',van:'From',factVoor:'Invoice to',offVoor:'Quote for',btwNr:'VAT',oms:'Description',aantal:'Qty',prijs:'Price',bedrag:'Amount',subtot:'Subtotal excl. VAT',btw:'VAT 21%',tebet:'Amount due',totaal:'Total',
+      payOver:function(t,ib,bic,ref){return 'Please transfer <b>'+t+'</b> to <b>'+ib+'</b>'+(bic?' (BIC '+bic+')':'')+' with reference <b>'+ref+'</b>.';},
+      payCash:function(t){return 'Amount due: <b>'+t+'</b>, cash on delivery.';},
+      payOther:function(t){return 'Amount due: <b>'+t+'</b>. Payment instructions will be provided separately.';},
+      offTekst:function(dt){return 'This quote is without obligation'+(dt?' and valid until '+dt:'')+'. Agreed? Reply to this email or sign to approve.';}},
+    fr:{factuur:'FACTURE',offerte:'DEVIS',datum:'Date',vervalt:'Date d\\'\\u00e9ch\\u00e9ance',geldig:'Valable jusqu\\'au',uwref:'Votre r\\u00e9f',van:'De',factVoor:'Facturer \\u00e0',offVoor:'Devis pour',btwNr:'TVA',oms:'Description',aantal:'Qt\\u00e9',prijs:'Prix',bedrag:'Montant',subtot:'Sous-total hors TVA',btw:'TVA 21%',tebet:'\\u00c0 payer',totaal:'Total',
+      payOver:function(t,ib,bic,ref){return 'Veuillez virer <b>'+t+'</b> sur <b>'+ib+'</b>'+(bic?' (BIC '+bic+')':'')+' avec la communication <b>'+ref+'</b>.';},
+      payCash:function(t){return '\\u00c0 payer\\u00a0: <b>'+t+'</b>, en esp\\u00e8ces \\u00e0 la livraison.';},
+      payOther:function(t){return '\\u00c0 payer\\u00a0: <b>'+t+'</b>. Les instructions de paiement seront fournies s\\u00e9par\\u00e9ment.';},
+      offTekst:function(dt){return 'Ce devis est sans engagement'+(dt?' et valable jusqu\\'au '+dt:'')+'. D\\'accord\\u00a0? R\\u00e9pondez \\u00e0 cet e-mail ou signez pour accord.';}}
+  }[L]||{};
+  var titel=isOff?T.offerte:T.factuur;
+  var sub=invSub(iv),vat=invVat(iv),tot=invTot(iv);
+  function row(l){return '<tr><td>'+esc(l.d)+'</td><td class="r">'+l.q+'</td><td class="r">'+eur(l.p)+'</td><td class="r">'+eur(Math.round(l.q*l.p*100)/100)+'</td></tr>';}
+  var coAddr=[co.address,(co.zip+' '+co.city).trim()].filter(Boolean).join(', ');
+  var cAddr=esc(c.address||'');
+  // betaalblok volgens gekozen methode
+  var payBlock='';
+  if(!isOff){
+    var pay=co.pay||'overschrijving';
+    if(pay==='overschrijving'&&co.iban){payBlock='<div class="pay">'+T.payOver(eur(tot),esc(co.iban),esc(co.bic||''),esc(iv.ref))+'</div>';}
+    else if(pay==='contant'){payBlock='<div class="pay">'+T.payCash(eur(tot))+'</div>';}
+    else if(pay==='anders'){payBlock='<div class="pay">'+T.payOther(eur(tot))+'</div>';}
+    else if(co.iban){payBlock='<div class="pay">'+T.payOver(eur(tot),esc(co.iban),esc(co.bic||''),esc(iv.ref))+'</div>';}
+  }
+  var html='<!DOCTYPE html><html lang="'+L+'"><head><meta charset="utf-8"><title>'+titel+' '+esc(iv.ref)+'</title><style>'+
+  '@page{size:A4;margin:18mm 16mm}*{margin:0;padding:0;box-sizing:border-box}'+
+  'body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a2e;font-size:13px;line-height:1.5}'+
+  '.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #E91E7B;padding-bottom:16px;margin-bottom:24px}'+
+  '.brand{font-size:26px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(100deg,#F97C1F,#E91E7B);-webkit-background-clip:text;background-clip:text;color:transparent}'+
+  '.co-meta{font-size:11px;color:#555;margin-top:6px;line-height:1.6}'+
+  '.doc-meta{text-align:right}.doc-meta h1{font-size:22px;letter-spacing:2px;color:#E91E7B;margin-bottom:8px}'+
+  '.doc-meta .num{font-size:15px;font-weight:700}.doc-meta .dt{font-size:11px;color:#555;margin-top:4px}'+
+  '.parties{display:flex;justify-content:space-between;margin-bottom:24px;gap:20px}'+
+  '.party{flex:1}.party .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:4px}'+
+  '.party .nm{font-weight:700;font-size:14px}.party .ln{font-size:12px;color:#444;line-height:1.6}'+
+  'table.items{width:100%;border-collapse:collapse;margin-bottom:20px}'+
+  'table.items th{background:#f4f4f8;text-align:left;padding:9px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#666;border-bottom:2px solid #E91E7B}'+
+  'table.items th.r,table.items td.r{text-align:right}'+
+  'table.items td{padding:9px 10px;border-bottom:1px solid #eee;vertical-align:top}'+
+  '.totals{width:270px;margin-left:auto}.totals .tr{display:flex;justify-content:space-between;padding:6px 10px}'+
+  '.totals .tr.big{border-top:2px solid #E91E7B;margin-top:4px;font-size:17px;font-weight:800;color:#E91E7B}'+
+  '.pay{margin-top:26px;background:#f9f9fc;border-radius:10px;padding:16px 18px;font-size:12px;line-height:1.7}'+
+  '.pay b{color:#E91E7B}.terms{margin-top:16px;font-size:10.5px;color:#888;line-height:1.6}'+
+  '.foot{margin-top:30px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center}'+
+  '@media print{.noprint{display:none}}'+
+  '.noprint{position:fixed;top:12px;right:12px;display:flex;gap:8px}'+
+  '.noprint button{padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(100deg,#F97C1F,#E91E7B);color:#fff;font-weight:700;cursor:pointer;font-size:13px}'+
+  '.noprint button.alt{background:#eee;color:#333}'+
+  '</style></head><body>'+
+  '<div class="noprint"><button onclick="window.print()">\\ud83d\\udcc4 PDF</button><button class="alt" onclick="window.close()">\\u2715</button></div>'+
+  '<div class="head"><div><div class="brand">'+esc(co.name||'Marleo')+'</div>'+
+    '<div class="co-meta">'+esc(co.legal||'')+(coAddr?'<br>'+esc(coAddr):'')+
+    (co.vat?'<br>'+T.btwNr+' '+esc(co.vat):'')+(co.email?'<br>'+esc(co.email):'')+(co.phone?' \\u00b7 '+esc(co.phone):'')+
+    (co.website?'<br>'+esc(co.website):'')+'</div></div>'+
+    '<div class="doc-meta"><h1>'+titel+'</h1><div class="num">'+esc(iv.ref)+'</div>'+
+    '<div class="dt">'+T.datum+': '+fmtD(iv.date)+'</div>'+
+    (isOff?(iv.due?'<div class="dt">'+T.geldig+': '+fmtD(iv.due)+'</div>':''):(iv.due?'<div class="dt">'+T.vervalt+': '+fmtD(iv.due)+'</div>':''))+
+    (iv.yourref?'<div class="dt">'+T.uwref+': '+esc(iv.yourref)+'</div>':'')+'</div></div>'+
+  '<div class="parties"><div class="party"><div class="lbl">'+T.van+'</div><div class="nm">'+esc(co.legal||co.name||'Marleo')+'</div>'+
+    '<div class="ln">'+esc(coAddr)+(co.vat?'<br>'+T.btwNr+' '+esc(co.vat):'')+'</div></div>'+
+    '<div class="party"><div class="lbl">'+(isOff?T.offVoor:T.factVoor)+'</div><div class="nm">'+esc(c.name||'')+'</div>'+
+    '<div class="ln">'+cAddr+(c.vat?'<br>'+T.btwNr+' '+esc(c.vat):'')+(c.email?'<br>'+esc(c.email):'')+'</div></div></div>'+
+  '<table class="items"><thead><tr><th>'+T.oms+'</th><th class="r">'+T.aantal+'</th><th class="r">'+T.prijs+'</th><th class="r">'+T.bedrag+'</th></tr></thead><tbody>'+
+    iv.lines.map(row).join('')+'</tbody></table>'+
+  '<div class="totals"><div class="tr"><span>'+T.subtot+'</span><b>'+eur(sub)+'</b></div>'+
+    '<div class="tr"><span>'+T.btw+'</span><b>'+eur(vat)+'</b></div>'+
+    '<div class="tr big"><span>'+(isOff?T.totaal:T.tebet)+'</span><b>'+eur(tot)+'</b></div></div>'+
+  (iv.note?'<div class="pay" style="background:#fff;border:1px solid #eee">'+esc(iv.note)+'</div>':'')+
+  payBlock+
+  (isOff?'<div class="pay">'+T.offTekst(iv.due?fmtD(iv.due):'')+'</div>':'')+
+  (co.terms?'<div class="terms">'+esc(co.terms)+'</div>':'')+
+  '<div class="foot">'+esc(co.legal||co.name||'Marleo')+(co.vat?' \\u00b7 '+esc(co.vat):'')+(co.iban?' \\u00b7 '+esc(co.iban):'')+'</div>'+
+  '</body></html>';
+  var w=window.open('','_blank');
+  if(!w){toast('Sta pop-ups toe om de PDF te maken',true);return;}
+  w.document.write(html);w.document.close();
+  logAct('PDF gemaakt: '+titel+' '+iv.ref);
 }
 
 /* ============ UITGAVEN ============ */
@@ -2349,6 +2502,104 @@ function toggleTask(id){var t=DATA.tasks.find(function(x){return x.id===id});t.d
 function delTask(id){DATA.tasks=DATA.tasks.filter(function(x){return x.id!==id});saveData();go('tasks')}
 
 /* ============ NOTITIES ============ */
+
+/* ============ DOCUMENTEN / DIENSTENBROCHURES ============ */
+var MARLEO_DIENSTEN=[
+  {id:'managed-it',icon:'\\uD83D\\uDEE0\\uFE0F',titel:'Managed IT & Support',pitch:'Uw volledige IT-omgeving beheerd en bewaakt, zodat u zich op uw zaak kunt richten.',
+   intro:'Bij Marleo nemen we uw volledige IT uit handen. Geen zorgen meer over updates, back-ups of storingen, wij houden alles draaiend en grijpen in nog voor u het merkt.',
+   punten:[['Proactieve monitoring','We bewaken uw systemen 24/7 en lossen problemen op voor ze uw werk verstoren.'],
+     ['Snelle helpdesk','E\\u00e9n aanspreekpunt voor al uw IT-vragen, met korte reactietijden en heldere taal.'],
+     ['Onderhoud & updates','Beveiligingsupdates, back-ups en onderhoud gebeuren automatisch en op de achtergrond.'],
+     ['Vaste maandprijs','Voorspelbare kosten per gebruiker, zonder verrassingen achteraf.']],
+   slot:'Klaar om uw IT zorgeloos te maken? Vraag een gratis IT-doorlichting aan.'},
+  {id:'cloud-365',icon:'\\u2601\\uFE0F',titel:'Cloud & Microsoft 365',pitch:'Werk veilig samen, waar en wanneer u wilt, met een cloud die met u meegroeit.',
+   intro:'We brengen uw bestanden, e-mail en samenwerking naar de cloud met Microsoft 365. Altijd de laatste versie, altijd en overal toegankelijk, en veilig opgeslagen.',
+   punten:[['Microsoft 365 op maat','Van e-mail en Teams tot SharePoint, ingericht zoals uw team werkt.'],
+     ['Veilige migratie','We verhuizen uw data zonder gegevensverlies en zonder stilstand van uw zaak.'],
+     ['Samenwerken zonder grenzen','Documenten delen en samen bewerken, op kantoor of onderweg.'],
+     ['Automatische back-up','Uw cloudgegevens worden apart bewaard, zodat u nooit iets kwijt bent.']],
+   slot:'Wilt u overstappen naar de cloud? We begeleiden u van A tot Z.'},
+  {id:'cybersecurity',icon:'\\uD83D\\uDD10',titel:'Cybersecurity',pitch:'Bescherm uw bedrijf tegen digitale dreigingen met beveiliging die past bij een KMO.',
+   intro:'Cyberaanvallen treffen niet alleen grote bedrijven. Marleo beveiligt uw systemen, data en medewerkers met maatregelen die betaalbaar en begrijpelijk zijn.',
+   punten:[['Beveiligingsaudit','We brengen uw kwetsbaarheden in kaart en maken een helder actieplan.'],
+     ['Bescherming tegen dreigingen','Antivirus, firewalls en e-mailbeveiliging die echt werken.'],
+     ['Bewustzijn bij uw team','We trainen uw medewerkers om phishing en oplichting te herkennen.'],
+     ['Herstelplan','Mocht er toch iets gebeuren, dan bent u snel weer online dankzij een duidelijk noodplan.']],
+   slot:'Benieuwd hoe veilig u vandaag bent? Vraag een gratis beveiligingsscan aan.'},
+  {id:'web-dev',icon:'\\uD83D\\uDCBB',titel:'Web & Development',pitch:'Websites en toepassingen op maat die er professioneel uitzien en gewoon werken.',
+   intro:'Van een verzorgde bedrijfswebsite tot maatwerk-software: Marleo bouwt digitale oplossingen die uw zaak vooruithelpen, met oog voor design en gebruiksgemak.',
+   punten:[['Websites op maat','Snelle, moderne websites die op elk scherm werken en klanten overtuigen.'],
+     ['Maatwerk-toepassingen','Software die exact doet wat uw bedrijf nodig heeft, geen overbodige franjes.'],
+     ['Onderhoud & hosting','We houden uw website veilig, snel en up-to-date, zodat u er niet naar hoeft om te kijken.'],
+     ['Zichtbaar online','Van vindbaarheid in Google tot een vlotte gebruikerservaring, we denken met u mee.']],
+   slot:'Een idee voor een website of toepassing? Laten we het samen uitwerken.'}
+];
+
+function rDocuments(){
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Documenten</h2><div class="sub">Dienstenbrochures in de Marleo-huisstijl, klaar om te delen met prospects en klanten</div></div></div>'+
+  '<div class="hint" style="margin-bottom:16px">Elke brochure opent als een verzorgde PDF die je kunt opslaan, printen of meemailen. Handig als bijlage bij een offerte of om achter te laten na een gesprek.</div>'+
+  '<div class="docgrid">'+
+  MARLEO_DIENSTEN.map(function(d){
+    return '<div class="doccard"><div class="docicon">'+d.icon+'</div>'+
+    '<h3>'+esc(d.titel)+'</h3><p>'+esc(d.pitch)+'</p>'+
+    '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn sm" onclick="dienstPdf(\\''+d.id+'\\')">\\uD83D\\uDCC4 Open brochure</button></div></div>';
+  }).join('')+
+  '</div>'+
+  '<div class="panelbox" style="margin-top:18px"><h3>\\uD83D\\uDCE6 Alles-in-\\u00e9\\u00e9n</h3>'+
+  '<p class="hint" style="margin-bottom:12px">Wil je alle diensten in \\u00e9\\u00e9n document? Open de volledige dienstenfolder met alle vier de diensten na elkaar.</p>'+
+  '<button class="btn" onclick="dienstPdf(\\'alles\\')">\\uD83D\\uDCC4 Volledige dienstenfolder</button></div>';
+}
+
+function dienstBrochureHTML(d,co){
+  return '<div class="brochure">'+
+    '<div class="bhead"><div class="blogo"><svg viewBox="0 0 40 44" width="34" height="37"><path d="M20 2 L36 11 L36 33 L20 42 L4 33 L4 11 Z" fill="none" stroke="url(#g)" stroke-width="2.5"/><text x="20" y="27" text-anchor="middle" font-size="15" font-family="monospace" fill="url(#g)">&lt;/&gt;</text></svg><span class="bword">'+esc(co.name||'Marleo')+'</span></div>'+
+    '<div class="btag">'+esc(co.website||'marleo.tech')+'</div></div>'+
+    '<div class="bhero"><div class="bicon">'+d.icon+'</div><h1>'+esc(d.titel)+'</h1><p class="bpitch">'+esc(d.pitch)+'</p></div>'+
+    '<p class="bintro">'+esc(d.intro)+'</p>'+
+    '<div class="bpunten">'+d.punten.map(function(p){return '<div class="bpunt"><div class="bpt">'+esc(p[0])+'</div><div class="bpd">'+esc(p[1])+'</div></div>';}).join('')+'</div>'+
+    '<div class="bcta"><div class="bctatext">'+esc(d.slot)+'</div><div class="bctacontact">'+esc(co.email||'info@marleo.tech')+(co.phone?'  \\u00b7  '+esc(co.phone):'')+'</div></div>'+
+  '</div>';
+}
+
+function dienstPdf(which){
+  var co=coCfg();
+  var lijst=which==='alles'?MARLEO_DIENSTEN:MARLEO_DIENSTEN.filter(function(d){return d.id===which});
+  if(!lijst.length)return;
+  var css='@page{size:A4;margin:0}*{margin:0;padding:0;box-sizing:border-box}'+
+  'body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#F4F4F8;background:#08080E}'+
+  '.brochure{width:210mm;min-height:297mm;padding:22mm 20mm;background:#08080E;position:relative;overflow:hidden;page-break-after:always}'+
+  '.brochure:last-child{page-break-after:auto}'+
+  '.bhead{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:44px}'+
+  '.blogo{display:flex;align-items:center;gap:12px}.bword{font-size:22px;font-weight:800;letter-spacing:-.5px}'+
+  '.btag{font-family:monospace;font-size:12px;color:#9C9CB2;letter-spacing:.1em}'+
+  '.bhero{margin-bottom:36px}.bicon{font-size:52px;margin-bottom:18px}'+
+  '.bhero h1{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px;background:linear-gradient(100deg,#F97C1F,#EF4056 50%,#E91E7B);-webkit-background-clip:text;background-clip:text;color:transparent}'+
+  '.bpitch{font-size:17px;color:#C8C8D4;line-height:1.5;max-width:80%}'+
+  '.bintro{font-size:14px;color:#9C9CB2;line-height:1.75;margin-bottom:38px;max-width:88%}'+
+  '.bpunten{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:44px}'+
+  '.bpunt{background:#12121D;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px}'+
+  '.bpt{font-size:16px;font-weight:700;margin-bottom:8px;color:#fff}'+
+  '.bpt::before{content:"";display:inline-block;width:22px;height:3px;background:linear-gradient(100deg,#F97C1F,#E91E7B);border-radius:2px;margin-right:9px;vertical-align:middle}'+
+  '.bpd{font-size:13px;color:#9C9CB2;line-height:1.65}'+
+  '.bcta{background:linear-gradient(100deg,rgba(249,124,31,.14),rgba(233,30,123,.14));border:1px solid rgba(233,30,123,.35);border-radius:18px;padding:28px 30px;position:absolute;bottom:22mm;left:20mm;right:20mm}'+
+  '.bctatext{font-size:17px;font-weight:700;margin-bottom:8px}'+
+  '.bctacontact{font-size:14px;color:#F97C1F;font-weight:600}';
+  var svgdef='<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F97C1F"/><stop offset=".5" stop-color="#EF4056"/><stop offset="1" stop-color="#E91E7B"/></linearGradient></defs></svg>';
+  var html='<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8"><title>Marleo, '+esc(lijst[0].titel)+'</title><style>'+css+
+  '.noprint{position:fixed;top:12px;right:12px;display:flex;gap:8px;z-index:10}'+
+  '.noprint button{padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(100deg,#F97C1F,#E91E7B);color:#fff;font-weight:700;cursor:pointer;font-size:13px}'+
+  '.noprint button.alt{background:#333;color:#eee}@media print{.noprint{display:none}}'+
+  '</style></head><body>'+svgdef+
+  '<div class="noprint"><button onclick="window.print()">\\uD83D\\uDCC4 Opslaan als PDF</button><button class="alt" onclick="window.close()">\\u2715</button></div>'+
+  lijst.map(function(d){return dienstBrochureHTML(d,co);}).join('')+
+  '</body></html>';
+  var w=window.open('','_blank');
+  if(!w){toast('Sta pop-ups toe om de brochure te maken',true);return;}
+  w.document.write(html);w.document.close();
+  logAct('Brochure geopend: '+(which==='alles'?'volledige folder':lijst[0].titel));
+}
+
 function rNotes(){
   var list=DATA.notes.slice().sort(function(a,b){return b.t-a.t});
   main().innerHTML=
@@ -2384,6 +2635,24 @@ function rSettings(){
  '<button class="btn sm" onclick="atPull()">\\u2b07 Import uit Airtable</button>'+
  '<button class="btn sm" onclick="atPush()">\\u2b06 Push statussen</button></div></div>'})()+
   '<div class="topbar"><div><h2>Instellingen</h2><div class="sub">Account, klantentoegang en back-ups</div></div></div>'+
+  (function(){var co=coCfg();return '<div class="panelbox"><h3>\\ud83c\\udfe2 Bedrijfsgegevens (voor facturen &amp; offertes)</h3>'+
+   '<div class="hint" style="margin-bottom:10px">Deze gegevens komen bovenaan elke factuur en offerte. In Belgi\\u00eb zijn bedrijfsnaam, adres en BTW-nummer wettelijk verplicht.</div>'+
+   '<div class="frow"><div class="fgroup"><label>Handelsnaam</label><input id="co_name" value="'+esc(co.name)+'" onchange="coCfg().name=this.value;saveData()"></div>'+
+   '<div class="fgroup"><label>Juridische naam</label><input id="co_legal" value="'+esc(co.legal)+'" onchange="coCfg().legal=this.value;saveData()" placeholder="bv. Marleo BV"></div></div>'+
+   '<div class="frow"><div class="fgroup"><label>BTW-nummer *</label><input id="co_vat" value="'+esc(co.vat)+'" onchange="coCfg().vat=this.value;saveData()"></div>'+
+   '<div class="fgroup"><label>Adres (straat + nr)</label><input id="co_addr" value="'+esc(co.address)+'" onchange="coCfg().address=this.value;saveData()"></div></div>'+
+   '<div class="frow"><div class="fgroup"><label>Postcode</label><input id="co_zip" value="'+esc(co.zip)+'" onchange="coCfg().zip=this.value;saveData()"></div>'+
+   '<div class="fgroup"><label>Gemeente</label><input id="co_city" value="'+esc(co.city)+'" onchange="coCfg().city=this.value;saveData()"></div></div>'+
+   '<div class="frow"><div class="fgroup"><label>E-mail</label><input id="co_mail" value="'+esc(co.email)+'" onchange="coCfg().email=this.value;saveData()"></div>'+
+   '<div class="fgroup"><label>Telefoon</label><input id="co_phone" value="'+esc(co.phone)+'" onchange="coCfg().phone=this.value;saveData()"></div></div>'+
+   '<div class="frow"><div class="fgroup"><label>IBAN</label><input id="co_iban" value="'+esc(co.iban)+'" onchange="coCfg().iban=this.value;saveData()" placeholder="BE00 0000 0000 0000"></div>'+
+   '<div class="fgroup"><label>BIC</label><input id="co_bic" value="'+esc(co.bic)+'" onchange="coCfg().bic=this.value;saveData()"></div></div>'+
+   '<div class="frow"><div class="fgroup"><label>Standaard betaalmethode</label><select id="co_pay" onchange="coCfg().pay=this.value;saveData()">'+
+   [['overschrijving','Overschrijving (IBAN)'],['contant','Contant bij oplevering'],['anders','Anders / apart bezorgd']].map(function(o){return '<option value="'+o[0]+'" '+(co.pay===o[0]?'selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
+   '<div class="fgroup"><label>Standaardtaal facturen</label><select id="co_deflang" onchange="coCfg().deflang=this.value;saveData()">'+
+   [['nl','Nederlands'],['en','Engels'],['fr','Frans']].map(function(o){return '<option value="'+o[0]+'" '+(co.deflang===o[0]?'selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div></div>'+
+   '<div class="fgroup"><label>Betalingsvoorwaarden (onderaan factuur)</label><textarea id="co_terms" onchange="coCfg().terms=this.value;saveData()">'+esc(co.terms)+'</textarea></div>'+
+   '<button class="btn sm" onclick="toast(\\'Bedrijfsgegevens opgeslagen\\')">Opslaan</button></div>';})()+
   '<div class="panelbox"><h3>Wachtwoord wijzigen</h3>'+
   '<div class="frow"><div class="fgroup"><label>Nieuw wachtwoord</label><input id="s_pw1" type="password"></div>'+
   '<div class="fgroup"><label>Herhaal</label><input id="s_pw2" type="password"></div></div>'+
