@@ -1142,11 +1142,33 @@ function showToast(msg){
 }
 
 /* contact form */
+/* Webhook-URL: vervang door je n8n Production-URL na import van workflow 4.
+   Laat leeg om terug te vallen op een mailto-link. */
+var MARLEO_WEBHOOK="https://marleotech.app.n8n.cloud/webhook/marleo-aanvraag";
 document.getElementById('contactForm').addEventListener('submit',function(e){
   e.preventDefault();
   var n=document.getElementById('fname').value.trim(),m=document.getElementById('fmail').value.trim(),msg=document.getElementById('fmsg').value.trim();
+  var comp=(document.getElementById('fcomp')||{}).value||'',topic=(document.getElementById('ftopic')||{}).value||'';
   if(!n||!m||!msg){showToast(t('f.invalid'));return}
-  this.reset();showToast(t('f.sent'));
+  var form=this,btn=form.querySelector('button[type=submit]');
+  var payload={naam:n,email:m,bedrijf:comp,onderwerp:topic,bericht:msg,bron:'website'};
+  if(MARLEO_WEBHOOK){
+    if(btn){btn.disabled=true;}
+    fetch(MARLEO_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){if(!r.ok)throw new Error('status '+r.status);form.reset();showToast(t('f.sent'));})
+      .catch(function(){
+        // fallback: open mailclient zodat de aanvraag nooit verloren gaat
+        var body=encodeURIComponent('Naam: '+n+'\nBedrijf: '+comp+'\nE-mail: '+m+'\nOnderwerp: '+topic+'\n\n'+msg);
+        window.location.href='mailto:info@marleo.tech?subject='+encodeURIComponent('Website-aanvraag van '+n)+'&body='+body;
+        form.reset();showToast(t('f.sent'));
+      })
+      .finally(function(){if(btn){btn.disabled=false;}});
+  }else{
+    // nog geen webhook ingesteld: open mailclient
+    var body=encodeURIComponent('Naam: '+n+'\nBedrijf: '+comp+'\nE-mail: '+m+'\nOnderwerp: '+topic+'\n\n'+msg);
+    window.location.href='mailto:info@marleo.tech?subject='+encodeURIComponent('Website-aanvraag van '+n)+'&body='+body;
+    form.reset();showToast(t('f.sent'));
+  }
 });
 
 /* ================= CHAT ================= */
@@ -1620,6 +1642,14 @@ tbody tr:last-child td{border-bottom:none}
 
 .cbadge{display:inline-block;font-size:.8rem;vertical-align:middle;margin-left:2px}
 .dnext{font-size:.72rem;color:var(--muted);margin-top:4px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.custhero{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+.custav{width:64px;height:64px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-family:var(--disp);font-weight:700;font-size:1.8rem;color:#fff;flex-shrink:0}
+.custtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.custkpis{display:flex;gap:22px;flex-wrap:wrap}
+.custkpis .val{font-family:var(--disp);font-size:1.4rem;font-weight:700}
+.custcols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:760px){.custcols{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1822,7 +1852,7 @@ function buildMenu(){
 function go(v){
   VIEW=v;
   document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
-  var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,tasks:rTasks,notes:rNotes,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
+  var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
   (R[v]||rDash)();window.scrollTo(0,0);
   if(typeof updateSyncBadge==='function')setTimeout(updateSyncBadge,50);
 }
@@ -1877,6 +1907,22 @@ function rDash(){
     '<div><div class="val" style="font-size:1.5rem;font-family:var(--disp);color:#86EFAC">'+(st.added||0)+'</div><div class="hint">bij laatste sync</div></div>'+
     '<div><div class="val" style="font-size:1.5rem;font-family:var(--disp)">'+DATA.deals.length+'</div><div class="hint">leads totaal in pipeline</div></div>'+
     '</div><div class="hint" style="margin-top:10px">Laatste sync met Airtable: '+fmtSince(DATA.lastSync)+'. n8n & Apify voeden Airtable automatisch, open of ververs om nieuwe leads te zien.</div></div>';
+  })()+
+  (function(){
+    // Website-aanvragen: leads met Kanaal 'Website' die nog niet gecontacteerd zijn
+    var web=DATA.deals.filter(function(d){return (d.kanaal==='Website'||(d.cat||'').toLowerCase().indexOf('website-aanvraag')>=0)&&d.stage!=='gewonnen'&&d.stage!=='verloren'});
+    var nieuw=web.filter(function(d){return d.stage==='nieuw'||!d.laatstContact});
+    if(!web.length) return '';
+    return '<div class="panelbox" style="border-color:rgba(249,124,31,.4)"><h3>\\ud83d\\udce9 Nieuwe aanvragen via de site'+(nieuw.length?' <span class="pill hoog" style="float:right">'+nieuw.length+' nieuw</span>':'')+'</h3>'+
+    '<div style="overflow-x:auto;margin-top:8px"><table><tbody>'+
+    web.slice(0,6).map(function(d){
+      return '<tr style="cursor:pointer" onclick="vDeal(\\''+d.id+'\\')">'+
+      '<td><b>'+esc(d.naam)+'</b>'+(d.stage==='nieuw'?' <span class="pill hoog">nieuw</span>':'')+'</td>'+
+      '<td style="font-size:.82rem">'+esc(d.email||d.tel||'')+'</td>'+
+      '<td style="font-size:.82rem;color:var(--muted)">'+esc((d.note||'').slice(0,50))+'</td>'+
+      '<td><span class="pill bezig">'+stageLabel(d.stage)+'</span></td></tr>';
+    }).join('')+'</tbody></table></div>'+
+    (web.length>6?'<div class="hint" style="margin-top:8px">+'+(web.length-6)+' meer in de pipeline</div>':'')+'</div>';
   })()+
   (function(){
     var today=new Date().toISOString().slice(0,10);
@@ -2164,22 +2210,81 @@ function rCustomers(){
   var s=document.getElementById('custSearch');
   s.addEventListener('input',function(){CUSTQ=s.value;rCustomers();var n=document.getElementById('custSearch');n.focus();n.setSelectionRange(n.value.length,n.value.length)});
 }
-function vCustomer(id){
-  var c=customer(id);if(!c)return;
+var CUSTVIEW=null;
+function vCustomer(id){CUSTVIEW=id;go('custpage');}
+function rCustPage(){
+  var id=CUSTVIEW;var c=customer(id);
+  if(!c){go('customers');return;}
   var invs=DATA.invoices.filter(function(i){return i.customerId===id}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});
   var om=invs.reduce(function(s,i){return s+invSub(i)},0);
-  openM(c.name,
-  '<div class="detail-grid">'+
-  '<div><div class="lbl">Adres</div>'+esc(c.address||', ')+'</div>'+
-  '<div><div class="lbl">BTW-nummer</div>'+(c.vat?esc(c.vat):'<span style="color:#FCD34D">nog in te vullen</span>')+'</div>'+
-  '<div><div class="lbl">Telefoon</div>'+esc(c.phone||', ')+'</div>'+
-  '<div><div class="lbl">E-mail</div>'+esc(c.email||', ')+'</div>'+
-  '<div><div class="lbl">Totale omzet</div><b class="gtext">'+eur(om)+'</b></div>'+
-  '<div><div class="lbl">Facturen</div>'+invs.length+'</div></div>'+
-  (c.note?'<div class="notecard"><div class="meta">Notitie</div><p>'+esc(c.note)+'</p></div>':'')+
-  '<h3 style="font-family:var(--disp);font-size:.95rem;margin:16px 0 10px">Facturen</h3>'+invTable(invs),
-  '<button class="btn subtle" onclick="closeM();mCustomer(\\''+id+'\\')">Bewerken</button><button class="btn" onclick="closeM();mInvoice()">+ Nieuwe factuur</button>',true);
+  var op=invs.filter(function(i){return invStatus(i)!=='betaald'&&i.status!=='concept'}).reduce(function(s,i){return s+invTot(i)},0);
+  var ctasks=DATA.tasks.filter(function(t){return t.customerId===id});
+  var opentasks=ctasks.filter(function(t){return !t.done});
+  var cnotes=DATA.notes.filter(function(n){return n.customerId===id});
+  var deal=DATA.deals.find(function(d){return d.customerId===id||d.naam.toLowerCase()===c.name.toLowerCase()});
+  var initiaal=c.name.charAt(0).toUpperCase();
+  main().innerHTML=
+  '<div class="topbar"><div style="display:flex;align-items:center;gap:8px"><button class="btn sm subtle" onclick="go(\\'customers\\')">\\u2190 Klanten</button></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="mCustomer(\\''+id+'\\')">\\u270E Bewerken</button><button class="btn" onclick="mInvoiceFor(\\''+id+'\\')">+ Nieuwe factuur</button></div></div>'+
+  // header-kaart
+  '<div class="custhero">'+
+    '<div class="custav">'+initiaal+'</div>'+
+    '<div style="flex:1;min-width:200px">'+
+      '<h2 style="margin:0">'+esc(c.name)+'</h2>'+
+      '<div class="custtags">'+(c.tags&&c.tags.length?c.tags.map(function(t){return '<span class="pill normaal">'+esc(t)+'</span>'}).join(''):'<span class="pill bezig">Klant</span>')+
+        (op>0?'<span class="pill hoog">\\u20ac open: '+eur(op)+'</span>':'')+'</div>'+
+    '</div>'+
+    '<div class="custkpis">'+
+      '<div><div class="val gtext">'+eur(om)+'</div><div class="hint">totale omzet</div></div>'+
+      '<div><div class="val">'+invs.length+'</div><div class="hint">facturen</div></div>'+
+      '<div><div class="val">'+opentasks.length+'</div><div class="hint">open taken</div></div>'+
+    '</div>'+
+  '</div>'+
+  // contactgegevens + snelacties
+  '<div class="custcols">'+
+    '<div class="panelbox"><h3>Contactgegevens</h3>'+
+      '<div class="detail-grid" style="margin-top:6px">'+
+      '<div><div class="lbl">Adres</div>'+esc(c.address||', ')+'</div>'+
+      '<div><div class="lbl">BTW-nummer</div>'+(c.vat?esc(c.vat):'<span style="color:#FCD34D">nog in te vullen</span>')+'</div>'+
+      '<div><div class="lbl">Telefoon</div>'+esc(c.phone||', ')+'</div>'+
+      '<div><div class="lbl">E-mail</div>'+esc(c.email||', ')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+       (c.phone?'<a class="btn sm subtle" href="tel:'+esc(c.phone)+'">\\ud83d\\udcde Bel</a>':'')+
+       (c.email?'<a class="btn sm subtle" href="mailto:'+esc(c.email)+'">\\u2709 Mail</a>':'')+
+       (c.phone?'<a class="btn sm subtle" href="https://wa.me/'+telDigits(c.phone)+'" target="_blank">\\ud83d\\udcac WhatsApp</a>':'')+
+      '</div>'+
+      (c.note?'<div class="notecard" style="margin-top:12px"><div class="meta">Notitie</div><p>'+esc(c.note)+'</p></div>':'')+
+    '</div>'+
+    // gekoppelde deal
+    (deal?'<div class="panelbox"><h3>Uit deal</h3>'+
+      '<div style="cursor:pointer" onclick="vDeal(\\''+deal.id+'\\')">'+
+      '<div class="detail-grid" style="margin-top:6px">'+
+      '<div><div class="lbl">Fase</div><span class="pill bezig">'+stageLabel(deal.stage)+'</span></div>'+
+      '<div><div class="lbl">Laatste contact</div>'+(deal.laatstContact?fmtD(deal.laatstContact):', ')+(deal.kanaal?' \\u00b7 '+esc(deal.kanaal):'')+'</div>'+
+      (deal.rating?'<div><div class="lbl">Rating</div>'+esc(String(deal.rating))+'\\u2605</div>':'')+
+      (deal.volgendeActie?'<div><div class="lbl">Volgende actie</div>'+esc(deal.volgendeActie)+'</div>':'')+
+      '</div></div>'+
+      '<button class="btn sm subtle" style="margin-top:10px" onclick="vDeal(\\''+deal.id+'\\')">Bekijk deal \\u2192</button>'+
+    '</div>':'')+
+  '</div>'+
+  // taken van deze klant
+  '<div class="panelbox"><h3>Taken <button class="btn sm" style="float:right" onclick="mTaskFor(\\''+id+'\\')">+ Taak</button></h3>'+
+  (ctasks.length?'<div style="overflow-x:auto;margin-top:6px"><table><tbody>'+ctasks.sort(function(a,b){return (a.done-b.done)||(a.due||'').localeCompare(b.due||'')}).map(function(t){
+    return '<tr><td style="width:30px"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" '+(t.done?'checked':'')+' onchange="toggleTaskStay(\\''+t.id+'\\')"></td>'+
+    '<td'+(t.done?' style="text-decoration:line-through;color:var(--muted)"':'')+'><b>'+esc(t.title)+'</b></td>'+
+    '<td>'+fmtD(t.due)+'</td><td><span class="pill '+(t.prio==='hoog'?'hoog':'normaal')+'">'+esc(t.prio)+'</span></td></tr>';
+  }).join('')+'</tbody></table></div>':'<div class="hint" style="margin-top:6px">Nog geen taken voor deze klant</div>')+'</div>'+
+  // facturen
+  '<div class="panelbox"><h3>Facturen</h3>'+(invs.length?invTable(invs):'<div class="hint" style="margin-top:6px">Nog geen facturen</div>')+'</div>'+
+  // notities
+  '<div class="panelbox"><h3>Notities <button class="btn sm" style="float:right" onclick="mNoteFor(\\''+id+'\\')">+ Notitie</button></h3>'+
+  (cnotes.length?cnotes.map(function(n){return '<div class="notecard"><div class="meta">'+new Date(n.t).toLocaleString('nl-BE')+'</div><p>'+esc(n.txt)+'</p></div>'}).join(''):'<div class="hint" style="margin-top:6px">Nog geen notities</div>')+'</div>';
 }
+function toggleTaskStay(id){var t=DATA.tasks.find(function(x){return x.id===id});if(t){t.done=!t.done;saveData()}rCustPage();}
+function mTaskFor(cid){mTask();setTimeout(function(){var s=document.getElementById('t_cust');if(s)s.value=cid;},100);}
+function mNoteFor(cid){mNote();setTimeout(function(){var s=document.getElementById('n_cust');if(s)s.value=cid;},100);}
+function mInvoiceFor(cid){mInvoice();setTimeout(function(){var s=document.getElementById('i_cust');if(s)s.value=cid;},250);}
 function mCustomer(id){
   var c=id?customer(id):null;
   openM(id?'Klant bewerken':'Nieuwe klant',
