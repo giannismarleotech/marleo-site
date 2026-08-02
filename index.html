@@ -530,6 +530,9 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
   // anders toont iOS de toestemmingsvraag niet.
   window.marleoEnablePush = async function(){
     window.__marleoPushLog = [];
+    // DIAGNOSE: draait de app echt als geïnstalleerde PWA?
+    var standalone = (window.navigator.standalone===true) || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    pushLog("Modus: "+(standalone?"app (standalone) OK":"BROWSER - push werkt NIET in Safari-tab! Open via icoon."));
     pushLog("Stap 1: start...");
     try{
       // STAP 1: native iOS-toestemming DIRECT vragen (dit toont de iPhone-popup)
@@ -568,7 +571,30 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
               if(id) break;
             }
             if(id){ pushLog("GELUKT! Je toestel is geregistreerd (id: "+String(id).slice(0,8)+"...)"); }
-            else { pushLog("Toestemming OK, maar OneSignal maakte geen abonnement aan. (mogelijk iOS-limiet)"); }
+            else {
+              // FALLBACK: probeer rechtstreeks bij de browser een push-abonnement te maken.
+              // Dit onthult de ECHTE fout die Apple teruggeeft.
+              pushLog("Geen OneSignal-id. Directe test bij de browser...");
+              try{
+                var reg = await navigator.serviceWorker.ready;
+                var existing = await reg.pushManager.getSubscription();
+                if(existing){ pushLog("Browser HEEFT wel een push-abonnement. OneSignal synct het zo op."); }
+                else {
+                  // haal de VAPID key van OneSignal op en probeer direct te subscriben
+                  pushLog("Browser heeft geen abonnement. Probeer direct...");
+                  var appServerKey = null;
+                  try{ if(OneSignal.config && OneSignal.config.userConfig && OneSignal.config.userConfig.safari_web_id){} }catch(e){}
+                  try{
+                    var directSub = await reg.pushManager.subscribe({ userVisibleOnly: true });
+                    pushLog(directSub ? "Direct abonnement GELUKT! Herstart de app." : "Direct: null terug.");
+                  }catch(subErr){
+                    pushLog("Apple weigerde: "+((subErr&&subErr.message)?subErr.message:String(subErr)));
+                  }
+                }
+              }catch(fbErr){
+                pushLog("Fallback-fout: "+((fbErr&&fbErr.message)?fbErr.message:String(fbErr)));
+              }
+            }
           }catch(e){ pushLog("FOUT bij OneSignal: "+((e&&e.message)?e.message:String(e))); }
           resolve();
         });
