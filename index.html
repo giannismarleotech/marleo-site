@@ -572,23 +572,49 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
             }
             if(id){ pushLog("GELUKT! Je toestel is geregistreerd (id: "+String(id).slice(0,8)+"...)"); }
             else {
-              // FALLBACK: probeer rechtstreeks bij de browser een push-abonnement te maken.
-              // Dit onthult de ECHTE fout die Apple teruggeeft.
-              pushLog("Geen OneSignal-id. Directe test bij de browser...");
+              // FALLBACK: OneSignal gaf geen key mee. We halen de VAPID-key uit
+              // OneSignal's eigen config en maken het abonnement zelf aan.
+              pushLog("Geen OneSignal-id. Directe registratie met VAPID-key...");
               try{
                 var reg = await navigator.serviceWorker.ready;
                 var existing = await reg.pushManager.getSubscription();
-                if(existing){ pushLog("Browser HEEFT wel een push-abonnement. OneSignal synct het zo op."); }
-                else {
-                  // haal de VAPID key van OneSignal op en probeer direct te subscriben
-                  pushLog("Browser heeft geen abonnement. Probeer direct...");
-                  var appServerKey = null;
-                  try{ if(OneSignal.config && OneSignal.config.userConfig && OneSignal.config.userConfig.safari_web_id){} }catch(e){}
+                if(existing){
+                  pushLog("Browser HEEFT al een abonnement. OneSignal synct het op.");
+                } else {
+                  // haal de VAPID public key uit OneSignal's config
+                  var vapid = null;
                   try{
-                    var directSub = await reg.pushManager.subscribe({ userVisibleOnly: true });
-                    pushLog(directSub ? "Direct abonnement GELUKT! Herstart de app." : "Direct: null terug.");
-                  }catch(subErr){
-                    pushLog("Apple weigerde: "+((subErr&&subErr.message)?subErr.message:String(subErr)));
+                    var c = OneSignal.config || OneSignal._config || {};
+                    vapid = c.vapidPublicKey || (c.userConfig && c.userConfig.vapidPublicKey) || null;
+                  }catch(e){}
+                  if(!vapid){ pushLog("Geen VAPID-key gevonden in config."); }
+                  else {
+                    // zet de base64 key om naar het formaat dat de browser vereist
+                    function urlB64ToUint8(base64String){
+                      var padding = '='.repeat((4 - base64String.length % 4) % 4);
+                      var base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
+                      var raw = atob(base64);
+                      var arr = new Uint8Array(raw.length);
+                      for(var i=0;i<raw.length;i++){ arr[i]=raw.charCodeAt(i); }
+                      return arr;
+                    }
+                    try{
+                      var directSub = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlB64ToUint8(vapid)
+                      });
+                      if(directSub){
+                        pushLog("Abonnement aangemaakt! OneSignal koppelt het nu...");
+                        // geef OneSignal even tijd om het op te pikken
+                        await new Promise(function(r){setTimeout(r,3000);});
+                        var newId = (OneSignal.User && OneSignal.User.PushSubscription) ? OneSignal.User.PushSubscription.id : null;
+                        pushLog(newId ? ("GELUKT! Geregistreerd (id: "+String(newId).slice(0,8)+"...)") : "GELUKT! Abonnement staat klaar. Sluit de app en open opnieuw.");
+                      } else {
+                        pushLog("Registratie gaf niks terug.");
+                      }
+                    }catch(subErr){
+                      pushLog("Apple weigerde: "+((subErr&&subErr.message)?subErr.message:String(subErr)));
+                    }
                   }
                 }
               }catch(fbErr){
