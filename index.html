@@ -447,6 +447,9 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
 .svccta p{color:var(--muted);margin-bottom:24px}
 @media (max-width:900px){.tiers{grid-template-columns:1fr}.incgrid{grid-template-columns:1fr}.svcwrap{padding-top:84px}}
 
+
+/* oude bot-chatpaneel uitgeschakeld, we gebruiken nu Tawk.to livechat */
+#chatpanel{display:none!important}
 </style>
 </head>
 <body>
@@ -1203,13 +1206,19 @@ document.getElementById('contactForm').addEventListener('submit',function(e){
 /* ================= CHAT ================= */
 var chatOpen=false,chatStarted=false;
 function toggleChat(){
-  chatOpen=!chatOpen;
-  var p=document.getElementById('chatpanel');
-  p.classList.toggle('open',chatOpen);
-  if(chatOpen&&!chatStarted){chatStarted=true;botSay(t('chat.hello'),true)}
-  if(chatOpen)document.getElementById('chatInput').focus();
+  // Open de echte Tawk.to livechat i.p.v. het oude botje
+  if(window.Tawk_API && typeof Tawk_API.toggle==='function'){
+    try{ Tawk_API.maximize(); }catch(e){ try{Tawk_API.toggle();}catch(e2){} }
+  } else {
+    // Tawk nog niet geladen: probeer zo dadelijk opnieuw
+    var tries=0;var iv=setInterval(function(){
+      tries++;
+      if(window.Tawk_API && typeof Tawk_API.maximize==='function'){clearInterval(iv);try{Tawk_API.showWidget();Tawk_API.maximize();}catch(e){}}
+      if(tries>20)clearInterval(iv);
+    },300);
+  }
 }
-function openChat(){if(!chatOpen)toggleChat()}
+function openChat(){toggleChat()}
 function resetChat(){
   document.getElementById('chatBody').innerHTML='';chatStarted=false;
   if(chatOpen){chatStarted=true;botSay(t('chat.hello'),true)}
@@ -2143,96 +2152,160 @@ function saveInvoice(id){
 }
 
 
-/* ============ PDF-GENERATOR (factuur/offerte) ============ */
+/* ============ PDF-GENERATOR (jsPDF, echte PDF) ============ */
+function loadJsPDF(cb){
+  if(window.jspdf&&window.jspdf.jsPDF){cb();return;}
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.onload=cb; s.onerror=function(){toast('Kon PDF-module niet laden, check internet',true);};
+  document.head.appendChild(s);
+}
 function invPdf(id){
   var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;
+  loadJsPDF(function(){buildInvPdf(iv);});
+}
+function buildInvPdf(iv){
   var co=coCfg();var c=customer(iv.customerId)||{};
   var isOff=(iv.type==='offerte');
   var L=iv.lang||co.deflang||'nl';
   var T={
-    nl:{factuur:'FACTUUR',offerte:'OFFERTE',datum:'Datum',vervalt:'Vervaldatum',geldig:'Geldig tot',uwref:'Uw ref',van:'Van',factVoor:'Factuur voor',offVoor:'Offerte voor',btwNr:'BTW',oms:'Omschrijving',aantal:'Aantal',prijs:'Prijs',bedrag:'Bedrag',subtot:'Subtotaal excl. btw',btw:'BTW 21%',tebet:'Te betalen',totaal:'Totaal',
-      payOver:function(t,ib,bic,ref){return 'Gelieve <b>'+t+'</b> te storten op <b>'+ib+'</b>'+(bic?' (BIC '+bic+')':'')+' met vermelding <b>'+ref+'</b>.';},
-      payCash:function(t){return 'Te betalen: <b>'+t+'</b>, contant bij oplevering.';},
-      payOther:function(t){return 'Te betalen: <b>'+t+'</b>. Betaalinstructies worden apart bezorgd.';},
-      offTekst:function(dt){return 'Deze offerte is vrijblijvend'+(dt?' en geldig tot '+dt:'')+'. Akkoord? Antwoord op deze mail of teken voor akkoord.';}},
-    en:{factuur:'INVOICE',offerte:'QUOTE',datum:'Date',vervalt:'Due date',geldig:'Valid until',uwref:'Your ref',van:'From',factVoor:'Invoice to',offVoor:'Quote for',btwNr:'VAT',oms:'Description',aantal:'Qty',prijs:'Price',bedrag:'Amount',subtot:'Subtotal excl. VAT',btw:'VAT 21%',tebet:'Amount due',totaal:'Total',
-      payOver:function(t,ib,bic,ref){return 'Please transfer <b>'+t+'</b> to <b>'+ib+'</b>'+(bic?' (BIC '+bic+')':'')+' with reference <b>'+ref+'</b>.';},
-      payCash:function(t){return 'Amount due: <b>'+t+'</b>, cash on delivery.';},
-      payOther:function(t){return 'Amount due: <b>'+t+'</b>. Payment instructions will be provided separately.';},
-      offTekst:function(dt){return 'This quote is without obligation'+(dt?' and valid until '+dt:'')+'. Agreed? Reply to this email or sign to approve.';}},
-    fr:{factuur:'FACTURE',offerte:'DEVIS',datum:'Date',vervalt:'Date d\\'\\u00e9ch\\u00e9ance',geldig:'Valable jusqu\\'au',uwref:'Votre r\\u00e9f',van:'De',factVoor:'Facturer \\u00e0',offVoor:'Devis pour',btwNr:'TVA',oms:'Description',aantal:'Qt\\u00e9',prijs:'Prix',bedrag:'Montant',subtot:'Sous-total hors TVA',btw:'TVA 21%',tebet:'\\u00c0 payer',totaal:'Total',
-      payOver:function(t,ib,bic,ref){return 'Veuillez virer <b>'+t+'</b> sur <b>'+ib+'</b>'+(bic?' (BIC '+bic+')':'')+' avec la communication <b>'+ref+'</b>.';},
-      payCash:function(t){return '\\u00c0 payer\\u00a0: <b>'+t+'</b>, en esp\\u00e8ces \\u00e0 la livraison.';},
-      payOther:function(t){return '\\u00c0 payer\\u00a0: <b>'+t+'</b>. Les instructions de paiement seront fournies s\\u00e9par\\u00e9ment.';},
-      offTekst:function(dt){return 'Ce devis est sans engagement'+(dt?' et valable jusqu\\'au '+dt:'')+'. D\\'accord\\u00a0? R\\u00e9pondez \\u00e0 cet e-mail ou signez pour accord.';}}
+    nl:{doc:isOff?'OFFERTE':'FACTUUR',datum:'Datum',vervalt:isOff?'Geldig tot':'Vervaldatum',uwref:'Uw ref',voor:isOff?'OFFERTE VOOR':'FACTUUR VOOR',btwNr:'BTW',oms:'OMSCHRIJVING',aantal:'AANTAL',prijs:'PRIJS',bedrag:'BEDRAG',subtot:'Subtotaal excl. btw',btw:'BTW 21%',tebet:isOff?'Totaal':'Te betalen',betaaltitel:'Betaalinstructie',
+      payOver:function(t,ib,bic,ref){return ['Gelieve '+t+' te storten op '+ib+(bic?' (BIC '+bic+')':''),'met vermelding '+ref+'.'];},
+      payCash:function(t){return ['Te betalen: '+t+', contant bij oplevering.',''];},
+      payOther:function(t){return ['Te betalen: '+t+'.','Betaalinstructies worden apart bezorgd.'];},
+      offNote:function(dt){return ['Deze offerte is vrijblijvend'+(dt?' en geldig tot '+dt:'')+'.','Akkoord? Antwoord op deze mail of teken voor akkoord.'];},
+      voet:'Betaling binnen 14 dagen. Bij laattijdige betaling is van rechtswege een verwijlintrest verschuldigd.'},
+    en:{doc:isOff?'QUOTE':'INVOICE',datum:'Date',vervalt:isOff?'Valid until':'Due date',uwref:'Your ref',voor:isOff?'QUOTE FOR':'INVOICE TO',btwNr:'VAT',oms:'DESCRIPTION',aantal:'QTY',prijs:'PRICE',bedrag:'AMOUNT',subtot:'Subtotal excl. VAT',btw:'VAT 21%',tebet:isOff?'Total':'Amount due',betaaltitel:'Payment details',
+      payOver:function(t,ib,bic,ref){return ['Please transfer '+t+' to '+ib+(bic?' (BIC '+bic+')':''),'with reference '+ref+'.'];},
+      payCash:function(t){return ['Amount due: '+t+', cash on delivery.',''];},
+      payOther:function(t){return ['Amount due: '+t+'.','Payment instructions will be provided separately.'];},
+      offNote:function(dt){return ['This quote is without obligation'+(dt?' and valid until '+dt:'')+'.','Agreed? Reply to this email or sign to approve.'];},
+      voet:'Payment within 14 days. Late payment automatically incurs statutory interest.'},
+    fr:{doc:isOff?'DEVIS':'FACTURE',datum:'Date',vervalt:isOff?'Valable jusqu au':'Echeance',uwref:'Votre ref',voor:isOff?'DEVIS POUR':'FACTURER A',btwNr:'TVA',oms:'DESCRIPTION',aantal:'QTE',prijs:'PRIX',bedrag:'MONTANT',subtot:'Sous-total hors TVA',btw:'TVA 21%',tebet:isOff?'Total':'A payer',betaaltitel:'Instructions de paiement',
+      payOver:function(t,ib,bic,ref){return ['Veuillez virer '+t+' sur '+ib+(bic?' (BIC '+bic+')':''),'avec la communication '+ref+'.'];},
+      payCash:function(t){return ['A payer: '+t+', en especes a la livraison.',''];},
+      payOther:function(t){return ['A payer: '+t+'.','Les instructions de paiement seront fournies separement.'];},
+      offNote:function(dt){return ['Ce devis est sans engagement'+(dt?' et valable jusqu au '+dt:'')+'.','Repondez a cet e-mail ou signez pour accord.'];},
+      voet:'Paiement sous 14 jours. Tout retard entraine de plein droit un interet de retard.'}
   }[L]||{};
-  var titel=isOff?T.offerte:T.factuur;
+
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({unit:'mm',format:'a4'});
+  var W=210, M=18;
+  var orange=[249,124,31], pink=[233,30,123], dark=[26,26,46], grey=[120,120,130], light=[246,246,250], faint=[235,235,240];
+  var E='\\u20AC';
+  function money(n){return E+' '+Number(n).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2});}
   var sub=invSub(iv),vat=invVat(iv),tot=invTot(iv);
-  function row(l){return '<tr><td>'+esc(l.d)+'</td><td class="r">'+l.q+'</td><td class="r">'+eur(l.p)+'</td><td class="r">'+eur(Math.round(l.q*l.p*100)/100)+'</td></tr>';}
-  var coAddr=[co.address,(co.zip+' '+co.city).trim()].filter(Boolean).join(', ');
-  var cAddr=esc(c.address||'');
-  // betaalblok volgens gekozen methode
-  var payBlock='';
-  if(!isOff){
+
+  // hexagon-logo
+  (function(cx,cy,r){
+    var pts=[];for(var i=0;i<6;i++){var a=(Math.PI/180)*(60*i-90);pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+    doc.setLineWidth(1.1);
+    for(var j=0;j<6;j++){var p1=pts[j],p2=pts[(j+1)%6];var t=j/6;
+      doc.setDrawColor(Math.round(orange[0]+(pink[0]-orange[0])*t),Math.round(orange[1]+(pink[1]-orange[1])*t),Math.round(orange[2]+(pink[2]-orange[2])*t));
+      doc.line(p1[0],p1[1],p2[0],p2[1]);}
+    doc.setFont('courier','bold');doc.setFontSize(r*1.4);doc.setTextColor(pink[0],pink[1],pink[2]);
+    doc.text('</>',cx,cy+r*0.35,{align:'center'});
+  })(M+7,18,7);
+
+  // header
+  doc.setFillColor(pink[0],pink[1],pink[2]); doc.rect(0,0,W,3,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(21); doc.setTextColor(pink[0],pink[1],pink[2]);
+  doc.text(co.name||'Marleo',M+18,20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(grey[0],grey[1],grey[2]);
+  var coAddr=[co.address,((co.zip||'')+' '+(co.city||'')).trim()].filter(Boolean).join(', ');
+  var coLines=[co.legal||co.name||'Marleo']; if(coAddr)coLines.push(coAddr); if(co.vat)coLines.push('BTW '+co.vat);
+  var contact=[co.email,co.website].filter(Boolean).join('  |  '); if(contact)coLines.push(contact);
+  doc.text(coLines,M,32);
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(pink[0],pink[1],pink[2]);
+  doc.text(T.doc,W-M,18,{align:'right'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(dark[0],dark[1],dark[2]);
+  doc.text(iv.ref||'',W-M,25,{align:'right'});
+  doc.setFont('helvetica','normal'); doc.setTextColor(grey[0],grey[1],grey[2]); doc.setFontSize(8.5);
+  doc.text(T.datum+': '+fmtD(iv.date),W-M,31,{align:'right'});
+  if(iv.due)doc.text(T.vervalt+': '+fmtD(iv.due),W-M,35.5,{align:'right'});
+  if(iv.yourref)doc.text(T.uwref+': '+iv.yourref,W-M,40,{align:'right'});
+
+  // klant
+  var y=56;
+  doc.setDrawColor(faint[0],faint[1],faint[2]); doc.setLineWidth(0.3); doc.line(M,y-6,W-M,y-6);
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(grey[0],grey[1],grey[2]);
+  doc.text(T.voor,M,y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(dark[0],dark[1],dark[2]);
+  doc.text(c.name||'',M,y+6.5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(grey[0],grey[1],grey[2]);
+  var cl=[]; if(c.address)cl.push(c.address); if(c.vat)cl.push('BTW '+c.vat); if(c.email)cl.push(c.email);
+  if(cl.length)doc.text(cl,M,y+12);
+
+  // tabel header
+  y=90;
+  doc.setFillColor(dark[0],dark[1],dark[2]); doc.roundedRect(M,y,W-2*M,10,1.5,1.5,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,255,255);
+  doc.text(T.oms,M+4,y+6.5);
+  doc.text(T.aantal,W-M-56,y+6.5,{align:'right'});
+  doc.text(T.prijs,W-M-30,y+6.5,{align:'right'});
+  doc.text(T.bedrag,W-M-4,y+6.5,{align:'right'});
+  y+=10;
+  doc.setFontSize(9.5);
+  iv.lines.forEach(function(l,i){
+    y+=10;
+    if(i%2===1){doc.setFillColor(250,250,252);doc.rect(M,y-6.5,W-2*M,10,'F');}
+    doc.setFont('helvetica','normal'); doc.setTextColor(dark[0],dark[1],dark[2]);
+    var desc=doc.splitTextToSize(l.d||'',W-2*M-70);
+    doc.text(desc[0]||'',M+4,y);
+    doc.text(String(l.q),W-M-56,y,{align:'right'});
+    doc.text(money(l.p),W-M-30,y,{align:'right'});
+    doc.setFont('helvetica','bold');
+    doc.text(money(Math.round(l.q*l.p*100)/100),W-M-4,y,{align:'right'});
+  });
+  y+=3; doc.setDrawColor(faint[0],faint[1],faint[2]); doc.line(M,y,W-M,y);
+
+  // totalen
+  y+=13; var tlx=W-M-70, trx=W-M-4;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(grey[0],grey[1],grey[2]);
+  doc.text(T.subtot,tlx,y); doc.setTextColor(dark[0],dark[1],dark[2]); doc.text(money(sub),trx,y,{align:'right'});
+  y+=6.5; doc.setTextColor(grey[0],grey[1],grey[2]); doc.text(T.btw,tlx,y);
+  doc.setTextColor(dark[0],dark[1],dark[2]); doc.text(money(vat),trx,y,{align:'right'});
+  y+=5; doc.setFillColor(pink[0],pink[1],pink[2]); doc.roundedRect(tlx-4,y,trx-tlx+8,11,1.5,1.5,'F');
+  y+=7.2; doc.setFont('helvetica','bold'); doc.setFontSize(11.5); doc.setTextColor(255,255,255);
+  doc.text(T.tebet,tlx,y); doc.text(money(tot),trx,y,{align:'right'});
+
+  // betaalinstructie / offertenota
+  y+=20;
+  var payLines;
+  if(isOff){ payLines=T.offNote(iv.due?fmtD(iv.due):''); }
+  else {
     var pay=co.pay||'overschrijving';
-    if(pay==='overschrijving'&&co.iban){payBlock='<div class="pay">'+T.payOver(eur(tot),esc(co.iban),esc(co.bic||''),esc(iv.ref))+'</div>';}
-    else if(pay==='contant'){payBlock='<div class="pay">'+T.payCash(eur(tot))+'</div>';}
-    else if(pay==='anders'){payBlock='<div class="pay">'+T.payOther(eur(tot))+'</div>';}
-    else if(co.iban){payBlock='<div class="pay">'+T.payOver(eur(tot),esc(co.iban),esc(co.bic||''),esc(iv.ref))+'</div>';}
+    if(pay==='contant')payLines=T.payCash(money(tot));
+    else if(pay==='anders')payLines=T.payOther(money(tot));
+    else if(co.iban)payLines=T.payOver(money(tot),co.iban,co.bic||'',iv.ref);
+    else payLines=['',''];
   }
-  var html='<!DOCTYPE html><html lang="'+L+'"><head><meta charset="utf-8"><title>'+titel+' '+esc(iv.ref)+'</title><style>'+
-  '@page{size:A4;margin:18mm 16mm}*{margin:0;padding:0;box-sizing:border-box}'+
-  'body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a2e;font-size:13px;line-height:1.5}'+
-  '.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #E91E7B;padding-bottom:16px;margin-bottom:24px}'+
-  '.brand{font-size:26px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(100deg,#F97C1F,#E91E7B);-webkit-background-clip:text;background-clip:text;color:transparent}'+
-  '.co-meta{font-size:11px;color:#555;margin-top:6px;line-height:1.6}'+
-  '.doc-meta{text-align:right}.doc-meta h1{font-size:22px;letter-spacing:2px;color:#E91E7B;margin-bottom:8px}'+
-  '.doc-meta .num{font-size:15px;font-weight:700}.doc-meta .dt{font-size:11px;color:#555;margin-top:4px}'+
-  '.parties{display:flex;justify-content:space-between;margin-bottom:24px;gap:20px}'+
-  '.party{flex:1}.party .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:4px}'+
-  '.party .nm{font-weight:700;font-size:14px}.party .ln{font-size:12px;color:#444;line-height:1.6}'+
-  'table.items{width:100%;border-collapse:collapse;margin-bottom:20px}'+
-  'table.items th{background:#f4f4f8;text-align:left;padding:9px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#666;border-bottom:2px solid #E91E7B}'+
-  'table.items th.r,table.items td.r{text-align:right}'+
-  'table.items td{padding:9px 10px;border-bottom:1px solid #eee;vertical-align:top}'+
-  '.totals{width:270px;margin-left:auto}.totals .tr{display:flex;justify-content:space-between;padding:6px 10px}'+
-  '.totals .tr.big{border-top:2px solid #E91E7B;margin-top:4px;font-size:17px;font-weight:800;color:#E91E7B}'+
-  '.pay{margin-top:26px;background:#f9f9fc;border-radius:10px;padding:16px 18px;font-size:12px;line-height:1.7}'+
-  '.pay b{color:#E91E7B}.terms{margin-top:16px;font-size:10.5px;color:#888;line-height:1.6}'+
-  '.foot{margin-top:30px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center}'+
-  '@media print{.noprint{display:none}}'+
-  '.noprint{position:fixed;top:12px;right:12px;display:flex;gap:8px}'+
-  '.noprint button{padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(100deg,#F97C1F,#E91E7B);color:#fff;font-weight:700;cursor:pointer;font-size:13px}'+
-  '.noprint button.alt{background:#eee;color:#333}'+
-  '</style></head><body>'+
-  '<div class="noprint"><button onclick="window.print()">\\ud83d\\udcc4 PDF</button><button class="alt" onclick="window.close()">\\u2715</button></div>'+
-  '<div class="head"><div><div class="brand">'+esc(co.name||'Marleo')+'</div>'+
-    '<div class="co-meta">'+esc(co.legal||'')+(coAddr?'<br>'+esc(coAddr):'')+
-    (co.vat?'<br>'+T.btwNr+' '+esc(co.vat):'')+(co.email?'<br>'+esc(co.email):'')+(co.phone?' \\u00b7 '+esc(co.phone):'')+
-    (co.website?'<br>'+esc(co.website):'')+'</div></div>'+
-    '<div class="doc-meta"><h1>'+titel+'</h1><div class="num">'+esc(iv.ref)+'</div>'+
-    '<div class="dt">'+T.datum+': '+fmtD(iv.date)+'</div>'+
-    (isOff?(iv.due?'<div class="dt">'+T.geldig+': '+fmtD(iv.due)+'</div>':''):(iv.due?'<div class="dt">'+T.vervalt+': '+fmtD(iv.due)+'</div>':''))+
-    (iv.yourref?'<div class="dt">'+T.uwref+': '+esc(iv.yourref)+'</div>':'')+'</div></div>'+
-  '<div class="parties"><div class="party"><div class="lbl">'+T.van+'</div><div class="nm">'+esc(co.legal||co.name||'Marleo')+'</div>'+
-    '<div class="ln">'+esc(coAddr)+(co.vat?'<br>'+T.btwNr+' '+esc(co.vat):'')+'</div></div>'+
-    '<div class="party"><div class="lbl">'+(isOff?T.offVoor:T.factVoor)+'</div><div class="nm">'+esc(c.name||'')+'</div>'+
-    '<div class="ln">'+cAddr+(c.vat?'<br>'+T.btwNr+' '+esc(c.vat):'')+(c.email?'<br>'+esc(c.email):'')+'</div></div></div>'+
-  '<table class="items"><thead><tr><th>'+T.oms+'</th><th class="r">'+T.aantal+'</th><th class="r">'+T.prijs+'</th><th class="r">'+T.bedrag+'</th></tr></thead><tbody>'+
-    iv.lines.map(row).join('')+'</tbody></table>'+
-  '<div class="totals"><div class="tr"><span>'+T.subtot+'</span><b>'+eur(sub)+'</b></div>'+
-    '<div class="tr"><span>'+T.btw+'</span><b>'+eur(vat)+'</b></div>'+
-    '<div class="tr big"><span>'+(isOff?T.totaal:T.tebet)+'</span><b>'+eur(tot)+'</b></div></div>'+
-  (iv.note?'<div class="pay" style="background:#fff;border:1px solid #eee">'+esc(iv.note)+'</div>':'')+
-  payBlock+
-  (isOff?'<div class="pay">'+T.offTekst(iv.due?fmtD(iv.due):'')+'</div>':'')+
-  (co.terms?'<div class="terms">'+esc(co.terms)+'</div>':'')+
-  '<div class="foot">'+esc(co.legal||co.name||'Marleo')+(co.vat?' \\u00b7 '+esc(co.vat):'')+(co.iban?' \\u00b7 '+esc(co.iban):'')+'</div>'+
-  '</body></html>';
-  var w=window.open('','_blank');
-  if(!w){toast('Sta pop-ups toe om de PDF te maken',true);return;}
-  w.document.write(html);w.document.close();
-  logAct('PDF gemaakt: '+titel+' '+iv.ref);
+  if(payLines&&(payLines[0]||payLines[1])){
+    doc.setFillColor(light[0],light[1],light[2]); doc.roundedRect(M,y-6,W-2*M,22,2,2,'F');
+    doc.setFillColor(pink[0],pink[1],pink[2]); doc.roundedRect(M,y-6,1.5,22,0.7,0.7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(dark[0],dark[1],dark[2]);
+    doc.text(isOff?'':T.betaaltitel,M+6,y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(grey[0],grey[1],grey[2]);
+    if(payLines[0])doc.text(payLines[0],M+6,y+(isOff?0:5.5));
+    if(payLines[1])doc.text(payLines[1],M+6,y+(isOff?5.5:10.5));
+  }
+  if(iv.note){
+    y+=24; doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(grey[0],grey[1],grey[2]);
+    var nn=doc.splitTextToSize(iv.note,W-2*M); doc.text(nn.slice(0,3),M,y);
+  }
+
+  // footer
+  doc.setDrawColor(faint[0],faint[1],faint[2]); doc.line(M,280,W-M,280);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(grey[0],grey[1],grey[2]);
+  doc.text(T.voet,W/2,285,{align:'center'});
+  doc.setFont('helvetica','bold');
+  var footInfo=[co.legal||co.name||'Marleo']; if(co.vat)footInfo.push('BTW '+co.vat); if(co.iban)footInfo.push(co.iban); if(co.email)footInfo.push(co.email);
+  doc.text(footInfo.join('  ·  '),W/2,289.5,{align:'center'});
+
+  doc.save(T.doc+'-'+(iv.ref||'document')+'.pdf');
+  logAct('PDF gemaakt: '+T.doc+' '+iv.ref);
 }
 
 /* ============ UITGAVEN ============ */
@@ -3084,5 +3157,20 @@ function closePortal(){
   document.body.style.overflow='';
 }
 </script>
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+Tawk_API.onLoad=function(){ try{ Tawk_API.hideWidget(); }catch(e){} };
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a6e7c198b05d11d458f343b/1juvp9grd';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 </body>
 </html>
