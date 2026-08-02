@@ -509,7 +509,7 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
     try{
       await OneSignal.init({
         appId: "71ab17ab-ad6d-4d35-bbfb-e6c260f94b07",
-        serviceWorkerParam: { scope: "/marleo-site/push/" },
+        serviceWorkerParam: { scope: "./push/" },
         serviceWorkerPath: "push/OneSignalSDKWorker.js",
         allowLocalhostAsSecureOrigin: true,
         autoResubscribe: true
