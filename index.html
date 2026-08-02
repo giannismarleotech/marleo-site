@@ -523,7 +523,15 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
   window.marleoEnablePush = function(){
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal){
-      try{ await OneSignal.Notifications.requestPermission(); }catch(e){}
+      try{
+        // 1) vraag toestemming (toont de iPhone-systeempopup)
+        await OneSignal.Notifications.requestPermission();
+        // 2) activeer het abonnement expliciet (nodig in OneSignal v16!)
+        //    zonder deze stap verschijnt je toestel NIET als abonnee
+        if(OneSignal.User && OneSignal.User.PushSubscription){
+          await OneSignal.User.PushSubscription.optIn();
+        }
+      }catch(e){}
     });
   };
 })();
