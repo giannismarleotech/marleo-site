@@ -468,10 +468,10 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
     var link=document.createElement('link');link.rel='manifest';link.href=url;
     document.head.appendChild(link);
   }catch(e){}
-  // service worker registreren (nodig voor installeerbaarheid)
+  // service worker registreren (nodig voor installeerbaarheid + push via OneSignal-import)
   if('serviceWorker' in navigator){
     window.addEventListener('load',function(){
-      navigator.serviceWorker.register('./marleo-sw.js').catch(function(){});
+      navigator.serviceWorker.register('./marleo-sw.js',{scope:'./'}).catch(function(){});
     });
   }
 })();
@@ -509,8 +509,8 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
     try{
       await OneSignal.init({
         appId: "71ab17ab-ad6d-4d35-bbfb-e6c260f94b07",
-        serviceWorkerParam: { scope: "./push/" },
-        serviceWorkerPath: "push/OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "./" },
+        serviceWorkerPath: "marleo-sw.js",
         allowLocalhostAsSecureOrigin: true,
         autoResubscribe: true
       });
@@ -1934,6 +1934,29 @@ body{-webkit-text-size-adjust:100%}
 .tplbody{white-space:pre-wrap;font-family:var(--body);font-size:.82rem;color:var(--muted);background:var(--bg2);border-radius:8px;padding:10px;max-height:160px;overflow:auto;margin-bottom:10px;border:1px solid var(--line)}
 
 .catpick{background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 12px;font-size:.82rem;font-family:var(--body);cursor:pointer}
+.dagstart{padding:2px 0}
+.ds-head{margin-bottom:16px}
+.ds-greet{font-family:var(--disp);font-size:1.4rem;font-weight:600}
+.ds-date{color:var(--muted);font-size:.9rem;text-transform:capitalize;margin-top:2px}
+.ds-money{display:flex;gap:10px;margin-bottom:18px}
+.ds-m{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.ds-ml{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.ds-mv{font-family:var(--disp);font-size:1.35rem;font-weight:600;margin-top:4px}
+.ds-section-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 10px 2px;font-weight:600}
+.ds-row{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;transition:transform .1s}
+.ds-row:active{transform:scale(.98)}
+.ds-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.ds-tx{flex:1;line-height:1.3}
+.ds-tx b{display:block;font-size:.95rem}
+.ds-tx span{color:var(--muted);font-size:.82rem}
+.ds-ct{font-family:var(--disp);font-size:1.5rem;font-weight:700;flex-shrink:0}
+.ds-allgood{text-align:center;padding:24px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.ds-today{margin-top:18px}
+.ds-sub{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 8px 2px;font-weight:600}
+.ds-appt{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;font-size:.92rem}
+.ds-time{color:var(--orange);font-weight:600;font-family:var(--mono);margin-right:6px}
+.ds-cust{color:var(--muted);font-size:.85rem}
+
 .custhero{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:14px}
 .custav{width:64px;height:64px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-family:var(--disp);font-weight:700;font-size:1.8rem;color:#fff;flex-shrink:0}
 .custtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -2086,6 +2109,103 @@ function rememberSession(){
     localStorage.setItem(REMEMBER_KEY,JSON.stringify(tok));
   }catch(e){}
 }
+
+/* ===== DAGSTART: overzicht bij openen van de app ===== */
+var DAGSTART_KEY='marleo_dagstart_seen';
+function daysBetween(iso){ if(!iso)return null; var d=new Date(iso+'T00:00:00'); var n=new Date(today()+'T00:00:00'); return Math.round((n-d)/86400000); }
+function dagstartData(){
+  var t=today();
+  var nowM=t.slice(0,7);
+  // Facturen te laat (vervallen, niet betaald)
+  var overdue=DATA.invoices.filter(function(iv){return invStatus(iv)==='vervallen'});
+  var overdueSum=overdue.reduce(function(s,iv){return s+invTot(iv)},0);
+  // Openstaand (verstuurd, nog niet betaald, nog niet vervallen)
+  var openInv=DATA.invoices.filter(function(iv){return invStatus(iv)==='openstaand'});
+  var openSum=openInv.reduce(function(s,iv){return s+invTot(iv)},0);
+  // Taken vandaag of te laat (niet afgevinkt)
+  var tasksDue=DATA.tasks.filter(function(x){return !x.done && x.due && x.due<=t});
+  var tasksToday=DATA.tasks.filter(function(x){return !x.done && x.due===t});
+  // Afspraken vandaag
+  var apptToday=(DATA.appointments||[]).filter(function(a){return a.date===t});
+  // Deals met follow-up die vervallen is
+  var followDue=DATA.deals.filter(function(d){return d.follow&&d.follow<=t&&d.stage!=='gewonnen'&&d.stage!=='verloren'});
+  // Website-aanvragen die nog niet opgevolgd zijn
+  var webLeads=DATA.deals.filter(function(d){return (d.kanaal==='Website'||(d.cat||'').toLowerCase().indexOf('website')>=0)&&d.stage!=='gewonnen'&&d.stage!=='verloren'});
+  // Offertes die openstaan (quotes / concept-facturen van type offerte)
+  var quotes=DATA.invoices.filter(function(iv){return (iv.type==='offerte'||iv.type==='quote')&&iv.status!=='betaald'&&iv.status!=='geweigerd'});
+  // Omzet deze maand (betaalde facturen met datum in deze maand)
+  var revMonth=DATA.invoices.filter(function(iv){return iv.status==='betaald'&&(iv.date||'').slice(0,7)===nowM}).reduce(function(s,iv){return s+invTot(iv)},0);
+  // Klanten die lang niet gecontacteerd zijn (>45 dagen sinds laatste contact/aanmaak)
+  var stale=[];
+  DATA.customers.forEach(function(c){
+    if(c.status==='inactief')return;
+    // gebruik lastContact als het bestaat, anders created (beide zijn timestamps)
+    var ref=c.lastContact||c.created||null;
+    if(!ref)return;
+    var days=Math.round((Date.now()-ref)/86400000);
+    if(days>=45)stale.push({c:c,days:days});
+  });
+  stale.sort(function(a,b){return b.days-a.days});
+  return {overdue:overdue,overdueSum:overdueSum,openInv:openInv,openSum:openSum,tasksDue:tasksDue,tasksToday:tasksToday,apptToday:apptToday,followDue:followDue,webLeads:webLeads,quotes:quotes,revMonth:revMonth,stale:stale};
+}
+function dagstartHTML(d){
+  var groet=(function(){var h=new Date().getHours();return h<12?'Goeiemorgen':h<18?'Goeiemiddag':'Goeieavond';})();
+  var rows=[];
+  function urgent(icon,txt,count,color,onclick){
+    return '<div class="ds-row" '+(onclick?'onclick="'+onclick+'" style="cursor:pointer"':'')+'>'+
+      '<div class="ds-ic" style="background:'+color+'22;color:'+color+'">'+icon+'</div>'+
+      '<div class="ds-tx">'+txt+'</div>'+
+      (count!==null?'<div class="ds-ct" style="color:'+color+'">'+count+'</div>':'')+
+      '</div>';
+  }
+  // Aandachtspunten (rood/oranje)
+  var att=[];
+  if(d.overdue.length) att.push(urgent('\\u26A0\\uFE0F','<b>'+d.overdue.length+' facturen te laat</b><span>'+eur(d.overdueSum)+' openstaand</span>',d.overdue.length,'#EF4056',"closeDagstart();go('invoices')"));
+  if(d.followDue.length) att.push(urgent('\\uD83D\\uDCDE','<b>'+d.followDue.length+' klanten opvolgen</b><span>opvolgdatum verstreken</span>',d.followDue.length,'#F97C1F',"closeDagstart();go('pipeline')"));
+  if(d.tasksDue.length) att.push(urgent('\\u2705','<b>'+d.tasksDue.length+' taken te doen</b><span>'+d.tasksToday.length+' vandaag'+(d.tasksDue.length-d.tasksToday.length>0?', '+(d.tasksDue.length-d.tasksToday.length)+' te laat':'')+'</span>',d.tasksDue.length,'#E91E7B',"closeDagstart();go('tasks')"));
+  if(d.webLeads.length) att.push(urgent('\\uD83C\\uDF10','<b>'+d.webLeads.length+' website-aanvragen</b><span>nog op te volgen</span>',d.webLeads.length,'#F97C1F',"closeDagstart();go('pipeline')"));
+  if(d.quotes.length) att.push(urgent('\\uD83D\\uDCC4','<b>'+d.quotes.length+' offertes open</b><span>wachten op antwoord</span>',d.quotes.length,'#F97C1F',"closeDagstart();go('invoices')"));
+  if(d.stale.length) att.push(urgent('\\uD83D\\uDD54','<b>'+d.stale.length+' klanten lang niet gehoord</b><span>langer dan 30 dagen</span>',d.stale.length,'#6B7280',"closeDagstart();go('customers')"));
+
+  // Vandaag
+  var vandaag=[];
+  if(d.apptToday.length){
+    vandaag.push('<div class="ds-sub">Afspraken vandaag</div>');
+    d.apptToday.sort(function(a,b){return (a.time||'').localeCompare(b.time||'')}).forEach(function(a){
+      vandaag.push('<div class="ds-appt" onclick="closeDagstart();go(\\'agenda\\')"><span class="ds-time">'+(a.time||'--:--')+'</span> <b>'+esc(a.title||'Afspraak')+'</b>'+(a.customerId?' <span class="ds-cust">'+esc(custName(a.customerId))+'</span>':'')+'</div>');
+    });
+  }
+
+  var attHTML = att.length ? att.join('') : '<div class="ds-allgood">\\uD83C\\uDF89 Alles onder controle, niks dringends!</div>';
+  var vandaagHTML = vandaag.length ? '<div class="ds-today">'+vandaag.join('')+'</div>' : '';
+
+  return '<div class="dagstart">'+
+    '<div class="ds-head"><div><div class="ds-greet">'+groet+', Giannis</div><div class="ds-date">'+new Date().toLocaleDateString('nl-BE',{weekday:'long',day:'numeric',month:'long'})+'</div></div></div>'+
+    '<div class="ds-money">'+
+      '<div class="ds-m"><div class="ds-ml">Omzet deze maand</div><div class="ds-mv gtext">'+eur(d.revMonth)+'</div></div>'+
+      '<div class="ds-m"><div class="ds-ml">Openstaand</div><div class="ds-mv">'+eur(d.openSum+d.overdueSum)+'</div></div>'+
+    '</div>'+
+    '<div class="ds-section-title">Aandacht nodig</div>'+
+    attHTML+
+    vandaagHTML+
+  '</div>';
+}
+function showDagstart(force){
+  try{
+    if(SESSION.role!=='admin')return;
+    // maar 1x per dag automatisch tonen (tenzij force)
+    var t=today();
+    if(!force){
+      var seen=localStorage.getItem(DAGSTART_KEY);
+      if(seen===t)return;
+    }
+    localStorage.setItem(DAGSTART_KEY,t);
+    var d=dagstartData();
+    openM('', dagstartHTML(d), '<button class="btn primary" onclick="closeDagstart()">Aan de slag \\u2192</button>', true);
+  }catch(e){}
+}
+function closeDagstart(){closeM();}
+
 function tryAutoLogin(){
   try{
     var raw=localStorage.getItem(REMEMBER_KEY);
@@ -2107,7 +2227,7 @@ function enterApp(){
   document.getElementById('uRole').textContent=SESSION.role==='admin'?'Beheerder':'Klant';
   document.getElementById('uAvatar').textContent=SESSION.name.charAt(0).toUpperCase();
   buildMenu();go(SESSION.role==='admin'?'dashboard':'cportal');
-  if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);startTaskPopups();initNotifs();}
+  if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);startTaskPopups();initNotifs();setTimeout(function(){showDagstart(false);},700);}
   if(!storageOK)toast("Opslag geblokkeerd, open via https zodat wijzigingen bewaard blijven",true);
 }
 function logout(){try{localStorage.removeItem(REMEMBER_KEY);}catch(e){}location.reload()}
@@ -2160,6 +2280,7 @@ var IC={
 };
 var MENU_ADMIN=[
   ['SEC','Overzicht'],
+  ['dagstart','Dagstart',IC.dash],
   ['dashboard','Dashboard',IC.dash],
   ['reports','Rapporten',IC.rep],
   ['SEC','CRM'],
@@ -2194,6 +2315,7 @@ function buildMenu(){
   el.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.v);document.getElementById('sidebar').classList.remove('open')})});
 }
 function go(v){
+  if(v==='dagstart'){ showDagstart(true); return; }
   VIEW=v;
   document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
   var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,documents:rDocuments,agenda:rAgenda,board:rBoard,timetrack:rTimetrack,quotes:rQuotes,catalog:rCatalog,emails:rEmails,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
