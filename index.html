@@ -512,28 +512,48 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
         serviceWorkerParam: { scope: "/marleo-site/push/" },
         serviceWorkerPath: "push/OneSignalSDKWorker.js",
         allowLocalhostAsSecureOrigin: true,
-        autoResubscribe: true,
-        promptOptions: { slidedown: { enabled: false } },
-        welcomeNotification: { disable: true }
+        autoResubscribe: true
       });
       window.__oneSignalReady = true;
-    }catch(e){ /* stil */ }
+      window.__oneSignalError = null;
+    }catch(e){
+      // fout zichtbaar maken voor diagnose
+      window.__oneSignalError = (e && e.message) ? e.message : String(e);
+    }
   });
   // Wordt aangeroepen door de CRM-knop "Meldingen inschakelen"
+  // Slaat het resultaat op in window.__marleoPushStatus zodat de app het kan tonen
+  window.__marleoPushStatus = "nog niet geprobeerd";
   window.marleoEnablePush = function(){
+    window.__marleoPushStatus = "bezig...";
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal){
       try{
         // 1) vraag toestemming (toont de iPhone-systeempopup)
         await OneSignal.Notifications.requestPermission();
-        // 2) activeer het abonnement expliciet (nodig in OneSignal v16!)
-        //    zonder deze stap verschijnt je toestel NIET als abonnee
+        // 2) activeer het abonnement expliciet (nodig in OneSignal v16)
         if(OneSignal.User && OneSignal.User.PushSubscription){
           await OneSignal.User.PushSubscription.optIn();
         }
-      }catch(e){}
+        // 3) wacht en controleer of er een abonnement is aangemaakt
+        await new Promise(function(r){setTimeout(r,3500);});
+        var sub=OneSignal.User && OneSignal.User.PushSubscription;
+        var id=sub? sub.id : null;
+        var perm=OneSignal.Notifications ? OneSignal.Notifications.permission : false;
+        if(id){
+          window.__marleoPushStatus = "GELUKT - je toestel is geregistreerd (id: "+String(id).slice(0,8)+"...)";
+        } else if(perm){
+          window.__marleoPushStatus = "Toestemming OK, maar geen abonnement-id. Wacht 1 min en check OneSignal.";
+        } else {
+          window.__marleoPushStatus = "Toestemming niet gegeven of geblokkeerd.";
+        }
+      }catch(e){
+        window.__marleoPushStatus = "FOUT: "+((e&&e.message)?e.message:String(e));
+      }
     });
   };
+  // laat de app het resultaat opvragen
+  window.marleoPushStatus = function(){ return window.__marleoPushStatus; };
 })();
 </script>
 
@@ -3061,6 +3081,18 @@ function askNotifPermission(){
     else{toast('Meldingen geweigerd',true);}
     if(VIEW==='dashboard')go('dashboard');
   });
+  // 3) na een paar seconden: toon de OneSignal-status zodat we weten of het echt lukte
+  setTimeout(function(){
+    try{
+      var top=window.parent||window;
+      var st=(top&&typeof top.marleoPushStatus==='function')?top.marleoPushStatus():(typeof window.marleoPushStatus==='function'?window.marleoPushStatus():'onbekend');
+      openM('Meldingen - status',
+        '<div style="line-height:1.6"><p><b>Resultaat van het inschakelen:</b></p>'+
+        '<div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:monospace;font-size:.82rem;word-break:break-word">'+esc(String(st))+'</div>'+
+        '<p style="margin-top:12px;color:var(--muted);font-size:.85rem">Staat er GELUKT? Dan ben je klaar. Staat er iets anders? Kopieer deze tekst en stuur ze door, dan lossen we het op.</p></div>',
+        '<button class="btn" onclick="closeM()">OK</button>');
+    }catch(e){}
+  },6000);
 }
 function notifShow(title,body,tag){
   if(NOTIF_SEEN[tag])return;
