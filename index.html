@@ -479,27 +479,54 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
 
 
 <!-- ===== OneSignal Web Push ===== -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<!-- OneSignal SDK wordt alleen in app-modus geladen (zie script hieronder) -->
 <script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(async function(OneSignal) {
-  try{
-    await OneSignal.init({
-      appId: "71ab17ab-ad6d-4d35-bbfb-e6c260f94b07",
-      serviceWorkerParam: { scope: "/marleo-site/push/" },
-      serviceWorkerPath: "push/OneSignalSDKWorker.js",
-      allowLocalhostAsSecureOrigin: true,
-    });
-    window.__oneSignalReady = true;
-  }catch(e){ /* stil */ }
-});
-// Helper zodat de CRM meldingen kan aanvragen/versturen
-window.marleoEnablePush = function(){
+// OneSignal ALLEEN activeren in de app (CRM), nooit voor gewone websitebezoekers.
+// Zo krijgt een klant die de site bekijkt NOOIT een meldingenvraag.
+(function(){
+  function inAppMode(){
+    try{
+      if(location.search.indexOf('app=1')>=0)return true;
+      if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)return true;
+      if(window.navigator.standalone===true)return true;
+    }catch(e){}
+    return false;
+  }
+  if(!inAppMode()){
+    // Gewone websitebezoeker: OneSignal helemaal NIET laden. Geen popup, niks.
+    window.marleoEnablePush = function(){ /* niet beschikbaar buiten de app */ };
+    return;
+  }
+  // Vanaf hier: we draaien in de geïnstalleerde app → OneSignal wél initialiseren,
+  // maar zonder automatische popup. De vraag komt pas als jij zelf op de knop tikt.
+  // SDK dynamisch laden zodat gewone bezoekers deze code nooit binnenkrijgen:
+  var os=document.createElement('script');
+  os.src='https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+  os.defer=true;
+  document.head.appendChild(os);
   window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal){
-    try{ await OneSignal.Notifications.requestPermission(); }catch(e){}
+  OneSignalDeferred.push(async function(OneSignal) {
+    try{
+      await OneSignal.init({
+        appId: "71ab17ab-ad6d-4d35-bbfb-e6c260f94b07",
+        serviceWorkerParam: { scope: "/marleo-site/push/" },
+        serviceWorkerPath: "push/OneSignalSDKWorker.js",
+        allowLocalhostAsSecureOrigin: true,
+        autoResubscribe: true,
+        promptOptions: { slidedown: { enabled: false } },
+        welcomeNotification: { disable: true }
+      });
+      window.__oneSignalReady = true;
+    }catch(e){ /* stil */ }
   });
-};
+  // Wordt aangeroepen door de CRM-knop "Meldingen inschakelen"
+  window.marleoEnablePush = function(){
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal){
+      try{ await OneSignal.Notifications.requestPermission(); }catch(e){}
+    });
+  };
+})();
 </script>
 
 </head>
