@@ -3197,6 +3197,25 @@ function initNotifs(){
   checkNotifs();
   setInterval(checkNotifs,60000);
 }
+function testSWNotif(){
+  // test of de service worker ZELF een melding kan tonen (isoleert push-aflevering van worker-probleem)
+  try{
+    var w = (window.parent && window.parent!==window) ? window.parent : window;
+    if(!('serviceWorker' in w.navigator)){ toast('Geen service worker op dit toestel',true); return; }
+    w.navigator.serviceWorker.ready.then(function(reg){
+      // methode 1: rechtstreeks via registration.showNotification
+      if(reg && reg.showNotification){
+        reg.showNotification('Marleo directe test', {
+          body: 'Als je DIT ziet, werkt de melding-weergave. Dan ligt het aan de push-aflevering.',
+          tag: 'marleo-directtest-'+Date.now(),
+          data: { url: './?app=1' }
+        }).then(function(){ toast('Testmelding verstuurd via worker'); }).catch(function(e){ toast('Worker-fout: '+e.message,true); });
+      }
+      // methode 2: ook via postMessage (voor het geval showNotification hier niet mag)
+      if(reg && reg.active){ reg.active.postMessage({type:'MARLEO_TEST_NOTIF'}); }
+    }).catch(function(e){ toast('Worker niet klaar: '+e.message,true); });
+  }catch(e){ toast('Fout: '+e.message,true); }
+}
 function askNotifPermission(){
   if(!('Notification' in window)){toast('Meldingen niet ondersteund op dit toestel',true);return;}
   var topw=window.parent||window;
@@ -3421,7 +3440,8 @@ function rSettings(){
     (on?'<span class="pill" style="background:rgba(34,197,94,.15);color:#22C55E">\\u2713 Meldingen staan aan</span>':'<button class="btn sm" onclick="askNotifPermission()">Meldingen inschakelen</button>')+
     '<div class="fgroup" style="margin:0"><label style="font-size:.78rem">Herinnering vooraf</label><select onchange="DATA.settings.notifLead=parseInt(this.value);saveData()">'+
     [15,30,60,120].map(function(m){return '<option value="'+m+'" '+(lead===m?'selected':'')+'>'+(m<60?m+' min':(m/60)+' uur')+' vooraf</option>'}).join('')+'</select></div>'+
-    '<button class="btn sm subtle" onclick="notifShow(\\'Testmelding\\',\\'Zo zien je meldingen eruit\\',\\'test-\\'+Date.now())">Test melding</button>'+
+    '<button class="btn sm subtle" onclick="notifShow(\\'Testmelding\\',\\'Zo zien je meldingen eruit\\',\\'test-\\'+Date.now())">Test melding</button> '+
+    '<button class="btn sm subtle" onclick="testSWNotif()">Test push-melding</button>'+
     '</div></div>';
   })()+
   (function(){var co=coCfg();return '<div class="panelbox"><h3>\\ud83c\\udfe2 Bedrijfsgegevens (voor facturen &amp; offertes)</h3>'+
