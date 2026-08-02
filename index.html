@@ -1902,11 +1902,32 @@ document.getElementById('loginForm').addEventListener('submit',async function(e)
   var mail=document.getElementById('lmail').value.trim().toLowerCase(),pass=document.getElementById('lpass').value;
   var err=document.getElementById('loginErr');err.classList.remove('show');
   var h;try{h=await sha256(pass)}catch(x){err.textContent="Inloggen vereist een https-verbinding.";err.classList.add('show');return}
-  if(mail===ADMIN_EMAIL&&h===(DATA.adminHash||ADMIN_HASH_DEFAULT)){SESSION={role:'admin',name:'Giannis',email:mail};enterApp();return}
+  if(mail===ADMIN_EMAIL&&h===(DATA.adminHash||ADMIN_HASH_DEFAULT)){SESSION={role:'admin',name:'Giannis',email:mail};rememberSession();enterApp();return}
   var cl=DATA.clients.find(function(c){return c.email.toLowerCase()===mail&&c.hash===h});
   if(cl){SESSION={role:'client',name:cl.name,email:cl.email,customerId:cl.customerId};enterApp();return}
   err.textContent="Ongeldig e-mailadres of wachtwoord.";err.classList.add('show');
 });
+// ===== Onthoud mij (30 dagen) =====
+var REMEMBER_KEY='marleo_remember';
+function rememberSession(){
+  try{
+    var tok={email:SESSION.email,exp:Date.now()+30*864e5};
+    localStorage.setItem(REMEMBER_KEY,JSON.stringify(tok));
+  }catch(e){}
+}
+function tryAutoLogin(){
+  try{
+    var raw=localStorage.getItem(REMEMBER_KEY);
+    if(!raw)return false;
+    var tok=JSON.parse(raw);
+    if(!tok||!tok.exp||Date.now()>tok.exp){localStorage.removeItem(REMEMBER_KEY);return false;}
+    if(tok.email===ADMIN_EMAIL){
+      SESSION={role:'admin',name:'Giannis',email:tok.email};
+      enterApp();return true;
+    }
+  }catch(e){}
+  return false;
+}
 function enterApp(){
   setTimeout(function(){if(atCfg().token){atPull(true)}},600);
   document.getElementById('loginView').style.display='none';
@@ -1918,7 +1939,7 @@ function enterApp(){
   if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);startTaskPopups();initNotifs();}
   if(!storageOK)toast("Opslag geblokkeerd, open via https zodat wijzigingen bewaard blijven",true);
 }
-function logout(){location.reload()}
+function logout(){try{localStorage.removeItem(REMEMBER_KEY);}catch(e){}location.reload()}
 
 
 /* ===== live-sync UI ===== */
@@ -3522,6 +3543,20 @@ function rCTickets(){
   main().innerHTML='<div class="topbar"><div><h2>Mijn tickets</h2><div class="sub">Support en vragen</div></div></div>'+
   '<div class="panelbox"><div class="empty"><span class="big">\\uD83C\\uDFAB</span>Nog geen tickets<br><span style="font-size:.82rem">Mail info@marleo.tech om een ticket te openen</span></div></div>';
 }
+
+// ===== auto-login bij opstart (onthoud mij 30 dagen) =====
+(function(){
+  function boot(){ try{ tryAutoLogin(); }catch(e){} }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}
+  else{boot();}
+})();
+
+// ===== auto-login bij opstart (onthoud mij 30 dagen) =====
+(function(){
+  function boot(){ try{ tryAutoLogin(); }catch(e){} }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}
+  else{boot();}
+})();
 <\/script>
 </body>
 </html>
