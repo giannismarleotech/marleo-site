@@ -1,6 +1,6 @@
 /* Marleo service worker - PWA-installatie + offline fallback + rechtstreekse web-push */
 
-var CACHE='marleo-v3';
+var CACHE='marleo-v4';
 
 self.addEventListener('install',function(e){ self.skipWaiting(); });
 
@@ -19,12 +19,13 @@ self.addEventListener('push', function(e){
   var title = data.title || 'Marleo';
   var options = {
     body: data.body || '',
-    icon: data.icon || 'push/icon.png',
-    badge: data.badge || 'push/icon.png',
     tag: data.tag || ('marleo-'+Date.now()),
     data: { url: data.url || './?app=1' },
     requireInteraction: !!data.requireInteraction
   };
+  // icoon alleen toevoegen als het expliciet is meegegeven (voorkomt 404-blokkering op iOS)
+  if(data.icon){ options.icon = data.icon; }
+  if(data.badge){ options.badge = data.badge; }
   e.waitUntil(self.registration.showNotification(title, options));
 });
 
