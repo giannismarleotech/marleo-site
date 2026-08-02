@@ -605,10 +605,21 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
                       });
                       if(directSub){
                         pushLog("Abonnement aangemaakt! OneSignal koppelt het nu...");
-                        // geef OneSignal even tijd om het op te pikken
-                        await new Promise(function(r){setTimeout(r,3000);});
-                        var newId = (OneSignal.User && OneSignal.User.PushSubscription) ? OneSignal.User.PushSubscription.id : null;
-                        pushLog(newId ? ("GELUKT! Geregistreerd (id: "+String(newId).slice(0,8)+"...)") : "GELUKT! Abonnement staat klaar. Sluit de app en open opnieuw.");
+                        // Nu het browser-abonnement bestaat: OneSignal opnieuw laten opt-in-en
+                        // zodat het dit abonnement adopteert en naar de server stuurt.
+                        try{
+                          if(OneSignal.User && OneSignal.User.PushSubscription && OneSignal.User.PushSubscription.optIn){
+                            await OneSignal.User.PushSubscription.optIn();
+                          }
+                        }catch(e){}
+                        // wacht tot OneSignal een id toekent (max 10 sec)
+                        var newId=null;
+                        for(var j=0;j<10;j++){
+                          await new Promise(function(r){setTimeout(r,1000);});
+                          newId = (OneSignal.User && OneSignal.User.PushSubscription) ? OneSignal.User.PushSubscription.id : null;
+                          if(newId) break;
+                        }
+                        pushLog(newId ? ("GELUKT! Geregistreerd bij OneSignal (id: "+String(newId).slice(0,8)+"...)") : "Abonnement staat klaar op je toestel. Sluit de app volledig en open opnieuw, dan verschijnt het.");
                       } else {
                         pushLog("Registratie gaf niks terug.");
                       }
