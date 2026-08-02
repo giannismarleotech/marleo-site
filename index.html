@@ -451,6 +451,32 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
 /* oude bot-chatpaneel uitgeschakeld, we gebruiken nu Tawk.to livechat */
 #chatpanel{display:none!important}
 </style>
+
+<!-- ===== PWA setup ===== -->
+<meta name="theme-color" content="#08080E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Marleo">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<script>
+(function(){
+  // manifest dynamisch koppelen (zodat alles in 1 bestand blijft)
+  try{
+    var mf={"name": "Marleo HQ", "short_name": "Marleo", "description": "Marleo CRM & bedrijfsbeheer", "start_url": "./?app=1", "display": "standalone", "background_color": "#08080E", "theme_color": "#08080E", "orientation": "portrait-primary", "icons": [{"src": "data:image/png;base64,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", "sizes": "192x192", "type": "image/png"}, {"src": "data:image/png;base64,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", "sizes": "512x512", "type": "image/png"}, {"src": "data:image/png;base64,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", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}]};
+    var blob=new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});
+    var url=URL.createObjectURL(blob);
+    var link=document.createElement('link');link.rel='manifest';link.href=url;
+    document.head.appendChild(link);
+  }catch(e){}
+  // service worker registreren (nodig voor installeerbaarheid)
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('./marleo-sw.js').catch(function(){});
+    });
+  }
+})();
+</script>
+
 </head>
 <body>
 
@@ -1681,6 +1707,62 @@ tbody tr:last-child td{border-bottom:none}
 .cbadge{display:inline-block;font-size:.8rem;vertical-align:middle;margin-left:2px}
 .dnext{font-size:.72rem;color:var(--muted);margin-top:4px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+
+/* ===== nieuwe modules ===== */
+.empty .big{display:block;font-size:2.4rem;margin-bottom:8px}
+.sm{padding:7px 14px!important;font-size:.82rem!important}
+.iconbtn{background:none;border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer;color:var(--muted);font-size:.9rem;transition:all .15s}
+.iconbtn:hover{border-color:var(--red);color:var(--text)}
+.iconbtn.del:hover{border-color:#ef4444;color:#ef4444}
+.rowactions{display:flex;gap:6px;justify-content:flex-end}
+/* agenda */
+.agwrap{display:grid;grid-template-columns:1fr 300px;gap:14px}
+@media(max-width:900px){.agwrap{grid-template-columns:1fr}}
+.aghead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.aghead h3{flex:1;font-family:var(--disp);font-size:1.1rem}
+.aggrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.aghdr{margin-bottom:4px}
+.agdow{text-align:center;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:4px}
+.agcell{min-height:78px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:4px;cursor:pointer;transition:border-color .15s;overflow:hidden}
+.agcell:hover{border-color:var(--red)}
+.agcell.empty{background:transparent;border:none;cursor:default}
+.agcell.today{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.agday{font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:2px}
+.agcell.today .agday{color:var(--red)}
+.agchip{background:var(--grad);color:#fff;border-radius:5px;padding:2px 5px;font-size:.68rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.agmore{font-size:.66rem;color:var(--muted);padding-left:3px}
+.agside h3{font-family:var(--disp);font-size:1rem;margin-bottom:12px}
+.agitem{padding:10px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.agitem:hover{border-color:var(--red)}
+.agitemd{font-size:.72rem;color:var(--red);font-weight:600}
+.agitemt{font-weight:600;margin:2px 0}
+.agitemc{font-size:.78rem;color:var(--muted)}
+/* kanban */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:800px){.kanban{grid-template-columns:1fr}}
+.kcol{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px;min-height:200px}
+.kcolh{font-weight:700;font-size:.9rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.kcount{background:var(--panel);border-radius:999px;padding:1px 9px;font-size:.75rem;color:var(--muted)}
+.kcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:grab;transition:border-color .15s,transform .1s}
+.kcard:hover{border-color:var(--red)}
+.kcard:active{cursor:grabbing;transform:scale(.98)}
+.kcardt{font-weight:600;font-size:.9rem}
+.kcardc{font-size:.76rem;color:var(--muted);margin-top:3px}
+.kcardd{font-size:.74rem;color:var(--muted);margin-top:3px}
+.kprio{display:inline-block;margin-top:6px;background:rgba(239,68,68,.15);color:#ef4444;font-size:.68rem;padding:1px 8px;border-radius:999px;font-weight:600}
+/* tijdregistratie stats */
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.statcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.statlabel{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.statnum{font-family:var(--disp);font-size:1.4rem;font-weight:700}
+/* e-mailsjablonen */
+.tplgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tplcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.tplh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.tplsub{font-size:.82rem;color:var(--red);font-weight:600;margin-bottom:8px}
+.tplbody{white-space:pre-wrap;font-family:var(--body);font-size:.82rem;color:var(--muted);background:var(--bg2);border-radius:8px;padding:10px;max-height:160px;overflow:auto;margin-bottom:10px;border:1px solid var(--line)}
+
+.catpick{background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 12px;font-size:.82rem;font-family:var(--body);cursor:pointer}
 .custhero{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:14px}
 .custav{width:64px;height:64px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-family:var(--disp);font-weight:700;font-size:1.8rem;color:#fff;flex-shrink:0}
 .custtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -1760,7 +1842,7 @@ function coCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.company)DATA.
 
 /* ============ SEED ============ */
 function seedData(){
-  return {customers:[],deals:[],invoices:[],expenses:[],tasks:[],notes:[],clients:[],activity:[{t:Date.now(),txt:'Welkom in Marleo HQ, koppel Airtable via Instellingen om je pipeline te laden'}],settings:{airtable:{token:'',base:'appqZHTc5zbx3hNSh',table:'tblU5dzzAenFL6qbp'},company:{name:'Marleo',legal:'Marleo',vat:'BE 0751.641.419',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen. Bij laattijdige betaling is van rechtswege en zonder ingebrekestelling een verwijlintrest verschuldigd.'}},seq:{invoice:2026001}};
+  return {customers:[],deals:[],invoices:[],expenses:[],tasks:[],notes:[],clients:[],appointments:[],products:[],timelogs:[],emailtemplates:[],activity:[{t:Date.now(),txt:'Welkom in Marleo HQ, koppel Airtable via Instellingen om je pipeline te laden'}],settings:{airtable:{token:'',base:'appqZHTc5zbx3hNSh',table:'tblU5dzzAenFL6qbp'},company:{name:'Marleo',legal:'Marleo',vat:'BE 0751.641.419',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen. Bij laattijdige betaling is van rechtswege en zonder ingebrekestelling een verwijlintrest verschuldigd.'}},seq:{invoice:2026001}};
 }
 
 /* ============ STORAGE ============ */
@@ -1776,6 +1858,10 @@ function loadData(){
 function migrate(d){
   d.customers.forEach(function(c){if(!c.type)c.type='klant';if(!c.tags)c.tags=[]});
   if(!d.deals)d.deals=[];
+  if(!d.appointments)d.appointments=[];
+  if(!d.products)d.products=[];
+  if(!d.timelogs)d.timelogs=[];
+  if(!d.emailtemplates)d.emailtemplates=[];
 }
 function saveData(){try{localStorage.setItem(LS_KEY,JSON.stringify(DATA))}catch(e){storageOK=false;memStore=DATA}}
 var DATA=loadData();
@@ -1829,7 +1915,7 @@ function enterApp(){
   document.getElementById('uRole').textContent=SESSION.role==='admin'?'Beheerder':'Klant';
   document.getElementById('uAvatar').textContent=SESSION.name.charAt(0).toUpperCase();
   buildMenu();go(SESSION.role==='admin'?'dashboard':'cportal');
-  if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);startTaskPopups();}
+  if(SESSION.role==='admin'){startAutoSync();setTimeout(updateSyncBadge,900);startTaskPopups();initNotifs();}
   if(!storageOK)toast("Opslag geblokkeerd, open via https zodat wijzigingen bewaard blijven",true);
 }
 function logout(){location.reload()}
@@ -1873,6 +1959,11 @@ var IC={
  task:'<path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>',
  note:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
  doc:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM14 2v6h6M9 13h6M9 17h4"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ cat:'<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
+ mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 5L2 7"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ kanban:'<rect x="3" y="3" width="6" height="18" rx="1"/><rect x="10" y="3" width="6" height="12" rx="1"/><rect x="17" y="3" width="4" height="8" rx="1"/>',
  set:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>'
 };
 var MENU_ADMIN=[
@@ -1882,8 +1973,14 @@ var MENU_ADMIN=[
   ['SEC','CRM'],
   ['pipeline','Pipeline',IC.pipe],
   ['outreach','Outreach',IC.chat],
+  ['SEC','Planning'],
+  ['agenda','Agenda',IC.cal],
+  ['board','Takenbord',IC.kanban],
+  ['timetrack','Tijdregistratie',IC.clock],
   ['SEC','Boekhouding'],
   ['invoices','Facturen',IC.inv],
+  ['quotes','Offertes',IC.doc],
+  ['catalog','Catalogus',IC.cat],
   ['expenses','Uitgaven',IC.exp],
   ['vat','BTW-overzicht',IC.vat],
   ['SEC','Beheer'],
@@ -1891,6 +1988,7 @@ var MENU_ADMIN=[
   ['tasks','Taken',IC.task],
   ['notes','Notities',IC.note],
   ['documents','Documenten',IC.doc],
+  ['emails','E-mailsjablonen',IC.mail],
   ['settings','Instellingen',IC.set]
 ];
 var MENU_CLIENT=[['cportal','Mijn overzicht',IC.dash],['cinvoices','Mijn facturen',IC.inv],['ctickets','Mijn tickets',IC.task]];
@@ -1906,7 +2004,7 @@ function buildMenu(){
 function go(v){
   VIEW=v;
   document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
-  var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,documents:rDocuments,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
+  var R={dashboard:rDash,pipeline:rPipeline,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,documents:rDocuments,agenda:rAgenda,board:rBoard,timetrack:rTimetrack,quotes:rQuotes,catalog:rCatalog,emails:rEmails,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
   (R[v]||rDash)();window.scrollTo(0,0);
   if(typeof updateSyncBadge==='function')setTimeout(updateSyncBadge,50);
 }
@@ -2117,7 +2215,10 @@ function mInvoice(id){
   '<div class="fgroup"><label>Vervaldatum</label><input id="i_due" type="date" value="'+(iv?iv.due:'')+'"></div></div>'+
   '<div class="fgroup"><label>Status</label><select id="i_status">'+['concept','openstaand','betaald'].map(function(s){return '<option '+(iv&&iv.status===s?'selected':(!iv&&s==='openstaand'?'selected':''))+'>'+s+'</option>'}).join('')+'</select></div>'+
   '<label style="margin-top:8px">Factuurlijnen</label><div id="lineWrap"></div>'+
-  '<button class="btn subtle sm" onclick="addLine()" style="margin-top:4px">+ Lijn toevoegen</button>'+
+  '<div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center">'+
+  '<button class="btn subtle sm" onclick="addLine()">+ Lijn toevoegen</button>'+
+  (DATA.products&&DATA.products.length?'<select class="catpick" onchange="addFromCatalog(this.value);this.value=\\'\\'"><option value=\\'\\'>+ Uit catalogus\\u2026</option>'+DATA.products.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+' ('+eur(p.price)+')</option>'}).join('')+'</select>':'')+
+  '</div>'+
   '<div class="totbox" id="i_tot"></div>'+
   '<div class="fgroup" style="margin-top:14px"><label>Notitie (optioneel)</label><textarea id="i_note">'+esc(iv?iv.note:'')+'</textarea></div>',
   '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveInvoice(\\''+(id||'')+'\\')">Opslaan</button>',true);
@@ -2133,6 +2234,11 @@ function renderLines(){
   calcTot();
 }
 function addLine(){EDITLINES.push({d:'',q:1,p:0});renderLines()}
+function addFromCatalog(pid){if(!pid)return;var p=DATA.products.find(function(x){return x.id===pid});if(!p)return;
+  // vervang lege eerste lijn, anders toevoegen
+  if(EDITLINES.length===1&&!EDITLINES[0].d&&!EDITLINES[0].p){EDITLINES[0]={d:p.name+(p.desc?' \\u2013 '+p.desc:''),q:1,p:p.price};}
+  else{EDITLINES.push({d:p.name+(p.desc?' \\u2013 '+p.desc:''),q:1,p:p.price});}
+  renderLines();}
 function calcTot(){
   var sub=EDITLINES.reduce(function(s,l){return s+Math.round((l.q||0)*(l.p||0)*100)/100},0);
   var vat=Math.round(sub*VAT_RATE*100)/100;
@@ -2576,6 +2682,285 @@ function delTask(id){DATA.tasks=DATA.tasks.filter(function(x){return x.id!==id})
 
 /* ============ NOTITIES ============ */
 
+
+/* ============ CATALOGUS (producten/diensten) ============ */
+function rCatalog(){
+  var list=DATA.products.slice();
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Catalogus</h2><div class="sub">Herbruikbare diensten &amp; producten voor je offertes en facturen</div></div>'+
+  '<button class="btn" onclick="mProduct()">+ Nieuw item</button></div>'+
+  '<div class="panelbox" style="padding:8px 12px">'+
+  (list.length?'<div style="overflow-x:auto"><table><thead><tr><th>Naam</th><th>Omschrijving</th><th>Prijs</th><th>Eenheid</th><th></th></tr></thead><tbody>'+
+    list.map(function(p){return '<tr style="cursor:default"><td><b>'+esc(p.name)+'</b></td><td style="color:var(--muted)">'+esc(p.desc||'')+'</td><td>'+eur(p.price)+'</td><td style="color:var(--muted)">'+esc(p.unit||'stuk')+'</td>'+
+    '<td><div class="rowactions"><button class="iconbtn" onclick="mProduct(\\''+p.id+'\\')">\\u270E</button><button class="iconbtn del" onclick="delProduct(\\''+p.id+'\\')">\\uD83D\\uDDD1</button></div></td></tr>';}).join('')+
+    '</tbody></table></div>':'<div class="empty"><span class="big">\\uD83D\\uDCE6</span>Nog geen items. Voeg je vaste diensten toe (bv. "Website basis", "Uur ontwikkeling") zodat je ze met \\u00e9\\u00e9n klik op een offerte zet.</div>')+'</div>';
+}
+function mProduct(id){
+  var p=id?DATA.products.find(function(x){return x.id===id}):{name:'',desc:'',price:0,unit:'stuk'};
+  openM(id?'Item bewerken':'Nieuw item',
+    '<div class="fgroup"><label>Naam *</label><input id="p_name" value="'+esc(p.name)+'" placeholder="bv. Website basis"></div>'+
+    '<div class="fgroup"><label>Omschrijving</label><input id="p_desc" value="'+esc(p.desc||'')+'" placeholder="korte omschrijving"></div>'+
+    '<div class="frow"><div class="fgroup"><label>Prijs (excl. btw)</label><input id="p_price" type="number" step="0.01" value="'+(p.price||0)+'"></div>'+
+    '<div class="fgroup"><label>Eenheid</label><input id="p_unit" value="'+esc(p.unit||'stuk')+'" placeholder="stuk, uur, maand"></div></div>',
+    '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveProduct(\\''+(id||'')+'\\')">Opslaan</button>');
+}
+function saveProduct(id){
+  var name=document.getElementById('p_name').value.trim();
+  if(!name){toast('Geef een naam op',true);return}
+  var o={name:name,desc:document.getElementById('p_desc').value.trim(),price:parseFloat(document.getElementById('p_price').value)||0,unit:document.getElementById('p_unit').value.trim()||'stuk'};
+  if(id){Object.assign(DATA.products.find(function(x){return x.id===id}),o);}
+  else{o.id=nid('prod');DATA.products.push(o);}
+  saveData();closeM();rCatalog();toast('Item bewaard');
+}
+function delProduct(id){if(!confirm('Dit item verwijderen?'))return;DATA.products=DATA.products.filter(function(x){return x.id!==id});saveData();rCatalog();}
+
+
+/* ============ AGENDA / AFSPRAKEN ============ */
+var AGMONTH=null;
+function rAgenda(){
+  if(!AGMONTH){var n=new Date();AGMONTH={y:n.getFullYear(),m:n.getMonth()};}
+  var y=AGMONTH.y,m=AGMONTH.m;
+  var maanden=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  var first=new Date(y,m,1),start=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+  var today=new Date();var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var appts=DATA.appointments.slice().sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time)});
+  function apptsOn(ds){return appts.filter(function(a){return a.date===ds});}
+  var cells='';
+  for(var i=0;i<start;i++)cells+='<div class="agcell empty"></div>';
+  for(var d=1;d<=days;d++){
+    var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var da=apptsOn(ds);
+    cells+='<div class="agcell'+(ds===todayStr?' today':'')+'" onclick="mAppt(null,\\''+ds+'\\')">'+
+      '<div class="agday">'+d+'</div>'+
+      da.slice(0,3).map(function(a){return '<div class="agchip" onclick="event.stopPropagation();mAppt(\\''+a.id+'\\')" title="'+esc(a.title)+'">'+esc(a.time||'')+' '+esc(a.title)+'</div>';}).join('')+
+      (da.length>3?'<div class="agmore">+'+(da.length-3)+' meer</div>':'')+'</div>';
+  }
+  var upcoming=appts.filter(function(a){return a.date>=todayStr}).slice(0,6);
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Agenda</h2><div class="sub">Je afspraken en planning</div></div>'+
+  '<button class="btn" onclick="mAppt()">+ Afspraak</button></div>'+
+  '<div class="agwrap"><div class="agcal panelbox">'+
+  '<div class="aghead"><button class="iconbtn" onclick="agNav(-1)">\\u2039</button><h3>'+maanden[m]+' '+y+'</h3><button class="iconbtn" onclick="agNav(1)">\\u203A</button><button class="btn subtle sm" onclick="AGMONTH=null;rAgenda()">Vandaag</button></div>'+
+  '<div class="aggrid aghdr">'+['ma','di','wo','do','vr','za','zo'].map(function(x){return '<div class="agdow">'+x+'</div>';}).join('')+'</div>'+
+  '<div class="aggrid">'+cells+'</div></div>'+
+  '<div class="agside panelbox"><h3>Komende afspraken</h3>'+
+  (upcoming.length?upcoming.map(function(a){return '<div class="agitem" onclick="mAppt(\\''+a.id+'\\')"><div class="agitemd">'+fmtD(a.date)+(a.time?' \\u00b7 '+esc(a.time):'')+'</div><div class="agitemt">'+esc(a.title)+'</div>'+(a.customerId?'<div class="agitemc">'+esc(custName(a.customerId))+'</div>':'')+'</div>';}).join(''):'<p class="empty" style="padding:16px">Geen komende afspraken.</p>')+
+  '</div></div>';
+}
+function agNav(dir){AGMONTH.m+=dir;if(AGMONTH.m<0){AGMONTH.m=11;AGMONTH.y--;}if(AGMONTH.m>11){AGMONTH.m=0;AGMONTH.y++;}rAgenda();}
+function mAppt(id,presetDate){
+  var a=id?DATA.appointments.find(function(x){return x.id===id}):{title:'',date:presetDate||'',time:'',customerId:'',note:''};
+  var custOpts='<option value="">,  geen klant , </option>'+DATA.customers.map(function(c){return '<option value="'+c.id+'"'+(a.customerId===c.id?' selected':'')+'>'+esc(c.name)+'</option>';}).join('');
+  openM(id?'Afspraak bewerken':'Nieuwe afspraak',
+    '<div class="fgroup"><label>Titel *</label><input id="a_title" value="'+esc(a.title)+'" placeholder="bv. Kennismaking bij klant"></div>'+
+    '<div class="frow"><div class="fgroup"><label>Datum</label><input id="a_date" type="date" value="'+esc(a.date)+'"></div>'+
+    '<div class="fgroup"><label>Tijd</label><input id="a_time" type="time" value="'+esc(a.time)+'"></div></div>'+
+    '<div class="fgroup"><label>Klant</label><select id="a_cust">'+custOpts+'</select></div>'+
+    '<div class="fgroup"><label>Notitie</label><textarea id="a_note">'+esc(a.note||'')+'</textarea></div>',
+    (id?'<button class="btn subtle danger" onclick="delAppt(\\''+id+'\\')">Verwijderen</button>':'')+'<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveAppt(\\''+(id||'')+'\\')">Opslaan</button>');
+}
+function saveAppt(id){
+  var title=document.getElementById('a_title').value.trim();
+  if(!title){toast('Geef een titel op',true);return}
+  var o={title:title,date:document.getElementById('a_date').value,time:document.getElementById('a_time').value,customerId:document.getElementById('a_cust').value,note:document.getElementById('a_note').value.trim()};
+  if(id){Object.assign(DATA.appointments.find(function(x){return x.id===id}),o);}
+  else{o.id=nid('appt');DATA.appointments.push(o);logAct('Afspraak: '+title);}
+  saveData();closeM();rAgenda();toast('Afspraak bewaard');
+}
+function delAppt(id){DATA.appointments=DATA.appointments.filter(function(x){return x.id!==id});saveData();closeM();rAgenda();}
+
+
+/* ============ OFFERTES (aparte weergave) ============ */
+function rQuotes(){
+  var list=DATA.invoices.filter(function(iv){return iv.type==='offerte';}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Offertes</h2><div class="sub">'+list.length+' offerte(s)</div></div>'+
+  '<button class="btn" onclick="mInvoice();setTimeout(function(){var t=document.getElementById(\\'i_type\\');if(t){t.value=\\'offerte\\';if(t.onchange)t.onchange();}},120)">+ Nieuwe offerte</button></div>'+
+  '<div class="panelbox" style="padding:8px 12px">'+
+  (list.length?'<div style="overflow-x:auto"><table><thead><tr><th>Nummer</th><th>Klant</th><th>Datum</th><th>Geldig tot</th><th>Bedrag</th><th></th></tr></thead><tbody>'+
+    list.map(function(iv){return '<tr style="cursor:default"><td><b>'+esc(iv.ref)+'</b></td><td>'+esc(custName(iv.customerId))+'</td><td>'+fmtD(iv.date)+'</td><td>'+fmtD(iv.due)+'</td><td>'+eur(invTot(iv))+'</td>'+
+    '<td><div class="rowactions"><button class="iconbtn" onclick="invPdf(\\''+iv.id+'\\')" title="PDF">\\uD83D\\uDCC4</button><button class="iconbtn" onclick="mInvoice(\\''+iv.id+'\\')" title="Bewerk">\\u270E</button><button class="iconbtn" onclick="quoteToInvoice(\\''+iv.id+'\\')" title="Omzetten naar factuur">\\u2192\\uD83E\\uDDFE</button></div></td></tr>';}).join('')+
+    '</tbody></table></div>':'<div class="empty"><span class="big">\\uD83D\\uDCDD</span>Nog geen offertes. Maak er een aan; bij akkoord zet je hem met \\u00e9\\u00e9n klik om naar een factuur.</div>')+'</div>';
+}
+function quoteToInvoice(id){
+  var q=DATA.invoices.find(function(x){return x.id===id});if(!q)return;
+  if(!confirm('Deze offerte omzetten naar een factuur? De offerte blijft bestaan.'))return;
+  var seq=(DATA.seq=(DATA.seq||2026001)+1);
+  var ref='FACT-'+new Date().getFullYear()+'-'+String(seq).slice(-4);
+  var today=new Date();var ds=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var due=new Date(today.getTime()+14*864e5);var dds=due.getFullYear()+'-'+String(due.getMonth()+1).padStart(2,'0')+'-'+String(due.getDate()).padStart(2,'0');
+  DATA.invoices.push({id:nid('inv'),ref:ref,type:'factuur',lang:q.lang||'nl',customerId:q.customerId,date:ds,due:dds,status:'openstaand',lines:JSON.parse(JSON.stringify(q.lines)),note:'',yourref:q.yourref||''});
+  logAct('Offerte '+q.ref+' omgezet naar factuur '+ref);
+  saveData();toast('Factuur '+ref+' aangemaakt');go('invoices');
+}
+
+
+/* ============ TAKENBORD (kanban) ============ */
+var BOARDCOLS=[['todo','Te doen'],['doing','Bezig'],['done','Klaar']];
+function rBoard(){
+  DATA.tasks.forEach(function(t){if(!t.col)t.col=t.done?'done':'todo';});
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Takenbord</h2><div class="sub">Sleep taken tussen de kolommen</div></div>'+
+  '<button class="btn" onclick="mTask()">+ Nieuwe taak</button></div>'+
+  '<div class="kanban">'+BOARDCOLS.map(function(col){
+    var items=DATA.tasks.filter(function(t){return (t.col||'todo')===col[0];});
+    return '<div class="kcol" ondragover="event.preventDefault()" ondrop="boardDrop(event,\\''+col[0]+'\\')">'+
+      '<div class="kcolh">'+col[1]+' <span class="kcount">'+items.length+'</span></div>'+
+      items.map(function(t){return '<div class="kcard" draggable="true" ondragstart="boardDrag(event,\\''+t.id+'\\')" onclick="mTaskEdit(\\''+t.id+'\\')">'+
+        '<div class="kcardt">'+esc(t.title)+'</div>'+
+        (t.customerId?'<div class="kcardc">'+esc(custName(t.customerId))+'</div>':'')+
+        (t.due?'<div class="kcardd">\\uD83D\\uDCC5 '+fmtD(t.due)+'</div>':'')+
+        (t.prio==='hoog'?'<span class="kprio">hoog</span>':'')+'</div>';}).join('')+
+      '</div>';
+  }).join('')+'</div>';
+}
+var _dragId=null;
+function boardDrag(e,id){_dragId=id;e.dataTransfer.effectAllowed='move';}
+function boardDrop(e,col){e.preventDefault();if(!_dragId)return;var t=DATA.tasks.find(function(x){return x.id===_dragId;});if(t){t.col=col;t.done=(col==='done');saveData();rBoard();}_dragId=null;}
+function mTaskEdit(id){/* kaart-klik: geen edit-modal beschikbaar, laat sleep-actie primair */}
+
+/* ============ TIJDREGISTRATIE ============ */
+function rTimetrack(){
+  var logs=DATA.timelogs.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  var totMin=logs.reduce(function(s,l){return s+(l.minutes||0);},0);
+  var byC={};logs.forEach(function(l){var k=l.customerId||'_';byC[k]=(byC[k]||0)+(l.minutes||0);});
+  function hm(min){return Math.floor(min/60)+'u '+(min%60)+'m';}
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Tijdregistratie</h2><div class="sub">Totaal geregistreerd: '+hm(totMin)+'</div></div>'+
+  '<button class="btn" onclick="mTimelog()">+ Uren loggen</button></div>'+
+  (Object.keys(byC).length?'<div class="statgrid">'+Object.keys(byC).map(function(k){return '<div class="statcard"><div class="statlabel">'+(k==='_'?'Zonder klant':esc(custName(k)))+'</div><div class="statnum">'+hm(byC[k])+'</div></div>';}).join('')+'</div>':'')+
+  '<div class="panelbox" style="padding:8px 12px;margin-top:14px">'+
+  (logs.length?'<div style="overflow-x:auto"><table><thead><tr><th>Datum</th><th>Klant</th><th>Omschrijving</th><th>Duur</th><th></th></tr></thead><tbody>'+
+    logs.map(function(l){return '<tr style="cursor:default"><td>'+fmtD(l.date)+'</td><td>'+(l.customerId?esc(custName(l.customerId)):'\\u2014')+'</td><td>'+esc(l.desc||'')+'</td><td>'+hm(l.minutes||0)+'</td>'+
+    '<td><div class="rowactions"><button class="iconbtn del" onclick="delTimelog(\\''+l.id+'\\')">\\uD83D\\uDDD1</button></div></td></tr>';}).join('')+
+    '</tbody></table></div>':'<div class="empty"><span class="big">\\u23F1\\uFE0F</span>Nog geen uren geregistreerd.</div>')+'</div>';
+}
+function mTimelog(){
+  var today=new Date();var ds=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var custOpts='<option value="">\\u2014 geen klant \\u2014</option>'+DATA.customers.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>';}).join('');
+  openM('Uren loggen',
+    '<div class="frow"><div class="fgroup"><label>Datum</label><input id="tl_date" type="date" value="'+ds+'"></div>'+
+    '<div class="fgroup"><label>Duur (minuten)</label><input id="tl_min" type="number" step="15" value="60"></div></div>'+
+    '<div class="fgroup"><label>Klant</label><select id="tl_cust">'+custOpts+'</select></div>'+
+    '<div class="fgroup"><label>Omschrijving</label><input id="tl_desc" placeholder="waaraan gewerkt?"></div>',
+    '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveTimelog()">Opslaan</button>');
+}
+function saveTimelog(){
+  var min=parseInt(document.getElementById('tl_min').value)||0;
+  if(min<=0){toast('Geef een geldige duur op',true);return}
+  DATA.timelogs.push({id:nid('tl'),date:document.getElementById('tl_date').value,minutes:min,customerId:document.getElementById('tl_cust').value,desc:document.getElementById('tl_desc').value.trim()});
+  saveData();closeM();rTimetrack();toast('Uren geregistreerd');
+}
+function delTimelog(id){DATA.timelogs=DATA.timelogs.filter(function(x){return x.id!==id});saveData();rTimetrack();}
+
+/* ============ E-MAILSJABLONEN ============ */
+var DEFAULT_TEMPLATES=[
+  {id:'tpl-offerte',name:'Offerte opvolgen',subject:'Uw offerte van Marleo',body:'Beste,\\n\\nEnige tijd geleden bezorgde ik u een offerte. Ik wilde even polsen of u nog vragen heeft of dat u graag wil starten.\\n\\nIk hoor het graag!\\n\\nMet vriendelijke groet,\\nGiannis \\u2013 Marleo'},
+  {id:'tpl-welkom',name:'Welkom nieuwe klant',subject:'Welkom bij Marleo',body:'Beste,\\n\\nWelkom als klant bij Marleo! Ik kijk ernaar uit om met u samen te werken. Bij vragen ben ik steeds bereikbaar via info@marleo.tech.\\n\\nMet vriendelijke groet,\\nGiannis \\u2013 Marleo'},
+  {id:'tpl-herinner',name:'Betalingsherinnering',subject:'Vriendelijke herinnering \\u2013 openstaande factuur',body:'Beste,\\n\\nUit mijn administratie blijkt dat onderstaande factuur nog openstaat. Mogelijk is dit aan uw aandacht ontsnapt. Zou u de betaling in orde willen brengen?\\n\\nAlvast bedankt en met vriendelijke groet,\\nGiannis \\u2013 Marleo'}
+];
+function rEmails(){
+  if(!DATA.emailtemplates.length){DATA.emailtemplates=JSON.parse(JSON.stringify(DEFAULT_TEMPLATES));saveData();}
+  var list=DATA.emailtemplates;
+  main().innerHTML=
+  '<div class="topbar"><div><h2>E-mailsjablonen</h2><div class="sub">Klaar om te kopi\\u00ebren en te versturen</div></div>'+
+  '<button class="btn" onclick="mTemplate()">+ Nieuw sjabloon</button></div>'+
+  '<div class="tplgrid">'+list.map(function(t){return '<div class="tplcard"><div class="tplh"><b>'+esc(t.name)+'</b><div class="rowactions"><button class="iconbtn" onclick="mTemplate(\\''+t.id+'\\')">\\u270E</button><button class="iconbtn del" onclick="delTemplate(\\''+t.id+'\\')">\\uD83D\\uDDD1</button></div></div>'+
+    '<div class="tplsub">'+esc(t.subject)+'</div>'+
+    '<pre class="tplbody">'+esc(t.body)+'</pre>'+
+    '<button class="btn subtle sm" onclick="copyTemplate(\\''+t.id+'\\')">\\uD83D\\uDCCB Kopieer</button></div>';}).join('')+'</div>';
+}
+function mTemplate(id){
+  var t=id?DATA.emailtemplates.find(function(x){return x.id===id}):{name:'',subject:'',body:''};
+  openM(id?'Sjabloon bewerken':'Nieuw sjabloon',
+    '<div class="fgroup"><label>Naam *</label><input id="tpl_name" value="'+esc(t.name)+'"></div>'+
+    '<div class="fgroup"><label>Onderwerp</label><input id="tpl_subject" value="'+esc(t.subject)+'"></div>'+
+    '<div class="fgroup"><label>Bericht</label><textarea id="tpl_body" style="min-height:160px">'+esc(t.body)+'</textarea></div>',
+    (id?'<button class="btn subtle danger" onclick="delTemplate(\\''+id+'\\')">Verwijderen</button>':'')+'<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveTemplate(\\''+(id||'')+'\\')">Opslaan</button>');
+}
+function saveTemplate(id){
+  var name=document.getElementById('tpl_name').value.trim();
+  if(!name){toast('Geef een naam op',true);return}
+  var o={name:name,subject:document.getElementById('tpl_subject').value.trim(),body:document.getElementById('tpl_body').value};
+  if(id){Object.assign(DATA.emailtemplates.find(function(x){return x.id===id}),o);}
+  else{o.id=nid('tpl');DATA.emailtemplates.push(o);}
+  saveData();closeM();rEmails();toast('Sjabloon bewaard');
+}
+function delTemplate(id){if(!confirm('Dit sjabloon verwijderen?'))return;DATA.emailtemplates=DATA.emailtemplates.filter(function(x){return x.id!==id});saveData();closeM&&closeM();rEmails();}
+function copyTemplate(id){var t=DATA.emailtemplates.find(function(x){return x.id===id});if(!t)return;var txt='Onderwerp: '+t.subject+'\\n\\n'+t.body;if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){toast('Gekopieerd naar klembord');},function(){toast('Kopi\\u00ebren mislukt',true);});}else{toast('Kopi\\u00ebren niet ondersteund',true);}}
+
+
+/* ============ MELDINGEN (afspraken + taken) ============ */
+var NOTIF_SEEN={};
+function initNotifs(){
+  // vraag toestemming (1x)
+  if('Notification' in window && Notification.permission==='default'){
+    // niet meteen bij load; toon een subtiele knop in de UI (zie notifBanner)
+  }
+  // check elke 60s
+  checkNotifs();
+  setInterval(checkNotifs,60000);
+}
+function askNotifPermission(){
+  if(!('Notification' in window)){toast('Meldingen niet ondersteund op dit toestel',true);return;}
+  Notification.requestPermission().then(function(perm){
+    if(perm==='granted'){toast('Meldingen ingeschakeld \\u2713');DATA.settings.notifsOn=true;saveData();checkNotifs();}
+    else{toast('Meldingen geweigerd',true);}
+    if(VIEW==='dashboard')go('dashboard');
+  });
+}
+function notifShow(title,body,tag){
+  if(NOTIF_SEEN[tag])return;
+  NOTIF_SEEN[tag]=Date.now();
+  // in-app toast altijd
+  toast(title+' \\u2013 '+body);
+  // systeemmelding indien toegestaan
+  try{
+    if('Notification' in window && Notification.permission==='granted'){
+      var n=new Notification(title,{body:body,tag:tag,icon:MARLEO_ICON,badge:MARLEO_ICON});
+      n.onclick=function(){window.focus();n.close();};
+    }
+  }catch(e){}
+  // geluidje
+  try{ notifBeep(); }catch(e){}
+}
+function notifBeep(){
+  var ctx=new (window.AudioContext||window.webkitAudioContext)();
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.frequency.value=880;o.type='sine';
+  g.gain.setValueAtTime(0.0001,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.15,ctx.currentTime+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.4);
+  o.start();o.stop(ctx.currentTime+0.4);
+}
+function checkNotifs(){
+  if(SESSION&&SESSION.role!=='admin')return;
+  var now=new Date();
+  var todayStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  var lead=(DATA.settings&&DATA.settings.notifLead)||30; // minuten vooraf
+  // afspraken vandaag binnen 'lead' minuten
+  (DATA.appointments||[]).forEach(function(a){
+    if(a.date!==todayStr||!a.time)return;
+    var parts=a.time.split(':');
+    var at=new Date(now.getFullYear(),now.getMonth(),now.getDate(),parseInt(parts[0]),parseInt(parts[1]));
+    var diffMin=(at-now)/60000;
+    if(diffMin>0 && diffMin<=lead){
+      notifShow('Afspraak binnenkort',a.title+' om '+a.time+(a.customerId?' ('+custName(a.customerId)+')':''),'appt-'+a.id+'-'+todayStr);
+    }
+  });
+  // taken die vandaag vervallen (1x per dag melden, 's ochtends bij openen)
+  (DATA.tasks||[]).forEach(function(t){
+    if(t.done||!t.due)return;
+    if(t.due===todayStr){
+      notifShow('Taak vervalt vandaag',t.title,'task-'+t.id+'-'+todayStr);
+    } else if(t.due<todayStr){
+      notifShow('Taak is te laat',t.title+' (deadline '+fmtD(t.due)+')','taskoverdue-'+t.id+'-'+todayStr);
+    }
+  });
+}
+var MARLEO_ICON='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%2308080E"/><path d="M50 18 L76 33 L76 63 L50 78 L24 63 L24 33 Z" fill="none" stroke="%23E91E7B" stroke-width="5"/></svg>');
+
 /* ============ DOCUMENTEN / DIENSTENBROCHURES ============ */
 var MARLEO_DIENSTEN=[
   {id:'managed-it',icon:'\\uD83D\\uDEE0\\uFE0F',titel:'Managed IT & Support',pitch:'Uw volledige IT-omgeving beheerd en bewaakt, zodat u zich op uw zaak kunt richten.',
@@ -2708,6 +3093,18 @@ function rSettings(){
  '<button class="btn sm" onclick="atPull()">\\u2b07 Import uit Airtable</button>'+
  '<button class="btn sm" onclick="atPush()">\\u2b06 Push statussen</button></div></div>'})()+
   '<div class="topbar"><div><h2>Instellingen</h2><div class="sub">Account, klantentoegang en back-ups</div></div></div>'+
+  (function(){
+    var on=('Notification' in window)&&Notification.permission==='granted';
+    var lead=(DATA.settings&&DATA.settings.notifLead)||30;
+    return '<div class="panelbox" style="margin-bottom:18px"><h3>\\ud83d\\udd14 Meldingen</h3>'+
+    '<div class="hint" style="margin-bottom:10px">Krijg een melding voor je afspraken en taken. Werkt terwijl de Marleo-app of het tabblad openstaat. Installeer Marleo als app op je gsm (via \\u2018Toevoegen aan startscherm\\u2019) voor het beste resultaat.</div>'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
+    (on?'<span class="pill" style="background:rgba(34,197,94,.15);color:#22C55E">\\u2713 Meldingen staan aan</span>':'<button class="btn sm" onclick="askNotifPermission()">Meldingen inschakelen</button>')+
+    '<div class="fgroup" style="margin:0"><label style="font-size:.78rem">Herinnering vooraf</label><select onchange="DATA.settings.notifLead=parseInt(this.value);saveData()">'+
+    [15,30,60,120].map(function(m){return '<option value="'+m+'" '+(lead===m?'selected':'')+'>'+(m<60?m+' min':(m/60)+' uur')+' vooraf</option>'}).join('')+'</select></div>'+
+    '<button class="btn sm subtle" onclick="notifShow(\\'Testmelding\\',\\'Zo zien je meldingen eruit\\',\\'test-\\'+Date.now())">Test melding</button>'+
+    '</div></div>';
+  })()+
   (function(){var co=coCfg();return '<div class="panelbox"><h3>\\ud83c\\udfe2 Bedrijfsgegevens (voor facturen &amp; offertes)</h3>'+
    '<div class="hint" style="margin-bottom:10px">Deze gegevens komen bovenaan elke factuur en offerte. In Belgi\\u00eb zijn bedrijfsnaam, adres en BTW-nummer wettelijk verplicht.</div>'+
    '<div class="frow"><div class="fgroup"><label>Handelsnaam</label><input id="co_name" value="'+esc(co.name)+'" onchange="coCfg().name=this.value;saveData()"></div>'+
@@ -3146,7 +3543,8 @@ function openPortal(e){
   close.title='Terug naar website';
   close.style.cssText='position:absolute;top:14px;right:14px;z-index:501;width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(18,18,29,.92);color:#F4F4F8;font-size:1rem;cursor:pointer';
   close.onclick=closePortal;
-  wrap.appendChild(ifr);wrap.appendChild(close);
+  wrap.appendChild(ifr);
+  if(!isAppMode())wrap.appendChild(close);
   document.body.appendChild(wrap);
   document.body.style.overflow='hidden';
 }
@@ -3155,7 +3553,29 @@ function closePortal(){
   if(w)w.remove();
   if(_ptUrl){URL.revokeObjectURL(_ptUrl);_ptUrl=null}
   document.body.style.overflow='';
+  // in app-modus: sluiten van de CRM opent hem meteen opnieuw (je blijft in je eigen dashboard)
+  if(isAppMode()){setTimeout(openPortal,60);}
 }
+function isAppMode(){
+  try{
+    if(location.search.indexOf('app=1')>=0)return true;
+    if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)return true;
+    if(window.navigator.standalone===true)return true; // iOS
+  }catch(e){}
+  return false;
+}
+// Als de site als app opent: ga meteen naar het dashboard, sla de marketingsite over
+(function(){
+  function bootApp(){
+    if(isAppMode()){
+      // verberg de publieke site visueel en open direct de CRM
+      document.documentElement.classList.add('appmode');
+      openPortal();
+    }
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(bootApp,50);}
+  else{window.addEventListener('DOMContentLoaded',bootApp);}
+})();
 </script>
 
 <!--Start of Tawk.to Script-->
