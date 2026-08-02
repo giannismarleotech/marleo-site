@@ -477,6 +477,31 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
 })();
 </script>
 
+
+<!-- ===== OneSignal Web Push ===== -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async function(OneSignal) {
+  try{
+    await OneSignal.init({
+      appId: "71ab17ab-ad6d-4d35-bbfb-e6c260f94b07",
+      serviceWorkerParam: { scope: "/marleo-site/push/" },
+      serviceWorkerPath: "push/OneSignalSDKWorker.js",
+      allowLocalhostAsSecureOrigin: true,
+    });
+    window.__oneSignalReady = true;
+  }catch(e){ /* stil */ }
+});
+// Helper zodat de CRM meldingen kan aanvragen/versturen
+window.marleoEnablePush = function(){
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal){
+    try{ await OneSignal.Notifications.requestPermission(); }catch(e){}
+  });
+};
+</script>
+
 </head>
 <body>
 
@@ -1499,7 +1524,7 @@ var PORTAL_SRC=`<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Marleo HQ, CRM & boekhouding</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1653,15 +1678,80 @@ tbody tr:last-child td{border-bottom:none}
 @media (max-width:1000px){.stats{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}}
 @media (max-width:860px){
   #appView.active{grid-template-columns:1fr}
-  aside{position:fixed;left:-270px;top:0;bottom:0;width:250px;z-index:60;transition:left .3s}
+  aside{position:fixed;top:0;bottom:0;z-index:60;transition:left .3s}
   aside.open{left:0;box-shadow:30px 0 80px rgba(0,0,0,.6)}
   .menu-toggle{display:grid}
-  main{padding:70px 16px 50px}
-  .frow,.frow3{grid-template-columns:1fr}
-  .detail-grid{grid-template-columns:1fr}
-  table{font-size:.82rem}
 }
-@media (max-width:560px){.stats{grid-template-columns:1fr}}
+
+/* ============ MOBIEL: veel beter bruikbaar op gsm ============ */
+@media (max-width:860px){
+  /* menuknop groter en duimvriendelijk */
+  /* harde containment: niks steekt buiten het scherm */
+  #appView.active{overflow-x:hidden;max-width:100vw}
+  main{max-width:100vw;overflow-x:hidden}
+  main>*{max-width:100%}
+  .topbar>div{max-width:100%}
+  .topbar .searchbox,.topbar input{width:100%!important;max-width:100%}
+  .topbar>div[style*="display:flex"]{flex-wrap:wrap;width:100%}
+  /* de tabel-wrapper scrollt, main niet */
+  .panelbox>div[style*="overflow"]{max-width:100%;overflow-x:auto}
+
+  .menu-toggle{width:48px;height:48px;top:14px;left:14px;border-radius:14px}
+  .menu-toggle svg{width:24px;height:24px}
+  main{padding:74px 14px calc(90px + env(safe-area-inset-bottom))}
+  /* topbar netjes onder elkaar */
+  .topbar{flex-direction:column;gap:12px;margin-bottom:18px}
+  .topbar h2{font-size:1.35rem}
+  .topbar .btn{width:100%}
+  /* knoppen groter voor vingers */
+  .btn{padding:13px 20px;font-size:.95rem;min-height:46px}
+  .btn.sm{padding:10px 16px!important;font-size:.86rem!important;min-height:40px}
+  /* tabellen: horizontaal scrollbaar met momentum */
+  .panelbox{padding:12px!important;border-radius:14px}
+  table{font-size:.86rem;min-width:520px}
+  .panelbox>div[style*="overflow"]{-webkit-overflow-scrolling:touch}
+  th,td{padding:10px 8px!important}
+  /* tabs scrollbaar in plaats van wrappen */
+  .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;gap:6px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{white-space:nowrap;flex-shrink:0}
+  /* formulieren: velden op volle breedte, grotere invoer */
+  .frow,.frow3,.detail-grid,.custcols,.agwrap,.kanban,.docgrid,.tplgrid,.statgrid{grid-template-columns:1fr!important}
+  input,select,textarea{font-size:16px!important;padding:12px 14px!important}
+  .fgroup label{font-size:.82rem}
+  /* modals passend op klein scherm */
+  .modal{width:calc(100vw - 24px)!important;max-width:none!important;max-height:88vh;overflow-y:auto;margin:12px}
+  .modal-backdrop{padding:0!important;align-items:flex-end}
+  .modal{border-radius:20px 20px 0 0}
+  .modal-foot{position:sticky;bottom:0;background:var(--panel);padding-top:12px}
+  .modal-foot .btn{flex:1}
+  /* kalender compacter */
+  .agcell{min-height:56px;padding:3px}
+  .agday{font-size:.7rem}
+  .agchip{font-size:.6rem;padding:1px 3px}
+  /* iconen-acties in rijen groter */
+  .iconbtn{padding:8px 11px;font-size:1rem;min-width:40px;min-height:36px}
+  .rowactions{gap:8px}
+  /* statskaarten leesbaarder */
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .statcard,.kpi{padding:14px}
+  /* dashboard 1 kolom */
+  .two-col,.stats.wide{grid-template-columns:1fr}
+  /* sidebar breder & items groter */
+  aside{width:270px;left:-290px}
+  #navmenu button{padding:13px 16px;font-size:.95rem}
+  .navsec{font-size:.72rem;margin-top:14px}
+  /* sluitknop portal onder handbereik weg (app-modus heeft hem toch niet) */
+}
+@media (max-width:560px){
+  .stats{grid-template-columns:1fr}
+  .topbar h2{font-size:1.2rem}
+  main{padding:70px 12px 90px}
+}
+/* overal: vlottere scroll & geen horizontale overflow */
+body{-webkit-text-size-adjust:100%}
+*{-webkit-tap-highlight-color:rgba(233,30,123,.15)}
+
 
 .pipewrap{display:flex;gap:12px;overflow-x:auto;padding-bottom:14px;align-items:flex-start}
 .pipecol{min-width:215px;flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px}
@@ -2924,6 +3014,13 @@ function initNotifs(){
 }
 function askNotifPermission(){
   if(!('Notification' in window)){toast('Meldingen niet ondersteund op dit toestel',true);return;}
+  // 1) OneSignal push aanvragen via de hoofdpagina (buiten de iframe), voor echte meldingen als de app dicht is
+  try{
+    var top=window.parent||window;
+    if(top!==window && typeof top.marleoEnablePush==='function'){ top.marleoEnablePush(); }
+    else if(typeof window.marleoEnablePush==='function'){ window.marleoEnablePush(); }
+  }catch(e){}
+  // 2) ook de browser-toestemming direct vragen (voor in-app meldingen)
   Notification.requestPermission().then(function(perm){
     if(perm==='granted'){toast('Meldingen ingeschakeld \\u2713');DATA.settings.notifsOn=true;saveData();checkNotifs();}
     else{toast('Meldingen geweigerd',true);}
