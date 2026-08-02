@@ -524,36 +524,62 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
   // Wordt aangeroepen door de CRM-knop "Meldingen inschakelen"
   // Slaat het resultaat op in window.__marleoPushStatus zodat de app het kan tonen
   window.__marleoPushStatus = "nog niet geprobeerd";
-  window.marleoEnablePush = function(){
-    window.__marleoPushStatus = "bezig...";
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal){
-      try{
-        // 1) vraag toestemming (toont de iPhone-systeempopup)
-        await OneSignal.Notifications.requestPermission();
-        // 2) activeer het abonnement expliciet (nodig in OneSignal v16)
-        if(OneSignal.User && OneSignal.User.PushSubscription){
-          await OneSignal.User.PushSubscription.optIn();
-        }
-        // 3) wacht en controleer of er een abonnement is aangemaakt
-        await new Promise(function(r){setTimeout(r,3500);});
-        var sub=OneSignal.User && OneSignal.User.PushSubscription;
-        var id=sub? sub.id : null;
-        var perm=OneSignal.Notifications ? OneSignal.Notifications.permission : false;
-        if(id){
-          window.__marleoPushStatus = "GELUKT - je toestel is geregistreerd (id: "+String(id).slice(0,8)+"...)";
-        } else if(perm){
-          window.__marleoPushStatus = "Toestemming OK, maar geen abonnement-id. Wacht 1 min en check OneSignal.";
-        } else {
-          window.__marleoPushStatus = "Toestemming niet gegeven of geblokkeerd.";
-        }
-      }catch(e){
-        window.__marleoPushStatus = "FOUT: "+((e&&e.message)?e.message:String(e));
+  window.__marleoPushLog = [];
+  function pushLog(m){ window.__marleoPushLog.push(m); window.__marleoPushStatus = m; }
+  // BELANGRIJK: deze functie moet DIRECT vanuit de tik op de knop lopen (user gesture),
+  // anders toont iOS de toestemmingsvraag niet.
+  window.marleoEnablePush = async function(){
+    window.__marleoPushLog = [];
+    pushLog("Stap 1: start...");
+    try{
+      // STAP 1: native iOS-toestemming DIRECT vragen (dit toont de iPhone-popup)
+      if(!('Notification' in window)){ pushLog("FOUT: dit toestel ondersteunt geen web-meldingen"); return; }
+      var perm = Notification.permission;
+      pushLog("Stap 2: huidige toestemming = "+perm);
+      if(perm === 'default'){
+        perm = await Notification.requestPermission();
+        pushLog("Stap 3: na vraag = "+perm);
       }
-    });
+      if(perm !== 'granted'){
+        pushLog("Gestopt: toestemming is '"+perm+"'. Zet meldingen aan via iPhone Instellingen > Marleo.");
+        return;
+      }
+      // STAP 2: OneSignal opt-in (maakt het abonnement aan)
+      pushLog("Stap 4: OneSignal activeren...");
+      await new Promise(function(resolve){
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal){
+          try{
+            if(OneSignal.Notifications && OneSignal.Notifications.requestPermission){
+              try{ await OneSignal.Notifications.requestPermission(); }catch(e2){}
+            }
+            if(OneSignal.User && OneSignal.User.PushSubscription && OneSignal.User.PushSubscription.optIn){
+              await OneSignal.User.PushSubscription.optIn();
+              pushLog("Stap 5: opt-in gedaan, wachten op registratie...");
+            } else {
+              pushLog("Let op: opt-in functie niet beschikbaar (SDK-versie?)");
+            }
+            // wacht tot er een abonnement-id is (max 8 sec)
+            var id=null;
+            for(var i=0;i<8;i++){
+              await new Promise(function(r){setTimeout(r,1000);});
+              var sub=OneSignal.User && OneSignal.User.PushSubscription;
+              id = sub ? sub.id : null;
+              if(id) break;
+            }
+            if(id){ pushLog("GELUKT! Je toestel is geregistreerd (id: "+String(id).slice(0,8)+"...)"); }
+            else { pushLog("Toestemming OK, maar OneSignal maakte geen abonnement aan. (mogelijk iOS-limiet)"); }
+          }catch(e){ pushLog("FOUT bij OneSignal: "+((e&&e.message)?e.message:String(e))); }
+          resolve();
+        });
+      });
+    }catch(e){
+      pushLog("FOUT: "+((e&&e.message)?e.message:String(e)));
+    }
   };
-  // laat de app het resultaat opvragen
+  // laat de app het resultaat + volledige log opvragen
   window.marleoPushStatus = function(){ return window.__marleoPushStatus; };
+  window.marleoPushLog = function(){ return (window.__marleoPushLog||[]).join("\n"); };
 })();
 </script>
 
@@ -3069,30 +3095,34 @@ function initNotifs(){
 }
 function askNotifPermission(){
   if(!('Notification' in window)){toast('Meldingen niet ondersteund op dit toestel',true);return;}
-  // 1) OneSignal push aanvragen via de hoofdpagina (buiten de iframe), voor echte meldingen als de app dicht is
-  try{
-    var top=window.parent||window;
-    if(top!==window && typeof top.marleoEnablePush==='function'){ top.marleoEnablePush(); }
-    else if(typeof window.marleoEnablePush==='function'){ window.marleoEnablePush(); }
-  }catch(e){}
-  // 2) ook de browser-toestemming direct vragen (voor in-app meldingen)
-  Notification.requestPermission().then(function(perm){
-    if(perm==='granted'){toast('Meldingen ingeschakeld \\u2713');DATA.settings.notifsOn=true;saveData();checkNotifs();}
-    else{toast('Meldingen geweigerd',true);}
-    if(VIEW==='dashboard')go('dashboard');
-  });
-  // 3) na een paar seconden: toon de OneSignal-status zodat we weten of het echt lukte
-  setTimeout(function(){
+  var topw=window.parent||window;
+  var enableFn=(topw!==window && typeof topw.marleoEnablePush==='function')?topw.marleoEnablePush:(typeof window.marleoEnablePush==='function'?window.marleoEnablePush:null);
+  if(!enableFn){
+    // geen OneSignal beschikbaar: val terug op alleen in-app meldingen
+    Notification.requestPermission().then(function(perm){
+      if(perm==='granted'){toast('Meldingen ingeschakeld \\u2713');DATA.settings.notifsOn=true;saveData();checkNotifs();}
+      else{toast('Meldingen geweigerd',true);}
+    });
+    return;
+  }
+  // Roep de volledige push-flow aan (native prompt + OneSignal). Dit MOET direct vanuit de tik lopen.
+  toast('Meldingen instellen...');
+  var res=enableFn();
+  // enableFn is async; toon het log-venster als het klaar is (of na max 12s)
+  function toonLog(){
     try{
-      var top=window.parent||window;
-      var st=(top&&typeof top.marleoPushStatus==='function')?top.marleoPushStatus():(typeof window.marleoPushStatus==='function'?window.marleoPushStatus():'onbekend');
+      var log=(topw&&typeof topw.marleoPushLog==='function')?topw.marleoPushLog():'(geen log)';
+      var okGelukt=/GELUKT/i.test(log);
+      if(okGelukt){DATA.settings.notifsOn=true;saveData();checkNotifs();}
       openM('Meldingen - status',
-        '<div style="line-height:1.6"><p><b>Resultaat van het inschakelen:</b></p>'+
-        '<div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:monospace;font-size:.82rem;word-break:break-word">'+esc(String(st))+'</div>'+
-        '<p style="margin-top:12px;color:var(--muted);font-size:.85rem">Staat er GELUKT? Dan ben je klaar. Staat er iets anders? Kopieer deze tekst en stuur ze door, dan lossen we het op.</p></div>',
+        '<div style="line-height:1.6"><p><b>'+(okGelukt?'\\u2705 Gelukt!':'Status:')+'</b></p>'+
+        '<div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:monospace;font-size:.8rem;word-break:break-word;white-space:pre-wrap">'+esc(String(log))+'</div>'+
+        (okGelukt?'<p style="margin-top:12px;color:#22C55E;font-size:.85rem">Je ontvangt nu meldingen, ook als de app dicht is.</p>':'<p style="margin-top:12px;color:var(--muted);font-size:.85rem">Werkt het niet? Maak een screenshot van deze tekst en stuur ze door.</p>')+'</div>',
         '<button class="btn" onclick="closeM()">OK</button>');
     }catch(e){}
-  },6000);
+  }
+  if(res && typeof res.then==='function'){ res.then(function(){setTimeout(toonLog,500);}); }
+  else { setTimeout(toonLog,9000); }
 }
 function notifShow(title,body,tag){
   if(NOTIF_SEEN[tag])return;
