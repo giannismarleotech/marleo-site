@@ -1,15 +1,9 @@
-/* Marleo service worker - PWA-installatie + offline fallback + OneSignal push */
+/* Marleo service worker - PWA-installatie + offline fallback + rechtstreekse web-push */
 
-/* OneSignal push-afhandeling importeren zodat DEZE worker (op scope /) ook push doet.
-   Dit lost het conflict op waarbij OneSignal geen eigen worker kon registreren op iOS. */
-try {
-  importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
-} catch(e) { /* offline of CDN onbereikbaar: PWA blijft werken */ }
+var CACHE='marleo-v3';
 
-var CACHE='marleo-v2';
-self.addEventListener('install',function(e){
-  self.skipWaiting();
-});
+self.addEventListener('install',function(e){ self.skipWaiting(); });
+
 self.addEventListener('activate',function(e){
   e.waitUntil(
     caches.keys().then(function(keys){
@@ -17,11 +11,38 @@ self.addEventListener('activate',function(e){
     }).then(function(){return self.clients.claim();})
   );
 });
+
+/* PUSH ontvangen en tonen als echte melding */
+self.addEventListener('push', function(e){
+  var data = {};
+  try { data = e.data ? e.data.json() : {}; } catch(err){ try{ data = { title:'Marleo', body: e.data.text() }; }catch(e2){ data = {}; } }
+  var title = data.title || 'Marleo';
+  var options = {
+    body: data.body || '',
+    icon: data.icon || 'push/icon.png',
+    badge: data.badge || 'push/icon.png',
+    tag: data.tag || ('marleo-'+Date.now()),
+    data: { url: data.url || './?app=1' },
+    requireInteraction: !!data.requireInteraction
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+/* Klik op melding: open/focus de app */
+self.addEventListener('notificationclick', function(e){
+  e.notification.close();
+  var target = (e.notification.data && e.notification.data.url) || './?app=1';
+  e.waitUntil(
+    self.clients.matchAll({type:'window', includeUncontrolled:true}).then(function(list){
+      for(var i=0;i<list.length;i++){ if('focus' in list[i]) return list[i].focus(); }
+      if(self.clients.openWindow) return self.clients.openWindow(target);
+    })
+  );
+});
+
+/* network-first fetch (offline fallback) */
 self.addEventListener('fetch',function(e){
-  // network-first: probeer live, val terug op cache (zodat de app ook offline opent)
   if(e.request.method!=='GET')return;
-  // OneSignal-verzoeken niet cachen (laat de push-SDK z'n werk doen)
-  if(e.request.url.indexOf('onesignal')>=0 || e.request.url.indexOf('OneSignal')>=0) return;
   e.respondWith(
     fetch(e.request).then(function(resp){
       var copy=resp.clone();

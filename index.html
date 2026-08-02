@@ -468,7 +468,7 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
     var link=document.createElement('link');link.rel='manifest';link.href=url;
     document.head.appendChild(link);
   }catch(e){}
-  // service worker registreren (nodig voor installeerbaarheid + push via OneSignal-import)
+  // service worker registreren (installeerbaarheid + push-ontvangst)
   if('serviceWorker' in navigator){
     window.addEventListener('load',function(){
       navigator.serviceWorker.register('./marleo-sw.js',{scope:'./'}).catch(function(){});
@@ -478,12 +478,10 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
 </script>
 
 
-<!-- ===== OneSignal Web Push ===== -->
-<!-- OneSignal SDK wordt alleen in app-modus geladen (zie script hieronder) -->
+<!-- Rechtstreekse web-push (eigen VAPID, via n8n) - alleen in de app -->
 <script>
-// OneSignal ALLEEN activeren in de app (CRM), nooit voor gewone websitebezoekers.
-// Zo krijgt een klant die de site bekijkt NOOIT een meldingenvraag.
 (function(){
+  // Alleen in de geïnstalleerde app, nooit voor gewone websitebezoekers.
   function inAppMode(){
     try{
       if(location.search.indexOf('app=1')>=0)return true;
@@ -492,155 +490,76 @@ footer{padding:52px 0 40px;border-top:1px solid var(--line);margin-top:110px;pos
     }catch(e){}
     return false;
   }
-  if(!inAppMode()){
-    // Gewone websitebezoeker: OneSignal helemaal NIET laden. Geen popup, niks.
-    window.marleoEnablePush = function(){ /* niet beschikbaar buiten de app */ };
-    return;
+  // Jouw eigen publieke VAPID-sleutel (mag openbaar zijn):
+  var VAPID_PUBLIC = "BAa6szatFD6JDr3Zk3U7tq0YOhFQvwZ1mNAnlJVC8T2faeH0rJsoeRduTz7lyLK-VDl3nzGUAtGlGJbqYPnhJsQ";
+  // n8n-webhook die het abonnement ontvangt en bewaart (vul je eigen URL in):
+  var PUSH_SAVE_URL = "https://marleotech.app.n8n.cloud/webhook/marleo-push-save";
+
+  function urlB64ToUint8(base64String){
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
+    var raw = atob(base64);
+    var arr = new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++){ arr[i]=raw.charCodeAt(i); }
+    return arr;
   }
-  // Vanaf hier: we draaien in de geïnstalleerde app → OneSignal wél initialiseren,
-  // maar zonder automatische popup. De vraag komt pas als jij zelf op de knop tikt.
-  // SDK dynamisch laden zodat gewone bezoekers deze code nooit binnenkrijgen:
-  var os=document.createElement('script');
-  os.src='https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-  os.defer=true;
-  document.head.appendChild(os);
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    try{
-      await OneSignal.init({
-        appId: "71ab17ab-ad6d-4d35-bbfb-e6c260f94b07",
-        serviceWorkerParam: { scope: "./" },
-        serviceWorkerPath: "marleo-sw.js",
-        allowLocalhostAsSecureOrigin: true,
-        autoResubscribe: true
-      });
-      window.__oneSignalReady = true;
-      window.__oneSignalError = null;
-    }catch(e){
-      // fout zichtbaar maken voor diagnose
-      window.__oneSignalError = (e && e.message) ? e.message : String(e);
-    }
-  });
-  // Wordt aangeroepen door de CRM-knop "Meldingen inschakelen"
-  // Slaat het resultaat op in window.__marleoPushStatus zodat de app het kan tonen
+
   window.__marleoPushStatus = "nog niet geprobeerd";
   window.__marleoPushLog = [];
   function pushLog(m){ window.__marleoPushLog.push(m); window.__marleoPushStatus = m; }
-  // BELANGRIJK: deze functie moet DIRECT vanuit de tik op de knop lopen (user gesture),
-  // anders toont iOS de toestemmingsvraag niet.
+
+  if(!inAppMode()){
+    window.marleoEnablePush = function(){ /* niet beschikbaar buiten de app */ };
+    window.marleoPushStatus = function(){ return window.__marleoPushStatus; };
+    window.marleoPushLog = function(){ return (window.__marleoPushLog||[]).join("\n"); };
+    return;
+  }
+
   window.marleoEnablePush = async function(){
     window.__marleoPushLog = [];
-    // DIAGNOSE: draait de app echt als geïnstalleerde PWA?
     var standalone = (window.navigator.standalone===true) || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-    pushLog("Modus: "+(standalone?"app (standalone) OK":"BROWSER - push werkt NIET in Safari-tab! Open via icoon."));
+    pushLog("Modus: "+(standalone?"app (standalone) OK":"BROWSER - push werkt NIET in Safari-tab!"));
     pushLog("Stap 1: start...");
     try{
-      // STAP 1: native iOS-toestemming DIRECT vragen (dit toont de iPhone-popup)
-      if(!('Notification' in window)){ pushLog("FOUT: dit toestel ondersteunt geen web-meldingen"); return; }
+      if(!('Notification' in window)){ pushLog("FOUT: geen web-meldingen op dit toestel"); return; }
       var perm = Notification.permission;
-      pushLog("Stap 2: huidige toestemming = "+perm);
-      if(perm === 'default'){
-        perm = await Notification.requestPermission();
-        pushLog("Stap 3: na vraag = "+perm);
-      }
-      if(perm !== 'granted'){
-        pushLog("Gestopt: toestemming is '"+perm+"'. Zet meldingen aan via iPhone Instellingen > Marleo.");
-        return;
-      }
-      // STAP 2: OneSignal opt-in (maakt het abonnement aan)
-      pushLog("Stap 4: OneSignal activeren...");
-      await new Promise(function(resolve){
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignal){
-          try{
-            if(OneSignal.Notifications && OneSignal.Notifications.requestPermission){
-              try{ await OneSignal.Notifications.requestPermission(); }catch(e2){}
-            }
-            if(OneSignal.User && OneSignal.User.PushSubscription && OneSignal.User.PushSubscription.optIn){
-              await OneSignal.User.PushSubscription.optIn();
-              pushLog("Stap 5: opt-in gedaan, wachten op registratie...");
-            } else {
-              pushLog("Let op: opt-in functie niet beschikbaar (SDK-versie?)");
-            }
-            // wacht tot er een abonnement-id is (max 8 sec)
-            var id=null;
-            for(var i=0;i<8;i++){
-              await new Promise(function(r){setTimeout(r,1000);});
-              var sub=OneSignal.User && OneSignal.User.PushSubscription;
-              id = sub ? sub.id : null;
-              if(id) break;
-            }
-            if(id){ pushLog("GELUKT! Je toestel is geregistreerd (id: "+String(id).slice(0,8)+"...)"); }
-            else {
-              // FALLBACK: OneSignal gaf geen key mee. We halen de VAPID-key uit
-              // OneSignal's eigen config en maken het abonnement zelf aan.
-              pushLog("Geen OneSignal-id. Directe registratie met VAPID-key...");
-              try{
-                var reg = await navigator.serviceWorker.ready;
-                var existing = await reg.pushManager.getSubscription();
-                if(existing){
-                  pushLog("Browser HEEFT al een abonnement. OneSignal synct het op.");
-                } else {
-                  // haal de VAPID public key uit OneSignal's config
-                  var vapid = null;
-                  try{
-                    var c = OneSignal.config || OneSignal._config || {};
-                    vapid = c.vapidPublicKey || (c.userConfig && c.userConfig.vapidPublicKey) || null;
-                  }catch(e){}
-                  if(!vapid){ pushLog("Geen VAPID-key gevonden in config."); }
-                  else {
-                    // zet de base64 key om naar het formaat dat de browser vereist
-                    function urlB64ToUint8(base64String){
-                      var padding = '='.repeat((4 - base64String.length % 4) % 4);
-                      var base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
-                      var raw = atob(base64);
-                      var arr = new Uint8Array(raw.length);
-                      for(var i=0;i<raw.length;i++){ arr[i]=raw.charCodeAt(i); }
-                      return arr;
-                    }
-                    try{
-                      var directSub = await reg.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlB64ToUint8(vapid)
-                      });
-                      if(directSub){
-                        pushLog("Abonnement aangemaakt! OneSignal koppelt het nu...");
-                        // Nu het browser-abonnement bestaat: OneSignal opnieuw laten opt-in-en
-                        // zodat het dit abonnement adopteert en naar de server stuurt.
-                        try{
-                          if(OneSignal.User && OneSignal.User.PushSubscription && OneSignal.User.PushSubscription.optIn){
-                            await OneSignal.User.PushSubscription.optIn();
-                          }
-                        }catch(e){}
-                        // wacht tot OneSignal een id toekent (max 10 sec)
-                        var newId=null;
-                        for(var j=0;j<10;j++){
-                          await new Promise(function(r){setTimeout(r,1000);});
-                          newId = (OneSignal.User && OneSignal.User.PushSubscription) ? OneSignal.User.PushSubscription.id : null;
-                          if(newId) break;
-                        }
-                        pushLog(newId ? ("GELUKT! Geregistreerd bij OneSignal (id: "+String(newId).slice(0,8)+"...)") : "Abonnement staat klaar op je toestel. Sluit de app volledig en open opnieuw, dan verschijnt het.");
-                      } else {
-                        pushLog("Registratie gaf niks terug.");
-                      }
-                    }catch(subErr){
-                      pushLog("Apple weigerde: "+((subErr&&subErr.message)?subErr.message:String(subErr)));
-                    }
-                  }
-                }
-              }catch(fbErr){
-                pushLog("Fallback-fout: "+((fbErr&&fbErr.message)?fbErr.message:String(fbErr)));
-              }
-            }
-          }catch(e){ pushLog("FOUT bij OneSignal: "+((e&&e.message)?e.message:String(e))); }
-          resolve();
+      pushLog("Stap 2: toestemming = "+perm);
+      if(perm === 'default'){ perm = await Notification.requestPermission(); pushLog("Stap 3: na vraag = "+perm); }
+      if(perm !== 'granted'){ pushLog("Gestopt: toestemming '"+perm+"'. Zet aan via iPhone Instellingen > Marleo."); return; }
+
+      pushLog("Stap 4: push-abonnement aanmaken...");
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if(!sub){
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlB64ToUint8(VAPID_PUBLIC)
         });
-      });
+        pushLog("Stap 5: abonnement aangemaakt.");
+      } else {
+        pushLog("Stap 5: bestaand abonnement gevonden.");
+      }
+
+      // stuur de abonnement-gegevens naar n8n zodat die later push kan sturen
+      pushLog("Stap 6: opslaan bij n8n...");
+      if(PUSH_SAVE_URL.indexOf('__N8N')>=0){
+        pushLog("Let op: n8n-URL nog niet ingesteld. Abonnement staat wel klaar op je toestel.");
+      } else {
+        try{
+          var resp = await fetch(PUSH_SAVE_URL, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ subscription: sub, device:'iphone', ts: Date.now() })
+          });
+          pushLog(resp.ok ? "GELUKT! Je toestel is geregistreerd voor meldingen." : "Opslaan mislukte (n8n gaf "+resp.status+"). Abonnement staat wel klaar.");
+        }catch(e){
+          pushLog("Kon n8n niet bereiken: "+((e&&e.message)?e.message:String(e))+". Abonnement staat wel klaar.");
+        }
+      }
     }catch(e){
       pushLog("FOUT: "+((e&&e.message)?e.message:String(e)));
     }
   };
-  // laat de app het resultaat + volledige log opvragen
   window.marleoPushStatus = function(){ return window.__marleoPushStatus; };
   window.marleoPushLog = function(){ return (window.__marleoPushLog||[]).join("\n"); };
 })();
