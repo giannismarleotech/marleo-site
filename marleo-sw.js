@@ -1,6 +1,6 @@
 /* Marleo service worker - PWA-installatie + offline fallback + rechtstreekse web-push */
 
-var CACHE='marleo-v4';
+var CACHE='marleo-v5';
 
 self.addEventListener('install',function(e){ self.skipWaiting(); });
 
@@ -14,18 +14,31 @@ self.addEventListener('activate',function(e){
 
 /* PUSH ontvangen en tonen als echte melding */
 self.addEventListener('push', function(e){
-  var data = {};
-  try { data = e.data ? e.data.json() : {}; } catch(err){ try{ data = { title:'Marleo', body: e.data.text() }; }catch(e2){ data = {}; } }
-  var title = data.title || 'Marleo';
+  // ALTIJD eerst een melding tonen, zodat we weten dat het push-event aankomt.
+  var title = 'Marleo';
+  var body = '';
+  var extraUrl = './?app=1';
+  try {
+    if(e.data){
+      var raw = e.data.text();       // eerst als tekst (faalt nooit)
+      body = raw;                     // toon desnoods de ruwe tekst
+      try {
+        var data = JSON.parse(raw);   // dan pas als JSON
+        title = data.title || 'Marleo';
+        body = (data.body !== undefined) ? data.body : raw;
+        if(data.url) extraUrl = data.url;
+      } catch(parseErr){ /* geen JSON: we tonen de ruwe tekst */ }
+    } else {
+      body = '(push zonder inhoud)';
+    }
+  } catch(readErr){
+    body = '(kon push-data niet lezen: '+readErr.message+')';
+  }
   var options = {
-    body: data.body || '',
-    tag: data.tag || ('marleo-'+Date.now()),
-    data: { url: data.url || './?app=1' },
-    requireInteraction: !!data.requireInteraction
+    body: body,
+    tag: 'marleo-'+Date.now(),
+    data: { url: extraUrl }
   };
-  // icoon alleen toevoegen als het expliciet is meegegeven (voorkomt 404-blokkering op iOS)
-  if(data.icon){ options.icon = data.icon; }
-  if(data.badge){ options.badge = data.badge; }
   e.waitUntil(self.registration.showNotification(title, options));
 });
 
@@ -39,6 +52,18 @@ self.addEventListener('notificationclick', function(e){
       if(self.clients.openWindow) return self.clients.openWindow(target);
     })
   );
+});
+
+
+/* test: toon een melding op verzoek vanuit de app (om de worker te testen) */
+self.addEventListener('message', function(e){
+  if(e.data && e.data.type === 'MARLEO_TEST_NOTIF'){
+    self.registration.showNotification('Marleo test (lokaal)', {
+      body: 'Als je dit ziet, werkt de service worker. Het probleem zit dan in de aflevering.',
+      tag: 'marleo-localtest',
+      data: { url: './?app=1' }
+    });
+  }
 });
 
 /* network-first fetch (offline fallback) */
