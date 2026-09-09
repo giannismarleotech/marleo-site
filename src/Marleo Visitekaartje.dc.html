@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #17131a; }
+  * { box-sizing: border-box; }
+  a { color: #ff2a86; text-decoration: none; }
+  a:hover { color: #ff8a2b; }
+</style>
+</helmet>
+
+<div style="font-family: 'Inter', -apple-system, system-ui, sans-serif; background: #17131a; padding: 56px 40px; display: grid; gap: 40px; justify-items: center">
+
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="mgc" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff8a2b" />
+        <stop offset="1" stop-color="#ff2a86" />
+      </linearGradient>
+      <linearGradient id="mgh" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#ff8a2b" />
+        <stop offset="1" stop-color="#ff2a86" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div style="width: 1004px; display: flex; justify-content: space-between; align-items: baseline; color: #8f8b93; font-size: 12px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase">
+    <span>Visitekaartje — 85 × 55 mm</span>
+    <span>300 dpi · 3 mm afloop</span>
+  </div>
+
+  <div style="display: grid; gap: 40px; justify-items: center">
+
+    <div style="display: grid; gap: 12px; justify-items: start">
+      <span style="color: #ff8a2b; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">Voorzijde</span>
+      <div style="position: relative; width: 1004px; height: 650px; overflow: hidden; background: #120d12; box-shadow: 0 40px 90px rgba(0,0,0,0.6)">
+
+        <div style="position: absolute; inset: 0; background-image: radial-gradient(70% 80% at 8% 8%, rgba(255,138,43,0.30) 0%, transparent 62%), radial-gradient(75% 85% at 96% 18%, rgba(255,42,134,0.34) 0%, transparent 64%), radial-gradient(60% 70% at 50% 108%, rgba(255,42,134,0.16) 0%, transparent 70%)"></div>
+        <div style="position: absolute; inset: -6%; opacity: 0.14; background-image: linear-gradient(to right, #ff8a2b 1px, transparent 1px), linear-gradient(to bottom, #ff2a86 1px, transparent 1px); background-size: 132px 132px; mask-image: radial-gradient(80% 80% at 50% 45%, #000 18%, transparent 80%); -webkit-mask-image: radial-gradient(80% 80% at 50% 45%, #000 18%, transparent 80%)"></div>
+
+        <svg viewBox="0 0 200 130" style="position: absolute; right: -22px; top: -30px; width: 420px; opacity: 0.4" fill="none" aria-hidden="true">
+          <path d="M120 8l60 34v68l-60 34-60-34V42z" stroke="#4a2338" stroke-width="6" />
+          <path d="M150 76l22-22-22-22M132 32l-22 22 22 22" stroke="#4a2338" stroke-width="5" stroke-linecap="round" />
+        </svg>
+
+        <sc-for list="{{ crosses }}" as="c" hint-placeholder-count="6">
+          <span style="{{ c.style }}">+</span>
+        </sc-for>
+
+        <div style="position: absolute; inset: 0; padding: 74px 78px; display: grid; align-content: space-between">
+          <div style="display: flex; align-items: center; gap: 22px">
+            <svg width="70" height="80" viewBox="0 0 28 32" fill="none" aria-hidden="true">
+              <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mgc)" stroke-width="1.9" />
+              <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mgc)" stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+            <div style="width: 1px; height: 74px; background: linear-gradient(180deg, transparent, #4a2338, transparent)"></div>
+            <span style="font-size: 22px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: #cfc9d2; line-height: 1.5">IT · Cloud<br />Security · AI</span>
+          </div>
+
+          <div style="display: grid; gap: 26px; justify-items: start">
+            <span style="font-size: 132px; font-weight: 800; line-height: 0.82; letter-spacing: -0.05em; background: linear-gradient(100deg, #ff8a2b 0%, #ff2a86 52%, #ff8a2b 100%); -webkit-background-clip: text; background-clip: text; color: transparent">marleo<span style="color: #ffffff; background: none">.tech</span></span>
+            <div style="display: flex; align-items: center; gap: 22px">
+              <span style="width: 96px; height: 5px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+              <span style="font-size: 26px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: #ffffff">IT that just works</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: 12px; justify-items: start">
+      <span style="color: #ff8a2b; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">Achterzijde</span>
+      <div style="position: relative; width: 1004px; height: 650px; overflow: hidden; background: #ffffff; box-shadow: 0 40px 90px rgba(0,0,0,0.6)">
+
+        <span style="position: absolute; left: 0; right: 0; top: 0; height: 12px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+        <div style="position: absolute; right: -120px; bottom: -160px; width: 520px; height: 520px; border-radius: 9999px; background: radial-gradient(circle at 40% 35%, rgba(255,138,43,0.16), rgba(255,42,134,0.10) 55%, transparent 74%)"></div>
+        <svg viewBox="0 0 200 200" style="position: absolute; right: 34px; bottom: 26px; width: 300px; opacity: 0.12" fill="none" aria-hidden="true">
+          <path d="M100 12l76 44v88l-76 44-76-44V56z" stroke="#ff2a86" stroke-width="4" />
+          <path d="M100 12v176M24 56l152 88M176 56L24 144" stroke="#ff8a2b" stroke-width="2.5" />
+        </svg>
+
+        <div style="position: absolute; inset: 0; padding: 78px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; align-content: space-between">
+
+          <div style="display: grid; gap: 40px; align-content: space-between">
+            <div style="display: grid; gap: 14px">
+              <span style="font-size: 58px; font-weight: 700; line-height: 1.02; letter-spacing: -1.6px; color: #120d12">Giannis Baert</span>
+              <span style="width: 78px; height: 5px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+              <span style="font-size: 22px; font-weight: 600; letter-spacing: 2.6px; text-transform: uppercase; color: #6e6a72">Oprichter &amp; eigenaar</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 20px">
+              <svg width="46" height="53" viewBox="0 0 28 32" fill="none" aria-hidden="true">
+                <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mgh)" stroke-width="1.9" />
+                <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mgh)" stroke-width="1.7" stroke-linecap="round" />
+              </svg>
+              <span style="font-size: 34px; font-weight: 700; letter-spacing: -0.6px; color: #120d12">marleo<span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">.tech</span></span>
+            </div>
+          </div>
+
+          <div style="display: grid; gap: 22px; align-content: center">
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: 54px 1fr; gap: 18px; align-items: center">
+                <span style="width: 54px; height: 54px; border-radius: 9999px; border: 2px solid #ff2a86; display: grid; place-items: center; font-size: 19px; font-weight: 700; letter-spacing: 0.4px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ r.icon }}</span>
+                <div style="display: grid; gap: 2px">
+                  <span style="font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #8f8b93">{{ r.label }}</span>
+                  <span style="font-size: 25px; font-weight: 600; letter-spacing: -0.3px; color: #120d12">{{ r.value }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <span style="font-size: 15px; font-weight: 600; letter-spacing: 2.2px; text-transform: uppercase; color: #a3a0a6; padding-top: 6px">NL · EN · FR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="width: 1004px; display: grid; gap: 10px; color: #8f8b93; font-size: 13px; line-height: 1.6">
+    <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #cfc9d2">Drukspecificatie</span>
+    <span>Formaat 85 × 55 mm — bestand op 1004 × 650 px (300 dpi). Voeg bij het aanleveren 3 mm afloop rondom toe en houd 5 mm veiligheidsmarge; tekst staat hier al binnen die marge.</span>
+    <span>Voorzijde: soft-touch mat zwart, wordmark in oranje→magenta. Achterzijde: mat wit, gradient-baan boven. Optioneel: spot-UV op het wordmark en de gradient-baan.</span>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100}}">
+const CROSS = [[18, 26], [34, 68], [58, 18], [76, 58], [88, 34], [26, 84]];
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { icon: "T", label: "Telefoon", value: "0456 92 00 25" },
+        { icon: "@", label: "E-mail", value: "giannis@marleo.tech" },
+        { icon: "W", label: "Website", value: "marleo.tech" },
+        { icon: "IG", label: "Instagram", value: "@marleo.tech" }
+      ],
+      crosses: CROSS.map((p, i) => ({
+        style: "position: absolute; left: " + p[0] + "%; top: " + p[1] + "%; color: #ff8a2b; font-size: " + (16 + (i % 3) * 6) + "px; opacity: " + (0.22 + (i % 3) * 0.1) + ";"
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>

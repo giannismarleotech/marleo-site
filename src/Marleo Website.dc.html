@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #0a070a; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+  a { color: #ff2a86; text-decoration: none; }
+  a:hover { color: #ff8a2b; }
+  @keyframes m-rise { from { opacity: 0; transform: translate3d(0, 26px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+  @keyframes m-float { 0%, 100% { transform: translate3d(0, -7px, 0); } 50% { transform: translate3d(0, 7px, 0); } }
+  @keyframes m-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  @keyframes m-pulse { 0%, 100% { opacity: 0.22; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.3); } }
+  @keyframes m-sweep { 0% { transform: translate3d(-120%, 0, 0); } 100% { transform: translate3d(320%, 0, 0); } }
+  @keyframes m-orbit { to { transform: rotate(360deg); } }
+  @keyframes m-scroll { 0%, 8% { transform: translate3d(0, 0, 0); } 50%, 58% { transform: translate3d(0, -50%, 0); } 100% { transform: translate3d(0, 0, 0); } }
+  @keyframes m-sway { 0%, 100% { transform: rotateY(-12deg) rotateX(5deg); } 50% { transform: rotateY(-3deg) rotateX(2deg); } }
+  @keyframes m-sway-phone { 0%, 100% { transform: rotateY(11deg) rotateX(4deg) translateY(0); } 50% { transform: rotateY(3deg) rotateX(1deg) translateY(-10px); } }
+  @keyframes m-scroll { 0%, 8% { transform: translate3d(0, 0, 0); } 50%, 58% { transform: translate3d(0, -52%, 0); } 100% { transform: translate3d(0, 0, 0); } }
+  @keyframes m-sway { 0%, 100% { transform: rotateY(-13deg) rotateX(5deg); } 50% { transform: rotateY(-4deg) rotateX(2deg); } }
+  @keyframes m-sway-phone { 0%, 100% { transform: rotateY(11deg) rotateX(4deg) translateY(0); } 50% { transform: rotateY(3deg) rotateX(1deg) translateY(-10px); } }
+</style>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#120d12"/><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs><path d="M50 30 68 40v20L50 70 32 60V40z" fill="none" stroke="url(#tg)" stroke-width="3"/><text x="50" y="55" font-family="sans-serif" font-size="13" font-weight="700" fill="url(#tg)" text-anchor="middle">M</text></svg></template>
+</helmet>
+
+<div style="font-family: 'Inter', -apple-system, system-ui, sans-serif; background: #0a070a; color: #ffffff; min-height: 100vh; position: relative; overflow: hidden; perspective: 1400px; perspective-origin: 50% 30%">
+
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="mgx" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff8a2b" />
+        <stop offset="1" stop-color="#ff2a86" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div style="position: absolute; inset: 0; background-image: radial-gradient(70% 70% at 10% 12%, rgba(255,138,43,0.26) 0%, transparent 62%), radial-gradient(70% 75% at 90% 18%, rgba(255,42,134,0.30) 0%, transparent 64%); pointer-events: none"></div>
+  <div data-depth="6" style="position: absolute; top: 0; left: -4%; right: -4%; height: 1400px; pointer-events: none; opacity: 0.14; background-image: linear-gradient(to right, #ff8a2b 1px, transparent 1px), linear-gradient(to bottom, #ff2a86 1px, transparent 1px); background-size: 220px 220px; mask-image: radial-gradient(80% 70% at 50% 25%, #000 15%, transparent 78%); -webkit-mask-image: radial-gradient(80% 70% at 50% 25%, #000 15%, transparent 78%)"></div>
+  <div data-depth="10" style="position: absolute; top: 0; left: 0; right: 0; height: 1200px; pointer-events: none">
+    <sc-for list="{{ crosses }}" as="c" hint-placeholder-count="8">
+      <span style="{{ c.style }}">+</span>
+    </sc-for>
+  </div>
+
+  <nav style="position: relative; z-index: 8; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: {{ navPad }}">
+    <a href="#/" style="display: flex; align-items: center; gap: 12px; color: #ffffff">
+      <svg width="30" height="34" viewBox="0 0 28 32" fill="none" aria-hidden="true" style="animation: m-float 7s ease-in-out infinite">
+        <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mgx)" stroke-width="2" />
+        <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mgx)" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+      <span style="font-size: 19px; font-weight: 700; letter-spacing: -0.4px">marleo<span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">.tech</span></span>
+    </a>
+    <div style="display: flex; align-items: center; gap: 18px; flex: none">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; align-items: center; gap: {{ navGap }}">
+          <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="6">
+            <div onMouseEnter="{{ g.onEnter }}" onMouseLeave="{{ g.onLeave }}" style="position: relative; display: flex; align-items: center; padding: 8px 0">
+              <sc-if value="{{ g.isLink }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ g.href }}" style="{{ g.style }}">{{ g.label }}</a>
+              </sc-if>
+              <sc-if value="{{ g.isGroup }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ g.onToggle }}" style="{{ g.style }}">{{ g.label }} <span style="font-size: 9px; color: #ff2a86">▾</span></button>
+              </sc-if>
+              <sc-if value="{{ g.open }}" hint-placeholder-val="{{ false }}">
+                <div style="position: absolute; top: 100%; left: -14px; padding-top: 18px; width: 368px; z-index: 30">
+                  <div style="background: rgba(20,15,22,0.98); border: 1px solid #3a2b38; border-radius: 10px; padding: 10px; display: grid; gap: 2px; backdrop-filter: blur(14px); box-shadow: 0 24px 60px rgba(0,0,0,0.6)">
+                    <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
+                      <a href="{{ i.href }}" onClick="{{ g.onLeave }}" style="{{ i.style }}" style-hover="background: rgba(255,42,134,0.14)">
+                        <span style="font-size: 14px; font-weight: 700; letter-spacing: -0.1px">{{ i.label }}</span>
+                        <span style="font-size: 12px; line-height: 1.5; color: #a3a0a6">{{ i.desc }}</span>
+                      </a>
+                    </sc-for>
+                    <a href="#/diensten" onClick="{{ g.onLeave }}" style="margin-top: 6px; border-top: 1px solid #2e2530; padding: 12px 14px 4px; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #ff2a86">{{ g.allLabel }} →</a>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="display: flex; align-items: center; gap: 4px; border: 1px solid #3a2b38; border-radius: 9999px; padding: 3px; flex: none">
+        <sc-for list="{{ locales }}" as="l" hint-placeholder-count="3">
+          <button onClick="{{ l.pick }}" style="{{ l.style }}">{{ l.code }}</button>
+        </sc-for>
+      </div>
+      <a href="#/contact" style="border: 0; background: linear-gradient(90deg, #ff8a2b, #ff2a86, #ff8a2b); background-size: 200% 100%; animation: m-shimmer 6s linear infinite; color: #ffffff; font-size: 13px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; border-radius: 4px; padding: 12px 22px; white-space: nowrap; flex: none; box-shadow: 0 10px 30px rgba(255,42,134,0.32)">{{ t.navCta }}</a>
+      <sc-if value="{{ compact }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleMenu }}" aria-label="Menu" style="cursor: pointer; width: 44px; height: 44px; border-radius: 4px; background: rgba(30,23,32,0.6); border: 1px solid #3a2b38; color: #ffffff; display: grid; place-items: center; gap: 4px; flex: none; padding: 11px 10px">
+          <span style="display: block; width: 22px; height: 1.5px; background: #ffffff"></span>
+          <span style="display: block; width: 22px; height: 1.5px; background: #ffffff"></span>
+          <span style="display: block; width: 22px; height: 1.5px; background: #ffffff"></span>
+        </button>
+      </sc-if>
+    </div>
+  </nav>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: relative; z-index: 8; margin: 0 24px; background: rgba(30,23,32,0.95); border: 1px solid #3a2b38; border-radius: 8px; padding: 8px 20px 16px; display: grid; backdrop-filter: blur(12px)">
+      <sc-for list="{{ mobileGroups }}" as="g" hint-placeholder-count="5">
+        <div style="display: grid; padding: 6px 0">
+          <sc-if value="{{ g.isLink }}" hint-placeholder-val="{{ true }}">
+            <a href="{{ g.href }}" onClick="{{ closeMenu }}" style="font-size: 13px; font-weight: 700; letter-spacing: 0.65px; text-transform: uppercase; color: #ffffff; min-height: 48px; display: flex; align-items: center; border-bottom: 1px solid #2e2530">{{ g.label }}</a>
+          </sc-if>
+          <sc-if value="{{ g.isGroup }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; gap: 2px; border-bottom: 1px solid #2e2530; padding-bottom: 10px">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #ff8a2b; padding: 14px 0 6px">{{ g.label }}</span>
+              <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
+                <a href="{{ i.href }}" onClick="{{ closeMenu }}" style="font-size: 14px; font-weight: 600; color: #ffffff; min-height: 44px; display: flex; align-items: center; padding-left: 12px">{{ i.label }}</a>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <section style="position: relative; z-index: 2; padding: {{ heroPad }}; min-height: {{ heroMinH }}">
+      <h1 data-depth="4" style="position: absolute; left: 0; right: 0; top: {{ wordTop }}; margin: 0; text-align: center; font-size: {{ wordSize }}; font-weight: 800; line-height: 0.82; letter-spacing: -0.05em; z-index: 2; pointer-events: none; background: linear-gradient(100deg, #ff8a2b 0%, #ff2a86 46%, #ff8a2b 72%, #ff2a86 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 30px 70px rgba(255,42,134,0.28)); animation: m-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) both, m-shimmer 14s linear infinite">MARLEO<span style="display: block; font-size: 0.115em; font-weight: 600; letter-spacing: 0.42em; background: none; color: #cfc9d2; margin-top: 0.1em">IT · CLOUD · SECURITY · AI</span></h1>
+
+      <div data-depth="-8" style="position: absolute; left: 50%; transform: translateX(-50%); top: {{ orbTop }}; width: {{ orbSize }}; height: {{ orbSize }}; z-index: 3; pointer-events: none">
+        <span style="position: absolute; inset: 12%; border-radius: 9999px; background: radial-gradient(circle at 38% 32%, rgba(255,138,43,0.75), rgba(255,42,134,0.35) 52%, rgba(10,7,10,0.05) 76%); filter: blur(2px); box-shadow: 0 60px 140px rgba(255,42,134,0.45); animation: m-float 9s ease-in-out infinite"></span>
+        <span style="position: absolute; inset: 0; border: 1px solid rgba(255,138,43,0.35); border-radius: 9999px; animation: m-orbit 26s linear infinite"></span>
+        <span style="position: absolute; inset: 6%; border: 1px dashed rgba(255,42,134,0.35); border-radius: 9999px; animation: m-orbit 40s linear infinite reverse"></span>
+        <svg viewBox="0 0 100 100" style="position: absolute; inset: 20%; opacity: 0.55" fill="none" aria-hidden="true">
+          <path d="M50 6 88 28v44L50 94 12 72V28z" stroke="rgba(255,255,255,0.5)" stroke-width="0.8" />
+          <path d="M50 6v88M12 28l76 44M88 28L12 72" stroke="rgba(255,255,255,0.22)" stroke-width="0.6" />
+        </svg>
+      </div>
+
+      <div data-depth="14" style="position: relative; z-index: 4; max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: {{ railCols }}; gap: {{ railGap }}; align-items: start; padding-top: {{ railTop }}">
+        <div style="display: grid; gap: 20px; align-content: start; animation: m-rise 0.9s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both">
+          <div style="display: grid; gap: 8px">
+            <span style="font-size: 16px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">{{ t.kicker }}</span>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #ff8a2b">— {{ t.kickerMeta }}</span>
+          </div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #cfc9d2; max-width: 26ch">{{ t.leftBody }}</p>
+          <a href="#/ai-infrastructuur" style="justify-self: start; font-size: 12px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; border-bottom: 1px solid #ff2a86; padding-bottom: 4px">{{ t.leftLink }} →</a>
+        </div>
+
+        <div></div>
+
+        <div style="display: grid; gap: 28px; animation: m-rise 0.9s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both">
+          <div style="display: grid; gap: 12px">
+            <h2 style="margin: 0; font-size: 26px; font-weight: 600; line-height: 1.15; letter-spacing: -0.5px"><span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ t.claimA }}</span><br />{{ t.claimB }}</h2>
+            <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #cfc9d2; max-width: 30ch">{{ t.claimBody }}</p>
+          </div>
+          <a href="#/contact" data-tilt="1" style="position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 56px; align-items: center; gap: 16px; background: linear-gradient(120deg, #c9166a, #ff2a86 55%, #ff8a2b); border-radius: 10px; padding: 20px; color: #ffffff; box-shadow: 0 24px 60px rgba(255,42,134,0.35); transform-style: preserve-3d; transition: transform 0.25s ease">
+            <span style="position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent); animation: m-sweep 4.5s ease-in-out infinite; pointer-events: none"></span>
+            <span style="font-size: 15px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; line-height: 1.25">{{ t.offerCta }}</span>
+            <span style="width: 56px; height: 56px; background: #120d12; border-radius: 6px; display: grid; place-items: center; font-size: 20px">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+      <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: {{ metricCols }}; gap: 24px; border-top: 1px solid #2e2530; border-bottom: 1px solid #2e2530; padding: 40px 0">
+        <sc-for list="{{ t.metrics }}" as="m" hint-placeholder-count="4">
+          <div style="display: grid; gap: 8px">
+            <span style="font-size: {{ metricSize }}; font-weight: 700; line-height: 1; letter-spacing: -1.6px; background: linear-gradient(120deg, #ff8a2b, #ff2a86); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: m-shimmer 10s linear infinite">{{ m.value }}</span>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ m.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+      <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 40px">
+        <div style="display: grid; gap: 16px">
+          <span style="width: 64px; height: 3px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+          <h2 style="margin: 0; font-size: {{ h2Size }}; font-weight: 500; line-height: 1.12; letter-spacing: -1px; max-width: 22ch; text-wrap: pretty">{{ t.servicesTitle }}</h2>
+          <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #cfc9d2; max-width: 62ch">{{ t.servicesIntro }}</p>
+        </div>
+        <div style="display: grid; grid-template-columns: {{ serviceCols }}; gap: 24px; transform-style: preserve-3d">
+          <sc-for list="{{ serviceCards }}" as="s" hint-placeholder-count="5">
+            <a href="{{ s.href }}" data-tilt="1" style="background: rgba(30,23,32,0.7); border: 1px solid #2e2530; border-radius: 10px; padding: 28px; display: grid; gap: 14px; align-content: start; color: #ffffff; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.25s ease, border-color 0.25s ease" style-hover="border-color: #ff2a86">
+              <span style="width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid #4a2338; display: grid; place-items: center; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ s.abbr }}</span>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 700; line-height: 1.25">{{ s.title }}</h3>
+              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #a3a0a6">{{ s.body }}</p>
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #ff2a86">{{ t.more }} →</span>
+            </a>
+          </sc-for>
+        </div>
+        <a href="#/domeincheck" data-tilt="1" style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; background: linear-gradient(120deg, rgba(255,138,43,0.14), rgba(30,23,32,0.8)); border: 1px solid #4a2338; border-radius: 10px; padding: 24px 28px; color: #ffffff; transform-style: preserve-3d; transition: transform 0.25s ease, border-color 0.25s ease" style-hover="border-color: #ff2a86">
+          <span style="font-size: 18px; font-weight: 600; letter-spacing: -0.2px">{{ t.domainTeaser }}</span>
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #ff2a86; white-space: nowrap">{{ t.domainTeaserCta }} →</span>
+        </a>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isPage }}" hint-placeholder-val="{{ false }}">
+    <section style="position: relative; z-index: 4; padding: {{ pagePad }}">
+      <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 24px; animation: m-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">
+          <a href="#/" style="color: #a3a0a6">{{ t.home }}</a>
+          <span style="color: #ff8a2b">/</span>
+          <span style="color: #ffffff">{{ p.crumb }}</span>
+        </div>
+        <span style="width: 64px; height: 3px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+        <h1 style="margin: 0; font-size: {{ pageTitleSize }}; font-weight: 600; line-height: 1.08; letter-spacing: -1.4px; max-width: 22ch; text-wrap: pretty">{{ p.title }}</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #cfc9d2; max-width: 62ch">{{ p.lead }}</p>
+      </div>
+    </section>
+
+    <sc-if value="{{ p.hasPreview }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 28px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 500; line-height: 1.3">{{ p.previewTitle }}</h2>
+          <div style="position: relative; border: 1px solid #2e2530; border-radius: 12px; padding: {{ mockPad }}; background-color: rgba(18,13,18,0.7); background-image: radial-gradient(70% 90% at 18% 8%, rgba(255,138,43,0.12), transparent 62%), radial-gradient(70% 90% at 86% 30%, rgba(255,42,134,0.14), transparent 64%); display: grid; grid-template-columns: {{ mockCols }}; gap: {{ mockGap }}; align-items: end; justify-items: center; overflow: hidden; perspective: 1600px">
+
+            <div style="width: 100%; max-width: 700px; transform-style: preserve-3d; animation: m-sway 14s ease-in-out infinite">
+              <div style="background: linear-gradient(160deg, #2a222c, #17131a); border: 1px solid #3a2b38; border-radius: 12px 12px 4px 4px; padding: 10px 10px 12px; box-shadow: 0 40px 80px rgba(0,0,0,0.55)">
+                <div style="display: flex; align-items: center; gap: 5px; padding: 2px 4px 8px">
+                  <span style="width: 7px; height: 7px; border-radius: 9999px; background: #ff8a2b"></span>
+                  <span style="width: 7px; height: 7px; border-radius: 9999px; background: #4a2338"></span>
+                  <span style="width: 7px; height: 7px; border-radius: 9999px; background: #2e2530"></span>
+                  <span style="flex: 1; height: 12px; margin-left: 8px; border-radius: 9999px; background: #0a070a"></span>
+                </div>
+                <div style="position: relative; aspect-ratio: 16 / 10; border-radius: 4px; overflow: hidden; background: #ffffff">
+                  <div style="position: absolute; left: 0; right: 0; top: 0; display: grid; gap: 14px; padding: 18px; animation: m-scroll 16s ease-in-out infinite">
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                      <span style="width: 76px; height: 12px; border-radius: 3px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+                      <span style="display: flex; align-items: center; gap: 8px">
+                        <span style="width: 34px; height: 7px; border-radius: 3px; background: #d6d2d8"></span>
+                        <span style="width: 34px; height: 7px; border-radius: 3px; background: #d6d2d8"></span>
+                        <span style="width: 34px; height: 7px; border-radius: 3px; background: #d6d2d8"></span>
+                        <span style="width: 52px; height: 16px; border-radius: 3px; background: #120d12"></span>
+                      </span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; align-items: center">
+                      <div style="display: grid; gap: 9px">
+                        <span style="width: 92%; height: 20px; border-radius: 4px; background: #120d12"></span>
+                        <span style="width: 64%; height: 20px; border-radius: 4px; background: #120d12"></span>
+                        <span style="width: 84%; height: 8px; border-radius: 3px; background: #d6d2d8"></span>
+                        <span style="width: 72%; height: 8px; border-radius: 3px; background: #d6d2d8"></span>
+                        <span style="width: 108px; height: 24px; border-radius: 4px; background: linear-gradient(90deg, #ff8a2b, #ff2a86); margin-top: 4px"></span>
+                      </div>
+                      <span style="height: 130px; border-radius: 6px; background: linear-gradient(150deg, #f8f6f8, #ebe9ec)"></span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px">
+                      <span style="height: 72px; border-radius: 6px; background: #f8f6f8; border: 1px solid #ebe9ec"></span>
+                      <span style="height: 72px; border-radius: 6px; background: #f8f6f8; border: 1px solid #ebe9ec"></span>
+                      <span style="height: 72px; border-radius: 6px; background: #f8f6f8; border: 1px solid #ebe9ec"></span>
+                    </div>
+                    <div style="display: grid; gap: 8px">
+                      <span style="width: 44%; height: 14px; border-radius: 4px; background: #120d12"></span>
+                      <span style="width: 90%; height: 8px; border-radius: 3px; background: #d6d2d8"></span>
+                      <span style="width: 78%; height: 8px; border-radius: 3px; background: #d6d2d8"></span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px">
+                      <span style="height: 86px; border-radius: 6px; background: linear-gradient(150deg, #f8f6f8, #ebe9ec)"></span>
+                      <span style="height: 86px; border-radius: 6px; background: linear-gradient(150deg, #f8f6f8, #ebe9ec)"></span>
+                    </div>
+                    <span style="height: 58px; border-radius: 6px; background: #120d12"></span>
+                  </div>
+                </div>
+              </div>
+              <span style="display: block; height: 10px; border-radius: 0 0 12px 12px; background: linear-gradient(180deg, #3a2b38, #17131a); box-shadow: 0 20px 40px rgba(0,0,0,0.5)"></span>
+              <span style="display: block; text-align: center; padding-top: 14px; font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ mockDesktop }}</span>
+            </div>
+
+            <div style="width: 200px; transform-style: preserve-3d; animation: m-sway-phone 12s ease-in-out infinite">
+              <div style="background: linear-gradient(160deg, #2a222c, #17131a); border: 1px solid #3a2b38; border-radius: 26px; padding: 8px; box-shadow: 0 30px 70px rgba(0,0,0,0.55)">
+                <div style="position: relative; aspect-ratio: 9 / 18; border-radius: 20px; overflow: hidden; background: #ffffff">
+                  <span style="position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 38px; height: 5px; border-radius: 9999px; background: #17131a; z-index: 2"></span>
+                  <div style="position: absolute; left: 0; right: 0; top: 0; display: grid; gap: 10px; padding: 20px 12px 12px; animation: m-scroll 13s ease-in-out infinite">
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                      <span style="width: 52px; height: 9px; border-radius: 3px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+                      <span style="width: 16px; height: 10px; border-radius: 2px; background: #d6d2d8"></span>
+                    </div>
+                    <span style="height: 76px; border-radius: 5px; background: linear-gradient(150deg, #f8f6f8, #ebe9ec)"></span>
+                    <span style="width: 88%; height: 13px; border-radius: 3px; background: #120d12"></span>
+                    <span style="width: 60%; height: 13px; border-radius: 3px; background: #120d12"></span>
+                    <span style="width: 94%; height: 7px; border-radius: 2px; background: #d6d2d8"></span>
+                    <span style="width: 80%; height: 7px; border-radius: 2px; background: #d6d2d8"></span>
+                    <span style="height: 22px; border-radius: 3px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+                    <span style="height: 54px; border-radius: 5px; background: #f8f6f8; border: 1px solid #ebe9ec"></span>
+                    <span style="height: 54px; border-radius: 5px; background: #f8f6f8; border: 1px solid #ebe9ec"></span>
+                    <span style="height: 42px; border-radius: 5px; background: #120d12"></span>
+                  </div>
+                </div>
+              </div>
+              <span style="display: block; text-align: center; padding-top: 14px; font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ mockPhone }}</span>
+            </div>
+          </div>
+          <p style="margin: 0; font-size: 13px; line-height: 1.7; color: #a3a0a6; max-width: 68ch">{{ p.previewNote }}</p>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasDomainTool }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 900px; margin: 0 auto; display: grid; gap: 20px">
+          <div data-tilt="1" style="background: rgba(30,23,32,0.72); border: 1px solid #3a2b38; border-radius: 10px; padding: 28px; display: grid; gap: 16px; backdrop-filter: blur(12px); box-shadow: 0 24px 60px rgba(0,0,0,0.5); transform-style: preserve-3d; transition: transform 0.25s ease">
+            <div style="display: flex; flex-wrap: wrap; gap: 12px">
+              <input type="text" value="{{ domQuery }}" onInput="{{ onDomInput }}" onKeyDown="{{ onDomKey }}" placeholder="{{ domUi.placeholder }}" style="flex: 1; min-width: 220px; height: 52px; padding: 14px 18px; border-radius: 4px; background: #0a070a; border: 1px solid #2e2530; color: #ffffff; font-family: inherit; font-size: 16px" />
+              <button onClick="{{ onDomCheck }}" style="border: 0; cursor: pointer; height: 52px; padding: 0 32px; border-radius: 4px; background: linear-gradient(90deg, #ff8a2b, #ff2a86, #ff8a2b); background-size: 200% 100%; animation: m-shimmer 6s linear infinite; color: #ffffff; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; white-space: nowrap">{{ domUi.button }}</button>
+            </div>
+            <span style="font-size: 12px; color: #a3a0a6">{{ domUi.hint }}</span>
+            <sc-if value="{{ domInvalid }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 13px; font-weight: 600; color: #ff8a2b">{{ domUi.invalid }}</span>
+            </sc-if>
+            <sc-if value="{{ domHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; gap: 10px; padding-top: 4px">
+                <sc-for list="{{ domResults }}" as="r" hint-placeholder-count="4">
+                  <div style="{{ r.rowStyle }}">
+                    <span style="font-size: 16px; font-weight: 600; word-break: break-all">{{ r.name }}</span>
+                    <span style="{{ r.pillStyle }}">{{ r.label }}</span>
+                  </div>
+                </sc-for>
+                <a href="#/contact" style="justify-self: start; margin-top: 6px; height: 48px; display: inline-flex; align-items: center; padding: 0 26px; border-radius: 4px; background: transparent; border: 1px solid #4a2338; color: #ffffff; font-size: 13px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">{{ domUi.cta }}</a>
+              </div>
+            </sc-if>
+          </div>
+          <span style="font-size: 12px; line-height: 1.6; color: #6e6a72">{{ domUi.disclaimer }}</span>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasProjects }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 32px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 500; line-height: 1.3">{{ p.projectsTitle }}</h2>
+          <sc-if value="{{ p.hasCred }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: {{ projectCols }}; gap: 32px; border: 1px solid #4a2338; border-radius: 10px; padding: 28px 32px; background: linear-gradient(120deg, rgba(255,138,43,0.10), rgba(30,23,32,0.7))">
+              <div style="display: grid; gap: 8px; align-content: start">
+                <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ p.credLabel }}</span>
+                <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.4px; background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ p.credValue }}</span>
+              </div>
+              <p style="margin: 0; align-self: center; font-size: 14px; line-height: 1.7; color: #cfc9d2">{{ p.credNote }}</p>
+            </div>
+          </sc-if>
+          <div style="display: grid; gap: 24px; transform-style: preserve-3d">
+            <sc-for list="{{ p.projects }}" as="pr" hint-placeholder-count="5">
+              <a href="{{ pr.href }}" target="{{ pr.target }}" rel="noopener" data-tilt="1" style="display: grid; grid-template-columns: {{ projectCols }}; gap: 32px; background: rgba(30,23,32,0.7); border: 1px solid #2e2530; border-radius: 10px; padding: 32px; color: #ffffff; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.25s ease, border-color 0.25s ease" style-hover="border-color: #ff2a86">
+                <div style="display: grid; gap: 12px; align-content: start">
+                  <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ pr.tag }}</span>
+                  <h3 style="margin: 0; font-size: 26px; font-weight: 600; line-height: 1.15; letter-spacing: -0.5px">{{ pr.title }}</h3>
+                  <span style="width: 48px; height: 3px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+                </div>
+                <div style="display: grid; gap: 16px; align-content: start">
+                  <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #cfc9d2">{{ pr.body }}</p>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                    <sc-for list="{{ pr.items }}" as="it" hint-placeholder-count="3">
+                      <span style="border: 1px solid #4a2338; border-radius: 9999px; padding: 5px 13px; font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6; white-space: nowrap">{{ it }}</span>
+                    </sc-for>
+                  </div>
+                  <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #ff2a86">{{ pr.cta }}</span>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasServiceGrid }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 32px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 500; line-height: 1.3">{{ p.serviceGridTitle }}</h2>
+          <div style="display: grid; grid-template-columns: {{ serviceCols }}; gap: 24px; transform-style: preserve-3d">
+            <sc-for list="{{ serviceCards }}" as="s" hint-placeholder-count="9">
+              <a href="{{ s.href }}" data-tilt="1" style="background: rgba(30,23,32,0.7); border: 1px solid #2e2530; border-radius: 10px; padding: 28px; display: grid; gap: 14px; align-content: start; color: #ffffff; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.25s ease, border-color 0.25s ease" style-hover="border-color: #ff2a86">
+                <span style="width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid #4a2338; display: grid; place-items: center; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ s.abbr }}</span>
+                <h3 style="margin: 0; font-size: 17px; font-weight: 700; line-height: 1.25">{{ s.title }}</h3>
+                <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #a3a0a6">{{ s.body }}</p>
+                <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #ff2a86">{{ t.more }} →</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasBlocks }}" hint-placeholder-val="{{ true }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 32px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 500; line-height: 1.3">{{ p.blocksTitle }}</h2>
+          <div style="display: grid; grid-template-columns: {{ gridCols }}; gap: 24px; transform-style: preserve-3d">
+            <sc-for list="{{ p.blocks }}" as="b" hint-placeholder-count="4">
+              <article data-tilt="1" style="background: rgba(30,23,32,0.7); border: 1px solid #2e2530; border-radius: 10px; padding: 28px; display: grid; gap: 12px; align-content: start; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.25s ease, border-color 0.25s ease" style-hover="border-color: #ff2a86">
+                <span style="width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid #4a2338; display: grid; place-items: center; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ b.abbr }}</span>
+                <h3 style="margin: 0; font-size: 17px; font-weight: 700; line-height: 1.25">{{ b.title }}</h3>
+                <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #a3a0a6">{{ b.body }}</p>
+              </article>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasSteps }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 32px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 500; line-height: 1.3">{{ p.stepsTitle }}</h2>
+          <div style="display: grid; grid-template-columns: {{ stepCols }}; gap: 1px; background: #2e2530; border: 1px solid #2e2530; border-radius: 10px; overflow: hidden">
+            <sc-for list="{{ p.steps }}" as="s" hint-placeholder-count="4">
+              <div style="background: #120d12; padding: 28px; display: grid; gap: 10px; align-content: start; transition: background 0.25s ease" style-hover="background: #1e1720">
+                <span style="font-size: 32px; font-weight: 700; line-height: 1; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ s.n }}</span>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 700; line-height: 1.3">{{ s.title }}</h3>
+                <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #a3a0a6">{{ s.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasPlans }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: {{ planCols }}; gap: 24px; transform-style: preserve-3d">
+          <sc-for list="{{ p.plans }}" as="pl" hint-placeholder-count="3">
+            <article data-tilt="1" style="{{ pl.cardStyle }}">
+              <div style="display: grid; gap: 6px">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700">{{ pl.name }}</h3>
+                <span style="font-size: 12px; color: #a3a0a6">{{ pl.for }}</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px">
+                <span style="font-size: 40px; font-weight: 700; letter-spacing: -1px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ pl.price }}</span>
+                <span style="font-size: 12px; color: #a3a0a6">{{ p.priceUnit }}</span>
+              </div>
+              <div style="display: grid; gap: 10px; border-top: 1px solid #2e2530; padding-top: 20px">
+                <sc-for list="{{ pl.items }}" as="i" hint-placeholder-count="4">
+                  <span style="font-size: 13px; line-height: 1.5; color: #cfc9d2">— {{ i }}</span>
+                </sc-for>
+              </div>
+              <a href="#/contact" style="{{ pl.ctaStyle }}">{{ p.planCta }}</a>
+            </article>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasForm }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: {{ contactCols }}; gap: 32px; align-items: start">
+          <div data-tilt="1" style="background: rgba(30,23,32,0.72); border: 1px solid #3a2b38; border-radius: 10px; padding: 32px; display: grid; gap: 16px; backdrop-filter: blur(12px); box-shadow: 0 24px 60px rgba(0,0,0,0.5); transform-style: preserve-3d; transition: transform 0.25s ease">
+            <h2 style="margin: 0; font-size: 22px; font-weight: 600">{{ p.formTitle }}</h2>
+            <sc-for list="{{ p.fields }}" as="f" hint-placeholder-count="4">
+              <label style="display: grid; gap: 6px">
+                <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ f }}</span>
+                <input type="text" style="height: 48px; padding: 14px 16px; border-radius: 4px; background: #0a070a; border: 1px solid #2e2530; color: #ffffff; font-family: inherit; font-size: 14px" />
+              </label>
+            </sc-for>
+            <label style="display: grid; gap: 6px">
+              <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ p.messageLabel }}</span>
+              <textarea rows="4" style="padding: 14px 16px; border-radius: 4px; background: #0a070a; border: 1px solid #2e2530; color: #ffffff; font-family: inherit; font-size: 14px; resize: vertical"></textarea>
+            </label>
+            <button style="border: 0; cursor: pointer; height: 48px; border-radius: 4px; background: linear-gradient(90deg, #ff8a2b, #ff2a86, #ff8a2b); background-size: 200% 100%; animation: m-shimmer 6s linear infinite; color: #ffffff; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">{{ p.submit }}</button>
+          </div>
+          <div style="display: grid; gap: 16px; align-content: start">
+            <sc-for list="{{ p.contactRows }}" as="c" hint-placeholder-count="4">
+              <a href="{{ c.href }}" style="border: 1px solid #2e2530; border-radius: 10px; padding: 20px; display: grid; gap: 6px; background: rgba(18,13,18,0.6); color: #ffffff; transition: border-color 0.25s ease, transform 0.25s ease" style-hover="border-color: #ff2a86; transform: translateY(-2px)">
+                <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #ff8a2b">{{ c.label }}</span>
+                <span style="font-size: 15px; font-weight: 600">{{ c.value }}</span>
+                <span style="font-size: 12px; color: #a3a0a6">{{ c.note }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ p.hasFaq }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; z-index: 4; padding: {{ sectionPad }}">
+        <div style="max-width: 900px; margin: 0 auto; display: grid; gap: 24px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 500; line-height: 1.3">{{ p.faqTitle }}</h2>
+          <div style="display: grid">
+            <sc-for list="{{ p.faq }}" as="f" hint-placeholder-count="3">
+              <div style="border-top: 1px solid #2e2530; padding: 20px 0; display: grid; gap: 8px">
+                <span style="font-size: 16px; font-weight: 700">{{ f.q }}</span>
+                <span style="font-size: 14px; line-height: 1.6; color: #a3a0a6">{{ f.a }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+  </sc-if>
+
+  <section style="position: relative; z-index: 4; overflow: hidden; padding: {{ sectionPad }}; background-image: radial-gradient(60% 120% at 50% 100%, rgba(255,42,134,0.22) 0%, transparent 66%)">
+    <div style="max-width: 900px; margin: 0 auto; display: grid; gap: 24px; justify-items: center; text-align: center">
+      <h2 style="margin: 0; font-size: {{ h2Size }}; font-weight: 500; line-height: 1.12; letter-spacing: -1px; max-width: 26ch; text-wrap: pretty">{{ t.ctaBand }}</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #cfc9d2; max-width: 52ch">{{ t.ctaBandBody }}</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center">
+        <a href="#/contact" style="height: 48px; display: inline-flex; align-items: center; padding: 0 28px; border-radius: 4px; background: linear-gradient(90deg, #ff8a2b, #ff2a86, #ff8a2b); background-size: 200% 100%; animation: m-shimmer 6s linear infinite; color: #ffffff; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">{{ t.ctaContact }}</a>
+        <a href="#/prijzen" style="height: 48px; display: inline-flex; align-items: center; padding: 0 27px; border-radius: 4px; background: transparent; border: 1px solid #4a2338; color: #ffffff; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">{{ t.ctaPricing }}</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="position: relative; z-index: 4; padding: {{ sectionPad }}; background: #120d12; border-top: 1px solid #2e2530">
+    <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 48px">
+      <div style="display: grid; grid-template-columns: {{ footerCols }}; gap: 32px">
+        <div style="display: grid; gap: 16px; align-content: start">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="24" height="28" viewBox="0 0 28 32" fill="none" aria-hidden="true">
+              <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mgx)" stroke-width="2" />
+              <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mgx)" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span style="font-size: 16px; font-weight: 700; letter-spacing: -0.3px">marleo<span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">.tech</span></span>
+          </div>
+          <span style="font-size: 13px; line-height: 1.6; color: #a3a0a6; max-width: 26ch">{{ t.claim }}</span>
+          <div style="display: flex; gap: 8px; padding-top: 8px">
+            <sc-for list="{{ socials }}" as="s" hint-placeholder-count="3">
+              <a href="{{ s.href }}" title="{{ s.title }}" style="width: 36px; height: 36px; border-radius: 9999px; border: 1px solid #3a2b38; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: #a3a0a6; transition: transform 0.2s ease, border-color 0.2s ease" style-hover="border-color: #ff2a86; color: #ffffff; transform: translateY(-3px)">{{ s.label }}</a>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ footerGroups }}" as="c" hint-placeholder-count="4">
+          <div style="display: grid; gap: 10px; align-content: start">
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #ffffff">{{ c.head }}</span>
+            <sc-for list="{{ c.links }}" as="l" hint-placeholder-count="4">
+              <a href="{{ l.href }}" style="font-size: 13px; line-height: 1.7; color: #a3a0a6" style-hover="color: #ffffff">{{ l.label }}</a>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; align-items: center; border-top: 1px solid #2e2530; padding-top: 24px">
+        <span style="font-size: 12px; color: #6e6a72">{{ t.legal }}</span>
+        <div style="display: flex; align-items: center; gap: 4px; border: 1px solid #2e2530; border-radius: 9999px; padding: 3px">
+          <sc-for list="{{ locales }}" as="l" hint-placeholder-count="3">
+            <button onClick="{{ l.pick }}" style="{{ l.style }}">{{ l.code }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;nl&quot;,&quot;en&quot;,&quot;fr&quot;],&quot;default&quot;:&quot;nl&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Taal&quot;},&quot;parallax&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:0,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Beweging&quot;}}">
+const SERVICE_KEYS = ["managed-it", "cloud", "security", "ai-infrastructuur", "development", "webshop", "websites", "games", "branding"];
+
+const NL = {
+  navCta: "Contact", home: "Home", more: "Bekijk dienst",
+  kicker: "AI-INFRASTRUCTUUR", kickerMeta: "BEHEERDE OMGEVINGEN: 2026",
+  leftBody: "Wij bouwen de volledige AI-laag in je bedrijf — compute, data, private modellen en governance — bovenop IT die gewoon werkt.",
+  leftLink: "Naar AI-infrastructuur",
+  claimA: "De gouden standaard", claimB: "voor bedrijfs-IT",
+  claimBody: "Managed IT, cloud, security en AI-infrastructuur bij één partij. Nederlandstalige servicedesk, vaste responstijden.",
+  offerCta: "Vraag een AI-readiness scan",
+  servicesTitle: "IT die werkt — en alles wat er online op bouwt",
+  servicesIntro: "De basis is IT: managed werkplekken, cloud, security en AI-infrastructuur. Daarbovenop bouwen we wat je online nodig hebt — maatwerksoftware, webshops, websites, spellen en huisstijl. Eén partij, één aanspreekpunt.",
+  domainTeaser: "Is jouw domeinnaam nog vrij?",
+  domainTeaserCta: "Check een domeinnaam",
+  metrics: [
+    { value: "99,9%", label: "Uptime SLA" },
+    { value: "14min", label: "Gem. responstijd" },
+    { value: "120+", label: "Beheerde werkplekken" },
+    { value: "3", label: "Talen: NL · EN · FR" }
+  ],
+  ctaBand: "Klaar om je IT en AI uit handen te geven?",
+  ctaBandBody: "Een intake van 30 minuten. Geen verkooppraatje — een doorlichting van je huidige omgeving.",
+  ctaContact: "Neem contact op", ctaPricing: "Bekijk prijzen",
+  claim: "IT that just works — van werkplek tot AI-infrastructuur.",
+  legal: "© 2026 marleo.tech — Alle rechten voorbehouden",
+  allServices: "Alle diensten",
+  viewSite: "Bekijk live site",
+  navGroups: [
+    { label: "IT-beheer", keys: ["managed-it", "cloud", "security"] },
+    { label: "AI & software", keys: ["ai-infrastructuur", "development", "games"] },
+    { label: "Web & merk", keys: ["websites", "webshop", "domeincheck", "branding"] },
+    { key: "prijzen", label: "Prijzen" },
+    { key: "over-ons", label: "Over ons" }
+  ],
+  navDesc: {
+    "managed-it": "Werkplekken, servers en netwerk in beheer",
+    "cloud": "Microsoft 365 en Azure, migratie en beheer",
+    "security": "MFA, endpoint-detectie en NIS2",
+    "ai-infrastructuur": "Compute, data, private modellen, governance",
+    "development": "Integraties en interne tooling op maat",
+    "games": "Browser, mobiel, pc en serious games",
+    "websites": "Ontwerp, bouw, hosting en onderhoud",
+    "webshop": "Verkoop, betalingen en koppelingen",
+    "domeincheck": "Check of je domeinnaam nog vrij is",
+    "branding": "Logo, huisstijl en nieuwe merken"
+  },
+  footer: [
+    { head: "Online & merk", keys: ["websites", "webshop", "branding", "games", "development"] },
+    { head: "IT & AI", keys: ["ai-infrastructuur", "managed-it", "cloud", "security"] },
+    { head: "Bedrijf", keys: ["diensten", "projecten", "over-ons", "prijzen", "contact"] },
+    { head: "Support", keys: ["support", "status", "sla"] },
+    { head: "Juridisch", keys: ["privacy", "voorwaarden", "nis2"] }
+  ],
+  labels: {
+    "managed-it": "Managed IT", "ai-infrastructuur": "AI-infrastructuur", "cloud": "Cloud",
+    "security": "Security", "development": "Development", "prijzen": "Prijzen",
+    "diensten": "Alle diensten", "websites": "Websites", "webshop": "Webshops",
+    "branding": "Huisstijl & branding", "games": "Games", "domeincheck": "Domeincheck", "projecten": "Projecten",
+    "over-ons": "Over ons", "contact": "Contact", "support": "Servicedesk",
+    "status": "Statuspagina", "sla": "SLA", "privacy": "Privacy",
+    "voorwaarden": "Voorwaarden", "nis2": "NIS2 & AI Act"
+  },
+  pages: {
+    "diensten": {
+      crumb: "Alle diensten", title: "Alles voor je online wereld, onder één dak",
+      lead: "Wij beheren én bouwen je volledige digitale omgeving. De kern is IT: werkplekken, servers, cloud, security en AI-infrastructuur in beheer, met een servicedesk die opneemt. Daarbovenop maatwerksoftware, webshops, websites, spellen en huisstijl. Eén aanspreekpunt, één factuur, één partij die verantwoordelijkheid neemt.",
+      showServiceGrid: true, serviceGridTitle: "IT eerst — daarna alles wat erop bouwt",
+      stepsTitle: "Hoe je met ons start",
+      steps: [
+        { n: "01", title: "Gesprek", body: "30 minuten: wat wil je bereiken, wat staat er al, wat kan weg." },
+        { n: "02", title: "Voorstel", body: "Eén document: aanpak, planning en vaste prijs per onderdeel." },
+        { n: "03", title: "Bouwen", body: "Iteraties met demo's, zodat je het ziet groeien." },
+        { n: "04", title: "Beheer", body: "Hosting, updates en support — of overdracht als je het zelf wil doen." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Doen jullie ook kleine opdrachten?", a: "Ja. Een nieuwe website, een logo of een domeinnaam die verhuisd moet worden — geen enkel project is te klein." },
+        { q: "Kunnen jullie alles combineren?", a: "Dat is juist de bedoeling: merk, website, webshop en de IT eronder in één samenhangend geheel." },
+        { q: "Werken jullie ook voor particulieren?", a: "Voor branding, websites en games wel. Managed IT en AI-infrastructuur zijn voor organisaties." }
+      ]
+    },
+    "projecten": {
+      crumb: "Projecten", title: "Werk uit eigen huis",
+      lead: "Websites, merken en tooling die we voor echte ondernemers bouwden — van NFC-producten tot tuinaanneming en holistische praktijk. Elk project is live en in beheer.",
+      hasProjects: true, projectsTitle: "Live projecten",
+      credLabel: "Ook ervaring bij", credValue: "Procter & Gamble", credNote: "IT support (2024) — enterprise-omgeving, servicedesk en werkplekbeheer op grote schaal.",
+      projects: [
+        { tag: "Webshop · NFC · Drietalig", title: "TrustTap", body: "Merk en webshop voor NFC-reviewkaarten voor lokale ondernemers. Drietalig (NL · EN · FR), met productpagina's, uitlegvideo, bestelaanvraag, aparte kaart-instelpagina en juridische voorwaarden.", items: ["Merk & webshop", "NL/EN/FR", "NFC-configuratie"], href: "https://trusttap.be" },
+        { tag: "Website · Tuinaanneming", title: "Tuinen Lieven Cornelis", body: "Site voor een tuinaannemer uit Aalter: tuinontwerp, aanleg en onderhoud, met realisatiegalerij en een aanvraagformulier dat het projecttype meteen uitvraagt.", items: ["Ontwerp & bouw", "Realisatiegalerij", "Aanvraagformulier"], href: "https://tuinenlievencornelis.be" },
+        { tag: "Website · Holistische praktijk", title: "Nemetona", body: "Sfeerrijke site voor een holistische praktijk in Aalter: sessie-aanbod met duur en prijs, uitleg over de werkwijze, een volledig opleidingsoverzicht en contactformulier.", items: ["Ontwerp & bouw", "Aanbodstructuur", "SEO & meta"], href: "https://nemetona.be" },
+        { tag: "CRM · Maatwerk", title: "TrustTap CRM", body: "Eigen CRM voor TrustTap: klanten, bestellingen en de NFC-configuratie per kaart op één plek, zodat een order van aanvraag tot verzending opvolgbaar blijft.", items: ["Maatwerk CRM", "Orderopvolging", "NFC-koppeling"], href: "https://trusttap.be" },
+        { tag: "Game · Browser", title: "Fluppy Bird", body: "Eigen browsergame, volledig zelf gebouwd: physics, botsingsdetectie, score en highscores — direct speelbaar, zonder installatie.", items: ["Game-logica", "Physics", "Highscores"], href: "https://fluppybirdburger.netlify.app/" },
+        { tag: "Website · Bedrijf", title: "Terraclean", body: "Bedrijfswebsite met dienstenoverzicht en contactaanvraag, inclusief domein-, mail- en hostingconfiguratie.", items: ["Website", "Domein & mail", "Hosting"], href: "https://terraclean.be" },
+        { tag: "Website · Bedrijf", title: "Jematech", body: "Bedrijfswebsite met dienstenoverzicht en contactaanvraag, inclusief domein-, mail- en hostingconfiguratie.", items: ["Website", "Domein & mail", "Hosting"], href: "https://jematech.be" }
+      ],
+      faqTitle: "Over dit werk",
+      faq: [
+        { q: "Mag ik met een klant spreken?", a: "Graag. Na een intake koppelen we je aan een klant uit een vergelijkbare sector." },
+        { q: "Wat doen jullie na de oplevering?", a: "Hosting, domein, mail, updates en support blijven bij ons — of we dragen alles netjes over." },
+        { q: "Kunnen jullie ook enterprise-omgevingen aan?", a: "Ja. In 2024 deed Giannis IT support bij Procter & Gamble: dezelfde discipline, alleen op grotere schaal." }
+      ]
+    },
+    "websites": {
+      crumb: "Websites", title: "Websites die snel, vindbaar en van jou zijn",
+      hasPreview: true, previewTitle: "Zo kan jouw site eruitzien",
+      previewNote: "Elk ontwerp wordt getekend voor desktop én telefoon, en getest op echte toestellen. Wat je hier ziet is een indicatieve weergave — jouw ontwerp volgt je eigen huisstijl.",
+      previewLabels: ["Desktop", "Telefoon"],
+      lead: "Van eenvoudige onepager tot meertalig platform. Wij ontwerpen, bouwen, hosten en onderhouden — met een beheeromgeving waarin je zelf teksten en beelden aanpast.",
+      blocksTitle: "Wat je krijgt",
+      blocks: [
+        { abbr: "DES", title: "Ontwerp op maat", body: "Geen template-look: het ontwerp volgt jouw huisstijl en publiek." },
+        { abbr: "CMS", title: "Zelf aanpasbaar", body: "Teksten, beelden en pagina's beheer je zelf, zonder technische kennis." },
+        { abbr: "SEO", title: "Vindbaar & snel", body: "Technische SEO, sitemaps, meta-data en laadtijden onder een seconde." },
+        { abbr: "HST", title: "Hosting & onderhoud", body: "Hosting, SSL, back-ups en updates — of we zetten het op jouw omgeving." }
+      ],
+      stepsTitle: "Van idee naar live",
+      steps: [
+        { n: "01", title: "Structuur", body: "Sitemap, doelen en teksten in kaart." },
+        { n: "02", title: "Ontwerp", body: "Twee richtingen in beeld, jij kiest." },
+        { n: "03", title: "Bouw", body: "Responsive, meertalig en getest op echte toestellen." },
+        { n: "04", title: "Live & meten", body: "Domein, analytics en een maand nazorg." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Kan de site meertalig?", a: "Ja — NL, EN en FR zijn onze standaard, andere talen zijn mogelijk." },
+        { q: "Mag ik later zelf verder?", a: "Altijd. Code en toegangen zijn van jou; we documenteren de overdracht." },
+        { q: "Regelen jullie de domeinnaam?", a: "Ja. Check hier eerst of je naam nog vrij is en wij doen de rest." }
+      ]
+    },
+    "webshop": {
+      crumb: "Webshops", title: "Webshops die verkopen en niet omvallen",
+      lead: "Een webshop is geen website met een knop erbij: voorraad, betalingen, verzending en boekhouding moeten kloppen. Wij bouwen de winkel én de koppelingen eronder.",
+      blocksTitle: "Waar het echt om gaat",
+      blocks: [
+        { abbr: "PAY", title: "Betalingen", body: "Bancontact, kaarten, Apple Pay en facturatie — veilig en getest." },
+        { abbr: "STK", title: "Voorraad & orders", body: "Koppeling met je kassa, ERP of boekhouding; geen dubbel werk." },
+        { abbr: "SHP", title: "Verzending", body: "Labels, tracking en tarieven per zone automatisch berekend." },
+        { abbr: "CRO", title: "Conversie", body: "Snelle checkout, duidelijke productpagina's, meetbaar verbeterd." }
+      ],
+      stepsTitle: "Aanpak",
+      steps: [
+        { n: "01", title: "Assortiment", body: "Producten, varianten en prijsregels in kaart." },
+        { n: "02", title: "Bouw", body: "Shop, checkout en koppelingen op een testomgeving." },
+        { n: "03", title: "Testorders", body: "Volledige keten getest tot in de boekhouding." },
+        { n: "04", title: "Groeien", body: "Maandelijkse review op conversie en verlaten winkelwagens." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Welk platform gebruiken jullie?", a: "Shopify, WooCommerce of maatwerk — we kiezen op basis van je assortiment en koppelingen, niet op basis van gewoonte." },
+        { q: "Kunnen jullie een bestaande shop overnemen?", a: "Ja, inclusief migratie van producten, klanten en SEO-redirects." }
+      ]
+    },
+    "branding": {
+      crumb: "Huisstijl & branding", title: "Een merk dat blijft hangen",
+      lead: "Logo, kleuren, typografie en toon — vastgelegd in een huisstijlgids die je team en je leveranciers echt kunnen gebruiken. We bouwen ook complete nieuwe merken van naam tot website.",
+      blocksTitle: "Wat we leveren",
+      blocks: [
+        { abbr: "LOG", title: "Logo & merkteken", body: "Meerdere richtingen, uitgewerkt in alle formaten en varianten." },
+        { abbr: "STL", title: "Huisstijlgids", body: "Kleuren, typografie, spacing en do's & don'ts — zwart op wit." },
+        { abbr: "PRT", title: "Drukwerk", body: "Visitekaartjes, briefpapier, signage en social templates." },
+        { abbr: "NAM", title: "Nieuwe merken", body: "Van naamgeving en domeincheck tot logo, website en launch." }
+      ],
+      stepsTitle: "Het traject",
+      steps: [
+        { n: "01", title: "Positionering", body: "Wie ben je, voor wie, en waarin verschil je." },
+        { n: "02", title: "Richtingen", body: "Drie visuele richtingen, eerlijk toegelicht." },
+        { n: "03", title: "Uitwerking", body: "Gekozen richting doorgetrokken naar alle dragers." },
+        { n: "04", title: "Overdracht", body: "Bestanden, gids en templates in jouw beheer." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Krijgen we de bronbestanden?", a: "Ja, alle bronbestanden en volledige rechten." },
+        { q: "Doen jullie ook merknaamonderzoek?", a: "We checken domeinnamen en doen een eerste screening; een merkdepot verloopt via een merkgemachtigde." }
+      ]
+    },
+    "games": {
+      crumb: "Games", title: "Spellen die mensen echt willen spelen",
+      lead: "Van browsergame voor een campagne tot een volwaardige game op pc of mobiel. Ook serious games: opleiding, veiligheid of onboarding in spelvorm.",
+      blocksTitle: "Wat we maken",
+      blocks: [
+        { abbr: "WEB", title: "Browsergames", body: "Direct speelbaar op elk toestel — ideaal voor campagnes en events." },
+        { abbr: "APP", title: "Mobiel & pc", body: "Native builds voor iOS, Android, Windows en Steam." },
+        { abbr: "SER", title: "Serious games", body: "Opleiding, veiligheid en onboarding met meetbare resultaten." },
+        { abbr: "ART", title: "Art & audio", body: "Visuele stijl, UI en geluid in lijn met je merk." }
+      ],
+      stepsTitle: "Van concept naar release",
+      steps: [
+        { n: "01", title: "Concept", body: "Doel, publiek en kernmechaniek op één pagina." },
+        { n: "02", title: "Prototype", body: "Speelbaar binnen enkele weken — leuk of niet leuk blijkt snel." },
+        { n: "03", title: "Productie", body: "Content, art en polish in korte iteraties." },
+        { n: "04", title: "Release", body: "Publicatie, analytics en updates na launch." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Welke engine gebruiken jullie?", a: "Unity of web-technologie, afhankelijk van platform en budget." },
+        { q: "Kan een game onze opleiding vervangen?", a: "Aanvullen vaak wel; we meten of de kennis effectief blijft hangen." }
+      ]
+    },
+    "domeincheck": {
+      crumb: "Domeincheck", title: "Check of je domeinnaam nog vrij is",
+      lead: "Typ een naam en we kijken live of de domeinnaam al in gebruik is. Is hij vrij? Dan registreren en configureren wij hem voor je — inclusief mail, SSL en DNS.",
+      hasDomainTool: true,
+      blocksTitle: "En daarna",
+      blocks: [
+        { abbr: "REG", title: "Registratie", body: "Wij registreren de naam op jouw bedrijfsnaam — jij blijft eigenaar." },
+        { abbr: "DNS", title: "DNS & mail", body: "Records, mailbeveiliging (SPF, DKIM, DMARC) en SSL correct ingericht." },
+        { abbr: "MOV", title: "Verhuizen", body: "Bestaande naam overzetten zonder downtime op mail of website." },
+        { abbr: "BRD", title: "Merknaam", body: "Twijfel over de naam? Wij helpen kiezen en checken varianten mee." }
+      ],
+      faqTitle: "Over deze check",
+      faq: [
+        { q: "Hoe betrouwbaar is de check?", a: "We kijken live naar de DNS-gegevens van de naam. Staat er niets, dan is de kans groot dat hij vrij is — een geregistreerde maar ongebruikte naam kan echter ook leeg lijken. Wij bevestigen het definitief bij de registrar." },
+        { q: "Welke extensies checken jullie?", a: "Typ een volledige naam met extensie, of alleen de naam — dan checken we .be, .nl, .com en .eu tegelijk." },
+        { q: "Wat kost een domeinnaam?", a: "Afhankelijk van de extensie, doorgaans €15–€45 per jaar. We rekenen geen marge op registratie." }
+      ]
+    },
+    "managed-it": {
+      crumb: "Managed IT", title: "Managed IT die je niet meer voelt",
+      lead: "Wij nemen het volledige beheer van werkplekken, servers en netwerk over. Monitoring, patching, licenties en een servicedesk die opneemt — voor een vaste prijs per werkplek.",
+      blocksTitle: "Wat het beheer omvat",
+      blocks: [
+        { abbr: "MON", title: "Monitoring 24×7", body: "Alerts op schijven, back-ups, certificaten en netwerk — voordat je gebruikers het merken." },
+        { abbr: "PAT", title: "Patchbeheer", body: "Windows, macOS en third-party updates in een getest venster, met rapportage per maand." },
+        { abbr: "DSK", title: "Servicedesk", body: "Eén nummer, één mailbox. NL, EN en FR, remote en on-site." },
+        { abbr: "LIC", title: "Licenties & assets", body: "Actueel overzicht van hardware, licenties en garanties. Geen verrassingen bij audits." }
+      ],
+      stepsTitle: "Zo verloopt de overname",
+      steps: [
+        { n: "01", title: "Doorlichting", body: "Twee weken meekijken: inventaris, risico's en quick wins." },
+        { n: "02", title: "Overdracht", body: "Kennisoverdracht met je huidige leverancier, toegang en documentatie." },
+        { n: "03", title: "Stabilisatie", body: "Eerste 60 dagen: back-ups, patchniveau en security-baseline op orde." },
+        { n: "04", title: "Beheer", body: "Vaste service-manager, kwartaalrapportage en roadmap." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Nemen jullie ook bestaande hardware over?", a: "Ja. We inventariseren wat er staat en beheren het verder; vervanging plannen we in de kwartaalroadmap." },
+        { q: "Wat is de opzegtermijn?", a: "Eén maand na het eerste jaar. We willen dat je blijft omdat het werkt, niet omdat het contract je vasthoudt." },
+        { q: "Werken jullie met een ticketportaal?", a: "Ja, met statuspagina en SLA-rapportage per maand." }
+      ]
+    },
+    "ai-infrastructuur": {
+      crumb: "AI-infrastructuur", title: "AI-infrastructuur, van GPU tot governance",
+      lead: "We bouwen en beheren de volledige AI-laag binnen je bedrijf: rekencapaciteit, datapijplijnen, private modellen en de toegangscontrole eromheen. On-premise, in Azure of hybride — je data blijft binnen je eigen grenzen.",
+      blocksTitle: "De vier lagen",
+      blocks: [
+        { abbr: "GPU", title: "Compute & hosting", body: "GPU-servers on-premise of in Azure, capaciteitsplanning en kostenmonitoring." },
+        { abbr: "DAT", title: "Data & RAG", body: "Datapijplijnen, vectoropslag en documentontsluiting op je bestaande bronnen." },
+        { abbr: "MOD", title: "Private modellen", body: "Open-source of Azure OpenAI, gehost in je eigen omgeving met eigen logging." },
+        { abbr: "GOV", title: "Governance & AI Act", body: "Toegangsbeleid, audittrail en documentatie richting NIS2 en de EU AI Act." }
+      ],
+      stepsTitle: "Van scan naar productie",
+      steps: [
+        { n: "01", title: "Readiness scan", body: "Waar zit waarde, welke data is bruikbaar, wat mag wettelijk niet." },
+        { n: "02", title: "Pilot", body: "Één use case, meetbaar, binnen zes weken live voor een testgroep." },
+        { n: "03", title: "Uitrol", body: "Infrastructuur, toegangsbeleid en training voor de hele organisatie." },
+        { n: "04", title: "Beheer", body: "Monitoring op kosten, kwaliteit en modelversies." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Verlaat onze data het bedrijf?", a: "Niet als je dat niet wil. We hosten modellen on-premise of in je eigen Azure-tenant, met logging die jij beheert." },
+        { q: "Hebben we per se GPU's nodig?", a: "Nee. Voor de meeste use cases starten we in Azure en verhuizen we pas naar eigen hardware als het volume dat rechtvaardigt." },
+        { q: "Hoe zit het met de EU AI Act?", a: "We documenteren doel, data en risico per toepassing, zodat je bij een audit een dossier hebt." }
+      ]
+    },
+    "cloud": {
+      crumb: "Cloud", title: "Cloud zonder verrassingen op de factuur",
+      lead: "Migratie naar en beheer van Microsoft 365 en Azure. Identity, back-up en kostenbeheersing in één hand — met een architectuur die je over drie jaar nog kunt uitleggen.",
+      blocksTitle: "Waar we op letten",
+      blocks: [
+        { abbr: "IAM", title: "Identity", body: "Entra ID, conditional access en rolgebaseerde toegang als fundament." },
+        { abbr: "M365", title: "Microsoft 365", body: "Migratie van mail, bestanden en Teams — zonder downtime voor gebruikers." },
+        { abbr: "BAK", title: "Back-up & recovery", body: "Getest herstel van data én configuratie, niet alleen een groene vink." },
+        { abbr: "FIN", title: "Kostenbeheersing", body: "Maandelijkse review op verbruik, reservaties en ongebruikte resources." }
+      ],
+      stepsTitle: "Migratieaanpak",
+      steps: [
+        { n: "01", title: "Assessment", body: "Inventaris van workloads, afhankelijkheden en licenties." },
+        { n: "02", title: "Landing zone", body: "Netwerk, identity en beleid vooraf ingericht." },
+        { n: "03", title: "Migratie", body: "In golven per afdeling, met terugvalscenario." },
+        { n: "04", title: "Optimalisatie", body: "Rightsizing en kostenreview na 30 en 90 dagen." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Moet alles naar de cloud?", a: "Nee. Hybride is vaak goedkoper en sneller; we kiezen per workload." },
+        { q: "Wat met bestaande licenties?", a: "Die nemen we mee in de assessment; dubbele licenties zijn de meest voorkomende verspilling." }
+      ]
+    },
+    "security": {
+      crumb: "Security", title: "Security die je audit doorstaat",
+      lead: "MFA, endpoint-detectie, e-mailbeveiliging en awareness-training. Ingericht volgens NIS2-verwachtingen, met documentatie die je aan een auditor of verzekeraar kunt geven.",
+      blocksTitle: "De baseline",
+      blocks: [
+        { abbr: "MFA", title: "Identity & MFA", body: "Sterke authenticatie, conditional access en beheer van bevoegdheden." },
+        { abbr: "EDR", title: "Endpoint detectie", body: "EDR op elk toestel, met opvolging door onze servicedesk." },
+        { abbr: "MAI", title: "E-mailbeveiliging", body: "SPF, DKIM, DMARC-enforcement en filtering op phishing." },
+        { abbr: "AWR", title: "Awareness", body: "Phishing-simulaties en korte trainingen per kwartaal." }
+      ],
+      stepsTitle: "Van nulmeting naar aantoonbaar",
+      steps: [
+        { n: "01", title: "Nulmeting", body: "Technische scan plus interviews; risico's geprioriteerd op impact." },
+        { n: "02", title: "Baseline", body: "Quick wins binnen 30 dagen doorgevoerd." },
+        { n: "03", title: "Aantoonbaar", body: "Beleid, logging en documentatie richting NIS2." },
+        { n: "04", title: "Oefenen", body: "Jaarlijkse hersteltest en incidentoefening." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Vallen wij onder NIS2?", a: "Vaak indirect, via je klanten in de keten. De nulmeting geeft daar duidelijkheid over." },
+        { q: "Doen jullie ook incidentrespons?", a: "Ja, met vaste escalatiepaden en een externe forensische partner waar nodig." }
+      ]
+    },
+    "development": {
+      crumb: "Development", title: "Maatwerk dat je systemen verbindt",
+      lead: "Integraties en interne tooling die je bestaande software aan elkaar knopen — vaak goedkoper dan een nieuw pakket, en altijd overdraagbaar gedocumenteerd.",
+      blocksTitle: "Wat we bouwen",
+      blocks: [
+        { abbr: "API", title: "Integraties", body: "Koppelingen tussen ERP, CRM, boekhouding en je eigen data." },
+        { abbr: "APP", title: "Interne tooling", body: "Web-apps voor processen die nu in Excel leven." },
+        { abbr: "AUT", title: "Automatisering", body: "Terugkerend werk weg met scripts, flows en agents." },
+        { abbr: "DOC", title: "Overdraagbaar", body: "Code in jouw repo, met documentatie en tests. Geen vendor lock-in." }
+      ],
+      stepsTitle: "Werkwijze",
+      steps: [
+        { n: "01", title: "Sessie", body: "Halve dag proces doorlopen en vastleggen." },
+        { n: "02", title: "Prototype", body: "Werkend prototype binnen twee weken." },
+        { n: "03", title: "Bouw", body: "Iteraties van twee weken met demo." },
+        { n: "04", title: "Overdracht", body: "Code, documentatie en beheerafspraken." }
+      ],
+      faqTitle: "Veelgestelde vragen",
+      faq: [
+        { q: "Van wie is de code?", a: "Van jou. Wij werken in jouw repository." },
+        { q: "Werken jullie op uurbasis?", a: "Op vaste sprintprijs, zodat de scope de discussie is en niet de urenstaat." }
+      ]
+    },
+    "prijzen": {
+      crumb: "Prijzen", title: "Vaste prijs per werkplek, geen verrassingen",
+      lead: "Drie pakketten voor managed IT. AI-infrastructuur en development rekenen we per traject — de intake vertelt je binnen een week wat het kost.",
+      priceUnit: "/ werkplek / mnd", planCta: "Vraag dit pakket aan",
+      plans: [
+        { name: "Essential", for: "Tot 25 werkplekken", price: "€ 29", items: ["Monitoring & patching", "Servicedesk 8×5", "Backup werkplekken", "Maandrapportage"] },
+        { name: "Managed", for: "25–150 werkplekken", price: "€ 49", featured: true, items: ["Alles uit Essential", "Security-baseline & MFA", "Vaste service-manager", "Responstijd 30 min"] },
+        { name: "Managed+ AI", for: "150+ werkplekken", price: "€ 79", items: ["Alles uit Managed", "24×7 monitoring", "AI-infra & private modellen", "Kwartaalroadmap"] }
+      ],
+      faqTitle: "Over de prijzen",
+      faq: [
+        { q: "Zit hardware in de prijs?", a: "Nee, hardware factureren we apart of via lease. De pakketprijs is beheer." },
+        { q: "Wat kost een AI-traject?", a: "Een readiness scan is een vast bedrag; een pilot start doorgaans rond een maandsalaris aan interne tijd — de scan geeft de raming." },
+        { q: "Zijn er opstartkosten?", a: "Eenmalige onboarding op basis van het aantal werkplekken, altijd vooraf begroot." }
+      ]
+    },
+    "over-ons": {
+      crumb: "Over ons", title: "Een klein team dat de telefoon opneemt",
+      lead: "Marleo.tech is een managed service provider in de Benelux. We werken voor organisaties van 20 tot 500 medewerkers die IT willen uitbesteden zonder de controle te verliezen.",
+      blocksTitle: "Waar we voor staan",
+      blocks: [
+        { abbr: "GB", title: "Giannis Baert — oprichter", body: "Eigenaar en oprichter van marleo.tech. Rechtstreeks bereikbaar op giannis@marleo.tech of 0456 92 00 25." },
+        { abbr: "P&G", title: "Enterprise-ervaring", body: "IT support bij Procter & Gamble (2024): servicedesk en werkplekbeheer in een internationale omgeving." },
+        { abbr: "01", title: "Vaste gezichten", body: "Je service-manager kent je omgeving; geen ticketloterij." },
+        { abbr: "02", title: "Uitlegbaar", body: "Elke keuze is te verantwoorden aan een directie én aan een auditor." },
+        { abbr: "03", title: "Geen lock-in", body: "Documentatie en code zijn van jou. Weggaan moet kunnen." },
+        { abbr: "04", title: "Drietalig", body: "Servicedesk in NL, EN en FR — handig in de Benelux." }
+      ],
+      stepsTitle: "Cijfers",
+      steps: [
+        { n: "120+", title: "Beheerde werkplekken", body: "Verdeeld over 14 organisaties." },
+        { n: "99,9%", title: "Uptime SLA", body: "Gemeten over 2025." },
+        { n: "14min", title: "Responstijd", body: "Gemiddeld over alle prioriteiten." },
+        { n: "3", title: "Talen", body: "NL · EN · FR." }
+      ],
+      faqTitle: "Werken bij Marleo",
+      faq: [
+        { q: "Zoeken jullie mensen?", a: "We hebben doorlopend plek voor engineers met affiniteit voor cloud en AI-infrastructuur. Stuur een mail." }
+      ]
+    },
+    "contact": {
+      crumb: "Contact", title: "Plan een intake van 30 minuten",
+      lead: "Geen verkooppraatje — een doorlichting van je huidige omgeving en een eerlijk advies over de eerste drie stappen.",
+      formTitle: "Vertel wat er speelt",
+      fields: ["Naam", "Bedrijf", "E-mail", "Telefoon"],
+      messageLabel: "Je vraag", submit: "Verstuur aanvraag",
+      contactRows: [
+        { label: "Telefoon", value: "0456 92 00 25", note: "Ma–vr 08:00–18:00", href: "tel:+32456920025" },
+        { label: "Servicedesk", value: "support@marleo.tech", note: "Bestaande klanten — reactie binnen SLA", href: "mailto:support@marleo.tech" },
+        { label: "Nieuwe aanvragen", value: "info@marleo.tech", note: "Reactie binnen één werkdag", href: "mailto:info@marleo.tech" },
+        { label: "Giannis Baert — oprichter", value: "giannis@marleo.tech", note: "Rechtstreeks, voor strategische vragen", href: "mailto:giannis@marleo.tech" },
+        { label: "Instagram", value: "@marleo.tech", note: "instagram.com/marleo.tech", href: "https://instagram.com/marleo.tech" }
+      ],
+      faqTitle: "Wat gebeurt er na je aanvraag?",
+      faq: [
+        { q: "Binnen één werkdag", a: "Een korte mail met twee voorstellen voor een moment." },
+        { q: "Tijdens de intake", a: "30 minuten: huidige situatie, knelpunten, prioriteiten." },
+        { q: "Daarna", a: "Een doorlichting op papier met drie concrete stappen — of niets, als we geen match zijn." }
+      ]
+    }
+  }
+};
+
+const EN = {
+  navCta: "Contact", home: "Home", more: "View service",
+  kicker: "AI INFRASTRUCTURE", kickerMeta: "MANAGED ENVIRONMENTS: 2026",
+  leftBody: "We build the full AI layer inside your company — compute, data, private models and governance — on top of IT that simply works.",
+  leftLink: "Go to AI infrastructure",
+  claimA: "The gold standard", claimB: "for business IT",
+  claimBody: "Managed IT, cloud, security and AI infrastructure from one partner. Local service desk, fixed response times.",
+  offerCta: "Request an AI readiness scan",
+  servicesTitle: "IT that works — and everything built on top of it",
+  servicesIntro: "IT is the foundation: managed endpoints, cloud, security and AI infrastructure. On top of that we build what you need online — custom software, webshops, websites, games and brand identity. One partner, one point of contact.",
+  domainTeaser: "Is your domain name still free?",
+  domainTeaserCta: "Check a domain name",
+  metrics: [
+    { value: "99.9%", label: "Uptime SLA" },
+    { value: "14min", label: "Avg. response time" },
+    { value: "120+", label: "Managed endpoints" },
+    { value: "3", label: "Languages: NL · EN · FR" }
+  ],
+  ctaBand: "Ready to hand over your IT and AI?",
+  ctaBandBody: "A 30-minute intake. No sales pitch — a review of your current environment.",
+  ctaContact: "Get in touch", ctaPricing: "See pricing",
+  claim: "IT that just works — from endpoint to AI infrastructure.",
+  legal: "© 2026 marleo.tech — All rights reserved",
+  allServices: "All services",
+  viewSite: "View live site",
+  navGroups: [
+    { label: "IT management", keys: ["managed-it", "cloud", "security"] },
+    { label: "AI & software", keys: ["ai-infrastructuur", "development", "games"] },
+    { label: "Web & brand", keys: ["websites", "webshop", "domeincheck", "branding"] },
+    { key: "prijzen", label: "Pricing" },
+    { key: "over-ons", label: "About" }
+  ],
+  navDesc: {
+    "managed-it": "Endpoints, servers and network managed",
+    "cloud": "Microsoft 365 and Azure, migration and management",
+    "security": "MFA, endpoint detection and NIS2",
+    "ai-infrastructuur": "Compute, data, private models, governance",
+    "development": "Custom integrations and internal tooling",
+    "games": "Browser, mobile, PC and serious games",
+    "websites": "Design, build, hosting and maintenance",
+    "webshop": "Selling, payments and integrations",
+    "domeincheck": "Check whether your domain is free",
+    "branding": "Logo, identity and new brands"
+  },
+  footer: [
+    { head: "Online & brand", keys: ["websites", "webshop", "branding", "games", "development"] },
+    { head: "IT & AI", keys: ["ai-infrastructuur", "managed-it", "cloud", "security"] },
+    { head: "Company", keys: ["diensten", "projecten", "over-ons", "prijzen", "contact"] },
+    { head: "Support", keys: ["support", "status", "sla"] },
+    { head: "Legal", keys: ["privacy", "voorwaarden", "nis2"] }
+  ],
+  labels: {
+    "managed-it": "Managed IT", "ai-infrastructuur": "AI infrastructure", "cloud": "Cloud",
+    "security": "Security", "development": "Development", "prijzen": "Pricing",
+    "diensten": "All services", "websites": "Websites", "webshop": "Webshops",
+    "branding": "Branding & identity", "games": "Games", "domeincheck": "Domain check", "projecten": "Selected work",
+    "over-ons": "About us", "contact": "Contact", "support": "Service desk",
+    "status": "Status page", "sla": "SLA", "privacy": "Privacy",
+    "voorwaarden": "Terms", "nis2": "NIS2 & AI Act"
+  },
+  pages: {
+    "diensten": {
+      crumb: "All services", title: "Everything for your online world, under one roof",
+      lead: "We run and build your entire digital environment. IT is the core: endpoints, servers, cloud, security and AI infrastructure under management, with a service desk that picks up. On top of that: custom software, webshops, websites, games and brand identity. One point of contact, one invoice, one party taking responsibility.",
+      showServiceGrid: true, serviceGridTitle: "IT first — then everything built on it",
+      stepsTitle: "How you start with us",
+      steps: [
+        { n: "01", title: "Conversation", body: "30 minutes: what you want to achieve, what exists, what can go." },
+        { n: "02", title: "Proposal", body: "One document: approach, timeline and fixed price per part." },
+        { n: "03", title: "Build", body: "Iterations with demos, so you watch it grow." },
+        { n: "04", title: "Operate", body: "Hosting, updates and support — or handover if you want to run it." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Do you take small jobs?", a: "Yes. A new website, a logo or a domain that needs moving — no project is too small." },
+        { q: "Can you combine everything?", a: "That is the point: brand, website, webshop and the IT underneath as one coherent whole." },
+        { q: "Do you work for individuals?", a: "For branding, websites and games, yes. Managed IT and AI infrastructure are for organisations." }
+      ]
+    },
+    "projecten": {
+      crumb: "Selected work", title: "Work from our own house",
+      lead: "Websites, brands and tooling built for real entrepreneurs — from NFC products to landscaping and a holistic practice. Every project is live and under management.",
+      hasProjects: true, projectsTitle: "Live projects",
+      credLabel: "Also experienced at", credValue: "Procter & Gamble", credNote: "IT support (2024) — enterprise environment, service desk and endpoint management at scale.",
+      projects: [
+        { tag: "Webshop · NFC · Trilingual", title: "TrustTap", body: "Brand and webshop for NFC review cards aimed at local businesses. Trilingual (NL · EN · FR), with product pages, an explainer video, order requests, a separate card-setup page and legal terms.", items: ["Brand & webshop", "NL/EN/FR", "NFC configuration"], href: "https://trusttap.be" },
+        { tag: "Website · Landscaping", title: "Tuinen Lieven Cornelis", body: "Site for a landscaper in Aalter: garden design, construction and maintenance, with a project gallery and a request form that asks for the project type up front.", items: ["Design & build", "Project gallery", "Request form"], href: "https://tuinenlievencornelis.be" },
+        { tag: "Website · Holistic practice", title: "Nemetona", body: "Atmospheric site for a holistic practice in Aalter: session offering with duration and price, an explanation of the approach, a full training record and a contact form.", items: ["Design & build", "Offer structure", "SEO & meta"], href: "https://nemetona.be" },
+        { tag: "CRM · Custom", title: "TrustTap CRM", body: "A custom CRM for TrustTap: customers, orders and the per-card NFC configuration in one place, so an order stays traceable from request to shipment.", items: ["Custom CRM", "Order tracking", "NFC linking"], href: "https://trusttap.be" },
+        { tag: "Game · Browser", title: "Fluppy Bird", body: "Our own browser game, built from scratch: physics, collision detection, scoring and high scores — playable instantly, no install.", items: ["Game logic", "Physics", "High scores"], href: "https://fluppybirdburger.netlify.app/" },
+        { tag: "Website · Business", title: "Terraclean", body: "Company website with a service overview and contact requests, including domain, mail and hosting configuration.", items: ["Website", "Domain & mail", "Hosting"], href: "https://terraclean.be" },
+        { tag: "Website · Business", title: "Jematech", body: "Company website with a service overview and contact requests, including domain, mail and hosting configuration.", items: ["Website", "Domain & mail", "Hosting"], href: "https://jematech.be" }
+      ],
+      faqTitle: "About this work",
+      faq: [
+        { q: "May I speak to a client?", a: "Gladly. After an intake we connect you with a client from a comparable sector." },
+        { q: "What happens after launch?", a: "Hosting, domain, mail, updates and support stay with us — or we hand everything over cleanly." },
+        { q: "Can you handle enterprise environments?", a: "Yes. In 2024 Giannis did IT support at Procter & Gamble: the same discipline, at larger scale." }
+      ]
+    },
+    "websites": {
+      crumb: "Websites", title: "Websites that are fast, findable and yours",
+      hasPreview: true, previewTitle: "This is how your site could look",
+      previewNote: "Every design is drawn for desktop and phone, and tested on real devices. What you see here is indicative — your design follows your own identity.",
+      previewLabels: ["Desktop", "Phone"],
+      lead: "From a simple one-pager to a multilingual platform. We design, build, host and maintain — with an admin area where you edit text and images yourself.",
+      blocksTitle: "What you get",
+      blocks: [
+        { abbr: "DES", title: "Custom design", body: "No template look: the design follows your identity and audience." },
+        { abbr: "CMS", title: "Self-editable", body: "You manage text, images and pages without technical knowledge." },
+        { abbr: "SEO", title: "Findable & fast", body: "Technical SEO, sitemaps, meta data and sub-second load times." },
+        { abbr: "HST", title: "Hosting & maintenance", body: "Hosting, SSL, backups and updates — or we deploy to your own environment." }
+      ],
+      stepsTitle: "From idea to live",
+      steps: [
+        { n: "01", title: "Structure", body: "Sitemap, goals and copy mapped out." },
+        { n: "02", title: "Design", body: "Two directions visualised, you choose." },
+        { n: "03", title: "Build", body: "Responsive, multilingual and tested on real devices." },
+        { n: "04", title: "Live & measure", body: "Domain, analytics and a month of aftercare." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Can the site be multilingual?", a: "Yes — NL, EN and FR are our standard, other languages are possible." },
+        { q: "Can I take over later?", a: "Always. Code and access are yours; we document the handover." },
+        { q: "Do you arrange the domain?", a: "Yes. Check here whether your name is still free and we do the rest." }
+      ]
+    },
+    "webshop": {
+      crumb: "Webshops", title: "Webshops that sell and stay standing",
+      lead: "A webshop is not a website with a button: stock, payments, shipping and accounting all have to line up. We build the store and the integrations underneath.",
+      blocksTitle: "What really matters",
+      blocks: [
+        { abbr: "PAY", title: "Payments", body: "Cards, Apple Pay, local methods and invoicing — secure and tested." },
+        { abbr: "STK", title: "Stock & orders", body: "Integration with your POS, ERP or accounting; no double work." },
+        { abbr: "SHP", title: "Shipping", body: "Labels, tracking and zone-based rates calculated automatically." },
+        { abbr: "CRO", title: "Conversion", body: "Fast checkout, clear product pages, measurably improved." }
+      ],
+      stepsTitle: "Approach",
+      steps: [
+        { n: "01", title: "Catalogue", body: "Products, variants and pricing rules mapped." },
+        { n: "02", title: "Build", body: "Shop, checkout and integrations on a staging environment." },
+        { n: "03", title: "Test orders", body: "The full chain tested through to accounting." },
+        { n: "04", title: "Grow", body: "Monthly review of conversion and abandoned carts." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Which platform do you use?", a: "Shopify, WooCommerce or custom — chosen on your catalogue and integrations, not on habit." },
+        { q: "Can you take over an existing shop?", a: "Yes, including migration of products, customers and SEO redirects." }
+      ]
+    },
+    "branding": {
+      crumb: "Branding & identity", title: "A brand that sticks",
+      lead: "Logo, colours, typography and tone — captured in a brand guide your team and suppliers can actually use. We also build entirely new brands, from name to website.",
+      blocksTitle: "What we deliver",
+      blocks: [
+        { abbr: "LOG", title: "Logo & mark", body: "Several directions, worked out in every format and variant." },
+        { abbr: "STL", title: "Brand guide", body: "Colours, typography, spacing and do's & don'ts — in writing." },
+        { abbr: "PRT", title: "Print", body: "Business cards, stationery, signage and social templates." },
+        { abbr: "NAM", title: "New brands", body: "From naming and domain check to logo, website and launch." }
+      ],
+      stepsTitle: "The process",
+      steps: [
+        { n: "01", title: "Positioning", body: "Who you are, for whom, and how you differ." },
+        { n: "02", title: "Directions", body: "Three visual directions, honestly explained." },
+        { n: "03", title: "Execution", body: "Chosen direction applied across every carrier." },
+        { n: "04", title: "Handover", body: "Files, guide and templates under your control." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Do we get the source files?", a: "Yes, all source files and full rights." },
+        { q: "Do you research brand names?", a: "We check domains and do a first screening; trademark filing goes through a trademark attorney." }
+      ]
+    },
+    "games": {
+      crumb: "Games", title: "Games people actually want to play",
+      lead: "From a browser game for a campaign to a full title on PC or mobile. Also serious games: training, safety or onboarding in game form.",
+      blocksTitle: "What we make",
+      blocks: [
+        { abbr: "WEB", title: "Browser games", body: "Playable instantly on any device — ideal for campaigns and events." },
+        { abbr: "APP", title: "Mobile & PC", body: "Native builds for iOS, Android, Windows and Steam." },
+        { abbr: "SER", title: "Serious games", body: "Training, safety and onboarding with measurable results." },
+        { abbr: "ART", title: "Art & audio", body: "Visual style, UI and sound in line with your brand." }
+      ],
+      stepsTitle: "From concept to release",
+      steps: [
+        { n: "01", title: "Concept", body: "Goal, audience and core mechanic on one page." },
+        { n: "02", title: "Prototype", body: "Playable within weeks — fun or not fun shows fast." },
+        { n: "03", title: "Production", body: "Content, art and polish in short iterations." },
+        { n: "04", title: "Release", body: "Publishing, analytics and post-launch updates." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Which engine do you use?", a: "Unity or web technology, depending on platform and budget." },
+        { q: "Can a game replace our training?", a: "Often complement it; we measure whether the knowledge sticks." }
+      ]
+    },
+    "domeincheck": {
+      crumb: "Domain check", title: "Check whether your domain name is free",
+      lead: "Type a name and we check live whether the domain is already in use. Free? Then we register and configure it for you — including mail, SSL and DNS.",
+      hasDomainTool: true,
+      blocksTitle: "And after that",
+      blocks: [
+        { abbr: "REG", title: "Registration", body: "We register the name in your company's name — you stay the owner." },
+        { abbr: "DNS", title: "DNS & mail", body: "Records, mail security (SPF, DKIM, DMARC) and SSL set up correctly." },
+        { abbr: "MOV", title: "Transfer", body: "Move an existing name without downtime on mail or website." },
+        { abbr: "BRD", title: "Brand name", body: "Unsure about the name? We help choose and check variants with you." }
+      ],
+      faqTitle: "About this check",
+      faq: [
+        { q: "How reliable is the check?", a: "We look live at the domain's DNS records. If nothing is there, it is likely free — though a registered but unused name can also look empty. We confirm definitively with the registrar." },
+        { q: "Which extensions do you check?", a: "Type a full name with extension, or just the name — then we check .be, .nl, .com and .eu at once." },
+        { q: "What does a domain cost?", a: "Depending on the extension, usually €15–€45 per year. We add no margin on registration." }
+      ]
+    },
+    "managed-it": {
+      crumb: "Managed IT", title: "Managed IT you stop noticing",
+      lead: "We take over full management of endpoints, servers and network. Monitoring, patching, licences and a service desk that picks up — for a fixed price per endpoint.",
+      blocksTitle: "What management covers",
+      blocks: [
+        { abbr: "MON", title: "Monitoring 24×7", body: "Alerts on disks, backups, certificates and network — before your users notice." },
+        { abbr: "PAT", title: "Patch management", body: "Windows, macOS and third-party updates in a tested window, reported monthly." },
+        { abbr: "DSK", title: "Service desk", body: "One number, one mailbox. Dutch, English and French, remote and on-site." },
+        { abbr: "LIC", title: "Licences & assets", body: "Current view of hardware, licences and warranties. No audit surprises." }
+      ],
+      stepsTitle: "How the handover works",
+      steps: [
+        { n: "01", title: "Review", body: "Two weeks of observation: inventory, risks and quick wins." },
+        { n: "02", title: "Handover", body: "Knowledge transfer with your current provider, access and documentation." },
+        { n: "03", title: "Stabilise", body: "First 60 days: backups, patch level and security baseline in order." },
+        { n: "04", title: "Manage", body: "Dedicated service manager, quarterly reporting and roadmap." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Do you take over existing hardware?", a: "Yes. We inventory what is there and manage it; replacement goes into the quarterly roadmap." },
+        { q: "What is the notice period?", a: "One month after the first year. We want you to stay because it works." },
+        { q: "Is there a ticket portal?", a: "Yes, with a status page and monthly SLA reporting." }
+      ]
+    },
+    "ai-infrastructuur": {
+      crumb: "AI infrastructure", title: "AI infrastructure, from GPU to governance",
+      lead: "We build and run the full AI layer inside your company: compute, data pipelines, private models and the access control around them. On-premise, in Azure or hybrid — your data stays within your own boundaries.",
+      blocksTitle: "The four layers",
+      blocks: [
+        { abbr: "GPU", title: "Compute & hosting", body: "GPU servers on-premise or in Azure, capacity planning and cost monitoring." },
+        { abbr: "DAT", title: "Data & RAG", body: "Data pipelines, vector storage and document retrieval on your existing sources." },
+        { abbr: "MOD", title: "Private models", body: "Open-source or Azure OpenAI, hosted in your own environment with your own logging." },
+        { abbr: "GOV", title: "Governance & AI Act", body: "Access policy, audit trail and documentation toward NIS2 and the EU AI Act." }
+      ],
+      stepsTitle: "From scan to production",
+      steps: [
+        { n: "01", title: "Readiness scan", body: "Where the value sits, which data is usable, what the law forbids." },
+        { n: "02", title: "Pilot", body: "One measurable use case, live for a test group within six weeks." },
+        { n: "03", title: "Rollout", body: "Infrastructure, access policy and training for the whole organisation." },
+        { n: "04", title: "Operate", body: "Monitoring on cost, quality and model versions." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Does our data leave the company?", a: "Not unless you want it to. We host models on-premise or in your own Azure tenant, with logging you control." },
+        { q: "Do we need GPUs?", a: "No. Most use cases start in Azure; own hardware follows only when volume justifies it." },
+        { q: "What about the EU AI Act?", a: "We document purpose, data and risk per application so you have a file at audit time." }
+      ]
+    },
+    "cloud": {
+      crumb: "Cloud", title: "Cloud without invoice surprises",
+      lead: "Migration to and management of Microsoft 365 and Azure. Identity, backup and cost control in one hand — with an architecture you can still explain in three years.",
+      blocksTitle: "What we watch",
+      blocks: [
+        { abbr: "IAM", title: "Identity", body: "Entra ID, conditional access and role-based access as the foundation." },
+        { abbr: "M365", title: "Microsoft 365", body: "Migration of mail, files and Teams — without user downtime." },
+        { abbr: "BAK", title: "Backup & recovery", body: "Tested restore of data and configuration, not just a green tick." },
+        { abbr: "FIN", title: "Cost control", body: "Monthly review of consumption, reservations and unused resources." }
+      ],
+      stepsTitle: "Migration approach",
+      steps: [
+        { n: "01", title: "Assessment", body: "Inventory of workloads, dependencies and licences." },
+        { n: "02", title: "Landing zone", body: "Network, identity and policy set up first." },
+        { n: "03", title: "Migration", body: "In waves per department, with a fallback plan." },
+        { n: "04", title: "Optimise", body: "Rightsizing and cost review after 30 and 90 days." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Does everything move to cloud?", a: "No. Hybrid is often cheaper and faster; we choose per workload." },
+        { q: "What about existing licences?", a: "They go into the assessment; duplicate licences are the most common waste." }
+      ]
+    },
+    "security": {
+      crumb: "Security", title: "Security that survives your audit",
+      lead: "MFA, endpoint detection, email security and awareness training. Set up to NIS2 expectations, with documentation you can hand to an auditor or insurer.",
+      blocksTitle: "The baseline",
+      blocks: [
+        { abbr: "MFA", title: "Identity & MFA", body: "Strong authentication, conditional access and privilege management." },
+        { abbr: "EDR", title: "Endpoint detection", body: "EDR on every device, followed up by our service desk." },
+        { abbr: "MAI", title: "Email security", body: "SPF, DKIM, DMARC enforcement and phishing filtering." },
+        { abbr: "AWR", title: "Awareness", body: "Phishing simulations and short quarterly trainings." }
+      ],
+      stepsTitle: "From baseline to provable",
+      steps: [
+        { n: "01", title: "Baseline scan", body: "Technical scan plus interviews; risks prioritised by impact." },
+        { n: "02", title: "Quick wins", body: "Implemented within 30 days." },
+        { n: "03", title: "Provable", body: "Policy, logging and documentation toward NIS2." },
+        { n: "04", title: "Practise", body: "Annual restore test and incident exercise." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Are we in scope for NIS2?", a: "Often indirectly, through clients in your chain. The baseline scan clarifies it." },
+        { q: "Do you do incident response?", a: "Yes, with fixed escalation paths and an external forensic partner where needed." }
+      ]
+    },
+    "development": {
+      crumb: "Development", title: "Custom work that connects your systems",
+      lead: "Integrations and internal tooling that tie your existing software together — often cheaper than a new package, and always documented for handover.",
+      blocksTitle: "What we build",
+      blocks: [
+        { abbr: "API", title: "Integrations", body: "Links between ERP, CRM, accounting and your own data." },
+        { abbr: "APP", title: "Internal tooling", body: "Web apps for processes that now live in Excel." },
+        { abbr: "AUT", title: "Automation", body: "Repetitive work removed with scripts, flows and agents." },
+        { abbr: "DOC", title: "Transferable", body: "Code in your repo, with documentation and tests. No vendor lock-in." }
+      ],
+      stepsTitle: "How we work",
+      steps: [
+        { n: "01", title: "Session", body: "Half a day walking through and recording the process." },
+        { n: "02", title: "Prototype", body: "Working prototype within two weeks." },
+        { n: "03", title: "Build", body: "Two-week iterations with a demo." },
+        { n: "04", title: "Handover", body: "Code, documentation and support agreements." }
+      ],
+      faqTitle: "Frequently asked",
+      faq: [
+        { q: "Who owns the code?", a: "You do. We work in your repository." },
+        { q: "Do you bill hourly?", a: "Fixed sprint price, so scope is the discussion instead of timesheets." }
+      ]
+    },
+    "prijzen": {
+      crumb: "Pricing", title: "Fixed price per endpoint, no surprises",
+      lead: "Three managed IT plans. AI infrastructure and development are quoted per project — the intake tells you the cost within a week.",
+      priceUnit: "/ endpoint / month", planCta: "Request this plan",
+      plans: [
+        { name: "Essential", for: "Up to 25 endpoints", price: "€ 29", items: ["Monitoring & patching", "Service desk 8×5", "Endpoint backup", "Monthly reporting"] },
+        { name: "Managed", for: "25–150 endpoints", price: "€ 49", featured: true, items: ["Everything in Essential", "Security baseline & MFA", "Dedicated service manager", "30 min response"] },
+        { name: "Managed+ AI", for: "150+ endpoints", price: "€ 79", items: ["Everything in Managed", "24×7 monitoring", "AI infra & private models", "Quarterly roadmap"] }
+      ],
+      faqTitle: "About pricing",
+      faq: [
+        { q: "Is hardware included?", a: "No, hardware is billed separately or leased. The plan price is management." },
+        { q: "What does an AI project cost?", a: "A readiness scan is a fixed fee; a pilot typically starts around one month of internal time — the scan gives the estimate." },
+        { q: "Are there setup costs?", a: "A one-off onboarding fee based on endpoint count, always quoted up front." }
+      ]
+    },
+    "over-ons": {
+      crumb: "About us", title: "A small team that answers the phone",
+      lead: "Marleo.tech is a managed service provider in the Benelux. We work for organisations of 20 to 500 people that want to outsource IT without losing control.",
+      blocksTitle: "What we stand for",
+      blocks: [
+        { abbr: "GB", title: "Giannis Baert — founder", body: "Owner and founder of marleo.tech. Reachable directly at giannis@marleo.tech or 0456 92 00 25." },
+        { abbr: "P&G", title: "Enterprise experience", body: "IT support at Procter & Gamble (2024): service desk and endpoint management in an international environment." },
+        { abbr: "01", title: "Familiar faces", body: "Your service manager knows your environment; no ticket lottery." },
+        { abbr: "02", title: "Explainable", body: "Every choice can be justified to a board and to an auditor." },
+        { abbr: "03", title: "No lock-in", body: "Documentation and code are yours. Leaving must be possible." },
+        { abbr: "04", title: "Trilingual", body: "Service desk in NL, EN and FR — useful in the Benelux." }
+      ],
+      stepsTitle: "Numbers",
+      steps: [
+        { n: "120+", title: "Managed endpoints", body: "Across 14 organisations." },
+        { n: "99.9%", title: "Uptime SLA", body: "Measured over 2025." },
+        { n: "14min", title: "Response time", body: "Average across all priorities." },
+        { n: "3", title: "Languages", body: "NL · EN · FR." }
+      ],
+      faqTitle: "Working at Marleo",
+      faq: [
+        { q: "Are you hiring?", a: "We always have room for engineers with an affinity for cloud and AI infrastructure. Send us a mail." }
+      ]
+    },
+    "contact": {
+      crumb: "Contact", title: "Book a 30-minute intake",
+      lead: "No sales pitch — a review of your current environment and honest advice on the first three steps.",
+      formTitle: "Tell us what is going on",
+      fields: ["Name", "Company", "Email", "Phone"],
+      messageLabel: "Your question", submit: "Send request",
+      contactRows: [
+        { label: "Phone", value: "0456 92 00 25", note: "Mon–Fri 08:00–18:00", href: "tel:+32456920025" },
+        { label: "Service desk", value: "support@marleo.tech", note: "Existing clients — response within SLA", href: "mailto:support@marleo.tech" },
+        { label: "New requests", value: "info@marleo.tech", note: "Response within one working day", href: "mailto:info@marleo.tech" },
+        { label: "Giannis Baert — founder", value: "giannis@marleo.tech", note: "Direct line for strategic questions", href: "mailto:giannis@marleo.tech" },
+        { label: "Instagram", value: "@marleo.tech", note: "instagram.com/marleo.tech", href: "https://instagram.com/marleo.tech" }
+      ],
+      faqTitle: "What happens after your request?",
+      faq: [
+        { q: "Within one working day", a: "A short mail with two proposed time slots." },
+        { q: "During the intake", a: "30 minutes: current situation, bottlenecks, priorities." },
+        { q: "After that", a: "A written review with three concrete steps — or nothing, if we are not a match." }
+      ]
+    }
+  }
+};
+
+const FR = {
+  navCta: "Contact", home: "Accueil", more: "Voir le service",
+  kicker: "INFRASTRUCTURE IA", kickerMeta: "ENVIRONNEMENTS GÉRÉS : 2026",
+  leftBody: "Nous construisons toute la couche IA de votre entreprise — calcul, données, modèles privés et gouvernance — sur une IT qui fonctionne.",
+  leftLink: "Vers l'infrastructure IA",
+  claimA: "La référence", claimB: "pour l'IT d'entreprise",
+  claimBody: "IT gérée, cloud, sécurité et infrastructure IA chez un seul partenaire. Service desk local, temps de réponse fixes.",
+  offerCta: "Demander un scan de maturité IA",
+  servicesTitle: "Une IT qui fonctionne — et tout ce qui se construit dessus",
+  servicesIntro: "L'IT est la base : postes gérés, cloud, sécurité et infrastructure IA. Par-dessus, nous construisons ce dont vous avez besoin en ligne — logiciels sur mesure, boutiques, sites web, jeux et identité visuelle. Un partenaire, un interlocuteur.",
+  domainTeaser: "Votre nom de domaine est-il encore libre ?",
+  domainTeaserCta: "Vérifier un nom de domaine",
+  metrics: [
+    { value: "99,9 %", label: "SLA de disponibilité" },
+    { value: "14min", label: "Temps de réponse moyen" },
+    { value: "120+", label: "Postes gérés" },
+    { value: "3", label: "Langues : NL · EN · FR" }
+  ],
+  ctaBand: "Prêt à confier votre IT et votre IA ?",
+  ctaBandBody: "Un entretien de 30 minutes. Sans argumentaire — un état des lieux de votre environnement.",
+  ctaContact: "Nous contacter", ctaPricing: "Voir les tarifs",
+  claim: "L'IT qui fonctionne — du poste de travail à l'infrastructure IA.",
+  legal: "© 2026 marleo.tech — Tous droits réservés",
+  allServices: "Tous les services",
+  viewSite: "Voir le site",
+  navGroups: [
+    { label: "Gestion IT", keys: ["managed-it", "cloud", "security"] },
+    { label: "IA & logiciels", keys: ["ai-infrastructuur", "development", "games"] },
+    { label: "Web & marque", keys: ["websites", "webshop", "domeincheck", "branding"] },
+    { key: "prijzen", label: "Tarifs" },
+    { key: "over-ons", label: "À propos" }
+  ],
+  navDesc: {
+    "managed-it": "Postes, serveurs et réseau gérés",
+    "cloud": "Microsoft 365 et Azure, migration et gestion",
+    "security": "MFA, détection endpoint et NIS2",
+    "ai-infrastructuur": "Calcul, données, modèles privés, gouvernance",
+    "development": "Intégrations et outils internes sur mesure",
+    "games": "Navigateur, mobile, PC et serious games",
+    "websites": "Design, développement, hébergement et entretien",
+    "webshop": "Vente, paiements et intégrations",
+    "domeincheck": "Vérifiez si votre domaine est libre",
+    "branding": "Logo, identité et nouvelles marques"
+  },
+  footer: [
+    { head: "En ligne & marque", keys: ["websites", "webshop", "branding", "games", "development"] },
+    { head: "IT & IA", keys: ["ai-infrastructuur", "managed-it", "cloud", "security"] },
+    { head: "Entreprise", keys: ["diensten", "projecten", "over-ons", "prijzen", "contact"] },
+    { head: "Support", keys: ["support", "status", "sla"] },
+    { head: "Juridique", keys: ["privacy", "voorwaarden", "nis2"] }
+  ],
+  labels: {
+    "managed-it": "IT gérée", "ai-infrastructuur": "Infrastructure IA", "cloud": "Cloud",
+    "security": "Sécurité", "development": "Développement", "prijzen": "Tarifs",
+    "diensten": "Tous les services", "websites": "Sites web", "webshop": "Boutiques en ligne",
+    "branding": "Identité visuelle", "games": "Jeux", "domeincheck": "Nom de domaine", "projecten": "Projets",
+    "over-ons": "À propos", "contact": "Contact", "support": "Service desk",
+    "status": "Page de statut", "sla": "SLA", "privacy": "Confidentialité",
+    "voorwaarden": "Conditions", "nis2": "NIS2 & AI Act"
+  },
+  pages: {
+    "diensten": {
+      crumb: "Tous les services", title: "Tout votre univers en ligne, sous un même toit",
+      lead: "Nous gérons et construisons tout votre environnement numérique. L'IT est le cœur : postes, serveurs, cloud, sécurité et infrastructure IA sous gestion, avec un service desk qui répond. Par-dessus : logiciels sur mesure, boutiques, sites web, jeux et identité visuelle. Un interlocuteur, une facture, un partenaire responsable.",
+      showServiceGrid: true, serviceGridTitle: "L'IT d'abord — puis tout ce qui s'y construit",
+      stepsTitle: "Comment démarrer",
+      steps: [
+        { n: "01", title: "Entretien", body: "30 minutes : vos objectifs, l'existant, ce qui peut disparaître." },
+        { n: "02", title: "Proposition", body: "Un document : approche, planning et prix fixe par volet." },
+        { n: "03", title: "Réalisation", body: "Des itérations avec démos, pour voir le projet grandir." },
+        { n: "04", title: "Gestion", body: "Hébergement, mises à jour et support — ou reprise si vous préférez." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Acceptez-vous les petits projets ?", a: "Oui. Un nouveau site, un logo ou un domaine à transférer — aucun projet n'est trop petit." },
+        { q: "Pouvez-vous tout combiner ?", a: "C'est justement l'idée : marque, site, boutique et l'IT en dessous, en un ensemble cohérent." },
+        { q: "Travaillez-vous pour les particuliers ?", a: "Pour l'identité, les sites et les jeux, oui. L'IT gérée et l'infra IA sont pour les organisations." }
+      ]
+    },
+    "projecten": {
+      crumb: "Projets", title: "Des réalisations maison",
+      lead: "Des sites, des marques et des outils réalisés pour de véritables entrepreneurs — des produits NFC à l'aménagement de jardins et à une pratique holistique. Chaque projet est en ligne et sous gestion.",
+      hasProjects: true, projectsTitle: "Projets en ligne",
+      credLabel: "Également expérimenté chez", credValue: "Procter & Gamble", credNote: "Support IT (2024) — environnement d'entreprise, service desk et gestion des postes à grande échelle.",
+      projects: [
+        { tag: "Boutique · NFC · Trilingue", title: "TrustTap", body: "Marque et boutique en ligne de cartes d'avis NFC pour commerces locaux. Trilingue (NL · EN · FR), avec fiches produits, vidéo explicative, demandes de commande, page de configuration et conditions générales.", items: ["Marque & boutique", "NL/EN/FR", "Configuration NFC"], href: "https://trusttap.be" },
+        { tag: "Site web · Jardins", title: "Tuinen Lieven Cornelis", body: "Site pour un entrepreneur de jardins à Aalter : conception, aménagement et entretien, avec galerie de réalisations et formulaire qui demande d'emblée le type de projet.", items: ["Design & développement", "Galerie", "Formulaire"], href: "https://tuinenlievencornelis.be" },
+        { tag: "Site web · Pratique holistique", title: "Nemetona", body: "Site d'atmosphère pour une pratique holistique à Aalter : offre de séances avec durée et prix, explication de la méthode, parcours de formation complet et formulaire de contact.", items: ["Design & développement", "Structure de l'offre", "SEO & méta"], href: "https://nemetona.be" },
+        { tag: "CRM · Sur mesure", title: "CRM TrustTap", body: "Un CRM sur mesure pour TrustTap : clients, commandes et configuration NFC par carte au même endroit, pour suivre une commande de la demande à l'expédition.", items: ["CRM sur mesure", "Suivi des commandes", "Liaison NFC"], href: "https://trusttap.be" },
+        { tag: "Jeu · Navigateur", title: "Fluppy Bird", body: "Notre propre jeu navigateur, développé de zéro : physique, détection de collisions, score et meilleurs scores — jouable sans installation.", items: ["Logique de jeu", "Physique", "Meilleurs scores"], href: "https://fluppybirdburger.netlify.app/" },
+        { tag: "Site web · Entreprise", title: "Terraclean", body: "Site d'entreprise avec aperçu des services et demandes de contact, y compris la configuration du domaine, du mail et de l'hébergement.", items: ["Site web", "Domaine & mail", "Hébergement"], href: "https://terraclean.be" },
+        { tag: "Site web · Entreprise", title: "Jematech", body: "Site d'entreprise avec aperçu des services et demandes de contact, y compris la configuration du domaine, du mail et de l'hébergement.", items: ["Site web", "Domaine & mail", "Hébergement"], href: "https://jematech.be" }
+      ],
+      faqTitle: "À propos de ces réalisations",
+      faq: [
+        { q: "Puis-je parler à un client ?", a: "Volontiers. Après un entretien, nous vous mettons en contact avec un client d'un secteur comparable." },
+        { q: "Que se passe-t-il après la mise en ligne ?", a: "Hébergement, domaine, mail, mises à jour et support restent chez nous — ou nous transférons tout proprement." },
+        { q: "Gérez-vous des environnements d'entreprise ?", a: "Oui. En 2024, Giannis a assuré le support IT chez Procter & Gamble : la même rigueur, à plus grande échelle." }
+      ]
+    },
+    "websites": {
+      crumb: "Sites web", title: "Des sites rapides, visibles et qui vous appartiennent",
+      hasPreview: true, previewTitle: "Voilà à quoi votre site peut ressembler",
+      previewNote: "Chaque design est pensé pour le desktop et le mobile, et testé sur de vrais appareils. Cet aperçu est indicatif — votre design suivra votre identité.",
+      previewLabels: ["Desktop", "Mobile"],
+      lead: "De la page unique à la plateforme multilingue. Nous concevons, développons, hébergeons et entretenons — avec une interface où vous modifiez vous-même textes et images.",
+      blocksTitle: "Ce que vous obtenez",
+      blocks: [
+        { abbr: "DES", title: "Design sur mesure", body: "Pas d'allure de template : le design suit votre identité et votre public." },
+        { abbr: "CMS", title: "Modifiable par vous", body: "Textes, images et pages gérés sans connaissances techniques." },
+        { abbr: "SEO", title: "Visible & rapide", body: "SEO technique, sitemaps, métadonnées et chargement sous la seconde." },
+        { abbr: "HST", title: "Hébergement & entretien", body: "Hébergement, SSL, sauvegardes et mises à jour — ou déploiement chez vous." }
+      ],
+      stepsTitle: "De l'idée à la mise en ligne",
+      steps: [
+        { n: "01", title: "Structure", body: "Arborescence, objectifs et contenus cartographiés." },
+        { n: "02", title: "Design", body: "Deux directions visualisées, vous choisissez." },
+        { n: "03", title: "Développement", body: "Responsive, multilingue et testé sur de vrais appareils." },
+        { n: "04", title: "En ligne & mesures", body: "Domaine, analytics et un mois de suivi." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Le site peut-il être multilingue ?", a: "Oui — NL, EN et FR sont notre standard, d'autres langues sont possibles." },
+        { q: "Puis-je reprendre la main plus tard ?", a: "Toujours. Le code et les accès vous appartiennent ; la reprise est documentée." },
+        { q: "Gérez-vous le nom de domaine ?", a: "Oui. Vérifiez ici s'il est libre et nous faisons le reste." }
+      ]
+    },
+    "webshop": {
+      crumb: "Boutiques en ligne", title: "Des boutiques qui vendent et qui tiennent",
+      lead: "Une boutique n'est pas un site avec un bouton : stock, paiements, expédition et comptabilité doivent s'aligner. Nous construisons la boutique et les intégrations en dessous.",
+      blocksTitle: "L'essentiel",
+      blocks: [
+        { abbr: "PAY", title: "Paiements", body: "Bancontact, cartes, Apple Pay et facturation — sécurisés et testés." },
+        { abbr: "STK", title: "Stock & commandes", body: "Intégration avec votre caisse, ERP ou comptabilité ; pas de double saisie." },
+        { abbr: "SHP", title: "Expédition", body: "Étiquettes, suivi et tarifs par zone calculés automatiquement." },
+        { abbr: "CRO", title: "Conversion", body: "Checkout rapide, fiches produits claires, amélioration mesurable." }
+      ],
+      stepsTitle: "Approche",
+      steps: [
+        { n: "01", title: "Catalogue", body: "Produits, variantes et règles de prix cartographiés." },
+        { n: "02", title: "Développement", body: "Boutique, checkout et intégrations sur un environnement de test." },
+        { n: "03", title: "Commandes test", body: "Toute la chaîne testée jusqu'à la comptabilité." },
+        { n: "04", title: "Croissance", body: "Revue mensuelle de la conversion et des paniers abandonnés." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Quelle plateforme utilisez-vous ?", a: "Shopify, WooCommerce ou du sur-mesure — choisi selon votre catalogue, pas par habitude." },
+        { q: "Pouvez-vous reprendre une boutique existante ?", a: "Oui, migration des produits, clients et redirections SEO incluse." }
+      ]
+    },
+    "branding": {
+      crumb: "Identité visuelle", title: "Une marque qui marque",
+      lead: "Logo, couleurs, typographie et ton — réunis dans une charte que votre équipe et vos fournisseurs peuvent vraiment utiliser. Nous créons aussi des marques entières, du nom au site.",
+      blocksTitle: "Ce que nous livrons",
+      blocks: [
+        { abbr: "LOG", title: "Logo & symbole", body: "Plusieurs directions, déclinées dans tous les formats." },
+        { abbr: "STL", title: "Charte graphique", body: "Couleurs, typographie, espacements et à faire / à éviter." },
+        { abbr: "PRT", title: "Imprimés", body: "Cartes de visite, papeterie, signalétique et gabarits sociaux." },
+        { abbr: "NAM", title: "Nouvelles marques", body: "Du nom et de la vérification de domaine au logo, au site et au lancement." }
+      ],
+      stepsTitle: "Le parcours",
+      steps: [
+        { n: "01", title: "Positionnement", body: "Qui vous êtes, pour qui, et ce qui vous distingue." },
+        { n: "02", title: "Directions", body: "Trois directions visuelles, expliquées honnêtement." },
+        { n: "03", title: "Déclinaison", body: "La direction retenue appliquée à tous les supports." },
+        { n: "04", title: "Reprise", body: "Fichiers, charte et gabarits sous votre contrôle." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Recevons-nous les fichiers sources ?", a: "Oui, tous les fichiers sources et les droits complets." },
+        { q: "Faites-vous la recherche de nom ?", a: "Nous vérifions les domaines et faisons un premier filtrage ; le dépôt de marque passe par un mandataire." }
+      ]
+    },
+    "games": {
+      crumb: "Jeux", title: "Des jeux auxquels on veut vraiment jouer",
+      lead: "Du jeu navigateur pour une campagne au titre complet sur PC ou mobile. Aussi des serious games : formation, sécurité ou intégration sous forme de jeu.",
+      blocksTitle: "Ce que nous créons",
+      blocks: [
+        { abbr: "WEB", title: "Jeux navigateur", body: "Jouables immédiatement sur tout appareil — idéal pour campagnes et événements." },
+        { abbr: "APP", title: "Mobile & PC", body: "Builds natifs pour iOS, Android, Windows et Steam." },
+        { abbr: "SER", title: "Serious games", body: "Formation, sécurité et intégration avec des résultats mesurables." },
+        { abbr: "ART", title: "Art & audio", body: "Style visuel, UI et son alignés sur votre marque." }
+      ],
+      stepsTitle: "Du concept à la sortie",
+      steps: [
+        { n: "01", title: "Concept", body: "Objectif, public et mécanique principale sur une page." },
+        { n: "02", title: "Prototype", body: "Jouable en quelques semaines — l'amusement se voit vite." },
+        { n: "03", title: "Production", body: "Contenu, art et finition en itérations courtes." },
+        { n: "04", title: "Sortie", body: "Publication, analytics et mises à jour post-lancement." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Quel moteur utilisez-vous ?", a: "Unity ou technologies web, selon la plateforme et le budget." },
+        { q: "Un jeu peut-il remplacer notre formation ?", a: "Souvent la compléter ; nous mesurons si les connaissances restent." }
+      ]
+    },
+    "domeincheck": {
+      crumb: "Nom de domaine", title: "Vérifiez si votre nom de domaine est libre",
+      lead: "Tapez un nom et nous vérifions en direct si le domaine est déjà utilisé. Libre ? Nous l'enregistrons et le configurons pour vous — mail, SSL et DNS inclus.",
+      hasDomainTool: true,
+      blocksTitle: "Et ensuite",
+      blocks: [
+        { abbr: "REG", title: "Enregistrement", body: "Nous enregistrons le nom au nom de votre société — vous restez propriétaire." },
+        { abbr: "DNS", title: "DNS & mail", body: "Enregistrements, sécurité mail (SPF, DKIM, DMARC) et SSL correctement configurés." },
+        { abbr: "MOV", title: "Transfert", body: "Transférer un nom existant sans interruption du mail ou du site." },
+        { abbr: "BRD", title: "Nom de marque", body: "Un doute sur le nom ? Nous aidons à choisir et vérifions les variantes." }
+      ],
+      faqTitle: "À propos de cette vérification",
+      faq: [
+        { q: "Cette vérification est-elle fiable ?", a: "Nous consultons en direct les enregistrements DNS. S'il n'y a rien, le nom est probablement libre — mais un nom enregistré et inutilisé peut aussi paraître vide. Nous confirmons définitivement auprès du registrar." },
+        { q: "Quelles extensions vérifiez-vous ?", a: "Tapez un nom complet avec extension, ou seulement le nom — nous vérifions alors .be, .nl, .com et .eu ensemble." },
+        { q: "Combien coûte un domaine ?", a: "Selon l'extension, généralement 15 à 45 € par an. Nous ne prenons pas de marge sur l'enregistrement." }
+      ]
+    },
+    "managed-it": {
+      crumb: "IT gérée", title: "Une IT gérée que vous ne sentez plus",
+      lead: "Nous prenons en charge la gestion complète des postes, serveurs et réseau. Surveillance, correctifs, licences et un service desk qui répond — à prix fixe par poste.",
+      blocksTitle: "Ce que la gestion couvre",
+      blocks: [
+        { abbr: "MON", title: "Surveillance 24×7", body: "Alertes sur disques, sauvegardes, certificats et réseau — avant vos utilisateurs." },
+        { abbr: "PAT", title: "Gestion des correctifs", body: "Windows, macOS et tiers dans une fenêtre testée, avec rapport mensuel." },
+        { abbr: "DSK", title: "Service desk", body: "Un numéro, une boîte. NL, EN et FR, à distance et sur site." },
+        { abbr: "LIC", title: "Licences & actifs", body: "Vue à jour du matériel, des licences et des garanties. Aucune surprise en audit." }
+      ],
+      stepsTitle: "Le déroulé de la reprise",
+      steps: [
+        { n: "01", title: "État des lieux", body: "Deux semaines d'observation : inventaire, risques et gains rapides." },
+        { n: "02", title: "Transfert", body: "Transfert de connaissances avec votre prestataire actuel, accès et documentation." },
+        { n: "03", title: "Stabilisation", body: "Premiers 60 jours : sauvegardes, correctifs et base de sécurité en ordre." },
+        { n: "04", title: "Gestion", body: "Service manager dédié, rapport et feuille de route trimestriels." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Reprenez-vous le matériel existant ?", a: "Oui. Nous l'inventorions et le gérons ; le remplacement passe dans la feuille de route." },
+        { q: "Quel est le préavis ?", a: "Un mois après la première année. Nous voulons que vous restiez parce que ça fonctionne." },
+        { q: "Y a-t-il un portail de tickets ?", a: "Oui, avec page de statut et rapport SLA mensuel." }
+      ]
+    },
+    "ai-infrastructuur": {
+      crumb: "Infrastructure IA", title: "Infrastructure IA, du GPU à la gouvernance",
+      lead: "Nous construisons et gérons toute la couche IA de votre entreprise : calcul, pipelines de données, modèles privés et contrôle d'accès. On-premise, dans Azure ou en hybride — vos données restent dans vos limites.",
+      blocksTitle: "Les quatre couches",
+      blocks: [
+        { abbr: "GPU", title: "Calcul & hébergement", body: "Serveurs GPU on-premise ou dans Azure, planification de capacité et suivi des coûts." },
+        { abbr: "DAT", title: "Données & RAG", body: "Pipelines, stockage vectoriel et recherche documentaire sur vos sources existantes." },
+        { abbr: "MOD", title: "Modèles privés", body: "Open source ou Azure OpenAI, hébergés chez vous avec vos propres journaux." },
+        { abbr: "GOV", title: "Gouvernance & AI Act", body: "Politique d'accès, piste d'audit et documentation vers NIS2 et l'AI Act." }
+      ],
+      stepsTitle: "Du scan à la production",
+      steps: [
+        { n: "01", title: "Scan de maturité", body: "Où est la valeur, quelles données sont exploitables, ce que la loi interdit." },
+        { n: "02", title: "Pilote", body: "Un cas d'usage mesurable, en ligne pour un groupe test en six semaines." },
+        { n: "03", title: "Déploiement", body: "Infrastructure, politique d'accès et formation pour toute l'organisation." },
+        { n: "04", title: "Exploitation", body: "Suivi des coûts, de la qualité et des versions de modèles." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Nos données quittent-elles l'entreprise ?", a: "Non, sauf si vous le souhaitez. Nous hébergeons les modèles chez vous ou dans votre tenant Azure." },
+        { q: "Faut-il des GPU ?", a: "Non. La plupart des cas démarrent dans Azure ; le matériel propre suit si le volume le justifie." },
+        { q: "Et l'AI Act européen ?", a: "Nous documentons finalité, données et risque par application pour constituer un dossier d'audit." }
+      ]
+    },
+    "cloud": {
+      crumb: "Cloud", title: "Le cloud sans surprise sur la facture",
+      lead: "Migration et gestion de Microsoft 365 et Azure. Identité, sauvegarde et maîtrise des coûts au même endroit — avec une architecture encore explicable dans trois ans.",
+      blocksTitle: "Nos points d'attention",
+      blocks: [
+        { abbr: "IAM", title: "Identité", body: "Entra ID, accès conditionnel et droits par rôle comme fondation." },
+        { abbr: "M365", title: "Microsoft 365", body: "Migration du mail, des fichiers et de Teams — sans interruption." },
+        { abbr: "BAK", title: "Sauvegarde & restauration", body: "Restauration testée des données et de la configuration." },
+        { abbr: "FIN", title: "Maîtrise des coûts", body: "Revue mensuelle de la consommation et des ressources inutilisées." }
+      ],
+      stepsTitle: "Approche de migration",
+      steps: [
+        { n: "01", title: "Évaluation", body: "Inventaire des charges, dépendances et licences." },
+        { n: "02", title: "Landing zone", body: "Réseau, identité et politiques préparés en amont." },
+        { n: "03", title: "Migration", body: "Par vagues et par service, avec plan de repli." },
+        { n: "04", title: "Optimisation", body: "Redimensionnement et revue des coûts à 30 et 90 jours." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Tout doit-il aller dans le cloud ?", a: "Non. L'hybride est souvent moins cher et plus rapide ; nous choisissons par charge." },
+        { q: "Et les licences existantes ?", a: "Elles entrent dans l'évaluation ; les doublons sont le gaspillage le plus fréquent." }
+      ]
+    },
+    "security": {
+      crumb: "Sécurité", title: "Une sécurité qui passe l'audit",
+      lead: "MFA, détection sur les endpoints, sécurité e-mail et sensibilisation. Aligné sur NIS2, avec une documentation présentable à un auditeur ou un assureur.",
+      blocksTitle: "La base",
+      blocks: [
+        { abbr: "MFA", title: "Identité & MFA", body: "Authentification forte, accès conditionnel et gestion des privilèges." },
+        { abbr: "EDR", title: "Détection endpoint", body: "EDR sur chaque appareil, suivi par notre service desk." },
+        { abbr: "MAI", title: "Sécurité e-mail", body: "SPF, DKIM, application DMARC et filtrage du phishing." },
+        { abbr: "AWR", title: "Sensibilisation", body: "Simulations de phishing et formations courtes chaque trimestre." }
+      ],
+      stepsTitle: "De la base au démontrable",
+      steps: [
+        { n: "01", title: "État initial", body: "Scan technique et entretiens ; risques priorisés par impact." },
+        { n: "02", title: "Gains rapides", body: "Mis en œuvre en 30 jours." },
+        { n: "03", title: "Démontrable", body: "Politiques, journalisation et documentation vers NIS2." },
+        { n: "04", title: "Exercices", body: "Test de restauration et exercice d'incident annuels." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "Sommes-nous concernés par NIS2 ?", a: "Souvent indirectement, via vos clients. L'état initial le clarifie." },
+        { q: "Faites-vous la réponse à incident ?", a: "Oui, avec des escalades fixes et un partenaire forensique externe si besoin." }
+      ]
+    },
+    "development": {
+      crumb: "Développement", title: "Du sur-mesure qui relie vos systèmes",
+      lead: "Intégrations et outils internes qui relient vos logiciels existants — souvent moins cher qu'un nouveau progiciel, et toujours documenté pour la reprise.",
+      blocksTitle: "Ce que nous construisons",
+      blocks: [
+        { abbr: "API", title: "Intégrations", body: "Connexions entre ERP, CRM, comptabilité et vos données." },
+        { abbr: "APP", title: "Outils internes", body: "Applications web pour les processus qui vivent dans Excel." },
+        { abbr: "AUT", title: "Automatisation", body: "Tâches répétitives supprimées via scripts, flux et agents." },
+        { abbr: "DOC", title: "Reprenable", body: "Code dans votre dépôt, documenté et testé. Sans dépendance." }
+      ],
+      stepsTitle: "Méthode",
+      steps: [
+        { n: "01", title: "Atelier", body: "Une demi-journée pour parcourir et fixer le processus." },
+        { n: "02", title: "Prototype", body: "Prototype fonctionnel en deux semaines." },
+        { n: "03", title: "Construction", body: "Itérations de deux semaines avec démo." },
+        { n: "04", title: "Reprise", body: "Code, documentation et accords de support." }
+      ],
+      faqTitle: "Questions fréquentes",
+      faq: [
+        { q: "À qui appartient le code ?", a: "À vous. Nous travaillons dans votre dépôt." },
+        { q: "Facturez-vous à l'heure ?", a: "Au sprint à prix fixe, pour discuter du périmètre plutôt que des heures." }
+      ]
+    },
+    "prijzen": {
+      crumb: "Tarifs", title: "Prix fixe par poste, sans surprise",
+      lead: "Trois formules d'IT gérée. L'infrastructure IA et le développement sont chiffrés par projet — l'entretien vous donne le coût en une semaine.",
+      priceUnit: "/ poste / mois", planCta: "Demander cette formule",
+      plans: [
+        { name: "Essential", for: "Jusqu'à 25 postes", price: "29 €", items: ["Surveillance & correctifs", "Service desk 8×5", "Sauvegarde des postes", "Rapport mensuel"] },
+        { name: "Managed", for: "25–150 postes", price: "49 €", featured: true, items: ["Tout Essential", "Base de sécurité & MFA", "Service manager dédié", "Réponse en 30 min"] },
+        { name: "Managed+ IA", for: "150+ postes", price: "79 €", items: ["Tout Managed", "Surveillance 24×7", "Infra IA & modèles privés", "Feuille de route trimestrielle"] }
+      ],
+      faqTitle: "À propos des tarifs",
+      faq: [
+        { q: "Le matériel est-il inclus ?", a: "Non, il est facturé séparément ou en leasing. Le prix couvre la gestion." },
+        { q: "Combien coûte un projet IA ?", a: "Le scan est à prix fixe ; un pilote démarre souvent autour d'un mois de temps interne — le scan donne l'estimation." },
+        { q: "Y a-t-il des frais de mise en route ?", a: "Un onboarding unique selon le nombre de postes, toujours chiffré à l'avance." }
+      ]
+    },
+    "over-ons": {
+      crumb: "À propos", title: "Une petite équipe qui décroche",
+      lead: "Marleo.tech est un prestataire de services gérés au Benelux. Nous travaillons pour des organisations de 20 à 500 personnes qui veulent externaliser l'IT sans perdre le contrôle.",
+      blocksTitle: "Ce que nous défendons",
+      blocks: [
+        { abbr: "GB", title: "Giannis Baert — fondateur", body: "Propriétaire et fondateur de marleo.tech. Joignable directement à giannis@marleo.tech ou 0456 92 00 25." },
+        { abbr: "P&G", title: "Expérience entreprise", body: "Support IT chez Procter & Gamble (2024) : service desk et gestion des postes dans un environnement international." },
+        { abbr: "01", title: "Des visages connus", body: "Votre service manager connaît votre environnement ; pas de loterie de tickets." },
+        { abbr: "02", title: "Explicable", body: "Chaque choix se justifie devant une direction et un auditeur." },
+        { abbr: "03", title: "Sans dépendance", body: "Documentation et code vous appartiennent. Partir doit être possible." },
+        { abbr: "04", title: "Trilingue", body: "Service desk en NL, EN et FR — utile au Benelux." }
+      ],
+      stepsTitle: "Chiffres",
+      steps: [
+        { n: "120+", title: "Postes gérés", body: "Répartis sur 14 organisations." },
+        { n: "99,9 %", title: "SLA de disponibilité", body: "Mesuré sur 2025." },
+        { n: "14min", title: "Temps de réponse", body: "Moyenne toutes priorités." },
+        { n: "3", title: "Langues", body: "NL · EN · FR." }
+      ],
+      faqTitle: "Travailler chez Marleo",
+      faq: [
+        { q: "Recrutez-vous ?", a: "Nous avons toujours de la place pour des ingénieurs orientés cloud et infrastructure IA. Écrivez-nous." }
+      ]
+    },
+    "contact": {
+      crumb: "Contact", title: "Planifiez un entretien de 30 minutes",
+      lead: "Sans argumentaire — un état des lieux de votre environnement et un avis honnête sur les trois premières étapes.",
+      formTitle: "Dites-nous ce qui se passe",
+      fields: ["Nom", "Entreprise", "E-mail", "Téléphone"],
+      messageLabel: "Votre question", submit: "Envoyer la demande",
+      contactRows: [
+        { label: "Téléphone", value: "0456 92 00 25", note: "Lun–ven 08:00–18:00", href: "tel:+32456920025" },
+        { label: "Service desk", value: "support@marleo.tech", note: "Clients existants — réponse selon SLA", href: "mailto:support@marleo.tech" },
+        { label: "Nouvelles demandes", value: "info@marleo.tech", note: "Réponse en un jour ouvré", href: "mailto:info@marleo.tech" },
+        { label: "Giannis Baert — fondateur", value: "giannis@marleo.tech", note: "Ligne directe pour les questions stratégiques", href: "mailto:giannis@marleo.tech" },
+        { label: "Instagram", value: "@marleo.tech", note: "instagram.com/marleo.tech", href: "https://instagram.com/marleo.tech" }
+      ],
+      faqTitle: "Que se passe-t-il après votre demande ?",
+      faq: [
+        { q: "En un jour ouvré", a: "Un court e-mail avec deux propositions de créneau." },
+        { q: "Pendant l'entretien", a: "30 minutes : situation actuelle, points de blocage, priorités." },
+        { q: "Ensuite", a: "Un état des lieux écrit avec trois étapes concrètes — ou rien, si nous ne sommes pas le bon partenaire." }
+      ]
+    }
+  }
+};
+
+const COPY = { nl: NL, en: EN, fr: FR };
+const CROSS_POS = [[14, 12], [30, 34], [46, 8], [62, 40], [78, 16], [90, 30], [22, 52], [68, 22]];
+
+class Component extends DCLogic {
+  state = {
+    lang: null,
+    w: typeof window !== "undefined" ? window.innerWidth : 1440,
+    menuOpen: false,
+    route: typeof window !== "undefined" ? (window.location.hash.replace(/^#\/?/, "") || "") : "",
+    openGroup: null,
+    domQuery: "",
+    domState: "idle",
+    domResults: []
+  };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ w: window.innerWidth });
+    this._onHash = () => {
+      this.setState({ route: window.location.hash.replace(/^#\/?/, ""), menuOpen: false, openGroup: null });
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("resize", this._onResize);
+    window.addEventListener("hashchange", this._onHash);
+
+    const strength = this.props.parallax ?? 1;
+    this._onMove = (e) => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+      document.querySelectorAll("[data-depth]").forEach(el => {
+        const d = parseFloat(el.getAttribute("data-depth")) * strength;
+        el.style.transform = "translate3d(" + (-nx * d) + "px," + (-ny * d * 0.6) + "px,0)";
+      });
+      document.querySelectorAll("[data-tilt]").forEach(el => {
+        const r = el.getBoundingClientRect();
+        const lx = (e.clientX - (r.left + r.width / 2)) / (r.width || 1);
+        const ly = (e.clientY - (r.top + r.height / 2)) / (r.height || 1);
+        const near = Math.abs(lx) < 1.4 && Math.abs(ly) < 2.2;
+        el.style.transform = near
+          ? "rotateY(" + (lx * 5 * strength) + "deg) rotateX(" + (-ly * 4 * strength) + "deg) translateZ(12px)"
+          : "rotateY(0deg) rotateX(0deg) translateZ(0)";
+      });
+    };
+    window.addEventListener("pointermove", this._onMove, { passive: true });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("hashchange", this._onHash);
+    window.removeEventListener("pointermove", this._onMove);
+  }
+
+  async checkDomains() {
+    const raw = (this.state.domQuery || "").trim().toLowerCase()
+      .replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/.*$/, "");
+    if (!raw || !/^[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)*$/.test(raw)) {
+      this.setState({ domState: "invalid", domResults: [] });
+      return;
+    }
+    const names = raw.includes(".") ? [raw] : ["be", "nl", "com", "eu"].map(t => raw + "." + t);
+    this.setState({ domState: "checking", domResults: names.map(n => ({ name: n, status: "checking" })) });
+    const out = await Promise.all(names.map(async n => {
+      try {
+        const r = await fetch("https://dns.google/resolve?name=" + encodeURIComponent(n) + "&type=NS");
+        const j = await r.json();
+        if (j.Status === 3) return { name: n, status: "free" };
+        if (j.Status === 0 && j.Answer) return { name: n, status: "taken" };
+        const r2 = await fetch("https://dns.google/resolve?name=" + encodeURIComponent(n) + "&type=A");
+        const j2 = await r2.json();
+        if (j2.Status === 3) return { name: n, status: "free" };
+        return { name: n, status: j2.Answer ? "taken" : "unknown" };
+      } catch (e) {
+        return { name: n, status: "error" };
+      }
+    }));
+    this.setState({ domState: "done", domResults: out });
+  }
+
+  renderVals() {
+    const lang = this.state.lang || this.props.defaultLang || "nl";
+    const t = COPY[lang];
+    const w = this.state.w;
+    const compact = w < 1220;
+    const narrow = w < 640;
+    const tight = w < 1400;
+    const route = this.state.route;
+    const page = t.pages[route] ? route : "";
+    const p = page ? t.pages[page] : null;
+
+    const pill = "border: 0; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; border-radius: 9999px; padding: 5px 11px;";
+    const linkBase = "font-size: 13px; font-weight: 600; letter-spacing: 0.65px; text-transform: uppercase; white-space: nowrap;";
+
+    const enriched = p ? Object.assign({}, p, {
+      hasBlocks: !!p.blocks,
+      hasSteps: !!p.steps,
+      hasFaq: !!p.faq,
+      hasPlans: !!p.plans,
+      hasForm: !!p.fields,
+      hasServiceGrid: !!p.showServiceGrid,
+      hasDomainTool: !!p.hasDomainTool,
+      hasProjects: !!p.hasProjects,
+      hasCred: !!p.credValue,
+      hasPreview: !!p.hasPreview,
+      projects: (p.projects || []).map(pr => {
+        const ext = /^https?:/.test(pr.href);
+        return Object.assign({}, pr, {
+          target: ext ? "_blank" : "_self",
+          cta: ext ? t.viewSite + " ↗" : t.more + " →"
+        });
+      }),
+      plans: (p.plans || []).map(pl => ({
+        name: pl.name, for: pl.for, price: pl.price, items: pl.items,
+        cardStyle: "display: grid; gap: 20px; align-content: start; border-radius: 10px; padding: 32px; transform-style: preserve-3d; transition: transform 0.25s ease; " + (pl.featured
+          ? "background: linear-gradient(160deg, rgba(255,42,134,0.16), rgba(30,23,32,0.85)); border: 1px solid #ff2a86; box-shadow: 0 24px 60px rgba(255,42,134,0.28);"
+          : "background: rgba(30,23,32,0.7); border: 1px solid #2e2530;"),
+        ctaStyle: "height: 48px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 13px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #ffffff; " + (pl.featured
+          ? "background: linear-gradient(90deg, #ff8a2b, #ff2a86);"
+          : "background: transparent; border: 1px solid #4a2338;")
+      }))
+    }) : null;
+
+    return {
+      t,
+      p: enriched,
+      isHome: !page,
+      isPage: !!page,
+      compact,
+      wide: !compact,
+      menuOpen: compact && this.state.menuOpen,
+      toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
+      closeMenu: () => this.setState({ menuOpen: false }),
+      navPad: compact ? "20px 24px" : tight ? "24px 28px" : "24px 48px",
+      navGap: tight ? "18px" : "26px",
+      railGap: compact ? "32px" : tight ? "32px" : "48px",
+      heroPad: compact ? "24px 24px 64px" : "16px 48px 96px",
+      heroMinH: narrow ? "720px" : compact ? "780px" : "740px",
+      pagePad: compact ? "32px 24px 8px" : "48px 48px 8px",
+      sectionPad: compact ? "56px 24px" : "80px 48px",
+      wordSize: narrow ? "20vw" : compact ? "17vw" : "clamp(140px, 15.5vw, 250px)",
+      wordTop: narrow ? "30px" : compact ? "20px" : "0px",
+      orbTop: narrow ? "230px" : compact ? "230px" : "190px",
+      orbSize: narrow ? "300px" : compact ? "380px" : "440px",
+      railCols: compact ? "1fr" : "minmax(220px, 1fr) minmax(300px, 1.4fr) minmax(300px, 1fr)",
+      railTop: narrow ? "24vw" : compact ? "20vw" : "clamp(170px, 14vw, 230px)",
+      pageTitleSize: narrow ? "32px" : compact ? "42px" : "56px",
+      h2Size: narrow ? "26px" : compact ? "32px" : "42px",
+      gridCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+      stepCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+      planCols: narrow ? "1fr" : compact ? "1fr" : "repeat(3, 1fr)",
+      contactCols: compact ? "1fr" : "1.3fr 1fr",
+      projectCols: compact ? "1fr" : "0.8fr 1.5fr",
+      mockPad: narrow ? "28px 20px" : compact ? "40px 32px" : "56px 48px",
+      mockCols: narrow ? "1fr" : "minmax(0, 1fr) 200px",
+      mockGap: narrow ? "40px" : "40px",
+      mockDesktop: (enriched && enriched.previewLabels) ? enriched.previewLabels[0] : "Desktop",
+      mockPhone: (enriched && enriched.previewLabels) ? enriched.previewLabels[1] : "Phone",
+      serviceCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+      metricCols: narrow ? "repeat(2, 1fr)" : compact ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+      metricSize: narrow ? "38px" : compact ? "50px" : "62px",
+      footerCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "1.4fr repeat(4, 1fr)",
+      socials: [
+        { label: "IG", href: "https://instagram.com/marleo.tech", title: "Instagram" },
+        { label: "@", href: "mailto:info@marleo.tech", title: "info@marleo.tech" },
+        { label: "TEL", href: "tel:+32456920025", title: "0456 92 00 25" }
+      ],
+      crosses: CROSS_POS.map((pos, i) => ({
+        style: "position: absolute; left: " + pos[0] + "%; top: " + pos[1] + "%; color: #ff8a2b; font-size: 16px; opacity: 0.3; animation: m-pulse " + (5 + i * 0.7) + "s ease-in-out " + (i * 0.4) + "s infinite;"
+      })),
+      domQuery: this.state.domQuery,
+      onDomInput: (e) => this.setState({ domQuery: e.target.value, domState: "idle" }),
+      onDomKey: (e) => { if (e.key === "Enter") this.checkDomains(); },
+      onDomCheck: () => this.checkDomains(),
+      domChecking: this.state.domState === "checking",
+      domInvalid: this.state.domState === "invalid",
+      domHasResults: this.state.domResults.length > 0,
+      domResults: this.state.domResults.map(r => {
+        const map = {
+          free: { nl: "Waarschijnlijk vrij", en: "Likely available", fr: "Probablement libre" },
+          taken: { nl: "In gebruik", en: "In use", fr: "Utilisé" },
+          checking: { nl: "Bezig…", en: "Checking…", fr: "Vérification…" },
+          unknown: { nl: "Onduidelijk", en: "Unclear", fr: "Incertain" },
+          error: { nl: "Check mislukt", en: "Check failed", fr: "Échec" }
+        };
+        const color = r.status === "free" ? "#12a05c" : r.status === "taken" ? "#ff2a86" : "#8f8b93";
+        return {
+          name: r.name,
+          label: map[r.status][lang],
+          rowStyle: "display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border: 1px solid " + (r.status === "free" ? "rgba(18,160,92,0.5)" : "#2e2530") + "; border-radius: 8px; background: " + (r.status === "free" ? "rgba(18,160,92,0.08)" : "rgba(18,13,18,0.6)") + ";",
+          pillStyle: "font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: " + color + "; white-space: nowrap;"
+        };
+      }),
+      domUi: {
+        nl: { placeholder: "bv. mijnbedrijf of mijnbedrijf.be", button: "Check", checking: "Bezig…", invalid: "Vul een geldige naam in, bijvoorbeeld mijnbedrijf.be", hint: "Alleen een naam? Dan checken we .be, .nl, .com en .eu tegelijk.", disclaimer: "Live DNS-controle. Een vrije uitslag is een sterke indicatie, geen garantie — wij bevestigen bij de registrar.", cta: "Laat ons deze naam registreren" },
+        en: { placeholder: "e.g. mycompany or mycompany.be", button: "Check", checking: "Checking…", invalid: "Enter a valid name, for example mycompany.be", hint: "Just a name? We check .be, .nl, .com and .eu at once.", disclaimer: "Live DNS check. An available result is a strong indication, not a guarantee — we confirm with the registrar.", cta: "Have us register this name" },
+        fr: { placeholder: "ex. masociete ou masociete.be", button: "Vérifier", checking: "Vérification…", invalid: "Entrez un nom valide, par exemple masociete.be", hint: "Juste un nom ? Nous vérifions .be, .nl, .com et .eu d'un coup.", disclaimer: "Vérification DNS en direct. Un résultat libre est une forte indication, pas une garantie — nous confirmons auprès du registrar.", cta: "Faites enregistrer ce nom" }
+      }[lang],
+      navGroups: t.navGroups.map((g, gi) => {
+        const active = g.keys ? g.keys.indexOf(page) !== -1 : g.key === page;
+        return {
+          label: g.label,
+          isGroup: !!g.keys,
+          isLink: !g.keys,
+          href: g.key ? "#/" + g.key : "#/",
+          open: this.state.openGroup === gi && !!g.keys,
+          onEnter: () => this.setState({ openGroup: gi }),
+          onLeave: () => this.setState({ openGroup: null }),
+          onToggle: () => this.setState(s => ({ openGroup: s.openGroup === gi ? null : gi })),
+          allLabel: t.allServices,
+          style: linkBase + " display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0 0 2px; font-family: inherit; cursor: pointer;" + (active ? " color: #ffffff; border-bottom: 2px solid #ff2a86;" : " color: #cfc9d2;"),
+          items: (g.keys || []).map(k => ({
+            href: "#/" + k,
+            label: t.labels[k],
+            desc: t.navDesc[k],
+            style: "display: grid; gap: 2px; padding: 12px 14px; border-radius: 6px; color: #ffffff; transition: background 0.2s ease;" + (k === page ? " background: rgba(255,42,134,0.12);" : "")
+          }))
+        };
+      }),
+      mobileGroups: t.navGroups.map(g => ({
+        label: g.label,
+        isGroup: !!g.keys,
+        isLink: !g.keys,
+        href: g.key ? "#/" + g.key : "#/",
+        items: (g.keys || []).map(k => ({ href: "#/" + k, label: t.labels[k] }))
+      })),
+      serviceCards: SERVICE_KEYS.map(k => ({
+        href: "#/" + k,
+        abbr: t.pages[k].blocks[0].abbr,
+        title: t.labels[k],
+        body: t.pages[k].lead.split(". ")[0] + ".",
+        key: k
+      })),
+      footerGroups: t.footer.map(g => ({
+        head: g.head,
+        links: g.keys.map(k => ({
+          href: t.pages[k] ? "#/" + k : "#/contact",
+          label: t.labels[k]
+        }))
+      })),
+      locales: ["nl", "en", "fr"].map(code => ({
+        code: code.toUpperCase(),
+        pick: () => this.setState({ lang: code }),
+        style: code === lang
+          ? pill + " background: linear-gradient(90deg, #ff8a2b, #ff2a86); color: #ffffff;"
+          : pill + " background: transparent; color: #cfc9d2;"
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>

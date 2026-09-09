@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="./image-slot.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #0a070a; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+  a { color: #ff2a86; text-decoration: none; }
+  a:hover { color: #ff8a2b; }
+  @keyframes m-rise { from { opacity: 0; transform: translate3d(0, 28px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+  @keyframes m-float { 0%, 100% { transform: translate3d(0, -6px, 0); } 50% { transform: translate3d(0, 6px, 0); } }
+  @keyframes m-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  @keyframes m-pulse { 0%, 100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.75; transform: scale(1.35); } }
+  @keyframes m-sweep { 0% { transform: translate3d(-120%, 0, 0); } 100% { transform: translate3d(320%, 0, 0); } }
+  @keyframes m-spin { to { transform: rotate(360deg); } }
+</style>
+</helmet>
+
+<div style="font-family: 'Inter', -apple-system, system-ui, sans-serif; background: #0a070a; color: #ffffff; min-height: 100vh; position: relative; overflow: hidden; perspective: 1400px; perspective-origin: 50% 40%">
+
+  <div style="position: absolute; inset: 0; background-image: radial-gradient(70% 80% at 12% 18%, rgba(255,138,43,0.30) 0%, transparent 62%), radial-gradient(75% 85% at 88% 26%, rgba(255,42,134,0.34) 0%, transparent 64%), radial-gradient(60% 60% at 50% 100%, rgba(255,42,134,0.14) 0%, transparent 70%); pointer-events: none"></div>
+
+  <div data-depth="6" style="position: absolute; inset: -4%; pointer-events: none; opacity: 0.16; background-image: linear-gradient(to right, #ff8a2b 1px, transparent 1px), linear-gradient(to bottom, #ff2a86 1px, transparent 1px); background-size: 220px 220px; mask-image: radial-gradient(80% 80% at 50% 45%, #000 20%, transparent 80%); -webkit-mask-image: radial-gradient(80% 80% at 50% 45%, #000 20%, transparent 80%)"></div>
+
+  <div data-depth="10" style="position: absolute; inset: 0; pointer-events: none">
+    <sc-for list="{{ crosses }}" as="c" hint-placeholder-count="6">
+      <span style="{{ c.style }}">+</span>
+    </sc-for>
+  </div>
+
+  <nav data-depth="2" style="position: relative; z-index: 6; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: {{ navPad }}; animation: m-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <svg width="30" height="34" viewBox="0 0 28 32" fill="none" aria-hidden="true" style="animation: m-float 7s ease-in-out infinite">
+        <defs>
+          <linearGradient id="mg3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ff8a2b" />
+            <stop offset="1" stop-color="#ff2a86" />
+          </linearGradient>
+        </defs>
+        <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mg3)" stroke-width="2" />
+        <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mg3)" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+      <span style="font-size: 19px; font-weight: 700; letter-spacing: -0.4px">marleo<span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">.tech</span></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px; flex: none">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; align-items: center; gap: 30px">
+          <sc-for list="{{ t.nav }}" as="n" hint-placeholder-count="5">
+            <a href="#ai" style="font-size: 13px; font-weight: 600; letter-spacing: 0.65px; text-transform: uppercase; color: #cfc9d2; white-space: nowrap" style-hover="color: #ffffff">{{ n }}</a>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="display: flex; align-items: center; gap: 4px; border: 1px solid #3a2b38; border-radius: 9999px; padding: 3px; flex: none; backdrop-filter: blur(6px)">
+        <sc-for list="{{ locales }}" as="l" hint-placeholder-count="3">
+          <button onClick="{{ l.pick }}" style="{{ l.style }}">{{ l.code }}</button>
+        </sc-for>
+      </div>
+      <button style="position: relative; overflow: hidden; border: 0; cursor: pointer; background: linear-gradient(90deg, #ff8a2b, #ff2a86, #ff8a2b); background-size: 200% 100%; animation: m-shimmer 6s linear infinite; color: #ffffff; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; border-radius: 4px; padding: 12px 24px; white-space: nowrap; flex: none; box-shadow: 0 10px 30px rgba(255,42,134,0.35)" style-hover="transform: translateY(-2px)">{{ t.navCta }}</button>
+      <sc-if value="{{ compact }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleMenu }}" aria-label="Menu" style="cursor: pointer; width: 44px; height: 44px; border-radius: 4px; background: rgba(30,23,32,0.6); border: 1px solid #3a2b38; color: #ffffff; display: grid; place-items: center; gap: 4px; flex: none; padding: 11px 10px">
+          <span style="display: block; width: 22px; height: 1.5px; background: #ffffff"></span>
+          <span style="display: block; width: 22px; height: 1.5px; background: #ffffff"></span>
+          <span style="display: block; width: 22px; height: 1.5px; background: #ffffff"></span>
+        </button>
+      </sc-if>
+    </div>
+  </nav>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: relative; z-index: 6; margin: 0 24px; background: rgba(30,23,32,0.92); border: 1px solid #3a2b38; border-radius: 8px; padding: 16px 24px; display: grid; gap: 4px; backdrop-filter: blur(10px)">
+      <sc-for list="{{ t.nav }}" as="n" hint-placeholder-count="5">
+        <a href="#ai" style="font-size: 13px; font-weight: 600; letter-spacing: 0.65px; text-transform: uppercase; color: #ffffff; min-height: 44px; display: flex; align-items: center; border-bottom: 1px solid #2e2530">{{ n }}</a>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <section style="position: relative; z-index: 2; padding: {{ heroPad }}; min-height: {{ heroMinH }}">
+
+    <h1 data-depth="4" style="position: absolute; left: 0; right: 0; top: {{ wordTop }}; margin: 0; text-align: center; font-size: {{ wordSize }}; font-weight: 800; line-height: 0.82; letter-spacing: -0.05em; z-index: 2; pointer-events: none; background: linear-gradient(100deg, #ff8a2b 0%, #ff2a86 46%, #ff8a2b 72%, #ff2a86 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 30px 70px rgba(255,42,134,0.28)); animation: m-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) both, m-shimmer 14s linear infinite">MARLEO<span style="display: block; font-size: 0.115em; font-weight: 600; letter-spacing: 0.42em; background: none; color: #cfc9d2; margin-top: 0.1em">IT · CLOUD · SECURITY · AI</span></h1>
+
+    <div data-depth="-6" style="position: absolute; left: 50%; transform: translateX(-50%); bottom: 0; width: {{ figureW }}; height: {{ figureH }}; z-index: 3; background: radial-gradient(60% 55% at 50% 42%, rgba(255,42,134,0.30) 0%, transparent 72%); mask-image: linear-gradient(to bottom, #000 78%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%)">
+      <image-slot id="marleo-hero-figure" shape="rect" fit="cover" placeholder="engineer / datacenter portret — vrijstaand, warm licht"></image-slot>
+    </div>
+
+    <div data-depth="14" style="position: relative; z-index: 4; max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: {{ railCols }}; gap: 48px; align-items: start; padding-top: {{ railTop }}">
+
+      <div style="display: grid; gap: 20px; align-content: start; animation: m-rise 0.9s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both">
+        <div style="display: grid; gap: 8px">
+          <span style="font-size: 16px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase">{{ t.kicker }}</span>
+          <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #ff8a2b">— {{ t.kickerMeta }}</span>
+        </div>
+        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #cfc9d2; max-width: 26ch">{{ t.leftBody }}</p>
+        <div style="display: flex; gap: 8px; padding-top: 8px">
+          <sc-for list="{{ socials }}" as="s" hint-placeholder-count="4">
+            <span style="width: 40px; height: 40px; border-radius: 9999px; border: 1px solid #3a2b38; background: rgba(30,23,32,0.55); display: grid; place-items: center; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #cfc9d2; backdrop-filter: blur(6px)" style-hover="border-color: #ff2a86; color: #ffffff; transform: translateY(-3px)">{{ s }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div></div>
+
+      <div style="display: grid; gap: 32px; justify-items: stretch; animation: m-rise 0.9s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both">
+        <div style="display: grid; gap: 12px">
+          <h2 style="margin: 0; font-size: {{ claimSize }}; font-weight: 600; line-height: 1.15; letter-spacing: -0.5px"><span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ t.claimA }}</span><br />{{ t.claimB }}</h2>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #cfc9d2; max-width: 30ch">{{ t.claimBody }}</p>
+        </div>
+
+        <div data-tilt="1" style="display: grid; grid-template-columns: 96px 1fr; gap: 16px; background: rgba(20,15,22,0.72); border: 1px solid #3a2b38; border-radius: 10px; padding: 12px; backdrop-filter: blur(14px); box-shadow: 0 24px 60px rgba(0,0,0,0.5); transform-style: preserve-3d; transition: transform 0.25s ease">
+          <div style="width: 96px; height: 96px; border-radius: 6px; background: linear-gradient(135deg, rgba(255,138,43,0.22), rgba(255,42,134,0.28)); border: 1px solid #4a2338; display: grid; place-items: center">
+            <svg width="44" height="50" viewBox="0 0 28 32" fill="none" aria-hidden="true">
+              <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mg3)" stroke-width="2" />
+              <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mg3)" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div style="display: grid; gap: 6px; align-content: center">
+            <span style="font-size: 15px; font-weight: 700">{{ t.person }}</span>
+            <span style="font-size: 10px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ t.personRole }}</span>
+            <button style="justify-self: start; border: 0; cursor: pointer; background: linear-gradient(90deg, #ff8a2b, #ff2a86); color: #ffffff; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; border-radius: 4px; padding: 8px 14px; margin-top: 4px">{{ t.personCta }}</button>
+          </div>
+        </div>
+
+        <div data-tilt="1" style="position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 56px; align-items: center; gap: 16px; background: linear-gradient(120deg, #c9166a, #ff2a86 55%, #ff8a2b); border-radius: 10px; padding: 20px; box-shadow: 0 24px 60px rgba(255,42,134,0.35); transform-style: preserve-3d; transition: transform 0.25s ease">
+          <span style="position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent); animation: m-sweep 4.5s ease-in-out infinite; pointer-events: none"></span>
+          <span style="font-size: 15px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; line-height: 1.25">{{ t.offerCta }}</span>
+          <span style="width: 56px; height: 56px; background: #120d12; border-radius: 6px; display: grid; place-items: center; font-size: 20px; color: #ffffff">→</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ai" style="position: relative; z-index: 4; padding: {{ sectionPad }}; background: linear-gradient(180deg, rgba(10,7,10,0) 0%, #0a070a 22%)">
+    <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 40px">
+      <div style="display: grid; gap: 16px">
+        <span style="width: 64px; height: 3px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+        <h2 style="margin: 0; font-size: {{ h2Size }}; font-weight: 500; line-height: 1.12; letter-spacing: -1px; max-width: 20ch; text-wrap: pretty">{{ t.aiTitle }}</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: {{ gridCols }}; gap: 24px; transform-style: preserve-3d">
+        <sc-for list="{{ t.pillars }}" as="p" hint-placeholder-count="4">
+          <article data-tilt="1" style="background: rgba(30,23,32,0.7); border: 1px solid #2e2530; border-radius: 10px; padding: 28px; display: grid; gap: 14px; align-content: start; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.25s ease, border-color 0.25s ease" style-hover="border-color: #ff2a86">
+            <span style="width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid #4a2338; display: grid; place-items: center; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ p.abbr }}</span>
+            <h3 style="margin: 0; font-size: 17px; font-weight: 700; line-height: 1.25">{{ p.title }}</h3>
+            <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #a3a0a6">{{ p.body }}</p>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="position: relative; z-index: 4; padding: {{ sectionPad }}; background: #0a070a">
+    <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: {{ metricCols }}; gap: 24px; border-top: 1px solid #2e2530; border-bottom: 1px solid #2e2530; padding-top: 40px; padding-bottom: 40px">
+      <sc-for list="{{ t.metrics }}" as="m" hint-placeholder-count="4">
+        <div data-tilt="1" style="display: grid; gap: 8px; transform-style: preserve-3d; transition: transform 0.25s ease">
+          <span style="font-size: {{ metricSize }}; font-weight: 700; line-height: 1; letter-spacing: -1.6px; background: linear-gradient(120deg, #ff8a2b, #ff2a86); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: m-shimmer 10s linear infinite">{{ m.value }}</span>
+          <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #a3a0a6">{{ m.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="position: relative; z-index: 4; padding: {{ sectionPad }}; background: #0a070a">
+    <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 40px">
+      <div style="display: grid; gap: 16px">
+        <span style="width: 64px; height: 3px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a2b, #ff2a86)"></span>
+        <h2 style="margin: 0; font-size: {{ h2Size }}; font-weight: 500; line-height: 1.12; letter-spacing: -1px; max-width: 20ch; text-wrap: pretty">{{ t.servicesTitle }}</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: {{ serviceCols }}; gap: 1px; background: #2e2530; border: 1px solid #2e2530; border-radius: 10px; overflow: hidden">
+        <sc-for list="{{ t.services }}" as="s" hint-placeholder-count="6">
+          <article style="background: #120d12; padding: 28px; display: grid; gap: 12px; align-content: start; transition: background 0.25s ease" style-hover="background: #1e1720">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.1px; background: linear-gradient(135deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">{{ s.abbr }}</span>
+            <h3 style="margin: 0; font-size: 17px; font-weight: 700; line-height: 1.25">{{ s.title }}</h3>
+            <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #a3a0a6">{{ s.body }}</p>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="position: relative; z-index: 4; overflow: hidden; padding: {{ sectionPad }}; background-color: #0a070a; background-image: radial-gradient(60% 120% at 50% 100%, rgba(255,42,134,0.24) 0%, transparent 66%)">
+    <div style="max-width: 900px; margin: 0 auto; display: grid; gap: 28px; justify-items: center; text-align: center">
+      <h2 style="margin: 0; font-size: {{ h2Size }}; font-weight: 500; line-height: 1.12; letter-spacing: -1px; max-width: 26ch; text-wrap: pretty">{{ t.ctaBand }}</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #cfc9d2; max-width: 52ch">{{ t.ctaBandBody }}</p>
+      <div data-tilt="1" style="display: flex; flex-direction: {{ formDir }}; gap: 12px; background: rgba(30,23,32,0.72); border: 1px solid #3a2b38; border-radius: 10px; padding: 12px; width: 100%; max-width: 560px; backdrop-filter: blur(12px); box-shadow: 0 24px 60px rgba(0,0,0,0.5); transform-style: preserve-3d; transition: transform 0.25s ease">
+        <input type="email" placeholder="{{ t.emailPlaceholder }}" style="flex: 1; height: 48px; padding: 14px 16px; border-radius: 4px; background: #0a070a; border: 1px solid #2e2530; color: #ffffff; font-family: inherit; font-size: 14px" />
+        <button style="border: 0; cursor: pointer; height: 48px; padding: 0 28px; border-radius: 4px; background: linear-gradient(90deg, #ff8a2b, #ff2a86, #ff8a2b); background-size: 200% 100%; animation: m-shimmer 6s linear infinite; color: #ffffff; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; white-space: nowrap">{{ t.ctaContact }}</button>
+      </div>
+    </div>
+  </section>
+
+  <footer style="position: relative; z-index: 4; padding: {{ sectionPad }}; background: #120d12; border-top: 1px solid #2e2530">
+    <div style="max-width: 1280px; margin: 0 auto; display: grid; gap: 48px">
+      <div style="display: grid; grid-template-columns: {{ footerCols }}; gap: 32px">
+        <div style="display: grid; gap: 16px; align-content: start">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="24" height="28" viewBox="0 0 28 32" fill="none" aria-hidden="true">
+              <path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mg3)" stroke-width="2" />
+              <path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mg3)" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span style="font-size: 16px; font-weight: 700; letter-spacing: -0.3px">marleo<span style="background: linear-gradient(90deg, #ff8a2b, #ff2a86); -webkit-background-clip: text; background-clip: text; color: transparent">.tech</span></span>
+          </div>
+          <span style="font-size: 13px; line-height: 1.6; color: #a3a0a6; max-width: 26ch">{{ t.claim }}</span>
+          <div style="display: flex; gap: 8px; padding-top: 8px">
+            <sc-for list="{{ socials }}" as="s" hint-placeholder-count="4">
+              <span style="width: 36px; height: 36px; border-radius: 9999px; border: 1px solid #3a2b38; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: #a3a0a6; transition: transform 0.2s ease, border-color 0.2s ease" style-hover="border-color: #ff2a86; color: #ffffff; transform: translateY(-3px)">{{ s }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ t.footerCols }}" as="c" hint-placeholder-count="4">
+          <div style="display: grid; gap: 10px; align-content: start">
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: #ffffff">{{ c.head }}</span>
+            <sc-for list="{{ c.links }}" as="l" hint-placeholder-count="4">
+              <a href="#ai" style="font-size: 13px; line-height: 1.7; color: #a3a0a6" style-hover="color: #ffffff">{{ l }}</a>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; align-items: center; border-top: 1px solid #2e2530; padding-top: 24px">
+        <span style="font-size: 12px; color: #6e6a72">{{ t.legal }}</span>
+        <div style="display: flex; align-items: center; gap: 4px; border: 1px solid #2e2530; border-radius: 9999px; padding: 3px">
+          <sc-for list="{{ locales }}" as="l" hint-placeholder-count="3">
+            <button onClick="{{ l.pick }}" style="{{ l.style }}">{{ l.code }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;nl&quot;,&quot;en&quot;,&quot;fr&quot;],&quot;default&quot;:&quot;nl&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Taal&quot;},&quot;parallax&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:0,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Beweging&quot;}}">
+const COPY = {
+  nl: {
+    nav: ["Managed IT", "AI-infra", "Cloud", "Security", "Development"],
+    navCta: "Contact",
+    kicker: "AI-INFRASTRUCTUUR",
+    kickerMeta: "BEHEERDE OMGEVINGEN: 2026",
+    leftBody: "Wij bouwen de volledige AI-laag in je bedrijf — compute, data, private modellen en governance — bovenop IT die gewoon werkt.",
+    claimA: "De gouden standaard", claimB: "voor bedrijfs-IT",
+    claimBody: "Managed IT, cloud, security en AI-infrastructuur bij één partij. Nederlandstalige servicedesk, vaste responstijden.",
+    person: "Jouw service-manager", personRole: "MARLEO.TECH — 5 INTAKES OPEN", personCta: "Even praten",
+    offerCta: "Vraag een AI-readiness scan",
+    aiTitle: "Van GPU tot governance — de hele AI-laag",
+    metrics: [
+      { value: "99,9%", label: "Uptime SLA" },
+      { value: "14min", label: "Gem. responstijd" },
+      { value: "120+", label: "Beheerde werkplekken" },
+      { value: "3", label: "Talen: NL · EN · FR" }
+    ],
+    servicesTitle: "Vijf diensten, één aanspreekpunt",
+    services: [
+      { abbr: "MIT", title: "Managed IT", body: "Beheer van werkplekken, servers en netwerk. Monitoring, patching en een servicedesk die opneemt." },
+      { abbr: "AIX", title: "AI-infrastructuur", body: "Compute, data, private modellen en governance — de hele laag, niet alleen een chatbot." },
+      { abbr: "CLD", title: "Cloud", body: "Migratie en beheer van Microsoft 365 en Azure. Identity, backup en kostenbeheersing." },
+      { abbr: "SEC", title: "Security", body: "MFA, endpoint-detectie, e-mailbeveiliging en awareness. Ingericht volgens NIS2." },
+      { abbr: "DEV", title: "Development", body: "Maatwerkintegraties en interne tooling die je systemen aan elkaar knopen." },
+      { abbr: "SUP", title: "Support", body: "Servicedesk in NL, EN en FR — remote en on-site, vaste responstijden." }
+    ],
+    ctaBand: "Klaar om je IT en AI uit handen te geven?",
+    ctaBandBody: "Laat je e-mailadres achter voor een intake van 30 minuten. Geen verkooppraatje — een doorlichting van je huidige omgeving.",
+    emailPlaceholder: "naam@bedrijf.nl",
+    ctaContact: "Neem contact op",
+    claim: "IT that just works — van werkplek tot AI-infrastructuur.",
+    legal: "© 2026 marleo.tech — Alle rechten voorbehouden",
+    footerCols: [
+      { head: "Diensten", links: ["Managed IT", "AI-infrastructuur", "Cloud", "Security", "Development"] },
+      { head: "Bedrijf", links: ["Over ons", "Werken bij", "Cases", "Partners"] },
+      { head: "Support", links: ["Servicedesk", "Statuspagina", "SLA", "Documentatie"] },
+      { head: "Juridisch", links: ["Privacy", "Voorwaarden", "NIS2 & AI Act", "Cookies"] }
+    ],
+    pillars: [
+      { abbr: "GPU", title: "Compute & hosting", body: "GPU-servers on-premise of in Azure, capaciteitsplanning en kostenmonitoring." },
+      { abbr: "DAT", title: "Data & RAG", body: "Datapijplijnen, vectoropslag en documentontsluiting op je bestaande bronnen." },
+      { abbr: "MOD", title: "Private modellen", body: "Open-source of Azure OpenAI, gehost binnen je eigen omgeving met eigen logging." },
+      { abbr: "GOV", title: "Governance & AI Act", body: "Toegangsbeleid, audittrail en documentatie richting NIS2 en de EU AI Act." }
+    ]
+  },
+  en: {
+    nav: ["Managed IT", "AI infra", "Cloud", "Security", "Development"],
+    navCta: "Contact",
+    kicker: "AI INFRASTRUCTURE",
+    kickerMeta: "MANAGED ENVIRONMENTS: 2026",
+    leftBody: "We build the full AI layer inside your company — compute, data, private models and governance — on top of IT that simply works.",
+    claimA: "The gold standard", claimB: "for business IT",
+    claimBody: "Managed IT, cloud, security and AI infrastructure from one partner. Local service desk, fixed response times.",
+    person: "Your service manager", personRole: "MARLEO.TECH — 5 INTAKE SLOTS OPEN", personCta: "Let's talk",
+    offerCta: "Request an AI readiness scan",
+    aiTitle: "From GPU to governance — the entire AI layer",
+    metrics: [
+      { value: "99.9%", label: "Uptime SLA" },
+      { value: "14min", label: "Avg. response time" },
+      { value: "120+", label: "Managed endpoints" },
+      { value: "3", label: "Languages: NL · EN · FR" }
+    ],
+    servicesTitle: "Five services, one point of contact",
+    services: [
+      { abbr: "MIT", title: "Managed IT", body: "Management of endpoints, servers and network. Monitoring, patching and a service desk that picks up." },
+      { abbr: "AIX", title: "AI infrastructure", body: "Compute, data, private models and governance — the whole layer, not just a chatbot." },
+      { abbr: "CLD", title: "Cloud", body: "Migration and management of Microsoft 365 and Azure. Identity, backup and cost control." },
+      { abbr: "SEC", title: "Security", body: "MFA, endpoint detection, email security and awareness. Set up to NIS2 expectations." },
+      { abbr: "DEV", title: "Development", body: "Custom integrations and internal tooling that tie your systems together." },
+      { abbr: "SUP", title: "Support", body: "Service desk in Dutch, English and French — remote and on-site, fixed response times." }
+    ],
+    ctaBand: "Ready to hand over your IT and AI?",
+    ctaBandBody: "Leave your email for a 30-minute intake. No sales pitch — a review of your current environment.",
+    emailPlaceholder: "name@company.com",
+    ctaContact: "Get in touch",
+    claim: "IT that just works — from endpoint to AI infrastructure.",
+    legal: "© 2026 marleo.tech — All rights reserved",
+    footerCols: [
+      { head: "Services", links: ["Managed IT", "AI infrastructure", "Cloud", "Security", "Development"] },
+      { head: "Company", links: ["About us", "Careers", "Cases", "Partners"] },
+      { head: "Support", links: ["Service desk", "Status page", "SLA", "Documentation"] },
+      { head: "Legal", links: ["Privacy", "Terms", "NIS2 & AI Act", "Cookies"] }
+    ],
+    pillars: [
+      { abbr: "GPU", title: "Compute & hosting", body: "GPU servers on-premise or in Azure, capacity planning and cost monitoring." },
+      { abbr: "DAT", title: "Data & RAG", body: "Data pipelines, vector storage and document retrieval on your existing sources." },
+      { abbr: "MOD", title: "Private models", body: "Open-source or Azure OpenAI, hosted in your own environment with your own logging." },
+      { abbr: "GOV", title: "Governance & AI Act", body: "Access policy, audit trail and documentation toward NIS2 and the EU AI Act." }
+    ]
+  },
+  fr: {
+    nav: ["IT gérée", "Infra IA", "Cloud", "Sécurité", "Développement"],
+    navCta: "Contact",
+    kicker: "INFRASTRUCTURE IA",
+    kickerMeta: "ENVIRONNEMENTS GÉRÉS : 2026",
+    leftBody: "Nous construisons toute la couche IA de votre entreprise — calcul, données, modèles privés et gouvernance — sur une IT qui fonctionne.",
+    claimA: "La référence", claimB: "pour l'IT d'entreprise",
+    claimBody: "IT gérée, cloud, sécurité et infrastructure IA chez un seul partenaire. Service desk local, temps de réponse fixes.",
+    person: "Votre service manager", personRole: "MARLEO.TECH — 5 CRÉNEAUX LIBRES", personCta: "On en parle",
+    offerCta: "Demander un scan de maturité IA",
+    aiTitle: "Du GPU à la gouvernance — toute la couche IA",
+    metrics: [
+      { value: "99,9 %", label: "SLA de disponibilité" },
+      { value: "14min", label: "Temps de réponse moyen" },
+      { value: "120+", label: "Postes gérés" },
+      { value: "3", label: "Langues : NL · EN · FR" }
+    ],
+    servicesTitle: "Cinq services, un seul interlocuteur",
+    services: [
+      { abbr: "MIT", title: "IT gérée", body: "Gestion des postes, serveurs et réseau. Surveillance, correctifs et un service desk qui répond." },
+      { abbr: "AIX", title: "Infrastructure IA", body: "Calcul, données, modèles privés et gouvernance — toute la couche, pas seulement un chatbot." },
+      { abbr: "CLD", title: "Cloud", body: "Migration et gestion de Microsoft 365 et Azure. Identité, sauvegarde et maîtrise des coûts." },
+      { abbr: "SEC", title: "Sécurité", body: "MFA, détection endpoint, sécurité e-mail et sensibilisation. Aligné sur NIS2." },
+      { abbr: "DEV", title: "Développement", body: "Intégrations sur mesure et outils internes qui relient vos systèmes." },
+      { abbr: "SUP", title: "Support", body: "Service desk en NL, EN et FR — à distance et sur site, temps de réponse fixes." }
+    ],
+    ctaBand: "Prêt à confier votre IT et votre IA ?",
+    ctaBandBody: "Laissez votre e-mail pour un entretien de 30 minutes. Sans argumentaire — un état des lieux de votre environnement.",
+    emailPlaceholder: "nom@entreprise.be",
+    ctaContact: "Nous contacter",
+    claim: "L'IT qui fonctionne — du poste de travail à l'infrastructure IA.",
+    legal: "© 2026 marleo.tech — Tous droits réservés",
+    footerCols: [
+      { head: "Services", links: ["IT gérée", "Infrastructure IA", "Cloud", "Sécurité", "Développement"] },
+      { head: "Entreprise", links: ["À propos", "Carrières", "Références", "Partenaires"] },
+      { head: "Support", links: ["Service desk", "Page de statut", "SLA", "Documentation"] },
+      { head: "Juridique", links: ["Confidentialité", "Conditions", "NIS2 & AI Act", "Cookies"] }
+    ],
+    pillars: [
+      { abbr: "GPU", title: "Calcul & hébergement", body: "Serveurs GPU on-premise ou dans Azure, planification de capacité et suivi des coûts." },
+      { abbr: "DAT", title: "Données & RAG", body: "Pipelines de données, stockage vectoriel et recherche documentaire sur vos sources." },
+      { abbr: "MOD", title: "Modèles privés", body: "Open source ou Azure OpenAI, hébergés chez vous avec vos propres journaux." },
+      { abbr: "GOV", title: "Gouvernance & AI Act", body: "Politique d'accès, piste d'audit et documentation vers NIS2 et l'AI Act européen." }
+    ]
+  }
+};
+
+const CROSS_POS = [
+  [14, 26], [30, 62], [46, 18], [62, 74], [78, 34], [90, 58], [22, 86], [68, 44]
+];
+
+class Component extends DCLogic {
+  state = { lang: null, w: typeof window !== "undefined" ? window.innerWidth : 1440, menuOpen: false };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ w: window.innerWidth });
+    window.addEventListener("resize", this._onResize);
+    this._onResize();
+
+    const strength = this.props.parallax ?? 1;
+    this._onMove = (e) => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+      document.querySelectorAll("[data-depth]").forEach(el => {
+        const d = parseFloat(el.getAttribute("data-depth")) * strength;
+        el.style.transform = "translate3d(" + (-nx * d) + "px," + (-ny * d * 0.6) + "px,0)";
+      });
+      document.querySelectorAll("[data-tilt]").forEach(el => {
+        const r = el.getBoundingClientRect();
+        const lx = (e.clientX - (r.left + r.width / 2)) / (r.width || 1);
+        const ly = (e.clientY - (r.top + r.height / 2)) / (r.height || 1);
+        const near = Math.abs(lx) < 1.6 && Math.abs(ly) < 2.4;
+        el.style.transform = near
+          ? "rotateY(" + (lx * 5 * strength) + "deg) rotateX(" + (-ly * 4 * strength) + "deg) translateZ(14px)"
+          : "rotateY(0deg) rotateX(0deg) translateZ(0)";
+      });
+    };
+    window.addEventListener("pointermove", this._onMove, { passive: true });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("pointermove", this._onMove);
+  }
+
+  renderVals() {
+    const lang = this.state.lang || this.props.defaultLang || "nl";
+    const t = COPY[lang];
+    const w = this.state.w;
+    const compact = w < 1024;
+    const narrow = w < 640;
+    const pill = "border: 0; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; border-radius: 9999px; padding: 5px 11px;";
+
+    return {
+      t,
+      compact,
+      wide: !compact,
+      menuOpen: compact && this.state.menuOpen,
+      toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
+      navPad: compact ? "20px 24px" : "24px 48px",
+      heroPad: compact ? "24px 24px 64px" : "16px 48px 96px",
+      heroMinH: narrow ? "760px" : compact ? "820px" : "760px",
+      sectionPad: compact ? "64px 24px" : "96px 48px",
+      wordSize: narrow ? "20vw" : compact ? "17vw" : "clamp(140px, 15.5vw, 250px)",
+      wordTop: narrow ? "40px" : compact ? "24px" : "10px",
+      figureW: narrow ? "104%" : compact ? "72%" : "46%",
+      figureH: narrow ? "540px" : compact ? "620px" : "660px",
+      railCols: compact ? "1fr" : "minmax(220px, 1fr) minmax(280px, 1.5fr) minmax(300px, 1fr)",
+      railTop: narrow ? "26vw" : compact ? "22vw" : "clamp(180px, 15vw, 250px)",
+      claimSize: narrow ? "24px" : "26px",
+      h2Size: narrow ? "28px" : compact ? "34px" : "48px",
+      gridCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+      socials: ["X", "IN", "GH", "AZ"],
+      metricCols: narrow ? "repeat(2, 1fr)" : compact ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+      serviceCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+      footerCols: narrow ? "1fr" : compact ? "repeat(2, 1fr)" : "1.4fr repeat(4, 1fr)",
+      formDir: narrow ? "column" : "row",
+      metricSize: narrow ? "40px" : compact ? "52px" : "64px",
+      crosses: CROSS_POS.map((p, i) => ({
+        style: "position: absolute; left: " + p[0] + "%; top: " + p[1] + "%; color: #ff8a2b; font-size: 16px; font-weight: 400; opacity: 0.35; animation: m-pulse " + (5 + i * 0.7) + "s ease-in-out " + (i * 0.4) + "s infinite;"
+      })),
+      locales: ["nl", "en", "fr"].map(code => ({
+        code: code.toUpperCase(),
+        pick: () => this.setState({ lang: code }),
+        style: code === lang
+          ? pill + " background: linear-gradient(90deg, #ff8a2b, #ff2a86); color: #ffffff;"
+          : pill + " background: transparent; color: #cfc9d2;"
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>
