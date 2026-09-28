@@ -3229,6 +3229,274 @@ var _go0=go;go=function(v){if(v==='whatsapp'){VIEW=v;document.querySelectorAll('
 var _enterApp0=enterApp;enterApp=function(){_enterApp0();intLoad().then(function(){var h=location.hash||'';var m=/#wa=(\d+)/.exec(h);if(m){go('whatsapp');setTimeout(function(){waOpen(m[1])},300)}else if(h==='#monitor')go('monitor');if(h)history.replaceState(null,'',location.pathname)})};
 
 
+
+/* ===================================================================
+   GROEI: 1) Website-scan rapport  2) Demo-generator  3) Opvolgreeksen
+   =================================================================== */
+
+/* ---------- gedeeld ---------- */
+function gxNormUrl(u){u=String(u||'').trim();if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u.replace(/\/+$/,'')}
+function gxDomain(u){try{return new URL(gxNormUrl(u)).hostname.replace(/^www\./,'')}catch(e){return String(u||'').replace(/^https?:\/\/(www\.)?/,'').replace(/\/.*$/,'')}}
+function gxAccent(seed){var cols=['#7C3AED','#2563EB','#0EA5E9','#059669','#DC2626','#EA580C','#D97706','#DB2777','#4F46E5','#0F766E'];var n=0;String(seed||'M').split('').forEach(function(c){n+=c.charCodeAt(0)});return cols[n%cols.length]}
+
+/* ===================================================================
+   1) WEBSITE-SCAN RAPPORT  (verkoopslokaas met je logo)
+   =================================================================== */
+var SCAN=null;
+function mScan(url,naam,dealId){
+  openM('🔍 Gratis website-scan',
+    '<div class="hint" style="margin-bottom:8px">Scan de site van een prospect en genereer een rapport met je logo dat je meteen kan doorsturen. Perfecte opener: je toont wat er beter kan vóór je iets vraagt.</div>'+
+    '<div class="frow"><div class="fgroup"><label>Website</label><input id="sc_url" value="'+esc(url||'')+'" placeholder="www.bedrijf.be" onkeydown="if(event.key===\'Enter\'){event.preventDefault();scanRun()}"></div>'+
+    '<div class="fgroup"><label>Bedrijfsnaam (optioneel)</label><input id="sc_naam" value="'+esc(naam||'')+'" placeholder="Bedrijf bvba"></div></div>'+
+    '<input type="hidden" id="sc_deal" value="'+esc(dealId||'')+'">'+
+    '<div id="sc_out"></div>',
+    '<button class="btn subtle" onclick="closeM()">Sluiten</button><button class="btn" id="sc_btn" onclick="scanRun()">▶ Scan uitvoeren</button>',true);
+  setTimeout(function(){var f=document.getElementById('sc_url');if(f&&!url)f.focus();else if(url)scanRun()},50);
+}
+async function scanRun(){
+  var url=gxNormUrl(document.getElementById('sc_url').value);if(!url){toast('Geef een website op',true);return}
+  var naam=document.getElementById('sc_naam').value.trim()||gxDomain(url);
+  var btn=document.getElementById('sc_btn');btn.disabled=true;btn.textContent='Scannen…';
+  document.getElementById('sc_out').innerHTML='<div class="empty" style="padding:24px"><span class="big">⏳</span>Website en e-mailbeveiliging controleren… (10-20 sec)</div>';
+  try{
+    var r=await sb.functions.invoke('leadfinder',{body:{scan:true,url:url}});var d=r.data||{};
+    if(!d.ok)throw new Error(d.error||(r.error&&r.error.message)||'scan mislukt');
+    SCAN={url:url,naam:naam,data:d,items:scanItems(d)};
+    var score=Math.max(d.web.score,d.it.score);
+    var cls=score>=60?'vervallen':score>=30?'concept':'betaald';
+    document.getElementById('sc_out').innerHTML=
+      '<div class="panelbox" style="margin-top:6px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+      '<div><b style="font-size:1.05rem">'+esc(naam)+'</b><div class="hint" style="margin:0">'+esc(gxDomain(url))+'</div></div>'+
+      '<div style="text-align:right"><span class="pill '+cls+'">'+(score>=60?'Veel verbeterpunten':score>=30?'Enkele aandachtspunten':'Redelijk in orde')+'</span></div></div>'+
+      '<table style="margin-top:12px"><tbody>'+SCAN.items.map(function(it){return '<tr><td style="width:26px">'+(it.ok?'✅':'⚠️')+'</td><td><b>'+esc(it.label)+'</b><div class="hint" style="margin:0">'+esc(it.detail)+'</div></td></tr>'}).join('')+'</tbody></table>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
+        '<button class="btn" onclick="scanPdf()">📄 Download rapport (PDF)</button>'+
+        (gCfg&&gCfg().clientId?'<button class="btn subtle" onclick="scanMail()">✉️ Mail rapport naar prospect</button>':'')+
+        '<button class="btn subtle" onclick="scanCopy()">📋 Kopieer begeleidende tekst</button>'+
+      '</div></div>';
+  }catch(e){document.getElementById('sc_out').innerHTML='<div class="hint" style="color:#FCA5A5;padding:12px">Scan mislukt: '+esc(e.message)+'</div>'}
+  btn.disabled=false;btn.textContent='▶ Opnieuw scannen';
+}
+function scanItems(d){
+  var it=[];var info=d.info||{};
+  it.push({label:'Bereikbaarheid',ok:d.reachable,detail:d.reachable?'Website laadt normaal (HTTP '+d.status+')':'Website reageert niet of geeft een fout – bezoekers haken af'});
+  it.push({label:'Beveiligde verbinding (https)',ok:d.https,detail:d.https?'Slotje aanwezig, verbinding is versleuteld':'Géén https – browsers tonen "niet veilig", slecht voor vertrouwen én Google'});
+  it.push({label:'Mobielvriendelijk',ok:d.mobile,detail:d.mobile?'Past zich aan op smartphone':'Niet ingesteld voor mobiel – meer dan de helft van je bezoekers surft mobiel'});
+  it.push({label:'Bescherming tegen phishing (DMARC)',ok:info.dmarc==='actief',detail:info.dmarc==='actief'?'Ingesteld: mail in jullie naam is beschermd':info.dmarc==='none'?'Staat op "monitoren" – nog geen echte bescherming tegen misbruik van jullie naam':'Niet ingesteld – iemand kan mails versturen alsof ze van jullie komen'});
+  it.push({label:'E-mail vervalsbaar? (SPF)',ok:info.spf,detail:info.spf?'SPF ingesteld':'Geen SPF – jullie e-mailadres is makkelijk te vervalsen'});
+  if(info.cms&&/wordpress/i.test(info.cms))it.push({label:'Verouderde/zichtbare software',ok:false,detail:info.cms+' is publiek zichtbaar – aanknopingspunt voor hackers, hoort verborgen te zijn'});
+  var extra=(d.web.flags||[]).filter(function(f){return !/https|mobiel|laadt niet/i.test(f)});
+  extra.slice(0,3).forEach(function(f){it.push({label:f,ok:false,detail:'Verbeterpunt gevonden bij de scan'})});
+  return it;
+}
+function scanIntro(){var s=SCAN;var probs=s.items.filter(function(i){return !i.ok});
+  return 'Beste,\n\nIk ben Giannis Baert van Marleo (marleo.tech), webbureau uit Nevele. Ik deed een korte, gratis check van '+s.naam+' en zette de resultaten in bijgevoegd rapport.\n\n'+(probs.length?'Kort samengevat vielen deze punten op:\n'+probs.slice(0,4).map(function(i){return '• '+i.label}).join('\n')+'\n\nStuk voor stuk zaken die klanten of vertrouwen kosten – en allemaal vlot op te lossen.':'Jullie site zit al goed in elkaar – een paar kleine punten kunnen het nog scherper maken.')+'\n\nZin om er eens 10 minuten over te bellen? Ik toon graag vrijblijvend wat ik zou aanpakken.\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo – '+(coCfg().phone||'')+'\ngiannis@marleo.tech'}
+function scanCopy(){navigator.clipboard.writeText(scanIntro()).then(function(){toast('Begeleidende tekst gekopieerd')})}
+function scanPdfDoc(cb){var s=SCAN;loadJsPDF(function(){
+  var co=coCfg();var jsPDF=window.jspdf.jsPDF;var doc=new jsPDF({unit:'mm',format:'a4'});
+  var W=210,M=16,acc=[124,58,237];
+  doc.setFillColor(15,17,26);doc.rect(0,0,W,42,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text('MARLEO',M,20);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(180,185,200);doc.text('Gratis website-scan',M,27);
+  doc.setFontSize(8);doc.setTextColor(150,155,170);doc.text(new Date().toLocaleDateString('nl-BE'),W-M,20,{align:'right'});doc.text('marleo.tech',W-M,25,{align:'right'});
+  var y=54;
+  doc.setTextColor(20,20,30);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(s.naam,M,y);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(90,95,110);doc.text(gxDomain(s.url),M,y+6);y+=16;
+  s.items.forEach(function(it){
+    if(y>250){doc.addPage();y=24}
+    doc.setFillColor(it.ok?232:255,it.ok?245:243,it.ok?233:230);doc.roundedRect(M,y-5,W-2*M,16,2,2,'F');
+    doc.setFillColor(it.ok?34:239,it.ok?197:68,it.ok?94:56);doc.circle(M+6,y-0.5,2.2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.setTextColor(it.ok?21:180,it.ok?128:70,it.ok?61:20);
+    doc.text(it.label,M+12,y+1);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(70,75,90);
+    doc.text(doc.splitTextToSize(it.detail,W-2*M-14),M+12,y+7);
+    y+=20;
+  });
+  if(y>235){doc.addPage();y=24}
+  doc.setFillColor(acc[0],acc[1],acc[2]);doc.roundedRect(M,y,W-2*M,34,3,3,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Wat ik voor jullie kan doen',M+6,y+10);
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+  doc.text(doc.splitTextToSize('Ik los deze punten op met een frisse, mobielvriendelijke en veilige website – vanaf €279 excl. btw, eenmalig. Ook losse fixes (https, e-mailbeveiliging) zijn mogelijk. Vrijblijvend een demo? Bel of mail me.',W-2*M-12),M+6,y+18);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Giannis Baert · '+(co.phone||'')+' · giannis@marleo.tech',M+6,y+30);
+  cb(doc)})}
+function scanPdf(){scanPdfDoc(function(doc){doc.save('Website-scan-'+gxDomain(SCAN.url).replace(/[^a-z0-9]+/gi,'_')+'.pdf');logAct('🔍 Scan-rapport gemaakt voor '+SCAN.naam)})}
+function scanMail(){scanPdfDoc(function(doc){var uri=doc.output('datauristring');var b64=uri.slice(uri.indexOf(',')+1);
+  var dealId=document.getElementById('sc_deal').value;var d=dealId?DATA.deals.find(function(x){return x.id===dealId}):null;
+  closeM();setTimeout(function(){mMail({to:(d&&d.email)||'',subject:'Gratis website-scan van '+SCAN.naam,text:scanIntro(),attach:{name:'Website-scan-'+gxDomain(SCAN.url).replace(/[^a-z0-9]+/gi,'_')+'.pdf',b64:b64,type:'application/pdf'},dealId:dealId||''})},60)})}
+
+/* ===================================================================
+   2) DEMO-GENERATOR  (branded one-pager uit leadgegevens)
+   =================================================================== */
+function mDemo(dealId){
+  var d=dealId?DATA.deals.find(function(x){return x.id===dealId}):null;
+  var naam=d?d.naam:'';var tel=d?d.tel:'';var plaats=d?d.plaats:'';
+  openM('🎨 Demo-website genereren',
+    '<div class="hint" style="margin-bottom:8px">Maak in één klik een verzorgde voorbeeldpagina met de gegevens van de prospect. Toon of stuur het als voorproefje: "kijk, dit maakte ik al voor jullie".</div>'+
+    '<input type="hidden" id="dm_deal" value="'+esc(dealId||'')+'">'+
+    '<div class="frow"><div class="fgroup"><label>Bedrijfsnaam</label><input id="dm_naam" value="'+esc(naam)+'"></div><div class="fgroup"><label>Sector</label><input id="dm_sector" placeholder="bakker, garage, kapper, aannemer…" list="dm_sectors"><datalist id="dm_sectors">'+['Bakkerij','Garage','Kapsalon','Restaurant','Aannemer','Schoonmaak','Tuinaanleg','Dakwerken','Advocaat','Boekhouder','Schrijnwerk','Elektricien','Loodgieter','Schilder'].map(function(x){return '<option>'+x+'</option>'}).join('')+'</datalist></div></div>'+
+    '<div class="frow"><div class="fgroup"><label>Slogan / pakkende zin</label><input id="dm_slogan" placeholder="Vakwerk uit de streek, al 20 jaar"></div><div class="fgroup"><label>Plaats</label><input id="dm_plaats" value="'+esc(plaats)+'" placeholder="Deinze"></div></div>'+
+    '<div class="frow"><div class="fgroup"><label>Telefoon</label><input id="dm_tel" value="'+esc(tel)+'"></div><div class="fgroup"><label>E-mail</label><input id="dm_mail" value="'+esc(d&&d.email||'')+'" placeholder="info@bedrijf.be"></div></div>'+
+    '<div class="frow"><div class="fgroup"><label>Diensten (komma\'s)</label><input id="dm_dienst" placeholder="bv. onderhoud, herstelling, banden"></div><div class="fgroup"><label>Accentkleur</label><input id="dm_kleur" type="color" value="'+gxAccent(naam)+'" style="height:42px;padding:4px"></div></div>',
+    '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="demoGen()">✨ Genereer demo</button>',true);
+  setTimeout(function(){var s=document.getElementById('dm_sector');if(d&&d.cat)s.value=(d.cat||'').split('·').pop().trim()},30);
+}
+function demoData(){
+  return {naam:document.getElementById('dm_naam').value.trim()||'Uw Bedrijf',sector:document.getElementById('dm_sector').value.trim()||'vakman',
+    slogan:document.getElementById('dm_slogan').value.trim(),plaats:document.getElementById('dm_plaats').value.trim(),
+    tel:document.getElementById('dm_tel').value.trim(),mail:document.getElementById('dm_mail').value.trim(),
+    diensten:document.getElementById('dm_dienst').value.split(',').map(function(s){return s.trim()}).filter(Boolean),
+    kleur:document.getElementById('dm_kleur').value};
+}
+function demoHtml(x){
+  var acc=x.kleur||'#7C3AED';var sec=x.sector;var slogan=x.slogan||('Vakwerk'+(x.plaats?' uit '+x.plaats:' uit de streek')+', met zorg voor elk detail.');
+  var diensten=x.diensten.length?x.diensten:['Persoonlijke aanpak','Snelle service','Eerlijke prijzen','Jarenlange ervaring'];
+  var icons=['✓','★','⚡','❤','⚒','☀'];
+  var jaar=new Date().getFullYear();
+  return '<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+x.naam+'</title>'+
+  '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1a1a2e;line-height:1.6}'+
+  'a{color:inherit}.wrap{max-width:1100px;margin:0 auto;padding:0 24px}'+
+  'header{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid #eee;z-index:10}'+
+  'nav{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;max-width:1100px;margin:0 auto}'+
+  '.logo{font-weight:800;font-size:1.3rem;color:'+acc+'}.navbtn{background:'+acc+';color:#fff;padding:10px 20px;border-radius:30px;text-decoration:none;font-weight:600;font-size:.9rem}'+
+  '.hero{background:linear-gradient(135deg,'+acc+'12,'+acc+'04);padding:90px 0 80px;text-align:center}'+
+  '.hero .badge{display:inline-block;background:'+acc+'1a;color:'+acc+';padding:6px 16px;border-radius:20px;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:20px}'+
+  '.hero h1{font-size:3rem;font-weight:800;letter-spacing:-1px;margin-bottom:16px}.hero p{font-size:1.25rem;color:#555;max-width:640px;margin:0 auto 32px}'+
+  '.cta{display:inline-block;background:'+acc+';color:#fff;padding:16px 36px;border-radius:32px;text-decoration:none;font-weight:700;font-size:1.05rem;box-shadow:0 10px 30px '+acc+'40}'+
+  '.cta.ghost{background:#fff;color:'+acc+';border:2px solid '+acc+';box-shadow:none;margin-left:10px}'+
+  'section{padding:70px 0}.sectitle{text-align:center;font-size:2rem;font-weight:800;margin-bottom:12px}.subtitle{text-align:center;color:#666;margin-bottom:50px}'+
+  '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}'+
+  '.card{background:#fff;border:1px solid #eee;border-radius:16px;padding:30px;transition:.2s;box-shadow:0 4px 20px rgba(0,0,0,.03)}.card:hover{transform:translateY(-4px);box-shadow:0 12px 34px rgba(0,0,0,.08)}'+
+  '.card .ic{width:52px;height:52px;border-radius:14px;background:'+acc+'18;color:'+acc+';display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px}'+
+  '.card h3{font-size:1.15rem;margin-bottom:8px}.card p{color:#666;font-size:.95rem}'+
+  '.band{background:#0f111a;color:#fff;text-align:center}.band h2{font-size:2rem;margin-bottom:14px}.band p{color:#aab;margin-bottom:28px;font-size:1.1rem}'+
+  'footer{background:#0a0b12;color:#8890a0;text-align:center;padding:40px 24px;font-size:.9rem}'+
+  '.contactrow{display:flex;gap:30px;justify-content:center;flex-wrap:wrap;margin-top:20px;font-size:1.05rem}.contactrow a{color:'+acc+';font-weight:600;text-decoration:none}'+
+  '.demo-tag{position:fixed;bottom:16px;right:16px;background:'+acc+';color:#fff;padding:8px 14px;border-radius:20px;font-size:.75rem;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:20}'+
+  '@media(max-width:640px){.hero h1{font-size:2.1rem}.hero p{font-size:1.05rem}.cta.ghost{margin-left:0;margin-top:10px}}</style></head><body>'+
+  '<header><nav><div class="logo">'+x.naam+'</div><a class="navbtn" href="#contact">Contact</a></nav></header>'+
+  '<div class="hero"><div class="wrap"><span class="badge">'+(x.plaats?x.plaats+' e.o.':'Uw '+sec)+'</span><h1>'+x.naam+'</h1><p>'+slogan+'</p><a class="cta" href="#contact">Vraag een offerte</a>'+(x.tel?'<a class="cta ghost" href="tel:'+x.tel.replace(/\s/g,'')+'">Bel '+x.tel+'</a>':'')+'</div></div>'+
+  '<section><div class="wrap"><div class="sectitle">Wat we doen</div><div class="subtitle">'+(x.plaats?'Uw '+sec+' in '+x.plaats+' en omstreken':'Kwaliteit waar u op kan rekenen')+'</div><div class="grid">'+
+  diensten.map(function(d,i){return '<div class="card"><div class="ic">'+icons[i%icons.length]+'</div><h3>'+d+'</h3><p>Vakkundig en verzorgd, met oog voor detail en een eerlijke prijs.</p></div>'}).join('')+'</div></div></section>'+
+  '<section class="band"><div class="wrap"><h2>Klaar om samen te werken?</h2><p>Vrijblijvend een offerte of gewoon even overleggen – wij helpen u graag verder.</p><a class="cta" href="#contact">Neem contact op</a></div></section>'+
+  '<section id="contact"><div class="wrap" style="text-align:center"><div class="sectitle">Contact</div><div class="subtitle">'+x.naam+(x.plaats?' · '+x.plaats:'')+'</div><div class="contactrow">'+(x.tel?'<a href="tel:'+x.tel.replace(/\s/g,'')+'">📞 '+x.tel+'</a>':'')+(x.mail?'<a href="mailto:'+x.mail+'">✉ '+x.mail+'</a>':'')+'</div></div></section>'+
+  '<footer>© '+jaar+' '+x.naam+' – alle rechten voorbehouden.<br><span style="opacity:.6">Voorbeeldontwerp gemaakt door Marleo · marleo.tech</span></footer>'+
+  '<div class="demo-tag">✨ Demo door Marleo</div></body></html>';
+}
+function demoGen(){
+  var x=demoData();var html=demoHtml(x);DEMOHTML=html;DEMONAME=x.naam;
+  var dealId=document.getElementById('dm_deal').value;
+  if(dealId){var d=DATA.deals.find(function(y){return y.id===dealId});if(d){d.demoMade=today();(d.log=d.log||[]).push({t:Date.now(),txt:'🎨 Demo-website gegenereerd'});if(d.stage==='nieuw'||d.stage==='gecontacteerd')d.stage='demo';saveData()}}
+  logAct('🎨 Demo gegenereerd voor '+x.naam);
+  openM('✨ Demo klaar: '+esc(x.naam),
+    '<div class="hint" style="margin-bottom:10px">Je demo is gemaakt. Bekijk hem, download het HTML-bestand en zet het online (Netlify/GitHub, zoals je gewend bent). Deel daarna de link met de prospect.</div>'+
+    '<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;height:360px"><iframe id="dm_frame" style="width:100%;height:100%;border:0;background:#fff"></iframe></div>',
+    '<button class="btn subtle" onclick="demoOpen()">🔍 Groot bekijken</button><button class="btn subtle" onclick="demoDownload()">⬇ Download HTML</button>'+(gCfg&&gCfg().clientId?'<button class="btn" onclick="demoMail(\''+dealId+'\')">✉️ Outreach-mail</button>':'<button class="btn" onclick="demoCopy(\''+dealId+'\')">📋 Outreach-tekst</button>'),true);
+  setTimeout(function(){var f=document.getElementById('dm_frame');if(f)f.srcdoc=html},60);
+}
+var DEMOHTML='',DEMONAME='';
+function demoBlob(){return URL.createObjectURL(new Blob([DEMOHTML],{type:'text/html'}))}
+function demoOpen(){window.open(demoBlob(),'_blank')}
+function demoDownload(){var a=document.createElement('a');a.href=demoBlob();a.download='demo-'+DEMONAME.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.html';a.click()}
+function demoIntro(d){var vn=d&&d.contact?' '+d.contact.split(' ')[0]:'';
+  return 'Beste'+vn+',\n\nIk ben Giannis van Marleo (marleo.tech), webbureau uit Nevele. Ik vond '+DEMONAME+' online en heb spontaan al een voorproefje van een nieuwe website gemaakt – gewoon om te tonen wat mogelijk is:\n\n[PLAK HIER JE DEMO-LINK]\n\nHelemaal vrijblijvend natuurlijk. Als het je bevalt, werk ik het verder af met jullie echte foto\'s en teksten. Een frisse, mobielvriendelijke site vanaf €279 excl. btw, eenmalig.\n\nZin om even te bellen?\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo – '+(coCfg().phone||'')+'\ngiannis@marleo.tech'}
+function demoCopy(dealId){var d=dealId?DATA.deals.find(function(x){return x.id===dealId}):null;navigator.clipboard.writeText(demoIntro(d)).then(function(){toast('Outreach-tekst gekopieerd – vergeet je demo-link niet in te vullen')})}
+function demoMail(dealId){var d=dealId?DATA.deals.find(function(x){return x.id===dealId}):null;closeM();setTimeout(function(){mMail({to:(d&&d.email)||'',subject:'Een voorproefje voor '+DEMONAME+' 🎨',text:demoIntro(d),dealId:dealId||''})},60)}
+
+/* ===================================================================
+   3) OPVOLGREEKSEN  (automatische cadans van taken)
+   =================================================================== */
+function seqDefs(){if(!DATA.sequences||!DATA.sequences.length)DATA.sequences=[
+  {id:'seq-web',naam:'Koude lead – website',steps:[
+    {day:0,ch:'mail',txt:'Eerste mail: stel jezelf voor + gratis scan of demo aanbieden'},
+    {day:3,ch:'wa',txt:'WhatsApp/bel: "heb je mijn mailtje gezien?"'},
+    {day:7,ch:'bel',txt:'Bellen: kort de voordelen overlopen, demo voorstellen'},
+    {day:14,ch:'mail',txt:'Laatste mail: "laatste keer dat ik contacteer, interesse?"'}]},
+  {id:'seq-it',naam:'Groter bedrijf – IT/security',steps:[
+    {day:0,ch:'mail',txt:'Scan-rapport doorsturen met de bevindingen'},
+    {day:4,ch:'bel',txt:'Bellen: rapport toelichten, gesprek voorstellen'},
+    {day:10,ch:'mail',txt:'Case/aanbod sturen (e-mailbeveiliging of audit)'},
+    {day:21,ch:'bel',txt:'Laatste opvolging'}]}
+];return DATA.sequences}
+function seqById(id){return seqDefs().find(function(s){return s.id===id})}
+var SEQ_CH={mail:{label:'Mail',ic:'✉️'},wa:{label:'WhatsApp',ic:'💬'},bel:{label:'Bellen',ic:'📞'}};
+function seqStart(dealId,seqId){var d=DATA.deals.find(function(x){return x.id===dealId});var s=seqById(seqId);if(!d||!s)return;
+  d.seq={id:seqId,start:today(),step:0};(d.log=d.log||[]).push({t:Date.now(),txt:'▶ Opvolgreeks gestart: '+s.naam});saveData();
+  seqTasks();logAct('Opvolgreeks "'+s.naam+'" gestart voor '+d.naam);toast('Opvolgreeks gestart – taken staan klaar');
+  if(typeof VIEW!=='undefined')go(VIEW);
+}
+function seqStop(dealId,silent){var d=DATA.deals.find(function(x){return x.id===dealId});if(!d||!d.seq)return;
+  DATA.tasks=DATA.tasks.filter(function(t){return !(t.seqDeal===dealId&&!t.done)});
+  (d.log=d.log||[]).push({t:Date.now(),txt:'⏹ Opvolgreeks gestopt'});d.seq=null;saveData();if(!silent){toast('Opvolgreeks gestopt');if(typeof VIEW!=='undefined')go(VIEW)}}
+function seqTasks(){ // idempotent: maakt per lopende reeks de taken aan
+  var t=today();
+  DATA.deals.forEach(function(d){
+    if(!d.seq)return;
+    if(d.stage==='gewonnen'||d.stage==='verloren'){seqStop(d.id,true);return}
+    var s=seqById(d.seq.id);if(!s)return;
+    var cid=(DATA.customers.find(function(c){return c.name.toLowerCase()===(d.naam||'').toLowerCase()})||{}).id||'';
+    s.steps.forEach(function(st,i){
+      var due=plusDays(d.seq.start,st.day);var key='seq-'+d.id+'-'+i;
+      autoTask(key,SEQ_CH[st.ch].ic+' '+SEQ_CH[st.ch].label+' – '+d.naam+' (stap '+(i+1)+'/'+s.steps.length+')',due,st.day<=1?'hoog':'normaal',cid,st.txt+(d.tel?'\nTel: '+d.tel:'')+(d.email?'\nMail: '+d.email:''));
+      var tk=DATA.tasks.find(function(x){return x.key===key});if(tk){tk.seqDeal=d.id;tk.seqStep=i}
+    });
+  });
+  saveData();
+}
+/* wanneer je contact registreert bij een lead: reeks stopt automatisch als ze antwoorden?
+   Nee – contact = jij stuurt. We laten de reeks lopen maar tonen voortgang. Bij fase demo/offerte/gewonnen stopt hij vanzelf via seqTasks. */
+var _logContact0=(typeof logContact==='function')?logContact:null;
+function seqProgress(d){if(!d||!d.seq)return '';var s=seqById(d.seq.id);if(!s)return '';
+  var done=DATA.tasks.filter(function(t){return t.seqDeal===d.id&&t.done}).length;
+  return '<div class="notecard" style="border-color:rgba(124,58,237,.4)"><div class="meta">▶ Opvolgreeks: '+esc(s.naam)+' – '+done+'/'+s.steps.length+' stappen gedaan</div>'+
+    '<div style="display:flex;gap:4px;margin:6px 0">'+s.steps.map(function(st,i){var tk=DATA.tasks.find(function(t){return t.seqDeal===d.id&&t.seqStep===i});var cls=tk&&tk.done?'#22c55e':(tk&&tk.due<=today()?'#F5A623':'#3a3f52');return '<div title="'+esc(SEQ_CH[st.ch].label+': '+st.txt)+'" style="flex:1;height:6px;border-radius:3px;background:'+cls+'"></div>'}).join('')+'</div>'+
+    '<button class="btn sm subtle" onclick="seqStop(\''+d.id+'\')">⏹ Stop reeks</button></div>'}
+function mSeqStart(dealId){var opts=seqDefs().map(function(s){return '<option value="'+s.id+'">'+esc(s.naam)+' ('+s.steps.length+' stappen)</option>'}).join('');
+  openM('▶ Opvolgreeks starten','<div class="fgroup"><label>Welke reeks?</label><select id="seq_pick">'+opts+'</select></div><div class="hint">De CRM maakt automatisch taken aan op de juiste dagen. De reeks stopt vanzelf zodra de lead naar "demo", "offerte" of "gewonnen" gaat – of stop hem handmatig.</div>','<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="seqStart(\''+dealId+'\',document.getElementById(\'seq_pick\').value);closeM()">Start</button>')}
+
+/* reeks-beheer in Instellingen */
+function seqManagerHtml(){return '<div class="panelbox" style="margin-bottom:18px"><h3>▶ Opvolgreeksen <button class="btn sm" style="float:right" onclick="seqAdd()">+ Nieuwe reeks</button></h3>'+
+  '<div class="hint" style="margin-bottom:8px">De vaste opvolgstappen voor koude leads. Pas de dagen, kanalen en teksten aan zoals jij werkt.</div>'+
+  seqDefs().map(function(s){return '<div class="notecard" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between"><b>'+esc(s.naam)+'</b><button class="iconbtn del" onclick="seqDel(\''+s.id+'\')">🗑</button></div>'+
+    '<table style="margin-top:6px"><tbody>'+s.steps.map(function(st,i){return '<tr><td style="width:70px"><input type="number" value="'+st.day+'" style="width:56px" onchange="seqEdit(\''+s.id+'\','+i+',\'day\',this.value)"> d</td><td style="width:120px"><select onchange="seqEdit(\''+s.id+'\','+i+',\'ch\',this.value)">'+Object.keys(SEQ_CH).map(function(k){return '<option value="'+k+'" '+(st.ch===k?'selected':'')+'>'+SEQ_CH[k].ic+' '+SEQ_CH[k].label+'</option>'}).join('')+'</select></td><td><input value="'+esc(st.txt)+'" onchange="seqEdit(\''+s.id+'\','+i+',\'txt\',this.value)" style="width:100%"></td><td style="width:30px"><button class="iconbtn del" onclick="seqStepDel(\''+s.id+'\','+i+')">×</button></td></tr>'}).join('')+'</tbody></table>'+
+    '<button class="btn sm subtle" style="margin-top:6px" onclick="seqStepAdd(\''+s.id+'\')">+ stap</button></div>'}).join('')+'</div>'}
+function seqEdit(id,i,f,v){var s=seqById(id);if(!s)return;s.steps[i][f]=(f==='day'?parseInt(v)||0:v);saveData()}
+function seqStepAdd(id){var s=seqById(id);s.steps.push({day:(s.steps.length?s.steps[s.steps.length-1].day+7:0),ch:'mail',txt:'Nieuwe stap'});saveData();rSettings()}
+function seqStepDel(id,i){var s=seqById(id);s.steps.splice(i,1);saveData();rSettings()}
+function seqAdd(){var naam=prompt('Naam van de reeks:','Nieuwe reeks');if(!naam)return;seqDefs().push({id:'seq'+Date.now().toString(36),naam:naam,steps:[{day:0,ch:'mail',txt:'Eerste contact'}]});saveData();rSettings()}
+function seqDel(id){if(!confirm('Reeks verwijderen?'))return;DATA.sequences=seqDefs().filter(function(s){return s.id!==id});saveData();rSettings()}
+
+/* ---------- inhaken op bestaande schermen ---------- */
+/* vDeal: knoppen voor scan, demo, reeks + reeks-voortgang tonen */
+(function(){var _vDeal1=vDeal;vDeal=function(id){_vDeal1(id);var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
+  var body=document.getElementById('mBody');
+  if(body&&d.seq){var pd=document.createElement('div');pd.innerHTML=seqProgress(d);if(pd.firstChild)body.appendChild(pd.firstChild)}
+  var f=document.getElementById('mFoot');if(!f)return;
+  var extra='<button class="btn sm subtle" onclick="closeM();mScan(\''+esc(d.website||(d.note&&(d.note.match(/https?:\/\/[^\s\n]+/)||[])[0])||'')+'\',\''+esc((d.naam||'').replace(/'/g,''))+'\',\''+id+'\')">🔍 Scan</button>'+
+    '<button class="btn sm subtle" onclick="closeM();mDemo(\''+id+'\')">🎨 Demo</button>'+
+    (d.seq?'':'<button class="btn sm subtle" onclick="closeM();mSeqStart(\''+id+'\')">▶ Opvolgreeks</button>');
+  f.insertAdjacentHTML('afterbegin',extra)}})();
+
+/* Leadfinder-rij: scan-knop toevoegen naast de pitch-knop */
+(function(){var _rLeads1=rLeads;rLeads=function(){_rLeads1();
+  main().querySelectorAll('table tbody tr').forEach(function(tr,i){var acts=tr.querySelector('.rowactions');if(acts&&LEADS[i]&&LEADS[i].website&&!acts.querySelector('.scanbtn')){
+    acts.insertAdjacentHTML('beforeend','<button class="btn sm subtle scanbtn" title="Gratis scan-rapport" onclick="mScan(\''+esc(LEADS[i].website)+'\',\''+esc((LEADS[i].naam||'').replace(/\x27/g,''))+'\')">🔍</button>')}})}})();
+
+/* Leadfinder-topbar: losse scan + demo knop */
+(function(){var _rLeads2=rLeads;rLeads=function(){_rLeads2();var tb=main().querySelector('.topbar');if(tb&&!tb.querySelector('.gxbtns')){var div=tb.querySelector('div:last-child');
+  var html='<span class="gxbtns"></span>';if(div){div.insertAdjacentHTML('afterbegin','<button class="btn subtle" onclick="mScan()">🔍 Losse scan</button><button class="btn subtle" onclick="mDemo()">🎨 Demo maken</button>')}}}})();
+
+/* Instellingen: reeks-beheer erbij */
+(function(){var _rSettings1=rSettings;rSettings=function(){_rSettings1();var el=main();var tmp=document.createElement('div');tmp.innerHTML=seqManagerHtml();
+  var koppel=Array.prototype.slice.call(el.querySelectorAll('.panelbox')).filter(function(p){return /Koppelingen/.test((p.querySelector('h3')||{}).textContent||'')})[0];
+  if(koppel&&koppel.nextSibling)el.insertBefore(tmp.firstChild,koppel.nextSibling);else el.appendChild(tmp.firstChild)}})();
+
+/* reeks-taken meelaten draaien met autoTasks */
+(function(){var _autoTasks1=autoTasks;autoTasks=function(){_autoTasks1();try{seqTasks()}catch(e){console.warn('seqTasks',e)}}})();
+
+/* menu: verkoop-tools bereikbaar via Outreach-scherm knoppen */
+(function(){var _rOutreach1=(typeof rOutreach==='function')?rOutreach:null;if(_rOutreach1){rOutreach=function(){_rOutreach1();var tb=main().querySelector('.topbar');if(tb){var div=tb.querySelector('div:last-child')||tb;div.insertAdjacentHTML('beforeend','<button class="btn subtle" onclick="mScan()" style="margin-left:6px">🔍 Scan</button><button class="btn subtle" onclick="mDemo()">🎨 Demo</button>')}}}})();
+
+
 </script>
 </body>
 </html>
