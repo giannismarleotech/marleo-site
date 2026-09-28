@@ -236,6 +236,8 @@ body{-webkit-text-size-adjust:100%}
 .pipehead{display:flex;justify-content:space-between;align-items:center;font-family:var(--disp);font-size:.8rem;font-weight:600;padding:4px 6px 10px}
 .pipesum{font-family:var(--mono);font-size:.62rem;color:var(--muted)}
 .pipeempty{text-align:center;color:var(--muted);font-size:.8rem;padding:14px 0}
+.pipecol.over{border-color:var(--pink);background:rgba(233,30,123,.06)}
+.dacts{display:flex;gap:4px;margin-top:8px}.dacts button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:7px;padding:3px 8px;font-size:.78rem;cursor:pointer}.dacts button:hover{border-color:var(--pink)}
 .dealcard{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:8px;cursor:pointer;transition:transform .12s,border-color .12s}
 .dealcard:hover{transform:translateY(-2px);border-color:rgba(233,30,123,.4)}
 .dealcard.late{border-color:rgba(245,166,35,.55)}
@@ -521,13 +523,13 @@ async function cloudPushChanged(){
 }
 function cloudSchedulePush(){if(!CLOUD.uid)return;clearTimeout(CLOUD.pushTimer);CLOUD.pushTimer=setTimeout(cloudPushChanged,800)}
 function cloudStart(){
-  clearInterval(CLOUD.timer);CLOUD.timer=setInterval(function(){cloudPull(false).then(webLeadsPull)},20000);setTimeout(webLeadsPull,1500);
+  clearInterval(CLOUD.timer);CLOUD.timer=setInterval(function(){cloudPull(false).then(webLeadsPull).then(autoTasks)},20000);setTimeout(function(){webLeadsPull().then(autoTasks)},1500);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')cloudPull(false).then(webLeadsPull)});
   window.addEventListener('beforeunload',function(){cloudPushChanged()});
 }
 /* saveData uitbreiden: lokaal + cloud */
 var _saveDataLocal=saveData;
-saveData=function(){_saveDataLocal();cloudSchedulePush()};
+saveData=function(){_saveDataLocal();cloudSchedulePush();clearTimeout(window.__atT);window.__atT=setTimeout(autoTasks,1200)};
 
 /* ===== Login via Supabase Auth (admin) ===== */
 async function cloudLogin(mail,pass){
@@ -565,12 +567,11 @@ function invStatus(iv){
 function custName(id){var c=DATA.customers.find(function(x){return x.id===id});return c?c.name:', '}
 function customer(id){return DATA.customers.find(function(x){return x.id===id})}
 function nextRef(type){
-  type=type||'factuur';
-  var prefix=type==='offerte'?'OFF':'FACT';
-  var yr=new Date().getFullYear();
-  var nums=DATA.invoices.filter(function(i){return (i.type||'factuur')===type}).map(function(i){var m=/(\d+)\s*$/.exec(i.ref||'');return m?parseInt(m[1],10):0});
+  type=type||'factuur';var yr=new Date().getFullYear();
+  if(type==='offerte'){var on=DATA.invoices.filter(function(i){return i.type==='offerte'}).map(function(i){var m=/(\d+)\s*$/.exec(i.ref||'');return m?parseInt(m[1],10):0});return 'OFF-'+yr+'-'+String((on.length?Math.max.apply(null,on):0)+1).padStart(3,'0')}
+  var nums=DATA.invoices.filter(function(i){return i.type!=='offerte'}).map(function(i){var m=/^(\d{4})-(\d+)$/.exec(String(i.ref||'').trim());return m&&m[1]==String(yr)?parseInt(m[2],10):0});
   var mx=nums.length?Math.max.apply(null,nums):0;
-  return prefix+'-'+yr+'-'+String(mx+1).padStart(4,'0');
+  return yr+'-'+String(mx+1).padStart(3,'0');
 }
 
 /* ============ AUTH ============ */
@@ -649,7 +650,7 @@ function dagstartHTML(d){
   }
   // Aandachtspunten (rood/oranje)
   var att=[];
-  if(d.overdue.length) att.push(urgent('\u26A0\uFE0F','<b>'+d.overdue.length+' facturen te laat</b><span>'+eur(d.overdueSum)+' openstaand</span>',d.overdue.length,'#EF4056',"closeDagstart();go('invoices')"));
+  if(d.overdue.length) att.push(urgent('\u26A0\uFE0F','<b>'+d.overdue.length+' facturen te laat</b><span>'+eur(d.overdueSum)+' openstaand \u00b7 open de factuur voor een herinnering</span>',d.overdue.length,'#EF4056',"closeDagstart();go('invoices')"));
   if(d.followDue.length) att.push(urgent('\uD83D\uDCDE','<b>'+d.followDue.length+' klanten opvolgen</b><span>opvolgdatum verstreken</span>',d.followDue.length,'#F97C1F',"closeDagstart();go('pipeline')"));
   if(d.tasksDue.length) att.push(urgent('\u2705','<b>'+d.tasksDue.length+' taken te doen</b><span>'+d.tasksToday.length+' vandaag'+(d.tasksDue.length-d.tasksToday.length>0?', '+(d.tasksDue.length-d.tasksToday.length)+' te laat':'')+'</span>',d.tasksDue.length,'#E91E7B',"closeDagstart();go('tasks')"));
   if(d.webLeads.length) att.push(urgent('\uD83C\uDF10','<b>'+d.webLeads.length+' website-aanvragen</b><span>nog op te volgen</span>',d.webLeads.length,'#F97C1F',"closeDagstart();go('pipeline')"));
@@ -980,7 +981,8 @@ function vInvoice(id){
   '<button class="btn" onclick="invPdf(\''+iv.id+'\')">\ud83d\udcc4 Download PDF</button>'+
   (isOff?'':(st!=='betaald'?'<button class="btn subtle" onclick="payInv(\''+iv.id+'\');closeM()">\u2713 Betaald</button>':'<button class="btn subtle" onclick="unpayInv(\''+iv.id+'\');closeM()">\u21BA Openstaand</button>'))+
   '<button class="btn subtle" onclick="closeM();mInvoice(\''+iv.id+'\')">Bewerken</button>'+
-  (isOff?'<button class="btn subtle" onclick="offToInvoice(\''+iv.id+'\')">\u2192 Zet om naar factuur</button>':''),true);
+  (isOff?'<button class="btn" onclick="offToSplit(\''+iv.id+'\')">\u2192 Voorschot 50% + eindfactuur</button><button class="btn subtle" onclick="offToInvoice(\''+iv.id+'\')">\u2192 E\u00e9n factuur</button>':'')+
+  (!isOff&&st==='vervallen'?'<button class="btn subtle" onclick="remindWa(\''+iv.id+'\')">\ud83d\udcac Herinnering WhatsApp</button><button class="btn subtle" onclick="remindMail(\''+iv.id+'\')">\u2709\ufe0f Herinnering mail</button><button class="btn subtle" onclick="remindCopy(\''+iv.id+'\')">Kopieer tekst</button>':''),true);
 }
 function payInv(id){
   var iv=DATA.invoices.find(function(x){return x.id===id});
@@ -1011,7 +1013,7 @@ function mInvoice(id){
   var iv=id?DATA.invoices.find(function(x){return x.id===id}):null;
   EDITLINES=iv?iv.lines.map(function(l){return{d:l.d,q:l.q,p:l.p}}):[{d:'',q:1,p:0}];
   openM(id?'Factuur bewerken':'Nieuwe factuur',
-  '<div class="frow"><div class="fgroup"><label>Type</label><select id="i_type" onchange="document.getElementById(\'i_ref\').value=this.value===\'offerte\'?nextRef(\'offerte\'):nextRef(\'factuur\')">'+[['factuur','Factuur'],['voorschot','Voorschotfactuur'],['eindfactuur','Eindfactuur'],['creditnota','Creditnota'],['offerte','Offerte']].map(function(o){var t=o[0];return '<option value="'+t+'" '+(iv&&iv.type===t?'selected':(!iv&&t==='factuur'?'selected':''))+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
+  '<div class="frow"><div class="fgroup"><label>Type</label><select id="i_type" onchange="document.getElementById(\'i_ref\').value=nextRef(this.value)">'+[['factuur','Factuur'],['voorschot','Voorschotfactuur'],['eindfactuur','Eindfactuur'],['creditnota','Creditnota'],['offerte','Offerte']].map(function(o){var t=o[0];return '<option value="'+t+'" '+(iv&&iv.type===t?'selected':(!iv&&t==='factuur'?'selected':''))+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
   '<div class="fgroup"><label>Nummer *</label><input id="i_ref" value="'+esc(iv?iv.ref:nextRef('factuur'))+'"></div></div>'+
   '<div class="frow"><div class="fgroup"><label>Klant *</label><select id="i_cust">'+DATA.customers.map(function(c){return '<option value="'+c.id+'" '+(iv&&iv.customerId===c.id?'selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div>'+
   '<div class="fgroup"><label>Uw referentie (optioneel)</label><input id="i_yourref" value="'+esc(iv&&iv.yourref?iv.yourref:'')+'" placeholder="bestelbon, dossier..."></div></div>'+
@@ -1330,7 +1332,7 @@ function rCustPage(){
   var initiaal=c.name.charAt(0).toUpperCase();
   main().innerHTML=
   '<div class="topbar"><div style="display:flex;align-items:center;gap:8px"><button class="btn sm subtle" onclick="go(\'customers\')">\u2190 Klanten</button></div>'+
-  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="mCustomer(\''+id+'\')">\u270E Bewerken</button><button class="btn" onclick="mInvoiceFor(\''+id+'\')">+ Nieuwe factuur</button></div></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="mCustomer(\''+id+'\')">\u270E Bewerken</button><button class="btn subtle" onclick="go(\'emails\')">\u2709 Sjabloon sturen</button><button class="btn" onclick="mInvoiceFor(\''+id+'\')">+ Factuur / offerte</button></div></div>'+
   // header-kaart
   '<div class="custhero">'+
     '<div class="custav">'+initiaal+'</div>'+
@@ -1373,6 +1375,7 @@ function rCustPage(){
       '<button class="btn sm subtle" style="margin-top:10px" onclick="vDeal(\''+deal.id+'\')">Bekijk deal \u2192</button>'+
     '</div>':'')+
   '</div>'+
+  rCustServices(c)+
   // taken van deze klant
   '<div class="panelbox"><h3>Taken <button class="btn sm" style="float:right" onclick="mTaskFor(\''+id+'\')">+ Taak</button></h3>'+
   (ctasks.length?'<div style="overflow-x:auto;margin-top:6px"><table><tbody>'+ctasks.sort(function(a,b){return (a.done-b.done)||(a.due||'').localeCompare(b.due||'')}).map(function(t){
@@ -1428,7 +1431,7 @@ function rTasks(){
   (list.length?'<div style="overflow-x:auto"><table><thead><tr><th></th><th>Taak</th><th>Klant</th><th>Deadline</th><th>Prioriteit</th><th></th></tr></thead><tbody>'+
    list.map(function(t){
      return '<tr style="cursor:default"><td><input type="checkbox" style="width:18px;height:18px;cursor:pointer" '+(t.done?'checked':'')+' onchange="toggleTask(\''+t.id+'\')"></td>'+
-     '<td'+(t.done?' style="text-decoration:line-through;color:var(--muted)"':'')+'><b>'+esc(t.title)+'</b>'+(t.desc?'<br><span style="color:var(--muted);font-size:.8rem">'+esc(t.desc)+'</span>':'')+'</td>'+
+     '<td'+(t.done?' style="text-decoration:line-through;color:var(--muted)"':'')+'><b>'+esc(t.title)+'</b>'+(t.auto?' <span class="pill concept" style="font-size:.62rem">auto</span>':'')+(t.desc?'<br><span style="color:var(--muted);font-size:.8rem;white-space:pre-line">'+esc(t.desc)+'</span>':'')+'</td>'+
      '<td>'+(t.customerId?esc(custName(t.customerId)):', ')+'</td><td>'+fmtD(t.due)+'</td>'+
      '<td><span class="pill '+(t.prio==='hoog'?'hoog':'normaal')+'">'+esc(t.prio)+'</span></td>'+
      '<td><div class="rowactions"><button class="iconbtn del" onclick="delTask(\''+t.id+'\')">\uD83D\uDDD1</button></div></td></tr>';
@@ -1628,12 +1631,20 @@ function delTimelog(id){DATA.timelogs=DATA.timelogs.filter(function(x){return x.
 
 /* ============ E-MAILSJABLONEN ============ */
 var DEFAULT_TEMPLATES=[
-  {id:'tpl-offerte',name:'Offerte opvolgen',subject:'Uw offerte van Marleo',body:'Beste,\n\nEnige tijd geleden bezorgde ik u een offerte. Ik wilde even polsen of u nog vragen heeft of dat u graag wil starten.\n\nIk hoor het graag!\n\nMet vriendelijke groet,\nGiannis \u2013 Marleo'},
-  {id:'tpl-welkom',name:'Welkom nieuwe klant',subject:'Welkom bij Marleo',body:'Beste,\n\nWelkom als klant bij Marleo! Ik kijk ernaar uit om met u samen te werken. Bij vragen ben ik steeds bereikbaar via info@marleo.tech.\n\nMet vriendelijke groet,\nGiannis \u2013 Marleo'},
-  {id:'tpl-herinner',name:'Betalingsherinnering',subject:'Vriendelijke herinnering \u2013 openstaande factuur',body:'Beste,\n\nUit mijn administratie blijkt dat onderstaande factuur nog openstaat. Mogelijk is dit aan uw aandacht ontsnapt. Zou u de betaling in orde willen brengen?\n\nAlvast bedankt en met vriendelijke groet,\nGiannis \u2013 Marleo'}
+  {id:'tpl-eerste',name:'1. Eerste contact (na WhatsApp of Leadfinder)',subject:'Een website voor {bedrijf}?',body:'Dag {naam},\n\nIk ben Giannis van Marleo, webbureau uit Nevele. Ik zocht {bedrijf} op en zag dat jullie nog geen (goede) website hebben, terwijl jullie duidelijk goed bezig zijn.\n\nMijn aanbod is simpel: een professionele website op maat voor €279 excl. btw, eenmalig. Alles inbegrepen, geen abonnement, klaar binnen de week en 100% jullie eigendom.\n\nWil je vrijblijvend een voorbeeld zien? Dan maak ik dat gratis, zodat je kan beoordelen of het iets voor jullie is.\n\nGroeten,\nGiannis Baert\nMarleo · marleo.tech · 0456 92 00 25 · giannis@marleo.tech'},
+  {id:'tpl-demo',name:'2. Demo klaar',subject:'Jullie voorbeeldsite staat klaar',body:'Dag {naam},\n\nZoals beloofd: hier is een voorbeeld van hoe de website van {bedrijf} eruit kan zien:\n{link}\n\nBekijk hem gerust op je telefoon, daar komen de meeste bezoekers vandaan. Alles is nog aanpasbaar: teksten, foto\'s, kleuren.\n\nBevalt het? Dan werk ik hem volledig af voor €279 excl. btw. Je betaalt 50% bij de start en 50% bij oplevering.\n\nIk hoor graag wat je ervan vindt.\n\nGiannis · Marleo · 0456 92 00 25'},
+  {id:'tpl-offerte',name:'3. Offerte verstuurd',subject:'Offerte {ref} voor {bedrijf}',body:'Dag {naam},\n\nIn bijlage vind je de offerte {ref} voor jullie website.\n\nKort samengevat:\n• Website op maat, volledig afgewerkt en mobielvriendelijk\n• Inbegrepen: beveiliging, SSL, contactformulier, SEO-basis en Google-profiel\n• Betaling: 50% bij start, 50% bij oplevering\n• Geen abonnement, de site is van jullie\n\nAkkoord? Antwoord gewoon met "ok" op deze mail, dan ontvang je de voorschotfactuur en start ik meteen.\n\nGiannis Baert\nMarleo · marleo.tech · giannis@marleo.tech'},
+  {id:'tpl-opvolg',name:'4. Offerte opvolgen (na 3 dagen)',subject:'Nog vragen over offerte {ref}?',body:'Dag {naam},\n\nEen paar dagen geleden stuurde ik de offerte voor de website van {bedrijf}. Ik wilde even polsen of alles duidelijk is, of dat er nog vragen zijn.\n\nGeen haast, maar als je wil starten, dan kan de site er volgende week al staan.\n\nGiannis · Marleo · 0456 92 00 25'},
+  {id:'tpl-start',name:'5. Voorschot ontvangen, we starten',subject:'Bedankt! We starten met jullie website',body:'Dag {naam},\n\nBedankt voor de betaling van voorschotfactuur {ref}. Ik start meteen.\n\nOm snel te kunnen werken heb ik dit nodig (mag gewoon via WhatsApp):\n• Logo, als jullie er een hebben\n• Een tiental foto\'s van de zaak, het team of het werk\n• Openingsuren, adres, telefoon en e-mail zoals ze op de site moeten\n• Kort: wat doen jullie, voor wie, en waarom kiezen klanten voor jullie?\n• Links naar Facebook/Instagram als die er zijn\n\nHeb je geen teksten? Geen probleem, die schrijf ik op basis van een kort gesprek.\n\nGiannis · Marleo · giannis@marleo.tech'},
+  {id:'tpl-oplevering',name:'6. Website opgeleverd',subject:'Jullie website staat online 🎉',body:'Dag {naam},\n\nDe website van {bedrijf} staat online: {link}\n\nWat er in orde is:\n• Werkt op telefoon, tablet en computer\n• Beveiligd met SSL (slotje in de browser)\n• Contactformulier komt bij jullie in de mailbox\n• Aangemeld bij Google, de site verschijnt de komende dagen in de zoekresultaten\n\nIn bijlage de eindfactuur {ref}. En een korte uitleg over wat jullie zelf kunnen doen om beter gevonden te worden.\n\nMerk je iets dat niet klopt? Laat het weten, kleine aanpassingen doe ik gratis.\n\nVeel succes ermee!\nGiannis · Marleo · 0456 92 00 25'},
+  {id:'tpl-review',name:'7. Review vragen (1 week na oplevering)',subject:'Mag ik je iets vragen?',body:'Dag {naam},\n\nJullie site draait nu een week. Ik hoop dat jullie er blij mee zijn!\n\nMag ik je om een kleine gunst vragen? Een korte Google-review helpt mij enorm om andere ondernemers te bereiken. Het duurt 1 minuut:\n{reviewlink}\n\nEn omgekeerd: wil je dat klanten jullie ook reviews geven? Dan help ik je graag met een Google-profiel en een reviewkaartje voor aan de kassa.\n\nBedankt!\nGiannis · Marleo'},
+  {id:'tpl-herinner1',name:'8. Betalingsherinnering (vriendelijk)',subject:'Herinnering: factuur {ref}',body:'Dag {naam},\n\nEven een vriendelijke herinnering: factuur {ref} van {bedrag} stond te betalen op {vervaldatum}. Misschien is ze aan je aandacht ontsnapt.\n\nOverschrijven kan op BE90 9675 5953 1732 met mededeling {ref}. Al betaald? Dan mag je dit bericht negeren.\n\nBedankt!\nGiannis · Marleo'},
+  {id:'tpl-herinner2',name:'9. Betalingsherinnering (dringend)',subject:'Tweede herinnering: factuur {ref}',body:'Dag {naam},\n\nFactuur {ref} van {bedrag} is intussen meer dan twee weken vervallen. Mag ik vragen om ze deze week in orde te brengen?\n\nIBAN BE90 9675 5953 1732, mededeling {ref}.\n\nIs er een reden waarom ze nog openstaat? Laat het gerust weten, dan zoeken we samen een oplossing.\n\nGiannis Baert · Marleo · 0456 92 00 25'},
+  {id:'tpl-seo',name:'10. SEO-pakket voorstellen',subject:'Beter gevonden worden in Google',body:'Dag {naam},\n\nJullie website staat online, maar gevonden worden in Google is een tweede stap. Daarvoor heb ik drie eenmalige pakketten, geen abonnement:\n\n• SEO-start, €89: Google Bedrijfsprofiel optimaliseren, juiste titels en beschrijvingen, aanmelding bij Google, snelheidscheck.\n• SEO-plus, €149: alles van start + 3 geoptimaliseerde teksten, vermeldingen in lokale gidsen en een reviewkaartje met QR-code.\n• SEO-compleet, €249: alles van plus + 6 extra teksten, Google-advertentie opgezet en een rapport na 60 dagen.\n\nIn bijlage een korte uitleg wat SEO precies is en wat je ervan mag verwachten.\n\nInteresse? Dan start ik deze week nog.\n\nGiannis · Marleo · giannis@marleo.tech'}
 ];
+
 function rEmails(){
-  if(!DATA.emailtemplates.length){DATA.emailtemplates=JSON.parse(JSON.stringify(DEFAULT_TEMPLATES));saveData();}
+  if(!DATA.emailtemplates.length||DATA.emailtemplates.some(function(t){return t.id==='tpl-welkom'})){var own=DATA.emailtemplates.filter(function(t){return String(t.id).indexOf('tpl-')!==0});DATA.emailtemplates=JSON.parse(JSON.stringify(DEFAULT_TEMPLATES)).concat(own);saveData();}
   var list=DATA.emailtemplates;
   main().innerHTML=
   '<div class="topbar"><div><h2>E-mailsjablonen</h2><div class="sub">Klaar om te kopi\u00ebren en te versturen</div></div>'+
@@ -1641,7 +1652,7 @@ function rEmails(){
   '<div class="tplgrid">'+list.map(function(t){return '<div class="tplcard"><div class="tplh"><b>'+esc(t.name)+'</b><div class="rowactions"><button class="iconbtn" onclick="mTemplate(\''+t.id+'\')">\u270E</button><button class="iconbtn del" onclick="delTemplate(\''+t.id+'\')">\uD83D\uDDD1</button></div></div>'+
     '<div class="tplsub">'+esc(t.subject)+'</div>'+
     '<pre class="tplbody">'+esc(t.body)+'</pre>'+
-    '<button class="btn subtle sm" onclick="copyTemplate(\''+t.id+'\')">\uD83D\uDCCB Kopieer</button></div>';}).join('')+'</div>';
+    '<div style="display:flex;gap:8px"><button class="btn sm" onclick="useTemplate(\''+t.id+'\')">Gebruiken \u2192</button><button class="btn subtle sm" onclick="copyTemplate(\''+t.id+'\')">\uD83D\uDCCB Kopieer</button></div></div>';}).join('')+'</div>';
 }
 function mTemplate(id){
   var t=id?DATA.emailtemplates.find(function(x){return x.id===id}):{name:'',subject:'',body:''};
@@ -1810,7 +1821,8 @@ var MARLEO_DIENSTEN=[
 
 function rDocuments(){
   main().innerHTML=
-  '<div class="topbar"><div><h2>Documenten</h2><div class="sub">Dienstenbrochures in de Marleo-huisstijl, klaar om te delen met prospects en klanten</div></div></div>'+
+  '<div class="topbar"><div><h2>Documenten</h2><div class="sub">Dienstenbrochures in de Marleo-huisstijl, klaar om te delen met prospects en klanten</div></div></div>'+  '<div class="panelbox"><h3>\ud83d\udcd8 Uitleg voor klanten</h3><div class="hint" style="margin-bottom:12px">Korte, begrijpelijke PDF\'s die je meestuurt met een offerte of na oplevering. Staan online op marleo.tech/docs/, dus je kan ook gewoon de link doorsturen.</div><div class="docgrid">'+'<div class="doccard"><div class="docicon">\ud83d\udd0d</div><h3>Wat is SEO?</h3><p>Gevonden worden in Google, in gewone taal, met je drie eenmalige SEO-pakketten.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn sm" href="https://marleo.tech/docs/marleo-uitleg-seo.pdf" target="_blank">Open PDF</a><button class="btn sm subtle" onclick="navigator.clipboard.writeText(\'https://marleo.tech/docs/marleo-uitleg-seo.pdf\');toast(\'Link gekopieerd\')">Kopieer link</button></div></div>'+'<div class="doccard"><div class="docicon">\ud83d\udccd</div><h3>Google Bedrijfsprofiel</h3><p>Aanmaken, verifi\u00ebren, reviews vragen en beantwoorden.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn sm" href="https://marleo.tech/docs/marleo-uitleg-google-bedrijfsprofiel.pdf" target="_blank">Open PDF</a><button class="btn sm subtle" onclick="navigator.clipboard.writeText(\'https://marleo.tech/docs/marleo-uitleg-google-bedrijfsprofiel.pdf\');toast(\'Link gekopieerd\')">Kopieer link</button></div></div>'+'<div class="doccard"><div class="docicon">\ud83e\udde9</div><h3>Zo verloopt een websiteproject</h3><p>Van gratis voorbeeld tot online in 6 stappen, 50/50-betaling, wat inbegrepen is.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn sm" href="https://marleo.tech/docs/marleo-uitleg-werkwijze-website.pdf" target="_blank">Open PDF</a><button class="btn sm subtle" onclick="navigator.clipboard.writeText(\'https://marleo.tech/docs/marleo-uitleg-werkwijze-website.pdf\');toast(\'Link gekopieerd\')">Kopieer link</button></div></div>'+'<div class="doccard"><div class="docicon">\ud83c\udf10</div><h3>Domein, hosting en e-mail</h3><p>Wat is wat, wat kost het, en de veelgestelde vragen.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn sm" href="https://marleo.tech/docs/marleo-uitleg-domein-hosting-email.pdf" target="_blank">Open PDF</a><button class="btn sm subtle" onclick="navigator.clipboard.writeText(\'https://marleo.tech/docs/marleo-uitleg-domein-hosting-email.pdf\');toast(\'Link gekopieerd\')">Kopieer link</button></div></div>'+'<div class="doccard"><div class="docicon">\ud83d\ude80</div><h3>Je website is online. En nu?</h3><p>Acht acties voor de eerste 30 dagen na oplevering.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn sm" href="https://marleo.tech/docs/marleo-uitleg-na-oplevering.pdf" target="_blank">Open PDF</a><button class="btn sm subtle" onclick="navigator.clipboard.writeText(\'https://marleo.tech/docs/marleo-uitleg-na-oplevering.pdf\');toast(\'Link gekopieerd\')">Kopieer link</button></div></div>'+'</div></div>'+
+  '<h3 style="margin:18px 0 10px">Dienstenbrochures</h3>'+
   '<div class="hint" style="margin-bottom:16px">Elke brochure opent als een verzorgde PDF die je kunt opslaan, printen of meemailen. Handig als bijlage bij een offerte of om achter te laten na een gesprek.</div>'+
   '<div class="docgrid">'+
   MARLEO_DIENSTEN.map(function(d){
@@ -2045,7 +2057,7 @@ async function atPull(silent){
              demoLink:f['Demo-link']||'',bericht:f['Bericht']||'',waLink:f['WhatsApp-link']||'',onderwerp:f['Onderwerp']||'',
              note:f['Notities']||'',follow:f['Actie deadline']||''};
       if(ex){var wasStage=ex.stage;Object.assign(ex,o);if(['nieuw'].indexOf(ex.stage)>=0)ex.stage=stage;if(!ex.log)ex.log=[];if(wasStage!==ex.stage)ex.log.push({t:Date.now(),txt:'Airtable-sync: fase \u2192 '+stageLabel(ex.stage)});updated++}
-      else{o.id=nid('deal');o.stage=stage;o.value=250;o.log=[{t:Date.now(),txt:'Ge\u00efmporteerd uit Airtable'}];o.created=Date.now();DATA.deals.push(o);added++}
+      else{o.id=nid('deal');o.stage=stage;o.value=279;o.log=[{t:Date.now(),txt:'Ge\u00efmporteerd uit Airtable'}];o.created=Date.now();DATA.deals.push(o);added++}
     });
     saveData();logAct('Airtable-sync: '+added+' nieuw, '+updated+' bijgewerkt');
     DATA.lastSync=Date.now();DATA.lastSyncStats={added:added,updated:updated};saveData();
@@ -2109,7 +2121,8 @@ async function atPush(){
 /* ============ PIPELINE (CRM) ============ */
 var STAGES=[['nieuw','Nieuw'],['gecontacteerd','Gecontacteerd'],['gesprek','In gesprek'],['demo','Demo gemaakt'],['offerte','Offerte'],['gewonnen','Klant \u2713'],['verloren','Verloren']];
 var MSG_TPL=function(d){
-  return "Dag! \ud83d\udc4b Ik ben Giannis van Marleo (marleo.tech), een Belgisch webbureau voor lokale ondernemers. "+d.naam+" heeft een sterke reputatie, maar wie jullie opzoekt, vindt geen eigen website. Zonde!\n\nMijn aanbod, simpel en transparant: een professionele website op maat voor \u20ac250 eenmalig, \u00e1lles inbegrepen, geen abonnement, online binnen 48 uur, en de site is 100% jullie eigendom.\n\nBenieuwd? Dan maak ik gratis en vrijblijvend een demo zodat jullie kunnen zien hoe "+d.naam+" er online kan uitzien. Zal ik er eentje maken? \ud83d\ude42";
+  var geen=!d.online||/geen website|kapot|zwak/i.test(d.online||'');
+  return "Dag! \ud83d\udc4b Ik ben Giannis van Marleo (marleo.tech), webbureau uit Nevele. "+(geen?"Ik zocht "+d.naam+" op en vond geen eigen website, terwijl jullie duidelijk goed bezig zijn. Zonde, want zo lopen jullie klanten mis.":"Ik bekeek de website van "+d.naam+" en zie dat die beter kan: sneller, mobielvriendelijk en beter vindbaar in Google.")+"\n\nMijn aanbod, simpel en eerlijk: een professionele website op maat voor \u20ac279 eenmalig (excl. btw), alles inbegrepen, geen abonnement, klaar binnen de week en 100% jullie eigendom.\n\nWil je vrijblijvend een voorbeeld zien van hoe die er voor "+d.naam+" zou uitzien? Dan maak ik die gratis.\n\nGroeten,\nGiannis \u00b7 marleo.tech \u00b7 0456 92 00 25";
 };
 function telDigits(t){var x=String(t||'').replace(/[^0-9]/g,'');if(x.indexOf('0032')===0)x=x.slice(2);if(x.charAt(0)==='0')x='32'+x.slice(1);if(x.indexOf('32')!==0)x='32'+x;return x}
 function dealWa(d){return 'https://wa.me/'+telDigits(d.tel)+'?text='+encodeURIComponent(MSG_TPL(d))}
@@ -2253,7 +2266,7 @@ function mDeal(id){
   var d=id?DATA.deals.find(function(x){return x.id===id}):null;
   openM(id?'Deal bewerken':'Nieuwe deal',
   '<div class="frow"><div class="fgroup"><label>Naam zaak *</label><input id="d_naam" value="'+esc(d?d.naam:'')+'"></div>'+
-  '<div class="fgroup"><label>Waarde \u20ac</label><input id="d_val" type="number" value="'+(d?d.value:250)+'"></div></div>'+
+  '<div class="fgroup"><label>Waarde \u20ac</label><input id="d_val" type="number" value="'+(d?d.value:279)+'"></div></div>'+
   '<div class="frow"><div class="fgroup"><label>Telefoon</label><input id="d_tel" value="'+esc(d?d.tel:'')+'"></div>'+
   '<div class="fgroup"><label>E-mail</label><input id="d_mail" value="'+esc(d?d.email:'')+'"></div></div>'+
   '<div class="frow"><div class="fgroup"><label>Plaats</label><input id="d_plaats" value="'+esc(d?d.plaats:'')+'"></div>'+
@@ -2369,7 +2382,7 @@ function rLeads(){
       '<td>'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" rel="noopener" style="color:#93C5FD">'+esc(l.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))+'</a>':'<span class="pill vervallen">geen website</span>')+'</td>'+
       '<td class="num">'+(l.rating?esc(l.rating)+' \u2605 <span class="hint" style="display:inline">('+(l.reviews||0)+')</span>':'-')+'</td>'+
       '<td class="num"><b style="color:'+lfScoreColor(l.score)+';font-family:var(--disp);font-size:1.1rem">'+l.score+'</b></td>'+
-      '<td><div class="rowactions">'+(known?'<span class="pill actief">in CRM</span>':'<button class="btn sm" onclick="lfAdd('+i+')">\u2192 Pipeline</button>')+(l.maps?'<a class="iconbtn" title="Google Maps" href="'+esc(l.maps)+'" target="_blank" rel="noopener">\ud83d\udccd</a>':'')+'</div></td>'+
+      '<td><div class="rowactions">'+(l.tel?'<button class="btn sm" style="background:#25D366;box-shadow:none" onclick="lfWa('+i+')" title="WhatsApp met klaargezet bericht">\ud83d\udcac WhatsApp</button>':'')+(known?'<span class="pill actief">in CRM</span>':'<button class="btn sm subtle" onclick="lfAdd('+i+')">\u2192 Pipeline</button>')+(l.maps?'<a class="iconbtn" title="Google Maps" href="'+esc(l.maps)+'" target="_blank" rel="noopener">\ud83d\udccd</a>':'')+'</div></td>'+
     '</tr>'}).join(''):'';
   main().innerHTML=
   '<div class="topbar"><div><h2>Leadfinder</h2><div class="sub">Zoek bedrijven in een regio en zie meteen wie geen of een zwakke website heeft</div></div>'+
@@ -2377,7 +2390,7 @@ function rLeads(){
   '<div class="panelbox"><div class="frow3" style="grid-template-columns:1.4fr 1fr .6fr auto">'+
     '<div class="fgroup" style="margin:0"><label>Wat zoek je?</label><input id="lf_q" value="'+esc(c.lastQ)+'" placeholder="bv. schoonmaakbedrijf, kapper, garage, dakwerker" onkeydown="if(event.key===\'Enter\')lfSearch()"></div>'+
     '<div class="fgroup" style="margin:0"><label>Waar?</label><input id="lf_loc" value="'+esc(c.lastLoc)+'" placeholder="bv. Deinze, Gent, Roeselare" onkeydown="if(event.key===\'Enter\')lfSearch()"></div>'+
-    '<div class="fgroup" style="margin:0"><label>Max.</label><select id="lf_n"><option>20</option><option>40</option><option>60</option></select></div>'+
+    '<div class="fgroup" style="margin:0"><label>Max.</label><select id="lf_n"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select></div>'+
     '<button class="btn" id="lf_btn" onclick="lfSearch()" '+(LEADS_BUSY?'disabled':'')+'>'+(LEADS_BUSY?'Zoeken\u2026':'Zoeken')+'</button></div>'+
     '<div class="hint" style="margin-top:10px">Score 70+ = geen of kapotte website (bel deze eerst). 40-69 = verouderd of niet mobiel. Onder 40 = in orde. Zoeken gebeurt via Google Places; websites worden automatisch gecontroleerd.</div></div>'+
   (LEADS.length?'<div class="panelbox"><h3>'+LEADS.length+' resultaten <span class="hint" style="font-weight:400">'+LEADS.filter(function(l){return l.score>=70}).length+' zonder goede website</span></h3>'+
@@ -2394,7 +2407,7 @@ async function lfSearch(){
     var fr=await sb.functions.invoke('leadfinder',{body:{query:q,location:loc,max:n,apiKey:c.apiKey}});
     if(fr.error){var msg=fr.error.message||'fout';try{var ctx=await fr.error.context.json();if(ctx&&ctx.error)msg=ctx.error}catch(x){}throw new Error(msg)}
     var j=fr.data||{};if(j.error)throw new Error(j.error);
-var list=Array.isArray(j)?j:(j.leads||j.results||[]);
+var list=(Array.isArray(j)?j:(j.leads||j.results||[])).slice(0,n);
     LEADS=list.map(function(x){return {naam:x.naam||x.name||'',adres:x.adres||x.address||'',tel:x.tel||x.phone||'',website:x.website||'',rating:x.rating||'',reviews:x.reviews||0,score:parseInt(x.score)||0,flags:x.flags||[],maps:x.maps||'',cat:q,plaats:loc}})
       .sort(function(a,b){return b.score-a.score});
     logAct('Leadfinder: '+LEADS.length+' resultaten voor "'+q+' '+loc+'"');
@@ -2405,7 +2418,7 @@ var list=Array.isArray(j)?j:(j.leads||j.results||[]);
 function lfOnline(l){return !l.website?'Geen website':l.score>=70?'Kapotte/zeer zwakke website':l.score>=40?'Verouderde website':'Website ok'}
 async function lfAdd(i,silent){
   var l=LEADS[i];if(!l||lfIsKnown(l)){if(!silent)toast('Staat al in je CRM');return}
-  var o={id:nid('deal'),naam:l.naam,tel:l.tel||'',email:'',plaats:l.plaats||'',cat:l.cat||'',stage:'nieuw',value:250,
+  var o={id:nid('deal'),naam:l.naam,tel:l.tel||'',email:'',plaats:l.plaats||'',cat:l.cat||'',stage:'nieuw',value:279,
     rating:l.rating||'',reviews:l.reviews||'',online:lfOnline(l),prio:l.score>=70?'Hoog':l.score>=40?'Normaal':'Laag',
     note:(l.website?'Website: '+l.website+'\n':'')+(l.flags&&l.flags.length?'Bevindingen: '+l.flags.join(', ')+'\n':'')+(l.maps?'Maps: '+l.maps:''),
     log:[{t:Date.now(),txt:'Gevonden via Leadfinder (score '+l.score+')'}],created:Date.now()};
@@ -2449,6 +2462,247 @@ async function webLeadsPull(){
     await sb.from('web_leads').update({imported:true}).in('id',ids);
     if(typeof VIEW!=='undefined'&&(VIEW==='pipeline'||VIEW==='dashboard'||VIEW==='outreach'))go(VIEW);
   }catch(e){}
+}
+
+
+/* ===== VERKOOP: 50/50 uit offerte, herinneringen, WhatsApp vanuit Leadfinder ===== */
+function daysOverdue(iv){if(!iv.due)return 0;return Math.floor((new Date(today()+'T00:00:00')-new Date(iv.due+'T00:00:00'))/864e5)}
+function offToSplit(id){
+  var q=DATA.invoices.find(function(x){return x.id===id});if(!q)return;
+  var tot=invSub(q);
+  if(!confirm('Offerte '+q.ref+' omzetten naar voorschot (50%) + eindfactuur (saldo)?\nTotaal '+eur(tot)+' excl. btw.'))return;
+  var big=q.lines.filter(function(l){return l.q*l.p>=100}),small=q.lines.filter(function(l){return l.q*l.p<100});
+  var half=Math.round(big.reduce(function(s,l){return s+l.q*l.p},0)*50)/100;
+  var ref1=nextRef('factuur');
+  var adv={id:nid('inv'),ref:ref1,type:'voorschot',lang:q.lang||'nl',customerId:q.customerId,date:today(),due:today(),status:'openstaand',yourref:q.yourref||'',note:'',created:Date.now(),
+    lines:[{d:big.map(function(l){return l.d.split('\n')[0]}).join(' + ')+' — voorschot 50%\n'+'Totaalprijs '+money(big.reduce(function(s,l){return s+l.q*l.p},0))+' excl. btw; het saldo van '+money(half)+' excl. btw volgt bij oplevering.',q:1,p:half}].concat(small.map(function(l){return {d:l.d,q:l.q,p:l.p}}))};
+  DATA.invoices.push(adv);
+  var ref2=nextRef('factuur');
+  var fin={id:nid('inv'),ref:ref2,type:'eindfactuur',lang:q.lang||'nl',customerId:q.customerId,date:today(),due:today(),status:'concept',yourref:q.yourref||'',note:'Saldo bij voorschot '+ref1,created:Date.now(),
+    lines:[{d:big.map(function(l){return l.d.split('\n')[0]}).join(' + ')+' — saldo 50%\nBij oplevering. Voorschot '+ref1+' van '+money(half)+' excl. btw werd eerder gefactureerd.',q:1,p:half}]};
+  DATA.invoices.push(fin);
+  q.status='aanvaard';
+  logAct('Offerte '+q.ref+' → voorschot '+ref1+' + eindfactuur '+ref2+' (concept)');
+  saveData();closeM();toast('✅ Voorschot '+ref1+' klaar, eindfactuur '+ref2+' staat als concept');go('invoices');
+}
+function money(v){return '€ '+(Math.round(v*100)/100).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function remindText(iv){
+  var c=customer(iv.customerId)||{},co=coCfg(),d=daysOverdue(iv),tot=invTot(iv);
+  var naam=c.contact?c.contact.split(' ')[0]:(c.name||'');
+  if(d<14)return 'Dag '+naam+',\n\nEven een vriendelijke herinnering: factuur '+iv.ref+' van '+money(tot)+' stond te betalen op '+fmtD(iv.due)+'. Misschien is ze aan je aandacht ontsnapt.\n\nOverschrijven kan op '+co.iban+' met mededeling '+iv.ref+'. Al betaald? Dan mag je dit bericht negeren.\n\nBedankt!\nGiannis · Marleo';
+  return 'Dag '+naam+',\n\nFactuur '+iv.ref+' van '+money(tot)+' is intussen '+d+' dagen vervallen. Mag ik vragen om ze deze week in orde te brengen?\n\nIBAN '+co.iban+' · mededeling '+iv.ref+'\n\nIs er een reden waarom ze nog openstaat? Laat het gerust weten, dan zoeken we een oplossing.\n\nGiannis · Marleo';
+}
+function remindWa(id){var iv=DATA.invoices.find(function(x){return x.id===id});var c=customer(iv.customerId)||{};if(!c.phone){toast('Geen telefoonnummer bij deze klant',true);return}
+  window.open('https://wa.me/'+telDigits(c.phone)+'?text='+encodeURIComponent(remindText(iv)));(iv.log=iv.log||[]).push({t:Date.now(),txt:'Herinnering via WhatsApp'});iv.reminded=today();saveData();logAct('Herinnering gestuurd voor '+iv.ref)}
+function remindMail(id){var iv=DATA.invoices.find(function(x){return x.id===id});var c=customer(iv.customerId)||{};if(!c.email){toast('Geen e-mailadres bij deze klant',true);return}
+  window.open('mailto:'+encodeURIComponent(c.email)+'?subject='+encodeURIComponent('Herinnering factuur '+iv.ref)+'&body='+encodeURIComponent(remindText(iv)));(iv.log=iv.log||[]).push({t:Date.now(),txt:'Herinnering via e-mail'});iv.reminded=today();saveData();logAct('Herinnering gestuurd voor '+iv.ref)}
+function remindCopy(id){var iv=DATA.invoices.find(function(x){return x.id===id});navigator.clipboard.writeText(remindText(iv)).then(function(){toast('Herinneringstekst gekopieerd')})}
+/* WhatsApp vanuit Leadfinder */
+function lfWa(i){var l=LEADS[i];if(!l||!l.tel)return;var d={naam:l.naam,tel:l.tel,online:lfOnline(l)};window.open('https://wa.me/'+telDigits(l.tel)+'?text='+encodeURIComponent(MSG_TPL(d)));if(!lfIsKnown(l))lfAdd(i,true).then(function(){var dd=DATA.deals.find(function(x){return x.naam===l.naam});if(dd){logContact(dd.id,'WhatsApp')}rLeads()})}
+
+
+/* ===== AUTOMATISCHE TAKEN: het CRM maakt zelf taken aan op basis van je pipeline en facturen ===== */
+function autoTask(key,title,due,prio,customerId,desc){
+  if(DATA.tasks.some(function(t){return t.key===key}))return false;
+  DATA.tasks.push({id:nid('task'),key:key,title:title,desc:desc||'',customerId:customerId||'',due:due,prio:prio||'normaal',done:false,auto:true,created:Date.now()});
+  return true;
+}
+function plusDays(iso,n){var x=new Date((iso||today())+'T00:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)}
+function autoTasks(){
+  try{
+    var t=today(),made=0;
+    DATA.deals.forEach(function(d){
+      if(d.stage==='gewonnen'||d.stage==='verloren')return;
+      var cid=(DATA.customers.find(function(c){return c.name.toLowerCase()===(d.naam||'').toLowerCase()})||{}).id||'';
+      if(d.stage==='nieuw'&&!d.laatstContact){
+        if(autoTask('deal-contact-'+d.id,'Contacteer '+d.naam+(d.kanaal==='Website'?' (website-aanvraag!)':''),d.kanaal==='Website'?t:plusDays(t,1),d.kanaal==='Website'?'hoog':'normaal',cid,(d.tel?'Tel: '+d.tel+'\n':'')+(d.email?'Mail: '+d.email+'\n':'')+(d.note||'')))made++;
+      }
+      if((d.stage==='gecontacteerd'||d.stage==='gesprek')&&d.laatstContact&&plusDays(d.laatstContact,3)<=t&&!d.follow){
+        if(autoTask('deal-follow-'+d.id+'-'+d.laatstContact,'Opvolgen: '+d.naam,t,'normaal',cid,'Laatste contact op '+fmtD(d.laatstContact)+' via '+(d.kanaal||'?')+'. Nog geen antwoord? Stuur een korte opvolging.'))made++;
+      }
+      if(d.stage==='demo'&&!d.follow){if(autoTask('deal-demo-'+d.id,'Demo opvolgen: '+d.naam,plusDays(t,2),'normaal',cid,'Vraag wat ze van de demo vinden en stel de offerte voor.'))made++}
+    });
+    DATA.invoices.forEach(function(iv){
+      var c=customer(iv.customerId)||{};var nm=c.name||'klant';
+      if(iv.type==='offerte'&&iv.status!=='aanvaard'&&iv.status!=='geweigerd'&&iv.status!=='betaald'&&plusDays(iv.date,3)<=t){
+        if(autoTask('off-follow-'+iv.id,'Offerte '+iv.ref+' opvolgen ('+nm+')',t,'hoog',iv.customerId,'Verstuurd op '+fmtD(iv.date)+'. Bel of app even: heeft de klant nog vragen?'))made++;
+      }
+      if(iv.type==='voorschot'&&iv.status==='betaald'){
+        if(autoTask('build-'+iv.id,'Start bouw website: '+nm,plusDays(iv.paidDate||t,1),'hoog',iv.customerId,'Voorschot '+iv.ref+' is betaald. Verzamel teksten, foto\'s en logo bij de klant en start de bouw.'))made++;
+        if(autoTask('final-'+iv.id,'Eindfactuur versturen bij oplevering: '+nm,plusDays(iv.paidDate||t,10),'normaal',iv.customerId,'Na oplevering: eindfactuur (concept) nakijken en versturen.'))made++;
+      }
+      if((iv.type==='eindfactuur'||iv.type==='factuur')&&iv.status==='betaald'&&iv.paidDate){
+        if(autoTask('review-'+iv.id,'Review vragen aan '+nm,plusDays(iv.paidDate,7),'normaal',iv.customerId,'Stuur het sjabloon "Review vragen" met je Google-reviewlink.'))made++;
+      }
+      if(iv.type!=='offerte'&&invStatus(iv)==='vervallen'){
+        var lastRem=iv.reminded||'';var weekKey=lastRem?plusDays(lastRem,7):iv.due;
+        if(weekKey<=t){if(autoTask('remind-'+iv.id+'-'+weekKey,'Herinnering sturen: factuur '+iv.ref+' ('+nm+')',t,'hoog',iv.customerId,eur(invTot(iv))+' vervallen op '+fmtD(iv.due)+'. Open de factuur en klik op Herinnering WhatsApp of mail.'))made++}
+      }
+    });
+    /* taken automatisch afvinken als het probleem weg is */
+    DATA.tasks.forEach(function(tk){
+      if(!tk.auto||tk.done)return;
+      if(tk.key.indexOf('deal-contact-')===0){var d=DATA.deals.find(function(x){return 'deal-contact-'+x.id===tk.key});if(!d||d.laatstContact||d.stage!=='nieuw'){tk.done=true}}
+      if(tk.key.indexOf('remind-')===0){var id=tk.key.split('-')[1];var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv||iv.status==='betaald'){tk.done=true}}
+      if(tk.key.indexOf('off-follow-')===0){var iv2=DATA.invoices.find(function(x){return 'off-follow-'+x.id===tk.key});if(!iv2||iv2.status==='aanvaard'||iv2.status==='geweigerd'){tk.done=true}}
+    });
+    autoRenewTasks();
+    if(made){_saveDataLocal();cloudSchedulePush();logAct('🤖 '+made+' taak'+(made>1?'en':'')+' automatisch aangemaakt');if(typeof VIEW!=='undefined'&&(VIEW==='tasks'||VIEW==='dashboard'))go(VIEW)}
+  }catch(e){console.warn('autoTasks',e)}
+}
+
+
+/* ===== SJABLOON GEBRUIKEN: klant kiezen, velden invullen, openen in Gmail of WhatsApp ===== */
+function tplFill(txt,v){return String(txt||'').replace(/\{(\w+)\}/g,function(m,k){return v[k]!==undefined&&v[k]!==''?v[k]:m})}
+function useTemplate(id){
+  var t=DATA.emailtemplates.find(function(x){return x.id===id});if(!t)return;
+  var custs=DATA.customers.slice().sort(function(a,b){return a.name.localeCompare(b.name)});
+  var opts='<option value="">\u2014 kies een klant of lead \u2014</option>'+custs.map(function(c){return '<option value="c:'+c.id+'">'+esc(c.name)+'</option>'}).join('')+
+    DATA.deals.filter(function(d){return d.stage!=='verloren'}).map(function(d){return '<option value="d:'+d.id+'">'+esc(d.naam)+' (lead)</option>'}).join('');
+  var needs=['ref','bedrag','vervaldatum','link','reviewlink'].filter(function(k){return (t.subject+t.body).indexOf('{'+k+'}')>=0});
+  openM('Sjabloon gebruiken: '+t.name,
+    '<div class="fgroup"><label>Voor wie?</label><select id="ut_who" onchange="utPreview(\''+id+'\')">'+opts+'</select></div>'+
+    needs.map(function(k){return '<div class="fgroup"><label>'+{ref:'Factuur-/offertenummer',bedrag:'Bedrag',vervaldatum:'Vervaldatum',link:'Link naar de site/demo',reviewlink:'Google-reviewlink'}[k]+'</label><input id="ut_'+k+'" oninput="utPreview(\''+id+'\')" placeholder="'+(k==='reviewlink'?'https://g.page/r/\u2026/review':'')+'"></div>'}).join('')+
+    '<div class="fgroup"><label>Voorbeeld</label><pre id="ut_prev" class="tplbody" style="max-height:220px;overflow:auto"></pre></div>',
+    '<button class="btn subtle" onclick="utCopy(\''+id+'\')">\ud83d\udccb Kopieer</button><button class="btn subtle" onclick="utWa(\''+id+'\')">\ud83d\udcac WhatsApp</button><button class="btn" onclick="utMail(\''+id+'\')">\u2709\ufe0f Open in mail</button>',true);
+  utPreview(id);
+}
+function utVals(id){
+  var t=DATA.emailtemplates.find(function(x){return x.id===id});var who=(document.getElementById('ut_who')||{}).value||'';var v={};
+  if(who.indexOf('c:')===0){var c=customer(who.slice(2))||{};v.bedrijf=c.name||'';v.naam=c.contact?c.contact.split(' ')[0]:(c.name||'');v.email=c.email||'';v.tel=c.phone||''}
+  if(who.indexOf('d:')===0){var d=DATA.deals.find(function(x){return x.id===who.slice(2)})||{};v.bedrijf=d.naam||'';v.naam=d.contact?d.contact.split(' ')[0]:(d.naam||'');v.email=d.email||'';v.tel=d.tel||''}
+  ['ref','bedrag','vervaldatum','link','reviewlink'].forEach(function(k){var el=document.getElementById('ut_'+k);if(el&&el.value.trim())v[k]=el.value.trim()});
+  return {t:t,v:v,subject:tplFill(t.subject,v),body:tplFill(t.body,v)};
+}
+function utPreview(id){var r=utVals(id);var p=document.getElementById('ut_prev');if(p)p.textContent='Onderwerp: '+r.subject+'\n\n'+r.body}
+function utLog(r){var who=r.v.bedrijf||'';if(who){logAct('\u2709\ufe0f Sjabloon "'+r.t.name+'" gebruikt voor '+who);var d=DATA.deals.find(function(x){return x.naam===who});if(d){d.laatstContact=today();d.kanaal=d.kanaal||'E-mail';(d.log=d.log||[]).push({t:Date.now(),txt:'Sjabloon: '+r.t.name});if(d.stage==='nieuw')d.stage='gecontacteerd';atPushOne(d)}saveData()}}
+function utCopy(id){var r=utVals(id);navigator.clipboard.writeText('Onderwerp: '+r.subject+'\n\n'+r.body).then(function(){toast('Gekopieerd');utLog(r)})}
+function utMail(id){var r=utVals(id);window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(r.v.email||'')+'&su='+encodeURIComponent(r.subject)+'&body='+encodeURIComponent(r.body));utLog(r);closeM()}
+function utWa(id){var r=utVals(id);if(!r.v.tel){toast('Geen telefoonnummer bekend',true);return}window.open('https://wa.me/'+telDigits(r.v.tel)+'?text='+encodeURIComponent(r.body));utLog(r);closeM()}
+
+
+/* ===== KLANT: diensten, gegevens en verlengingen ===== */
+var PROD_CATS=['Websites','Modules','Hosting & e-mail','SEO & marketing','Overig'];
+function custServices(c){if(!c.services)c.services=[];return c.services}
+function custInfo(c){if(!c.info)c.info={domein:'',registrar:'',url:'',hosting:'',mail:'',logins:''};return c.info}
+function svcStatus(s){if(s.status==='gestopt')return 'gestopt';if(s.verval&&s.verval<today())return 'vervallen';if(s.verval&&plusDays(today(),30)>=s.verval)return 'verloopt';return 'actief'}
+function rCustServices(c){
+  var list=custServices(c);var info=custInfo(c);
+  var rows=list.length?list.map(function(s){var st=svcStatus(s);var pill={actief:'actief',verloopt:'open',vervallen:'vervallen',gestopt:'inactief'}[st];
+    return '<tr><td><b>'+esc(s.name)+'</b>'+(s.note?'<br><span class="hint" style="margin:0">'+esc(s.note)+'</span>':'')+'</td><td>'+eur(s.price)+(s.unit&&s.unit!=='stuk'?' / '+esc(s.unit):'')+'</td><td>'+(s.start?fmtD(s.start):'-')+'</td><td>'+(s.verval?fmtD(s.verval):'-')+'</td><td><span class="pill '+pill+'">'+st+'</span></td>'+
+      '<td><div class="rowactions">'+(s.verval&&st!=='gestopt'?'<button class="iconbtn ok" title="Verlengd met 1 jaar" onclick="svcRenew(\''+c.id+'\',\''+s.id+'\')">↻</button>':'')+'<button class="iconbtn" onclick="mService(\''+c.id+'\',\''+s.id+'\')">✎</button><button class="iconbtn del" onclick="delService(\''+c.id+'\',\''+s.id+'\')">🗑</button></div></td></tr>'}).join(''):'';
+  var yearly=list.filter(function(s){return svcStatus(s)!=='gestopt'&&/jaar/i.test(s.unit||'')}).reduce(function(a,s){return a+Number(s.price||0)},0);
+  var monthly=list.filter(function(s){return svcStatus(s)!=='gestopt'&&/maand/i.test(s.unit||'')}).reduce(function(a,s){return a+Number(s.price||0)},0);
+  return '<div class="panelbox"><h3>Wat we doen voor '+esc(c.name)+' <span style="display:flex;gap:6px"><select class="catpick" style="width:auto" onchange="if(this.value){addServiceFromCat(\''+c.id+'\',this.value);this.value=\'\'}"><option value="">+ Uit catalogus…</option>'+DATA.products.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+' ('+eur(p.price)+')</option>'}).join('')+'</select><button class="btn sm" onclick="mService(\''+c.id+'\')">+ Dienst</button></span></h3>'+
+    (list.length?'<div style="overflow-x:auto"><table><thead><tr><th>Dienst</th><th>Prijs</th><th>Sinds</th><th>Vervalt</th><th>Status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<div class="hint" style="margin-top:8px">Terugkerend: '+eur(yearly)+' per jaar · '+eur(monthly)+' per maand. Bij een vervaldatum krijg je 30 dagen vooraf automatisch een taak.</div>'
+    :'<div class="hint" style="margin-top:6px">Nog geen diensten. Kies uit de catalogus wat je voor deze klant doet (website, hosting, SEO…).</div>')+'</div>'+
+  '<div class="panelbox"><h3>Gegevens van de klant <button class="btn sm subtle" onclick="mCustInfo(\''+c.id+'\')">✎ Bewerken</button></h3>'+
+    '<div class="detail-grid" style="margin-top:6px">'+
+    '<div><div class="lbl">Website</div>'+(info.url?'<a href="'+esc(info.url)+'" target="_blank" style="color:#93C5FD">'+esc(info.url)+'</a>':'<span class="hint" style="margin:0">-</span>')+'</div>'+
+    '<div><div class="lbl">Domeinnaam</div>'+esc(info.domein||'-')+(info.registrar?' <span class="hint" style="display:inline">('+esc(info.registrar)+')</span>':'')+'</div>'+
+    '<div><div class="lbl">Hosting</div>'+esc(info.hosting||'-')+'</div>'+
+    '<div><div class="lbl">E-mailadressen</div>'+esc(info.mail||'-')+'</div>'+
+    '</div>'+(info.logins?'<div class="notecard" style="margin-top:12px"><div class="meta">Logins &amp; toegangen (alleen zichtbaar voor jou)</div><p>'+esc(info.logins)+'</p></div>':'')+'</div>';
+}
+function addServiceFromCat(cid,pid){var c=customer(cid),p=DATA.products.find(function(x){return x.id===pid});if(!c||!p)return;
+  var yearly=/jaar/i.test(p.unit||''),monthly=/maand/i.test(p.unit||'');
+  custServices(c).push({id:nid('svc'),productId:p.id,name:p.name,price:p.price,unit:p.unit,start:today(),verval:yearly?plusDays(today(),365):(monthly?plusDays(today(),30):''),status:'actief',note:''});
+  saveData();logAct('Dienst toegevoegd bij '+c.name+': '+p.name);rCustPage()}
+function mService(cid,sid){var c=customer(cid);var s=sid?custServices(c).find(function(x){return x.id===sid}):{name:'',price:0,unit:'stuk',start:today(),verval:'',status:'actief',note:''};
+  openM(sid?'Dienst bewerken':'Dienst toevoegen',
+    '<div class="fgroup"><label>Dienst</label><input id="s_name" value="'+esc(s.name)+'" placeholder="bv. Hosting 2026"></div>'+
+    '<div class="frow"><div class="fgroup"><label>Prijs (excl. btw)</label><input id="s_price" type="number" step="0.01" value="'+(s.price||0)+'"></div><div class="fgroup"><label>Eenheid</label><select id="s_unit">'+['stuk','maand','jaar','uur'].map(function(u){return '<option '+(s.unit===u?'selected':'')+'>'+u+'</option>'}).join('')+'</select></div></div>'+
+    '<div class="frow"><div class="fgroup"><label>Sinds</label><input id="s_start" type="date" value="'+esc(s.start||'')+'"></div><div class="fgroup"><label>Vervalt op (leeg = eenmalig)</label><input id="s_verval" type="date" value="'+esc(s.verval||'')+'"></div></div>'+
+    '<div class="frow"><div class="fgroup"><label>Status</label><select id="s_status">'+['actief','gestopt'].map(function(u){return '<option '+(s.status===u?'selected':'')+'>'+u+'</option>'}).join('')+'</select></div><div class="fgroup"><label>Notitie</label><input id="s_note" value="'+esc(s.note||'')+'"></div></div>',
+    '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveService(\''+cid+'\',\''+(sid||'')+'\')">Opslaan</button>')}
+function saveService(cid,sid){var c=customer(cid);var o={name:document.getElementById('s_name').value.trim(),price:parseFloat(document.getElementById('s_price').value)||0,unit:document.getElementById('s_unit').value,start:document.getElementById('s_start').value,verval:document.getElementById('s_verval').value,status:document.getElementById('s_status').value,note:document.getElementById('s_note').value.trim()};
+  if(!o.name){toast('Naam is verplicht',true);return}
+  if(sid){Object.assign(custServices(c).find(function(x){return x.id===sid}),o)}else{o.id=nid('svc');custServices(c).push(o)}
+  saveData();closeM();rCustPage();toast('Dienst opgeslagen')}
+function delService(cid,sid){if(!confirm('Deze dienst verwijderen?'))return;var c=customer(cid);c.services=custServices(c).filter(function(x){return x.id!==sid});saveData();rCustPage()}
+function svcRenew(cid,sid){var c=customer(cid);var s=custServices(c).find(function(x){return x.id===sid});var base=s.verval&&s.verval>today()?s.verval:today();s.verval=plusDays(base,/maand/i.test(s.unit||'')?30:365);
+  var p=DATA.products.find(function(x){return x.id===s.productId});
+  if(confirm('Verlengd tot '+fmtD(s.verval)+'. Meteen een factuur aanmaken voor '+eur(s.price)+'?')){
+    DATA.invoices.push({id:nid('inv'),ref:nextRef('factuur'),type:'factuur',lang:'nl',customerId:cid,date:today(),due:plusDays(today(),14),status:'openstaand',yourref:'',note:'',created:Date.now(),lines:[{d:s.name+' — verlenging tot '+fmtD(s.verval)+(p&&p.desc?'\n'+p.desc:''),q:1,p:s.price}]});
+    logAct('Verlengingsfactuur aangemaakt voor '+c.name+': '+s.name)}
+  saveData();rCustPage();toast('Verlengd tot '+fmtD(s.verval))}
+function mCustInfo(cid){var c=customer(cid);var i=custInfo(c);
+  openM('Gegevens van '+c.name,
+    '<div class="frow"><div class="fgroup"><label>Website (URL)</label><input id="ci_url" value="'+esc(i.url)+'" placeholder="https://"></div><div class="fgroup"><label>Domeinnaam</label><input id="ci_domein" value="'+esc(i.domein)+'" placeholder="jouwzaak.be"></div></div>'+
+    '<div class="frow"><div class="fgroup"><label>Domein geregistreerd bij</label><input id="ci_registrar" value="'+esc(i.registrar)+'" placeholder="Cloudflare, Vimexx, Combell…"></div><div class="fgroup"><label>Hosting</label><input id="ci_hosting" value="'+esc(i.hosting)+'" placeholder="GitHub Pages, Netlify…"></div></div>'+
+    '<div class="fgroup"><label>E-mailadressen</label><input id="ci_mail" value="'+esc(i.mail)+'" placeholder="info@jouwzaak.be (Google Workspace)"></div>'+
+    '<div class="fgroup"><label>Logins &amp; toegangen</label><textarea id="ci_logins" rows="4" placeholder="Bv. Google Bedrijfsprofiel: beheerder via giannis@…\nCloudflare: klant is eigenaar, ik heb beheerdersrechten">'+esc(i.logins)+'</textarea></div>',
+    '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveCustInfo(\''+cid+'\')">Opslaan</button>')}
+function saveCustInfo(cid){var c=customer(cid);var i=custInfo(c);['url','domein','registrar','hosting','mail','logins'].forEach(function(k){i[k]=document.getElementById('ci_'+k).value.trim()});saveData();closeM();rCustPage();toast('Gegevens opgeslagen')}
+/* verlengingen als automatische taken */
+function autoRenewTasks(){var made=0;DATA.customers.forEach(function(c){custServices(c).forEach(function(s){if(s.status==='gestopt'||!s.verval)return;if(plusDays(today(),30)>=s.verval){if(autoTask('renew-'+s.id+'-'+s.verval,'Verlenging: '+s.name+' voor '+c.name,s.verval<today()?today():plusDays(s.verval,-30),s.verval<today()?'hoog':'normaal',c.id,'Vervalt op '+fmtD(s.verval)+'. Open de klant en klik op ↻ om te verlengen en te factureren.'))made++}})});if(made){_saveDataLocal();cloudSchedulePush()}}
+
+/* ===== PIPELINE: sleep-en-drop, zoeken, snelle acties ===== */
+var PIPEQ='';
+function nextStage(st){var i=STAGES.findIndex(function(x){return x[0]===st});return i>=0&&i<STAGES.length-3?STAGES[i+1][0]:st}
+function pipeDrag(ev,id){ev.dataTransfer.setData('text/plain',id);ev.dataTransfer.effectAllowed='move'}
+function pipeDrop(ev,st){ev.preventDefault();var id=ev.dataTransfer.getData('text/plain');var d=DATA.deals.find(function(x){return x.id===id});if(d&&d.stage!==st){setStage(id,st);saveData();rPipeline()}}
+function quickContact(ev,id,kanaal){ev.stopPropagation();var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
+  if(kanaal==='WhatsApp'){if(!d.tel){toast('Geen telefoonnummer',true);return}window.open(dealWa(d))}
+  if(kanaal==='E-mail'){if(!d.email){toast('Geen e-mailadres',true);return}window.open(dealMail(d))}
+  logContact(id,kanaal);if(d.stage==='nieuw'){d.stage='gecontacteerd';atPushOne(d)}if(!d.follow)d.follow=plusDays(today(),3);saveData();rPipeline()}
+function quickNext(ev,id){ev.stopPropagation();var d=DATA.deals.find(function(x){return x.id===id});var ns=nextStage(d.stage);if(ns!==d.stage){setStage(id,ns);saveData();rPipeline()}}
+function dealCard(d){
+  var t=today();var late=d.follow&&d.follow<=t;
+  var ico={Gebeld:'📞',Gemaild:'✉',WhatsApp:'💬','E-mail':'✉',Website:'🌐'};
+  var contact=d.kanaal?'<span class="cbadge" title="'+esc(d.kanaal)+(d.laatstContact?' op '+fmtD(d.laatstContact):'')+'">'+(ico[d.kanaal]||'✓')+'</span>':'';
+  var days=d.laatstContact?Math.floor((new Date(t)-new Date(d.laatstContact))/864e5):null;
+  return '<div class="dealcard'+(late?' late':'')+'" draggable="true" ondragstart="pipeDrag(event,\''+d.id+'\')" onclick="vDeal(\''+d.id+'\')">'+
+  '<b>'+esc(d.naam)+'</b> '+contact+(d.kanaal==='Website'?'<span class="pill hoog" style="font-size:.6rem;margin-left:4px">aanvraag</span>':'')+'<div class="dmeta">'+esc(d.cat||'')+(d.plaats?' · '+esc(d.plaats):'')+(d.online?' · '+esc(d.online):'')+'</div>'+
+  '<div class="drow"><span>'+eur(d.value)+'</span>'+(d.follow?'<span class="'+(late?'flate':'fok')+'">⏰ '+fmtD(d.follow)+'</span>':(days!==null?'<span class="fok">'+days+'d geleden</span>':''))+'</div>'+
+  (d.volgendeActie?'<div class="dnext">→ '+esc(d.volgendeActie)+'</div>':'')+
+  '<div class="dacts">'+(d.tel?'<button title="WhatsApp" onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">💬</button><button title="Gebeld" onclick="quickContact(event,\''+d.id+'\',\'Gebeld\')">📞</button>':'')+(d.email?'<button title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉</button>':'')+(d.stage!=='gewonnen'&&d.stage!=='verloren'?'<button title="Volgende fase" onclick="quickNext(event,\''+d.id+'\')">→</button>':'')+'</div></div>';
+}
+function rPipeline(){
+  var t=today();var all=DATA.deals;var q=PIPEQ.toLowerCase();
+  var match=function(d){return !q||(d.naam+' '+(d.plaats||'')+' '+(d.cat||'')).toLowerCase().indexOf(q)>=0};
+  var open=all.filter(function(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'});
+  var totV=open.reduce(function(s,d){return s+Number(d.value||0)},0);
+  var due=open.filter(function(d){return (d.follow&&d.follow<=t)||(d.stage==='nieuw'&&!d.laatstContact)}).sort(function(a,b){return (a.follow||'0').localeCompare(b.follow||'0')});
+  var won=all.filter(function(d){return d.stage==='gewonnen'}).length,lost=all.filter(function(d){return d.stage==='verloren'}).length;
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Pipeline</h2><div class="sub">'+open.length+' open · '+eur(totV)+' potentieel · '+won+' gewonnen · '+lost+' verloren</div></div>'+
+  '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div class="searchbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="Zoek lead…" value="'+esc(PIPEQ)+'" oninput="PIPEQ=this.value;rPipeline();this.focus();this.setSelectionRange(this.value.length,this.value.length)"></div><button class="btn subtle" onclick="go(\'leads\')">🎯 Leads zoeken</button><button class="btn" onclick="mDeal()">+ Nieuwe deal</button></div></div>'+
+  (due.length&&!q?'<div class="panelbox" style="border-color:rgba(245,166,35,.45);margin-bottom:16px"><h3>⏰ Vandaag opvolgen ('+due.length+')</h3><div style="display:flex;gap:8px;flex-wrap:wrap">'+due.slice(0,8).map(function(d){return '<div class="dealcard" style="margin:0;min-width:200px;flex:1" onclick="vDeal(\''+d.id+'\')"><b>'+esc(d.naam)+'</b><div class="dmeta">'+stageLabel(d.stage)+(d.follow?' · '+fmtD(d.follow):' · nog niet gecontacteerd')+'</div><div class="dacts">'+(d.tel?'<button onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">💬 WhatsApp</button>':'')+(d.email?'<button onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉ Mail</button>':'')+'</div></div>'}).join('')+'</div></div>':'')+
+  '<div class="pipewrap">'+STAGES.map(function(st){
+    var list=dealsIn(st[0]).filter(match).sort(function(a,b){return (a.follow||'9').localeCompare(b.follow||'9')});
+    return '<div class="pipecol" ondragover="event.preventDefault();this.classList.add(\'over\')" ondragleave="this.classList.remove(\'over\')" ondrop="this.classList.remove(\'over\');pipeDrop(event,\''+st[0]+'\')"><div class="pipehead"><span>'+st[1]+'</span><span class="pipesum">'+list.length+' · '+eur(pipeValue(st[0]))+'</span></div>'+
+    (list.length?list.map(dealCard).join(''):'<div class="pipeempty">sleep hierheen</div>')+'</div>';
+  }).join('')+'</div>';
+}
+
+/* ===== CATALOGUS met categorieën ===== */
+function rCatalog(){
+  var list=DATA.products.slice();
+  var groups={};PROD_CATS.forEach(function(c){groups[c]=[]});list.forEach(function(p){var c=p.cat&&groups[p.cat]?p.cat:'Overig';groups[c].push(p)});
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Catalogus</h2><div class="sub">Je vaste diensten en prijzen. Eén klik op een offerte, factuur of bij een klant.</div></div>'+
+  '<button class="btn" onclick="mProduct()">+ Nieuw item</button></div>'+
+  (list.length?PROD_CATS.map(function(cat){var ps=groups[cat];if(!ps.length)return '';return '<div class="panelbox" style="padding:12px 16px"><h3>'+esc(cat)+'</h3><div style="overflow-x:auto"><table><thead><tr><th>Naam</th><th>Omschrijving (komt op de PDF)</th><th class="num">Prijs excl.</th><th>Per</th><th></th></tr></thead><tbody>'+
+    ps.map(function(p){return '<tr style="cursor:pointer" onclick="mProduct(\''+p.id+'\')"><td><b>'+esc(p.name)+'</b></td><td style="color:var(--muted);max-width:420px">'+esc(p.desc||'')+'</td><td class="num"><b>'+eur(p.price)+'</b></td><td style="color:var(--muted)">'+esc(p.unit||'stuk')+'</td>'+
+    '<td><div class="rowactions"><button class="iconbtn" onclick="event.stopPropagation();mProduct(\''+p.id+'\')">✎</button><button class="iconbtn del" onclick="event.stopPropagation();delProduct(\''+p.id+'\')">🗑</button></div></td></tr>'}).join('')+'</tbody></table></div></div>'}).join('')
+  :'<div class="panelbox"><div class="empty"><span class="big">📦</span>Nog geen items.</div></div>');
+}
+function mProduct(id){
+  var p=id?DATA.products.find(function(x){return x.id===id}):{name:'',desc:'',price:0,unit:'stuk',cat:'Websites'};
+  openM(id?'Item bewerken':'Nieuw item',
+    '<div class="frow"><div class="fgroup"><label>Naam *</label><input id="p_name" value="'+esc(p.name)+'" placeholder="bv. Website op maat"></div><div class="fgroup"><label>Categorie</label><select id="p_cat">'+PROD_CATS.map(function(c){return '<option '+((p.cat||'Overig')===c?'selected':'')+'>'+c+'</option>'}).join('')+'</select></div></div>'+
+    '<div class="fgroup"><label>Omschrijving (komt onder de lijn op offerte en factuur)</label><textarea id="p_desc" rows="3">'+esc(p.desc||'')+'</textarea></div>'+
+    '<div class="frow"><div class="fgroup"><label>Prijs (excl. btw)</label><input id="p_price" type="number" step="0.01" value="'+(p.price||0)+'"></div>'+
+    '<div class="fgroup"><label>Per</label><select id="p_unit">'+['stuk','uur','maand','jaar'].map(function(u){return '<option '+((p.unit||'stuk')===u?'selected':'')+'>'+u+'</option>'}).join('')+'</select></div></div>',
+    '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveProduct(\''+(id||'')+'\')">Opslaan</button>');
+}
+function saveProduct(id){
+  var name=document.getElementById('p_name').value.trim();if(!name){toast('Geef een naam op',true);return}
+  var o={name:name,desc:document.getElementById('p_desc').value.trim(),price:parseFloat(document.getElementById('p_price').value)||0,unit:document.getElementById('p_unit').value,cat:document.getElementById('p_cat').value};
+  if(id){Object.assign(DATA.products.find(function(x){return x.id===id}),o)}else{o.id=nid('prod');DATA.products.push(o)}
+  saveData();closeM();rCatalog();toast('Item bewaard');
 }
 
 </script>
