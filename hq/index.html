@@ -881,14 +881,14 @@ function rDash(){
     var web=DATA.deals.filter(function(d){return (d.kanaal==='Website'||(d.cat||'').toLowerCase().indexOf('website-aanvraag')>=0)&&d.stage!=='gewonnen'&&d.stage!=='verloren'});
     var nieuw=web.filter(function(d){return d.stage==='nieuw'||!d.laatstContact});
     if(!web.length) return '';
-    return '<div class="panelbox" style="border-color:rgba(249,124,31,.4)"><h3>\ud83d\udce9 Nieuwe aanvragen via de site'+(nieuw.length?' <span class="pill hoog" style="float:right">'+nieuw.length+' nieuw</span>':'')+'</h3>'+
+    return '<div class="panelbox" style="border-color:rgba(249,124,31,.4)"><h3>\ud83d\udce9 Nieuwe aanvragen via de site <span style="display:flex;gap:6px">'+(nieuw.length?'<span class="pill hoog">'+nieuw.length+' nieuw</span>':'')+'<button class="btn sm subtle" onclick="dedupeDeals()" title="Dubbele leads samenvoegen">Dubbels opruimen</button></span></h3>'+
     '<div style="overflow-x:auto;margin-top:8px"><table><tbody>'+
     web.slice(0,6).map(function(d){
       return '<tr style="cursor:pointer" onclick="vDeal(\''+d.id+'\')">'+
       '<td><b>'+esc(d.naam)+'</b>'+(d.stage==='nieuw'?' <span class="pill hoog">nieuw</span>':'')+'</td>'+
       '<td style="font-size:.82rem">'+esc(d.email||d.tel||'')+'</td>'+
       '<td style="font-size:.82rem;color:var(--muted)">'+esc((d.note||'').slice(0,50))+'</td>'+
-      '<td><span class="pill bezig">'+stageLabel(d.stage)+'</span></td></tr>';
+      '<td><span class="pill bezig">'+stageLabel(d.stage)+'</span></td><td style="width:40px"><button class="iconbtn del" title="Verwijderen" onclick="delDeal(\''+d.id+'\',event)">\ud83d\uddd1</button></td></tr>';
     }).join('')+'</tbody></table></div>'+
     (web.length>6?'<div class="hint" style="margin-top:8px">+'+(web.length-6)+' meer in de pipeline</div>':'')+'</div>';
   })()+
@@ -2203,7 +2203,7 @@ function vDeal(id){
   STAGES.map(function(st){return '<button class="btn sm '+(d.stage===st[0]?'':'subtle')+'" onclick="setStage(\''+d.id+'\',\''+st[0]+'\')">'+st[1]+'</button>'}).join('')+'</div>'+
   '<h3 style="font-family:var(--disp);font-size:.92rem;margin:16px 0 8px">Historiek</h3>'+
   ((d.log&&d.log.length)?'<ul class="activity">'+d.log.slice().reverse().map(function(a){return '<li><span class="dot"></span><div>'+esc(a.txt)+'<time>'+new Date(a.t).toLocaleString('nl-BE')+'</time></div></li>'}).join('')+'</ul>':'<div class="hint">Nog geen activiteit</div>'),
-  '<button class="btn subtle" onclick="closeM();mDeal(\''+d.id+'\')">Bewerken</button>'+
+  '<button class="btn subtle" style="color:#FCA5A5" onclick="delDeal(\''+d.id+'\')">\ud83d\uddd1 Verwijderen</button><button class="btn subtle" onclick="closeM();mDeal(\''+d.id+'\')">Bewerken</button>'+
   (d.stage==='gewonnen'?'<button class="btn" onclick="dealToClient(\''+d.id+'\')">\u2192 Maak klant + factuur</button>':''),true);
 }
 function setStage(id,st){
@@ -2465,8 +2465,9 @@ async function webLeadsPull(){
     if(r.error||!r.data||!r.data.length)return;
     var ids=[];
     r.data.forEach(function(w){
+      if(DATA.deals.some(function(d){return d.webId===w.id})){ids.push(w.id);return}
       var naam=(w.naam||'')+(w.bedrijf?' ('+w.bedrijf+')':'')||w.email||w.telefoon||'Website-aanvraag';
-      var d={id:nid('deal'),naam:naam,tel:w.telefoon||'',email:w.email||'',plaats:'',cat:'Website-aanvraag',kanaal:'Website',stage:'nieuw',value:0,prio:'Hoog',
+      var d={id:nid('deal'),webId:w.id,naam:naam,tel:w.telefoon||'',email:w.email||'',plaats:'',cat:'Website-aanvraag',kanaal:'Website',stage:'nieuw',value:0,prio:'Hoog',
         note:(w.bericht||''),follow:today(),laatstContact:'',
         log:[{t:Date.now(),txt:'🌐 Aanvraag via '+(w.bron||'website')+' op '+new Date(w.created_at).toLocaleString('nl-BE')}],created:Date.now()};
       DATA.deals.unshift(d);ids.push(w.id);
@@ -2811,6 +2812,19 @@ function mAccount(cid,aid){var c=customer(cid);var a=aid?custAccounts(c).find(fu
 function saveAccount(cid,aid){var c=customer(cid);var o={platform:document.getElementById('a_platform').value,url:document.getElementById('a_url').value.trim(),login:document.getElementById('a_login').value.trim(),pw:document.getElementById('a_pw').value,beheer:!!document.getElementById('a_beheer').value,note:document.getElementById('a_note').value.trim()};
   if(aid){Object.assign(custAccounts(c).find(function(x){return x.id===aid}),o)}else{o.id=nid('acc');custAccounts(c).push(o)}saveData();closeM();rCustPage();toast('Account opgeslagen')}
 function delAccount(cid,aid){if(!confirm('Dit account verwijderen?'))return;var c=customer(cid);c.accounts=custAccounts(c).filter(function(x){return x.id!==aid});saveData();rCustPage()}
+
+
+function delDeal(id,ev){if(ev)ev.stopPropagation();var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;if(!confirm('"'+d.naam+'" verwijderen uit je pipeline?'))return;
+  DATA.deals=DATA.deals.filter(function(x){return x.id!==id});DATA.tasks=DATA.tasks.filter(function(t){return !(t.key&&t.key.indexOf(id)>=0)});
+  if(d.atId&&atCfg().token){try{fetch(atUrl('/'+d.atId),{method:'DELETE',headers:atHeaders()})}catch(e){}}
+  logAct('Lead verwijderd: '+d.naam);saveData();closeM();toast('Verwijderd');go(VIEW)}
+function dedupeDeals(){
+  var seen={},out=[],removed=0;
+  DATA.deals.slice().sort(function(a,b){return (a.created||0)-(b.created||0)}).forEach(function(d){
+    var key=(d.webId?'w:'+d.webId:'')||('n:'+String(d.naam||'').toLowerCase().replace(/\s*\(.*\)\s*$/,'').trim()+'|'+String(d.email||d.tel||'').toLowerCase());
+    if(seen[key]){var keep=seen[key];if(d.laatstContact&&!keep.laatstContact)keep.laatstContact=d.laatstContact;if(!keep.atId&&d.atId)keep.atId=d.atId;removed++;return}
+    seen[key]=d;out.push(d)});
+  if(removed){DATA.deals=out;saveData();toast(removed+' dubbele lead'+(removed>1?'s':'')+' samengevoegd');go(VIEW)}else toast('Geen dubbels gevonden')}
 
 </script>
 </body>
