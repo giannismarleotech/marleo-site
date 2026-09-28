@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Marleo HQ, CRM & boekhouding</title>
 <meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Marleo HQ">
+<meta name="theme-color" content="#08080E">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -786,6 +794,7 @@ var MENU_ADMIN=[
   ['reports','Rapporten',IC.rep],
   ['SEC','CRM'],
   ['pipeline','Pipeline',IC.pipe],
+  ['aanvragen','Aanvragen',IC.pipe],
   ['leads','Leadfinder',IC.pipe],
   ['outreach','Outreach',IC.chat],
   ['SEC','Planning'],
@@ -820,7 +829,7 @@ function go(v){
   if(v==='dagstart'){ showDagstart(true); return; }
   VIEW=v;
   document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
-  var R={dashboard:rDash,pipeline:rPipeline,leads:rLeads,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,documents:rDocuments,agenda:rAgenda,board:rBoard,timetrack:rTimetrack,quotes:rQuotes,catalog:rCatalog,emails:rEmails,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
+  var R={dashboard:rDash,pipeline:rPipeline,leads:rLeads,aanvragen:rAanvragen,outreach:rOutreach,invoices:rInvoices,expenses:rExpenses,vat:rVat,reports:rReports,customers:rCustomers,custpage:rCustPage,tasks:rTasks,notes:rNotes,documents:rDocuments,agenda:rAgenda,board:rBoard,timetrack:rTimetrack,quotes:rQuotes,catalog:rCatalog,emails:rEmails,settings:rSettings,cportal:rCPortal,cinvoices:rCInvoices,ctickets:rCTickets};
   (R[v]||rDash)();window.scrollTo(0,0);
   if(typeof updateSyncBadge==='function')setTimeout(updateSyncBadge,50);
 }
@@ -890,7 +899,7 @@ function rDash(){
       '<td style="font-size:.82rem;color:var(--muted)">'+esc((d.note||'').slice(0,50))+'</td>'+
       '<td><span class="pill bezig">'+stageLabel(d.stage)+'</span></td><td style="width:40px"><button class="iconbtn del" title="Verwijderen" onclick="delDeal(\''+d.id+'\',event)">\ud83d\uddd1</button></td></tr>';
     }).join('')+'</tbody></table></div>'+
-    (web.length>6?'<div class="hint" style="margin-top:8px">+'+(web.length-6)+' meer in de pipeline</div>':'')+'</div>';
+    '<div style="margin-top:10px"><button class="btn sm subtle" onclick="go(\'aanvragen\')">Alle aanvragen bekijken \u2192</button></div></div>';
   })()+
   (function(){
     var today=new Date().toISOString().slice(0,10);
@@ -1934,17 +1943,15 @@ function rSettings(){
  '<button class="btn sm" onclick="atPush()">\u2b06 Push statussen</button></div></div>'})()+
   '<div class="topbar"><div><h2>Instellingen</h2><div class="sub">Account, klantentoegang en back-ups</div></div></div>'+
   (function(){
-    var on=('Notification' in window)&&Notification.permission==='granted';
     var lead=(DATA.settings&&DATA.settings.notifLead)||30;
-    return '<div class="panelbox" style="margin-bottom:18px"><h3>\ud83d\udd14 Meldingen</h3>'+
-    '<div class="hint" style="margin-bottom:10px">Krijg een melding voor je afspraken en taken. Werkt terwijl de Marleo-app of het tabblad openstaat. Installeer Marleo als app op je gsm (via \u2018Toevoegen aan startscherm\u2019) voor het beste resultaat.</div>'+
-    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
-    (on?'<span class="pill" style="background:rgba(34,197,94,.15);color:#22C55E">\u2713 Meldingen staan aan</span>':'<button class="btn sm" onclick="askNotifPermission()">Meldingen inschakelen</button>')+
-    '<div class="fgroup" style="margin:0"><label style="font-size:.78rem">Herinnering vooraf</label><select onchange="DATA.settings.notifLead=parseInt(this.value);saveData()">'+
-    [15,30,60,120].map(function(m){return '<option value="'+m+'" '+(lead===m?'selected':'')+'>'+(m<60?m+' min':(m/60)+' uur')+' vooraf</option>'}).join('')+'</select></div>'+
-    '<button class="btn sm subtle" onclick="notifShow(\'Testmelding\',\'Zo zien je meldingen eruit\',\'test-\'+Date.now())">Test melding</button> '+
-    '<button class="btn sm subtle" onclick="testSWNotif()">Test push-melding</button>'+
-    '</div></div>';
+    setTimeout(function(){pushStatusHtml();tgLoad()},50);
+    return '<div class="panelbox" style="margin-bottom:18px"><h3>\ud83d\udd14 Meldingen op je gsm</h3>'+
+    '<div class="hint" style="margin-bottom:10px">Je krijgt een melding bij elke website-aanvraag, en elke ochtend om 7u30 een dagoverzicht (taken, vervallen facturen, leads). Op iPhone: eerst Marleo HQ op je beginscherm zetten (Delen \u2192 Zet op beginscherm) en vanaf daar openen.</div>'+
+    '<div id="pushstatus"><span class="hint">Laden\u2026</span></div><pre id="pushlog" class="tplbody" style="display:none;margin-top:10px;font-size:.75rem"></pre>'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px"><div class="fgroup" style="margin:0"><label style="font-size:.78rem">Herinnering afspraken vooraf (in de app)</label><select onchange="DATA.settings.notifLead=parseInt(this.value);saveData()">'+
+    [15,30,60,120].map(function(m){return '<option value="'+m+'" '+(lead===m?'selected':'')+'>'+(m<60?m+' min':(m/60)+' uur')+' vooraf</option>'}).join('')+'</select></div></div>'+
+    '<details style="margin-top:14px"><summary style="cursor:pointer;color:var(--muted);font-size:.85rem">Ook via Telegram (optioneel)</summary><div class="hint" style="margin:8px 0">Maak in Telegram een bot via @BotFather (/newbot), plak de token hier. Stuur je bot een berichtje en haal je chat-id op via @userinfobot.</div><div class="frow"><div class="fgroup"><label>Bot-token</label><input id="tg_token" type="password" placeholder="123456:ABC\u2026"></div><div class="fgroup"><label>Chat-id</label><input id="tg_chat" placeholder="12345678"></div></div><button class="btn sm subtle" onclick="tgSave()">Opslaan en testen</button></details>'+
+    '</div>';
   })()+
   (function(){var co=coCfg();return '<div class="panelbox"><h3>\ud83c\udfe2 Bedrijfsgegevens (voor facturen &amp; offertes)</h3>'+
    '<div class="hint" style="margin-bottom:10px">Deze gegevens komen bovenaan elke factuur en offerte. In Belgi\u00eb zijn bedrijfsnaam, adres en BTW-nummer wettelijk verplicht.</div>'+
@@ -2476,7 +2483,7 @@ async function webLeadsPull(){
     });
     saveData();
     await sb.from('web_leads').update({imported:true}).in('id',ids);
-    if(typeof VIEW!=='undefined'&&(VIEW==='pipeline'||VIEW==='dashboard'||VIEW==='outreach'))go(VIEW);
+    if(typeof VIEW!=='undefined'&&(VIEW==='pipeline'||VIEW==='dashboard'||VIEW==='outreach'||VIEW==='aanvragen'))go(VIEW);
   }catch(e){}
 }
 
@@ -2825,6 +2832,85 @@ function dedupeDeals(){
     if(seen[key]){var keep=seen[key];if(d.laatstContact&&!keep.laatstContact)keep.laatstContact=d.laatstContact;if(!keep.atId&&d.atId)keep.atId=d.atId;removed++;return}
     seen[key]=d;out.push(d)});
   if(removed){DATA.deals=out;saveData();toast(removed+' dubbele lead'+(removed>1?'s':'')+' samengevoegd');go(VIEW)}else toast('Geen dubbels gevonden')}
+
+
+/* ===== AANVRAGEN: alle website-aanvragen op één pagina ===== */
+var AANTAB='open';
+function isWebDeal(d){return d.kanaal==='Website'||(d.cat||'').toLowerCase().indexOf('website-aanvraag')>=0||!!d.webId}
+function rAanvragen(){
+  var all=DATA.deals.filter(isWebDeal).sort(function(a,b){return (b.created||0)-(a.created||0)});
+  var open=all.filter(function(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'});
+  var list=AANTAB==='open'?open:AANTAB==='nieuw'?open.filter(function(d){return d.stage==='nieuw'}):all;
+  main().innerHTML=
+  '<div class="topbar"><div><h2>Aanvragen via de website</h2><div class="sub">'+open.length+' open \u00b7 komen automatisch binnen via het contactformulier op marleo.tech</div></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap">'+(list.length?'<button class="btn subtle" onclick="delAanvragen(\'sel\')">\ud83d\uddd1 Geselecteerde verwijderen</button>':'')+'<button class="btn subtle" onclick="dedupeDeals()">Dubbels opruimen</button></div></div>'+
+  '<div class="tabs">'+[['nieuw','Nieuw'],['open','Open'],['alle','Alle']].map(function(t){var n=t[0]==='nieuw'?open.filter(function(d){return d.stage==='nieuw'}).length:t[0]==='open'?open.length:all.length;return '<button class="tab'+(AANTAB===t[0]?' active':'')+'" onclick="AANTAB=\''+t[0]+'\';rAanvragen()">'+t[1]+' ('+n+')</button>'}).join('')+'</div>'+
+  (list.length?'<div class="panelbox" style="padding:8px 12px"><div style="overflow-x:auto"><table><thead><tr><th style="width:30px"><input type="checkbox" onchange="document.querySelectorAll(\'.aan-sel\').forEach(function(c){c.checked=event.target.checked})"></th><th>Wie</th><th>Contact</th><th>Bericht</th><th>Wanneer</th><th>Status</th><th></th></tr></thead><tbody>'+
+    list.map(function(d){var when=d.created?new Date(d.created).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+      return '<tr><td><input type="checkbox" class="aan-sel" value="'+d.id+'" onclick="event.stopPropagation()"></td>'+
+      '<td onclick="vDeal(\''+d.id+'\')"><b>'+esc(d.naam)+'</b></td>'+
+      '<td onclick="vDeal(\''+d.id+'\')" style="font-size:.85rem">'+(d.email?'<a href="mailto:'+esc(d.email)+'" style="color:#93C5FD" onclick="event.stopPropagation()">'+esc(d.email)+'</a>':'')+(d.tel?'<br><a href="tel:'+esc(d.tel)+'" onclick="event.stopPropagation()">'+esc(d.tel)+'</a>':'')+'</td>'+
+      '<td onclick="vDeal(\''+d.id+'\')" style="font-size:.85rem;color:var(--muted);max-width:360px;white-space:pre-line">'+esc((d.note||'').slice(0,220))+'</td>'+
+      '<td onclick="vDeal(\''+d.id+'\')" style="font-size:.8rem;color:var(--muted);white-space:nowrap">'+when+'</td>'+
+      '<td onclick="vDeal(\''+d.id+'\')"><span class="pill '+(d.stage==='nieuw'?'hoog':d.stage==='gewonnen'?'klaar':d.stage==='verloren'?'inactief':'bezig')+'">'+stageLabel(d.stage)+'</span></td>'+
+      '<td><div class="rowactions">'+(d.tel?'<button class="iconbtn" title="WhatsApp" onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">\ud83d\udcac</button>':'')+(d.email?'<button class="iconbtn" title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">\u2709</button>':'')+'<button class="iconbtn ok" title="Gewonnen" onclick="event.stopPropagation();setStage(\''+d.id+'\',\'gewonnen\');saveData();rAanvragen()">\u2713</button><button class="iconbtn del" title="Verwijderen" onclick="delDeal(\''+d.id+'\',event)">\ud83d\uddd1</button></div></td></tr>'}).join('')+
+    '</tbody></table></div></div>':'<div class="panelbox"><div class="empty"><span class="big">\ud83d\udce9</span>Geen aanvragen'+(AANTAB==='nieuw'?' die nog nieuw zijn':'')+'.</div></div>');
+}
+function delAanvragen(mode){
+  var ids=[].slice.call(document.querySelectorAll('.aan-sel:checked')).map(function(c){return c.value});
+  if(!ids.length){toast('Vink eerst aanvragen aan',true);return}
+  if(!confirm(ids.length+' aanvra'+(ids.length>1?'gen':'ag')+' verwijderen?'))return;
+  DATA.deals=DATA.deals.filter(function(d){return ids.indexOf(d.id)<0});DATA.tasks=DATA.tasks.filter(function(t){return !ids.some(function(id){return t.key&&t.key.indexOf(id)>=0})});
+  logAct(ids.length+' aanvragen verwijderd');saveData();toast('Verwijderd');rAanvragen();
+}
+
+
+/* ===== PUSH-MELDINGEN (Web Push via Supabase) ===== */
+var VAPID_PUBLIC='BAa6szatFD6JDr3Zk3U7tq0YOhFQvwZ1mNAnlJVC8T2faeH0rJsoeRduTz7lyLK-VDl3nzGUAtGlGJbqYPnhJsQ';
+function b64ToU8(s){var p='='.repeat((4-s.length%4)%4);var b=(s+p).replace(/-/g,'+').replace(/_/g,'/');var r=atob(b);var a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
+function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}
+function isIOS(){return /iPhone|iPad|iPod/.test(navigator.userAgent)}
+function pushSupported(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window}
+var PUSHLOG=[];function plog(m){PUSHLOG.push(m);var el=document.getElementById('pushlog');if(el){el.textContent=PUSHLOG.join('\n');el.style.display='block'}}
+async function pushRegisterSW(){var reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});await navigator.serviceWorker.ready;return reg}
+async function pushEnable(){
+  PUSHLOG=[];
+  try{
+    if(!pushSupported()){toast('Dit toestel/browser ondersteunt geen push',true);plog('Geen PushManager in deze browser');return}
+    if(isIOS()&&!isStandalone()){plog('Op iPhone werkt push alleen vanuit de app op je beginscherm.');openM('Eerst installeren','<p>Op iPhone werken meldingen alleen als Marleo HQ als app op je beginscherm staat.</p><ol style="margin:12px 0 0 18px;line-height:1.8"><li>Tik in Safari op <b>Delen</b> (vierkant met pijl)</li><li>Kies <b>Zet op beginscherm</b></li><li>Open <b>Marleo HQ</b> vanaf je beginscherm en log in</li><li>Kom terug naar Instellingen en tik opnieuw op <b>Meldingen inschakelen</b></li></ol>','<button class="btn" onclick="closeM()">Ok</button>');return}
+    var perm=await Notification.requestPermission();plog('Toestemming: '+perm);
+    if(perm!=='granted'){toast('Meldingen geweigerd. Zet ze aan via Instellingen > Meldingen > Marleo HQ.',true);return}
+    var reg=await pushRegisterSW();plog('Service worker klaar');
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub){sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(VAPID_PUBLIC)});plog('Abonnement aangemaakt')}else plog('Bestaand abonnement');
+    await pushSave(sub);
+    var r=await sb.functions.invoke('notify',{body:{test:true}});
+    var d=r.data||{};plog('Testmelding: '+JSON.stringify(d));
+    if(d.push>0){toast('✅ Meldingen staan aan op dit toestel');DATA.settings.pushOn=true;saveData()}
+    else toast('Opgeslagen, maar de testmelding mislukte: '+(d.lastErr||d.error||'?'),true);
+    if(VIEW==='settings')go('settings');
+  }catch(e){plog('Fout: '+e.message);toast('Fout: '+e.message,true)}
+}
+async function pushSave(sub){
+  var j=sub.toJSON();var dev=isIOS()?'iPhone':(/Android/.test(navigator.userAgent)?'Android':'Computer');
+  var r=await sb.from('push_subscriptions').upsert({user_id:CLOUD.uid,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,device:dev},{onConflict:'endpoint'});
+  if(r.error)throw new Error(r.error.message);plog('Toestel geregistreerd ('+dev+')');
+}
+async function pushDisable(){try{var reg=await navigator.serviceWorker.getRegistration('./');var sub=reg&&await reg.pushManager.getSubscription();if(sub){await sb.from('push_subscriptions').delete().eq('endpoint',sub.endpoint);await sub.unsubscribe()}DATA.settings.pushOn=false;saveData();toast('Meldingen uit op dit toestel');go('settings')}catch(e){toast(e.message,true)}}
+async function pushTest(){var r=await sb.functions.invoke('notify',{body:{test:true}});var d=r.data||{};toast(d.push>0?'Testmelding verstuurd naar '+d.push+' toestel(len)':'Mislukt: '+(d.lastErr||d.error||'geen toestel'),!(d.push>0))}
+async function pushDigestNow(){var r=await sb.functions.invoke('notify',{body:{digest:true}});var d=r.data||{};toast(d.push>0||d.telegram?'Dagoverzicht verstuurd':'Mislukt: '+(d.lastErr||d.error||'?'),!(d.push>0||d.telegram))}
+async function pushStatusHtml(){
+  var n=0,devs=[];try{var r=await sb.from('push_subscriptions').select('device,created_at,last_ok').eq('user_id',CLOUD.uid);devs=r.data||[];n=devs.length}catch(e){}
+  var here=false;try{var reg=await navigator.serviceWorker.getRegistration('./');here=!!(reg&&await reg.pushManager.getSubscription())}catch(e){}
+  var el=document.getElementById('pushstatus');if(!el)return;
+  el.innerHTML=(n?'<div style="margin-bottom:8px">'+devs.map(function(d){return '<span class="pill actief" style="margin-right:6px">'+esc(d.device||'toestel')+(d.last_ok?' ✓':'')+'</span>'}).join('')+'</div>':'<div class="hint" style="margin-bottom:8px">Nog geen toestel gekoppeld.</div>')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+(here?'<span class="pill" style="background:rgba(34,197,94,.15);color:#22C55E">✓ Dit toestel krijgt meldingen</span><button class="btn sm subtle" onclick="pushTest()">Test melding</button><button class="btn sm subtle" onclick="pushDigestNow()">Stuur dagoverzicht nu</button><button class="btn sm subtle" onclick="pushDisable()">Uitzetten hier</button>':'<button class="btn sm" onclick="pushEnable()">🔔 Meldingen inschakelen op dit toestel</button>')+'</div>';
+}
+/* SW altijd registreren (offline + push-ontvangst), en resubscribe-berichten opvangen */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});navigator.serviceWorker.addEventListener('message',function(e){if(e.data&&e.data.type==='MARLEO_RESUBSCRIBE'&&CLOUD.uid){try{var j=e.data.sub;sb.from('push_subscriptions').upsert({user_id:CLOUD.uid,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth},{onConflict:'endpoint'})}catch(x){}}})}
+/* Telegram (optioneel) */
+async function tgSave(){var t=document.getElementById('tg_token').value.trim(),c=document.getElementById('tg_chat').value.trim();var r=await sb.from('push_settings').upsert({user_id:CLOUD.uid,telegram_token:t||null,telegram_chat:c||null},{onConflict:'user_id'});if(r.error){toast(r.error.message,true);return}toast('Telegram opgeslagen');if(t&&c){var x=await sb.functions.invoke('notify',{body:{test:true}});var d=x.data||{};toast(d.telegram?'✅ Telegram-test verstuurd':'Telegram mislukt: '+(d.tgErr||d.error||'?'),!d.telegram)}}
+async function tgLoad(){try{var r=await sb.from('push_settings').select('telegram_token,telegram_chat').eq('user_id',CLOUD.uid).maybeSingle();var d=r.data||{};var a=document.getElementById('tg_token'),b=document.getElementById('tg_chat');if(a)a.value=d.telegram_token||'';if(b)b.value=d.telegram_chat||''}catch(e){}}
 
 </script>
 </body>
