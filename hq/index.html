@@ -3497,6 +3497,98 @@ function seqDel(id){if(!confirm('Reeks verwijderen?'))return;DATA.sequences=seqD
 (function(){var _rOutreach1=(typeof rOutreach==='function')?rOutreach:null;if(_rOutreach1){rOutreach=function(){_rOutreach1();var tb=main().querySelector('.topbar');if(tb){var div=tb.querySelector('div:last-child')||tb;div.insertAdjacentHTML('beforeend','<button class="btn subtle" onclick="mScan()" style="margin-left:6px">🔍 Scan</button><button class="btn subtle" onclick="mDemo()">🎨 Demo</button>')}}}})();
 
 
+
+/* ===================================================================
+   SEGMENTEN: 🌐 Website-klanten  vs  🛡️ IT & bedrijven
+   Duidelijke scheiding door heel de CRM (pipeline, klanten, leads).
+   =================================================================== */
+var SEG={
+  web:{key:'web',label:'Website-klant',short:'Website',ic:'🌐',color:'#2563EB'},
+  it:{key:'it',label:'IT & bedrijf',short:'IT & security',ic:'🛡️',color:'#7C3AED'}
+};
+function dealSeg(d){if(!d)return 'web';if(d.segment==='web'||d.segment==='it')return d.segment;
+  var c=(d.cat||'')+' '+(d.online||'');if(/IT\s*&|security|cyber|IT-risico|audit|NIS2|M365|phishing|managed/i.test(c))return 'it';
+  if(Number(d.value||0)>=600)return 'it';return 'web'}
+function custSeg(c){if(!c)return 'web';if(c.segment==='web'||c.segment==='it')return c.segment;
+  var svc=(c.services||[]).map(function(s){return s.name||''}).join(' ');if(/security|audit|NIS2|M365|managed|firewall|backup|phishing/i.test(svc))return 'it';
+  var d=DATA.deals.find(function(x){return x.customerId===c.id||(x.naam||'').toLowerCase()===(c.name||'').toLowerCase()});if(d)return dealSeg(d);
+  return 'web'}
+function segBadge(seg){var s=SEG[seg]||SEG.web;return '<span class="segpill" style="background:'+s.color+'22;color:'+s.color+';border:1px solid '+s.color+'55">'+s.ic+' '+s.short+'</span>'}
+function segDot(seg){var s=SEG[seg]||SEG.web;return '<span class="segdot" title="'+s.label+'" style="background:'+s.color+'"></span>'}
+(function(){var st=document.createElement('style');st.textContent=
+  '.segpill{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;vertical-align:middle;letter-spacing:.2px}'+
+  '.segdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle;box-shadow:0 0 6px currentColor}'+
+  '.segtabs{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}'+
+  '.segtab{border:1px solid var(--line);background:var(--panel,#161822);color:var(--muted);padding:8px 16px;border-radius:12px;cursor:pointer;font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:8px;transition:.15s}'+
+  '.segtab:hover{border-color:#555}.segtab.on{color:#fff}'+
+  '.segtab .cnt{font-size:.75rem;opacity:.7;font-weight:500}';
+  document.head.appendChild(st)})();
+
+/* ---------- Pipeline: segment-filter + badges + gesplitste tellingen ---------- */
+var PIPESEG='alle';
+(function(){var _dealsIn=dealsIn;dealsIn=function(st){var l=_dealsIn(st);return PIPESEG==='alle'?l:l.filter(function(d){return dealSeg(d)===PIPESEG})}})();
+(function(){var _dealCard=dealCard;dealCard=function(d){var h=_dealCard(d);var seg=dealSeg(d);var col=(SEG[seg]||SEG.web).color;
+  h=h.replace(/class="dealcard( late)?"/,'class="dealcard$1" style="border-left:3px solid '+col+'"');
+  h=h.replace('<div class="dmeta">','<span class="segpill" style="background:'+col+'1f;color:'+col+';border:1px solid '+col+'44;margin-left:4px">'+(SEG[seg]||SEG.web).ic+'</span><div class="dmeta">');
+  return h}})();
+function pipeSeg(s){PIPESEG=s;rPipeline()}
+(function(){var _rPipeline=rPipeline;rPipeline=function(){_rPipeline();
+  var open=DATA.deals.filter(function(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'});
+  var cw=open.filter(function(d){return dealSeg(d)==='web'}),ci=open.filter(function(d){return dealSeg(d)==='it'});
+  var vw=cw.reduce(function(s,d){return s+Number(d.value||0)},0),vi=ci.reduce(function(s,d){return s+Number(d.value||0)},0);
+  var bar='<div class="segtabs">'+
+    '<div class="segtab'+(PIPESEG==='alle'?' on':'')+'" style="'+(PIPESEG==='alle'?'border-color:#888':'')+'" onclick="pipeSeg(\'alle\')">Alles <span class="cnt">'+open.length+'</span></div>'+
+    '<div class="segtab'+(PIPESEG==='web'?' on':'')+'" style="'+(PIPESEG==='web'?'border-color:'+SEG.web.color+';background:'+SEG.web.color+'22':'')+'" onclick="pipeSeg(\'web\')">'+SEG.web.ic+' Website-klanten <span class="cnt">'+cw.length+' · '+eur(vw)+'</span></div>'+
+    '<div class="segtab'+(PIPESEG==='it'?' on':'')+'" style="'+(PIPESEG==='it'?'border-color:'+SEG.it.color+';background:'+SEG.it.color+'22':'')+'" onclick="pipeSeg(\'it\')">'+SEG.it.ic+' IT & bedrijven <span class="cnt">'+ci.length+' · '+eur(vi)+'</span></div>'+
+    '</div>';
+  var wrap=main().querySelector('.pipewrap');var due=main().querySelector('.panelbox');
+  var anchor=(due&&due.parentNode===main())?due:wrap;
+  if(anchor){var t=document.createElement('div');t.innerHTML=bar;main().insertBefore(t.firstChild,anchor)}
+}})();
+
+/* ---------- Deal-modal: segmentkeuze ---------- */
+(function(){var _mDeal=mDeal;mDeal=function(id){_mDeal(id);var d=id?DATA.deals.find(function(x){return x.id===id}):null;var seg=d?dealSeg(d):'web';
+  var note=document.getElementById('d_note');if(!note)return;var fg=note.closest('.fgroup');
+  var div=document.createElement('div');div.className='fgroup';
+  div.innerHTML='<label>Type klant</label><div style="display:flex;gap:8px">'+['web','it'].map(function(k){return '<label class="segchoose" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;display:flex;gap:8px;align-items:center"><input type="radio" name="d_seg_r" value="'+k+'" '+(seg===k?'checked':'')+' onchange="document.getElementById(\'d_seg\').value=this.value"><span>'+SEG[k].ic+' <b>'+SEG[k].label+'</b><br><span class="hint" style="margin:0">'+(k==='web'?'enkel een website':'IT, security, grotere zaak')+'</span></span></label>'}).join('')+'</div><input type="hidden" id="d_seg" value="'+seg+'">';
+  if(fg&&fg.parentNode)fg.parentNode.insertBefore(div,fg)}})();
+(function(){var _saveDeal=saveDeal;saveDeal=function(id){var seg=(document.getElementById('d_seg')||{}).value;var before=DATA.deals.length;_saveDeal(id);
+  var d=id?DATA.deals.find(function(x){return x.id===id}):(DATA.deals.length>before?DATA.deals[DATA.deals.length-1]:null);if(d&&(seg==='web'||seg==='it')){d.segment=seg;saveData()}}})();
+
+/* leads uit Leadfinder krijgen meteen hun segment */
+(function(){if(typeof lfAdd!=='function')return;var _lfAdd=lfAdd;lfAdd=function(i,silent){var seg=(typeof LFMODE!=='undefined'&&LFMODE==='it')?'it':'web';var before=DATA.deals.length;var r=_lfAdd(i,silent);
+  Promise.resolve(r).then(function(){if(DATA.deals.length>before){DATA.deals[DATA.deals.length-1].segment=seg;saveData()}});return r}})();
+
+/* ---------- Klanten: segment-filter + badge ---------- */
+var CUSTSEG='alle';
+function custSegSet(s){CUSTSEG=s;rCustomers()}
+(function(){var _rCustomers=rCustomers;rCustomers=function(){_rCustomers();
+  var all=DATA.customers;var cw=all.filter(function(c){return custSeg(c)==='web'}).length,ci=all.filter(function(c){return custSeg(c)==='it'}).length;
+  var bar='<div class="segtabs">'+
+    '<div class="segtab'+(CUSTSEG==='alle'?' on':'')+'" style="'+(CUSTSEG==='alle'?'border-color:#888':'')+'" onclick="custSegSet(\'alle\')">Alle <span class="cnt">'+all.length+'</span></div>'+
+    '<div class="segtab'+(CUSTSEG==='web'?' on':'')+'" style="'+(CUSTSEG==='web'?'border-color:'+SEG.web.color+';background:'+SEG.web.color+'22':'')+'" onclick="custSegSet(\'web\')">'+SEG.web.ic+' Website-klanten <span class="cnt">'+cw+'</span></div>'+
+    '<div class="segtab'+(CUSTSEG==='it'?' on':'')+'" style="'+(CUSTSEG==='it'?'border-color:'+SEG.it.color+';background:'+SEG.it.color+'22':'')+'" onclick="custSegSet(\'it\')">'+SEG.it.ic+' IT & bedrijven <span class="cnt">'+ci+'</span></div>'+
+    '</div>';
+  var box=main().querySelector('.panelbox');if(box){var t=document.createElement('div');t.innerHTML=bar;main().insertBefore(t.firstChild,box)}
+  main().querySelectorAll('table tbody tr').forEach(function(tr){var m=/vCustomer\('([^']+)'\)/.exec(tr.getAttribute('onclick')||'');if(!m)return;var c=customer(m[1]);if(!c)return;var seg=custSeg(c);
+    var td=tr.querySelector('td');if(td&&!td.querySelector('.segdot'))td.insertAdjacentHTML('afterbegin',segDot(seg));
+    if(CUSTSEG!=='alle'&&seg!==CUSTSEG)tr.style.display='none'})}})();
+
+/* Klant-modal: segmentkeuze */
+(function(){var _mCustomer=mCustomer;mCustomer=function(id){_mCustomer(id);var c=id?customer(id):null;var seg=c?custSeg(c):'web';
+  var note=document.getElementById('c_note');if(!note)return;var fg=note.closest('.fgroup');
+  var div=document.createElement('div');div.className='fgroup';
+  div.innerHTML='<label>Type klant</label><div style="display:flex;gap:8px">'+['web','it'].map(function(k){return '<label style="flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;display:flex;gap:7px;align-items:center"><input type="radio" name="c_seg_r" value="'+k+'" '+(seg===k?'checked':'')+' onchange="document.getElementById(\'c_seg\').value=this.value"><span>'+SEG[k].ic+' <b>'+SEG[k].label+'</b></span></label>'}).join('')+'</div><input type="hidden" id="c_seg" value="'+seg+'">';
+  if(fg&&fg.parentNode)fg.parentNode.insertBefore(div,fg)}})();
+(function(){var _saveCustomer=saveCustomer;saveCustomer=function(id){var seg=(document.getElementById('c_seg')||{}).value;var before=DATA.customers.length;_saveCustomer(id);
+  var c=id?customer(id):(DATA.customers.length>before?DATA.customers[DATA.customers.length-1]:null);if(c&&(seg==='web'||seg==='it')){c.segment=seg;saveData()}}})();
+
+/* Klantfiche: segment-badge in de hero */
+(function(){var _rCustPage=rCustPage;rCustPage=function(){_rCustPage();var c=customer(CUSTVIEW);if(!c)return;var tags=main().querySelector('.custtags');if(tags&&!tags.querySelector('.segpill'))tags.insertAdjacentHTML('afterbegin',segBadge(custSeg(c))+' ')}})();
+
+/* Dashboard: kleine splitsing tonen in de subtitel van de pipeline-kaart (indien aanwezig) */
+
+
 </script>
 </body>
 </html>
