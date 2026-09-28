@@ -254,6 +254,8 @@ body{-webkit-text-size-adjust:100%}
 .tchkadd{display:flex;gap:6px;margin-top:6px}.tchkadd input{flex:1;padding:7px 10px;font-size:.85rem}
 .tacts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.tacts button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:.8rem;cursor:pointer}.tacts button:hover{color:var(--text);border-color:var(--pink)}
 .tgroup{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.cpick{position:relative}.cpick-dd{position:absolute;left:0;right:0;top:100%;z-index:50;background:var(--panel2);border:1px solid var(--line);border-radius:10px;margin-top:4px;max-height:260px;overflow:auto;display:none;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.cpick-it{padding:9px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px}.cpick-it:hover{background:rgba(255,255,255,.06)}.cpick-it span{font-size:.75rem;color:var(--muted)}.cpick-it.new{color:var(--orange);font-weight:600;border-top:1px solid var(--line)}
 .pipecol.over{border-color:var(--pink);background:rgba(233,30,123,.06)}
 .dacts{display:flex;gap:4px;margin-top:8px}.dacts button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:7px;padding:3px 8px;font-size:.78rem;cursor:pointer}.dacts button:hover{border-color:var(--pink)}
 .dealcard{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:8px;cursor:pointer;transition:transform .12s,border-color .12s}
@@ -1034,7 +1036,7 @@ function mInvoice(id){
   openM(id?'Factuur bewerken':'Nieuwe factuur',
   '<div class="frow"><div class="fgroup"><label>Type</label><select id="i_type" onchange="document.getElementById(\'i_ref\').value=nextRef(this.value)">'+[['factuur','Factuur'],['voorschot','Voorschotfactuur'],['eindfactuur','Eindfactuur'],['creditnota','Creditnota'],['offerte','Offerte']].map(function(o){var t=o[0];return '<option value="'+t+'" '+(iv&&iv.type===t?'selected':(!iv&&t==='factuur'?'selected':''))+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
   '<div class="fgroup"><label>Nummer *</label><input id="i_ref" value="'+esc(iv?iv.ref:nextRef('factuur'))+'"></div></div>'+
-  '<div class="frow"><div class="fgroup"><label>Klant *</label><select id="i_cust">'+DATA.customers.map(function(c){return '<option value="'+c.id+'" '+(iv&&iv.customerId===c.id?'selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="frow"><div class="fgroup"><label>Klant *</label>'+custPicker('i_cust',iv?iv.customerId:'')+'</div>'+
   '<div class="fgroup"><label>Uw referentie (optioneel)</label><input id="i_yourref" value="'+esc(iv&&iv.yourref?iv.yourref:'')+'" placeholder="bestelbon, dossier..."></div></div>'+
   '<div class="fgroup"><label>Taal van het document</label><select id="i_lang">'+[['nl','Nederlands'],['en','Engels'],['fr','Frans']].map(function(o){var cur=(iv&&iv.lang)?iv.lang:coCfg().deflang;return '<option value="'+o[0]+'" '+(cur===o[0]?'selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
   '<div class="frow"><div class="fgroup"><label>Factuurdatum</label><input id="i_date" type="date" value="'+(iv?iv.date:today())+'"></div>'+
@@ -1074,6 +1076,7 @@ function calcTot(){
 function saveInvoice(id){
   var ref=document.getElementById('i_ref').value.trim();
   if(!ref){toast('Factuurnummer is verplicht',true);return}
+  if(!document.getElementById('i_cust').value){toast('Kies een klant',true);return}
   var lines=EDITLINES.filter(function(l){return l.d.trim()||l.p});
   if(!lines.length){toast('Voeg minstens één factuurlijn toe',true);return}
   var obj={ref:ref,type:(document.getElementById('i_type')||{value:'factuur'}).value,yourref:(document.getElementById('i_yourref')||{value:''}).value.trim(),lang:(document.getElementById('i_lang')||{value:'nl'}).value,customerId:document.getElementById('i_cust').value,date:document.getElementById('i_date').value,
@@ -1096,7 +1099,7 @@ function invPdf(id){
   var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;
   loadJsPDF(function(){buildInvPdf(iv);});
 }
-function buildInvPdf(iv){
+function buildInvPdf(iv,returnData){
   var co=coCfg();var c=customer(iv.customerId)||{};
   var isOff=(iv.type==='offerte');var L=iv.lang||co.deflang||'nl';
   var docTitle={nl:{factuur:'FACTUUR',voorschot:'VOORSCHOTFACTUUR',eindfactuur:'EINDFACTUUR',creditnota:'CREDITNOTA',offerte:'OFFERTE'},
@@ -1204,7 +1207,9 @@ function buildInvPdf(iv){
   doc.setFontSize(6.8);doc.setTextColor(grey[0],grey[1],grey[2]);
   doc.text(doc.splitTextToSize(isOff?T.offfoot:T.foot(immediate),84),W-M-84,264);
 
-  doc.save(title.charAt(0)+title.slice(1).toLowerCase().replace(/ /g,'-')+'-'+(iv.ref||'document')+(c.name?'-'+c.name.replace(/[^a-z0-9]+/gi,'_'):'')+'.pdf');
+  var fname=title.charAt(0)+title.slice(1).toLowerCase().replace(/ /g,'-')+'-'+(iv.ref||'document')+(c.name?'-'+c.name.replace(/[^a-z0-9]+/gi,'_'):'')+'.pdf';
+  if(returnData){var uri=doc.output('datauristring');return {name:fname,b64:uri.slice(uri.indexOf(',')+1)}}
+  doc.save(fname);
   logAct('PDF gemaakt: '+title+' '+iv.ref);
 }
 
@@ -1409,15 +1414,15 @@ function rCustPage(){
   (cnotes.length?cnotes.map(function(n){return '<div class="notecard"><div class="meta">'+new Date(n.t).toLocaleString('nl-BE')+'</div><p>'+esc(n.txt)+'</p></div>'}).join(''):'<div class="hint" style="margin-top:6px">Nog geen notities</div>')+'</div>';
 }
 function toggleTaskStay(id){var t=DATA.tasks.find(function(x){return x.id===id});if(t){t.done=!t.done;saveData()}rCustPage();}
-function mTaskFor(cid){mTask();setTimeout(function(){var s=document.getElementById('t_cust');if(s)s.value=cid;},100);}
+function mTaskFor(cid){mTask();setTimeout(function(){custPickerSet('t_cust',cid)},100);}
 function mNoteFor(cid){mNote();setTimeout(function(){var s=document.getElementById('n_cust');if(s)s.value=cid;},100);}
-function mInvoiceFor(cid){mInvoice();setTimeout(function(){var s=document.getElementById('i_cust');if(s)s.value=cid;},250);}
+function mInvoiceFor(cid){mInvoice();setTimeout(function(){custPickerSet('i_cust',cid)},250);}
 function mCustomer(id){
   var c=id?customer(id):null;
   openM(id?'Klant bewerken':'Nieuwe klant',
-  '<div class="fgroup"><label>Naam *</label><input id="c_name" value="'+esc(c?c.name:'')+'"></div>'+
+  '<div class="frow"><div class="fgroup"><label>Bedrijfsnaam *</label><input id="c_name" value="'+esc(c?c.name:'')+'"></div><div class="fgroup"><label>Contactpersoon</label><input id="c_contact" value="'+esc(c&&c.contact?c.contact:'')+'" placeholder="Voornaam Naam"></div></div>'+
   '<div class="fgroup"><label>Adres</label><input id="c_addr" value="'+esc(c?c.address:'')+'" placeholder="Straat 1, 9000 Gent"></div>'+
-  '<div class="frow"><div class="fgroup"><label>BTW-nummer</label><input id="c_vat" value="'+esc(c?c.vat:'')+'" placeholder="BE 0123.456.789"></div>'+
+  '<div class="frow"><div class="fgroup"><label>BTW- / ondernemingsnummer</label><div style="display:flex;gap:6px"><input id="c_vat" value="'+esc(c?c.vat:'')+'" placeholder="BE 0123.456.789" onkeydown="if(event.key===\'Enter\'){event.preventDefault();kboLookup()}"><button class="btn sm" id="kbo_btn" type="button" onclick="kboLookup()" title="Gegevens ophalen uit de Kruispuntbank">\ud83d\udd0d KBO</button></div><div class="hint">Typ het nummer en klik op KBO: naam en adres worden ingevuld.</div></div>'+
   '<div class="fgroup"><label>Telefoon</label><input id="c_tel" value="'+esc(c?c.phone:'')+'"></div></div>'+
   '<div class="fgroup"><label>E-mail</label><input id="c_mail" type="email" value="'+esc(c?c.email:'')+'"></div>'+
   '<div class="fgroup"><label>Notitie</label><textarea id="c_note">'+esc(c?c.note:'')+'</textarea></div>',
@@ -1426,11 +1431,15 @@ function mCustomer(id){
 function saveCustomer(id){
   var n=document.getElementById('c_name').value.trim();
   if(!n){toast('Naam is verplicht',true);return}
-  var o={name:n,address:document.getElementById('c_addr').value.trim(),vat:document.getElementById('c_vat').value.trim(),
+  var o={name:n,contact:(document.getElementById('c_contact')||{value:''}).value.trim(),address:document.getElementById('c_addr').value.trim(),vat:document.getElementById('c_vat').value.trim(),
     phone:document.getElementById('c_tel').value.trim(),email:document.getElementById('c_mail').value.trim(),note:document.getElementById('c_note').value.trim()};
   if(id){Object.assign(customer(id),o);logAct('Klant '+n+' bijgewerkt')}
   else{o.id=nid('cust');o.status='actief';o.created=Date.now();DATA.customers.push(o);logAct('Nieuwe klant: '+n)}
-  saveData();closeM();toast('Klant opgeslagen');go('customers');
+  saveData();closeM();toast('Klant opgeslagen');
+  var ret=window.__cpReturn;window.__cpReturn=null;var newId=id||o.id;
+  if(ret==='i_cust'){mInvoice();setTimeout(function(){custPickerSet('i_cust',newId)},250);return}
+  if(ret==='t_cust'){mTask();setTimeout(function(){custPickerSet('t_cust',newId)},100);return}
+  go('customers');
 }
 function delCustomer(id){
   var c=customer(id);
@@ -1460,7 +1469,7 @@ function mTask(){
   openM('Nieuwe taak',
   '<div class="fgroup"><label>Titel *</label><input id="t_title"></div>'+
   '<div class="fgroup"><label>Omschrijving</label><textarea id="t_desc"></textarea></div>'+
-  '<div class="frow"><div class="fgroup"><label>Klant</label><select id="t_cust"><option value="">, geen, </option>'+DATA.customers.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="frow"><div class="fgroup"><label>Klant</label>'+custPicker('t_cust','')+'</div>'+
   '<div class="fgroup"><label>Deadline</label><input id="t_due" type="date"></div></div>'+
   '<div class="fgroup"><label>Prioriteit</label><select id="t_prio"><option>normaal</option><option>hoog</option></select></div>',
   '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveTask()">Opslaan</button>');
@@ -2316,7 +2325,7 @@ function dealToClient(id){
   setTimeout(function(){
     EDITLINES=[{d:'Webontwikkeling, ontwerp, bouw en oplevering website',q:1,p:Number(d.value)||650}];
     renderLines();calcTot();
-    var sel=document.getElementById('i_cust');if(sel)sel.value=c.id;
+    custPickerSet('i_cust',c.id);
   },250);
 }
 
@@ -2784,7 +2793,7 @@ function mTaskEdit(id){
   openM('Taak bewerken',
   '<div class="fgroup"><label>Titel *</label><input id="t_title" value="'+esc(t.title)+'"></div>'+
   '<div class="fgroup"><label>Omschrijving / wat moet er gebeuren</label><textarea id="t_desc" rows="4">'+esc(t.desc||'')+'</textarea></div>'+
-  '<div class="frow"><div class="fgroup"><label>Klant</label><select id="t_cust"><option value="">, geen, </option>'+DATA.customers.map(function(c){return '<option value="'+c.id+'" '+(t.customerId===c.id?'selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="frow"><div class="fgroup"><label>Klant</label>'+custPicker('t_cust',t.customerId||'')+'</div>'+
   '<div class="fgroup"><label>Deadline</label><input id="t_due" type="date" value="'+esc(t.due||'')+'"></div></div>'+
   '<div class="frow"><div class="fgroup"><label>Prioriteit</label><select id="t_prio"><option '+(t.prio!=='hoog'?'selected':'')+'>normaal</option><option '+(t.prio==='hoog'?'selected':'')+'>hoog</option></select></div>'+
   '<div class="fgroup"><label>Status</label><select id="t_status">'+['open','bezig','klaar'].map(function(s){return '<option '+(tStatus(t)===s?'selected':'')+'>'+s+'</option>'}).join('')+'</select></div></div>',
@@ -2911,6 +2920,314 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js',{sco
 /* Telegram (optioneel) */
 async function tgSave(){var t=document.getElementById('tg_token').value.trim(),c=document.getElementById('tg_chat').value.trim();var r=await sb.from('push_settings').upsert({user_id:CLOUD.uid,telegram_token:t||null,telegram_chat:c||null},{onConflict:'user_id'});if(r.error){toast(r.error.message,true);return}toast('Telegram opgeslagen');if(t&&c){var x=await sb.functions.invoke('notify',{body:{test:true}});var d=x.data||{};toast(d.telegram?'✅ Telegram-test verstuurd':'Telegram mislukt: '+(d.tgErr||d.error||'?'),!d.telegram)}}
 async function tgLoad(){try{var r=await sb.from('push_settings').select('telegram_token,telegram_chat').eq('user_id',CLOUD.uid).maybeSingle();var d=r.data||{};var a=document.getElementById('tg_token'),b=document.getElementById('tg_chat');if(a)a.value=d.telegram_token||'';if(b)b.value=d.telegram_chat||''}catch(e){}}
+
+
+/* ===== KLANT ZOEKEN (combobox) + KBO-opzoeking ===== */
+function custPicker(id,selectedId,allowNone){
+  var c=selectedId?customer(selectedId):null;
+  return '<div class="cpick"><input type="hidden" id="'+id+'" value="'+esc(selectedId||'')+'">'+
+    '<input class="cpick-in" id="'+id+'_q" autocomplete="off" placeholder="Typ om te zoeken…" value="'+esc(c?c.name:'')+'" oninput="cpFilter(\''+id+'\')" onfocus="cpFilter(\''+id+'\')" onkeydown="cpKey(event,\''+id+'\')">'+
+    '<div class="cpick-dd" id="'+id+'_dd"></div></div>';
+}
+function cpFilter(id){
+  var q=(document.getElementById(id+'_q').value||'').toLowerCase().trim();var dd=document.getElementById(id+'_dd');
+  var list=DATA.customers.filter(function(c){return !q||(c.name+' '+(c.address||'')+' '+(c.vat||'')+' '+(c.contact||'')).toLowerCase().indexOf(q)>=0}).sort(function(a,b){return a.name.localeCompare(b.name)}).slice(0,8);
+  dd.innerHTML=list.map(function(c){return '<div class="cpick-it" onmousedown="cpPick(\''+id+'\',\''+c.id+'\')"><b>'+esc(c.name)+'</b>'+(c.address?'<span>'+esc(c.address)+'</span>':'')+'</div>'}).join('')+
+    '<div class="cpick-it new" onmousedown="cpNew(\''+id+'\')">+ Nieuwe klant'+(q?' “'+esc(document.getElementById(id+'_q').value)+'”':'')+'</div>';
+  dd.style.display='block';
+  var q2=document.getElementById(id+'_q');q2.onblur=function(){setTimeout(function(){dd.style.display='none'},150)};
+}
+function cpKey(ev,id){if(ev.key==='Enter'){ev.preventDefault();var f=document.querySelector('#'+id+'_dd .cpick-it:not(.new)');if(f)f.dispatchEvent(new Event('mousedown'))}if(ev.key==='Escape')document.getElementById(id+'_dd').style.display='none'}
+function cpPick(id,cid){var c=customer(cid);document.getElementById(id).value=cid;document.getElementById(id+'_q').value=c?c.name:'';document.getElementById(id+'_dd').style.display='none'}
+function custPickerSet(id,cid){var h=document.getElementById(id);if(!h)return;h.value=cid||'';var c=cid?customer(cid):null;var q=document.getElementById(id+'_q');if(q)q.value=c?c.name:''}
+function cpNew(id){var name=document.getElementById(id+'_q').value.trim();window.__cpReturn=id;mCustomer();setTimeout(function(){var n=document.getElementById('c_name');if(n&&name)n.value=name},50)}
+/* KBO */
+async function kboLookup(){
+  var v=document.getElementById('c_vat').value.trim();if(!v){toast('Vul eerst een btw-/ondernemingsnummer in',true);return}
+  var btn=document.getElementById('kbo_btn');if(btn){btn.disabled=true;btn.textContent='Zoeken…'}
+  try{
+    var r=await sb.functions.invoke('kbo',{body:{vat:v}});var d=r.data||{};
+    if(r.error){var msg=r.error.message;try{var ctx=await r.error.context.json();if(ctx&&ctx.error)msg=ctx.error}catch(x){}throw new Error(msg)}
+    if(d.error)throw new Error(d.error);
+    document.getElementById('c_vat').value=d.vat||v;
+    if(!d.found){toast(d.valid===false?'Btw-nummer niet geldig volgens VIES':'Niet gevonden in KBO',true);return}
+    var n=document.getElementById('c_name');if(d.name&&(!n.value.trim()||confirm('Naam vervangen door “'+d.name+'”?')))n.value=d.name;
+    var addr=[d.street,(d.zip+' '+d.city).trim()].filter(Boolean).join(', ');if(addr)document.getElementById('c_addr').value=addr;
+    var note=document.getElementById('c_note');if(d.legalForm&&note&&note.value.indexOf(d.legalForm)<0)note.value=(note.value?note.value+'\n':'')+d.legalForm+(d.status?' · '+d.status:'');
+    toast('✅ Gevonden via '+(d.source||'KBO')+(d.valid===false?' (btw-nummer niet actief!)':''));
+  }catch(e){toast('Opzoeken mislukt: '+e.message,true)}
+  if(btn){btn.disabled=false;btn.textContent='🔍 KBO'}
+}
+
+
+/* ===== KOPPELINGEN: Google Agenda + Gmail, Wise, WhatsApp Cloud API, Website-monitor, LinkedIn ===== */
+if(!DATA.comms)DATA.comms=[];if(!DATA.monitor)DATA.monitor=[];
+var INT={row:null,loaded:false,waTemplates:null,wiseLast:0,gcalLast:0};
+function gCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.google)DATA.settings.google={clientId:'',from:'giannis@marleo.tech',fromName:'Giannis Baert | Marleo',sync:true};return DATA.settings.google}
+async function intLoad(){if(!sb||!CLOUD.uid)return INT.row;var r=await sb.from('integrations').select('*').eq('user_id',CLOUD.uid).maybeSingle();INT.row=r.data||{};INT.loaded=true;return INT.row}
+async function intSave(patch){if(!sb||!CLOUD.uid){toast('Niet ingelogd in de cloud',true);return false}patch.user_id=CLOUD.uid;patch.updated_at=new Date().toISOString();var r=await sb.from('integrations').upsert(patch,{onConflict:'user_id'});if(r.error){toast(r.error.message,true);return false}INT.row=Object.assign(INT.row||{},patch);return true}
+function commLog(o){o.id=nid('cm');o.t=Date.now();DATA.comms.unshift(o);DATA.comms=DATA.comms.slice(0,500);saveData()}
+function liUrl(person,company){var q=[person,company].filter(Boolean).join(' ');return person?'https://www.linkedin.com/search/results/people/?keywords='+encodeURIComponent(q):'https://www.linkedin.com/search/results/companies/?keywords='+encodeURIComponent(company||'')}
+function rnd(n){var a=new Uint8Array(n||16);crypto.getRandomValues(a);return Array.from(a).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
+
+/* ---------- Google (Agenda + Gmail) ---------- */
+var G={token:null,exp:0};try{var _g=JSON.parse(sessionStorage.getItem('g_tok')||'null');if(_g&&_g.exp>Date.now())G=_g}catch(e){}
+function gConnected(){return !!(gCfg().clientId&&G.token&&Date.now()<G.exp)}
+function gLoad(cb){if(window.google&&google.accounts&&google.accounts.oauth2)return cb();var s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=cb;s.onerror=function(){toast('Google-script kon niet laden',true)};document.head.appendChild(s)}
+function gToken(interactive){return new Promise(function(res,rej){
+  var cfg=gCfg();if(!cfg.clientId){rej(new Error('Vul eerst je Google client-id in bij Instellingen → Koppelingen'));return}
+  if(G.token&&Date.now()<G.exp-60000)return res(G.token);
+  gLoad(function(){
+    var tc=google.accounts.oauth2.initTokenClient({client_id:cfg.clientId,scope:'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/gmail.send',
+      callback:function(r){if(r.error){rej(new Error(r.error_description||r.error));return}G={token:r.access_token,exp:Date.now()+(r.expires_in||3600)*1000};try{sessionStorage.setItem('g_tok',JSON.stringify(G))}catch(e){}gStatus();res(G.token)},
+      error_callback:function(e){rej(new Error(e&&e.type==='popup_closed'?'Aanmelden geannuleerd':(e&&e.message)||'Google-aanmelding mislukt'))}});
+    tc.requestAccessToken({prompt:interactive?'consent':''});
+  });
+})}
+async function gApi(method,url,body,retry){
+  var tok=await gToken(false);
+  var r=await fetch(url,{method:method,headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  if(r.status===401&&!retry){G={token:null,exp:0};try{sessionStorage.removeItem('g_tok')}catch(e){}await gToken(true);return gApi(method,url,body,true)}
+  var j=r.status===204?{}:await r.json().catch(function(){return{}});
+  if(!r.ok)throw new Error((j.error&&j.error.message)||('Google '+r.status));
+  return j;
+}
+async function gConnect(){var id=(document.getElementById('g_client')||{}).value;if(id!==undefined){gCfg().clientId=id.trim();saveData()}try{await gToken(true);toast('✅ Google gekoppeld');gStatus();gcalPull(true)}catch(e){toast(e.message,true)}}
+function gDisconnect(){if(G.token&&window.google&&google.accounts)try{google.accounts.oauth2.revoke(G.token,function(){})}catch(e){}G={token:null,exp:0};try{sessionStorage.removeItem('g_tok')}catch(e){}gStatus();toast('Google losgekoppeld')}
+function gStatus(){var el=document.getElementById('g_status');if(!el)return;el.innerHTML=gConnected()?'<span style="color:#86EFAC">● Gekoppeld</span> – Agenda en Gmail actief in deze browsersessie':(gCfg().clientId?'<span style="color:#FCD34D">● Client-id ingevuld, nog niet aangemeld</span>':'<span style="color:var(--muted)">○ Niet gekoppeld</span>')}
+
+/* Google Agenda: afspraken tweerichtingsverkeer */
+function gcalBody(a){var c=a.customerId?customer(a.customerId):null;var desc=(a.note||'')+(c?'\n\nKlant: '+c.name+(c.phone?' · '+c.phone:'')+(c.email?' · '+c.email:''):'');
+  var b={summary:a.title,description:desc.trim(),extendedProperties:{private:{marleo:a.id}}};
+  if(a.time){var st=new Date(a.date+'T'+a.time+':00');var en=new Date(st.getTime()+60*60000);b.start={dateTime:a.date+'T'+a.time+':00',timeZone:'Europe/Brussels'};b.end={dateTime:en.getFullYear()+'-'+String(en.getMonth()+1).padStart(2,'0')+'-'+String(en.getDate()).padStart(2,'0')+'T'+String(en.getHours()).padStart(2,'0')+':'+String(en.getMinutes()).padStart(2,'0')+':00',timeZone:'Europe/Brussels'}}
+  else{var d2=new Date(a.date+'T12:00:00');d2.setDate(d2.getDate()+1);b.start={date:a.date};b.end={date:d2.toISOString().slice(0,10)}}
+  return b}
+async function gcalPush(a){if(!gCfg().clientId||!gCfg().sync||!a||!a.date)return;try{
+  if(a.gcalId){await gApi('PUT','https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(a.gcalId),gcalBody(a))}
+  else{var r=await gApi('POST','https://www.googleapis.com/calendar/v3/calendars/primary/events',gcalBody(a));a.gcalId=r.id;saveData()}
+  }catch(e){toast('Google Agenda: '+e.message,true)}}
+async function gcalDelete(gid){if(!gid||!gCfg().clientId)return;try{await gApi('DELETE','https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(gid))}catch(e){}}
+async function gcalPull(silent){if(!gCfg().clientId||!gCfg().sync)return;try{
+  var tmin=new Date(Date.now()-14*864e5).toISOString(),tmax=new Date(Date.now()+120*864e5).toISOString();
+  var r=await gApi('GET','https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=250&timeMin='+encodeURIComponent(tmin)+'&timeMax='+encodeURIComponent(tmax));
+  var seen={},n=0,upd=0;
+  (r.items||[]).forEach(function(ev){if(ev.status==='cancelled')return;seen[ev.id]=1;
+    var date=ev.start.date||(ev.start.dateTime||'').slice(0,10),time=ev.start.dateTime?ev.start.dateTime.slice(11,16):'';
+    var a=DATA.appointments.find(function(x){return x.gcalId===ev.id});
+    if(!a){a=DATA.appointments.find(function(x){return !x.gcalId&&x.date===date&&x.title===(ev.summary||'')});if(a)a.gcalId=ev.id}
+    if(a){if(a.title!==(ev.summary||a.title)||a.date!==date||a.time!==time){a.title=ev.summary||a.title;a.date=date;a.time=time;upd++}}
+    else{DATA.appointments.push({id:nid('appt'),title:ev.summary||'(zonder titel)',date:date,time:time,customerId:'',note:(ev.description||'').split('\n\nKlant:')[0].slice(0,300),gcalId:ev.id});n++}
+  });
+  var before=DATA.appointments.length;
+  DATA.appointments=DATA.appointments.filter(function(x){if(!x.gcalId)return true;if(x.date<tmin.slice(0,10)||x.date>tmax.slice(0,10))return true;return !!seen[x.gcalId]});
+  var gone=before-DATA.appointments.length;INT.gcalLast=Date.now();
+  if(n||upd||gone){saveData();if(VIEW==='agenda')rAgenda();if(VIEW==='dashboard')rDash()}
+  if(!silent)toast('Google Agenda: '+n+' nieuw, '+upd+' bijgewerkt'+(gone?', '+gone+' verwijderd':''));
+  }catch(e){if(!silent)toast('Google Agenda: '+e.message,true)}}
+var _saveAppt0=saveAppt;saveAppt=function(id){var before=DATA.appointments.length;_saveAppt0(id);var a=id?DATA.appointments.find(function(x){return x.id===id}):(DATA.appointments.length>before?DATA.appointments[DATA.appointments.length-1]:null);if(a)gcalPush(a)};
+var _delAppt0=delAppt;delAppt=function(id){var a=DATA.appointments.find(function(x){return x.id===id});var gid=a&&a.gcalId;_delAppt0(id);if(gid)gcalDelete(gid)};
+var _rAgenda0=rAgenda;rAgenda=function(){_rAgenda0();var tb=main().querySelector('.topbar');if(tb&&gCfg().clientId){tb.insertAdjacentHTML('beforeend','<button class="btn subtle" style="margin-left:8px" onclick="gcalPull()">↻ Google Agenda</button>');if(Date.now()-INT.gcalLast>5*60000&&gConnected())gcalPull(true)}};
+
+/* Gmail: verzenden vanuit de CRM */
+function b64u(s){return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function b64utf(s){return btoa(unescape(encodeURIComponent(s)))}
+function mimeWord(s){return /^[\x20-\x7e]*$/.test(s)?s:'=?UTF-8?B?'+b64utf(s)+'?='}
+async function gmSend(o){
+  var cfg=gCfg();var from=(cfg.fromName?mimeWord(cfg.fromName)+' ':'')+'<'+(cfg.from||'giannis@marleo.tech')+'>';
+  var lines=['From: '+from,'To: '+o.to,'Subject: '+mimeWord(o.subject||''),'MIME-Version: 1.0'];var body;
+  if(o.attach){var bnd='marleo_'+Date.now();lines.push('Content-Type: multipart/mixed; boundary="'+bnd+'"');
+    body='--'+bnd+'\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(o.text||'')+'\r\n--'+bnd+'\r\nContent-Type: '+(o.attach.type||'application/pdf')+'; name="'+o.attach.name+'"\r\nContent-Disposition: attachment; filename="'+o.attach.name+'"\r\nContent-Transfer-Encoding: base64\r\n\r\n'+o.attach.b64.replace(/(.{76})/g,'$1\r\n')+'\r\n--'+bnd+'--'}
+  else{lines.push('Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64');body=b64utf(o.text||'')}
+  var raw=lines.join('\r\n')+'\r\n\r\n'+body;
+  return gApi('POST','https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{raw:b64u(raw)});
+}
+var MAILCTX=null;
+function mMail(o){MAILCTX=o||{};
+  openM('✉️ E-mail versturen',
+   '<div class="frow"><div class="fgroup"><label>Aan</label><input id="gm_to" value="'+esc(o.to||'')+'" placeholder="klant@bedrijf.be"></div><div class="fgroup"><label>Van</label><input value="'+esc((gCfg().fromName||'')+' <'+(gCfg().from||'giannis@marleo.tech')+'>')+'" readonly></div></div>'+
+   '<div class="fgroup"><label>Onderwerp</label><input id="gm_sub" value="'+esc(o.subject||'')+'"></div>'+
+   '<div class="fgroup"><label>Bericht</label><textarea id="gm_body" style="min-height:220px">'+esc(o.text||'')+'</textarea></div>'+
+   (o.attach?'<div class="hint">📎 Bijlage: <b>'+esc(o.attach.name)+'</b></div>':'')+
+   (gCfg().clientId?'':'<div class="hint" style="color:#FCD34D">Gmail is nog niet gekoppeld (Instellingen → Koppelingen). Je kan wel "Open in Gmail" gebruiken.</div>'),
+   '<button class="btn subtle" onclick="mMailOpenGmail()">Open in Gmail</button>'+(gCfg().clientId?'<button class="btn" id="gm_send" onclick="mMailSend()">➤ Verstuur</button>':''),true);
+}
+function mMailOpenGmail(){var to=document.getElementById('gm_to').value,su=document.getElementById('gm_sub').value,b=document.getElementById('gm_body').value;window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to)+'&su='+encodeURIComponent(su)+'&body='+encodeURIComponent(b));mMailAfter({to:to,subject:su,text:b,via:'gmail-web'});closeM()}
+async function mMailSend(){var to=document.getElementById('gm_to').value.trim(),su=document.getElementById('gm_sub').value.trim(),b=document.getElementById('gm_body').value;if(!to){toast('Geen ontvanger',true);return}
+  var btn=document.getElementById('gm_send');btn.disabled=true;btn.textContent='Versturen…';
+  try{await gmSend({to:to,subject:su,text:b,attach:MAILCTX.attach});toast('✅ E-mail verstuurd naar '+to);mMailAfter({to:to,subject:su,text:b,via:'gmail-api'});closeM();if(MAILCTX.after)MAILCTX.after();if(VIEW==='custpage')rCustPage()}
+  catch(e){toast('Versturen mislukt: '+e.message,true);btn.disabled=false;btn.textContent='➤ Verstuur'}}
+function mMailAfter(m){var o=MAILCTX||{};commLog({custId:o.custId||'',dealId:o.dealId||'',type:'mail',dir:'out',to:m.to,subject:m.subject,text:m.text,via:m.via,attach:o.attach?o.attach.name:''});
+  if(o.dealId){var d=DATA.deals.find(function(x){return x.id===o.dealId});if(d){d.laatstContact=today();d.kanaal='E-mail';(d.log=d.log||[]).push({t:Date.now(),txt:'Mail: '+m.subject});if(d.stage==='nieuw')d.stage='gecontacteerd';saveData()}}
+  logAct('✉️ Mail verstuurd: '+m.subject+' → '+m.to)}
+/* sjablonen en herinneringen via de CRM-mailer */
+function utMail(id){var r=utVals(id);var who=(document.getElementById('ut_who')||{}).value||'';var ctx={to:r.v.email||'',subject:r.subject,text:r.body};if(who.indexOf('c:')===0)ctx.custId=who.slice(2);if(who.indexOf('d:')===0)ctx.dealId=who.slice(2);utLog(r);closeM();setTimeout(function(){mMail(ctx)},50)}
+function remindMail(id){var iv=DATA.invoices.find(function(x){return x.id===id});var c=customer(iv.customerId)||{};if(!c.email){toast('Geen e-mailadres bij deze klant',true);return}
+  (iv.log=iv.log||[]).push({t:Date.now(),txt:'Herinnering via e-mail'});iv.reminded=today();saveData();logAct('Herinnering gestuurd voor '+iv.ref);closeM();setTimeout(function(){mMail({to:c.email,subject:'Herinnering factuur '+iv.ref,text:remindText(iv),custId:c.id})},50)}
+function mailInv(id){var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;var c=customer(iv.customerId)||{};var isOff=iv.type==='offerte';var co=coCfg();
+  loadJsPDF(function(){var pdf=buildInvPdf(iv,true);var naam=c.contact?c.contact.split(' ')[0]:'';
+    var txt=isOff?'Beste'+(naam?' '+naam:'')+',\n\nIn bijlage vind je onze offerte '+iv.ref+' ('+eur(invTot(iv))+' incl. btw).\n\nLaat gerust weten als je vragen hebt of iets wil aanpassen. Als alles goed is, mag je gewoon antwoorden op deze mail en dan plannen we de start in.\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo – '+(co.phone||'')+'\ngiannis@marleo.tech'
+      :'Beste'+(naam?' '+naam:'')+',\n\nIn bijlage vind je '+({voorschot:'de voorschotfactuur',eindfactuur:'de eindfactuur',creditnota:'de creditnota'}[iv.type]||'de factuur')+' '+iv.ref+' voor een bedrag van '+eur(invTot(iv))+' incl. btw'+(iv.due?', te betalen tegen '+fmtD(iv.due):'')+'.\n\nBetalen kan op '+(co.iban||'')+' met mededeling "'+iv.ref+'".\n\nBedankt voor het vertrouwen!\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo – '+(co.phone||'')+'\ngiannis@marleo.tech';
+    closeM();setTimeout(function(){mMail({to:c.email||'',subject:(isOff?'Offerte ':'Factuur ')+iv.ref+' – Marleo',text:txt,attach:{name:pdf.name,b64:pdf.b64,type:'application/pdf'},custId:c.id,after:function(){(iv.log=iv.log||[]).push({t:Date.now(),txt:(isOff?'Offerte':'Factuur')+' gemaild naar '+(c.email||'')});iv.sent=today();saveData()}})},50)})}
+function mMailDeal(id){var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;closeM();setTimeout(function(){mMail({to:d.email||'',subject:'',text:'Beste'+(d.contact?' '+d.contact.split(' ')[0]:'')+',\n\n',dealId:d.id})},50)}
+function mMailCust(id){var c=customer(id);if(!c)return;mMail({to:c.email||'',subject:'',text:'Beste'+(c.contact?' '+c.contact.split(' ')[0]:'')+',\n\n',custId:c.id})}
+
+/* ---------- Wise: betalingen afvinken ---------- */
+async function wiseProfiles(){var tok=(document.getElementById('ws_token')||{}).value;if(tok!==undefined&&tok.trim()){if(!await intSave({wise_token:tok.trim()}))return}
+  var el=document.getElementById('ws_prof');if(el)el.innerHTML='<option>Laden…</option>';
+  var r=await sb.functions.invoke('wise',{body:{mode:'profiles'}});var d=r.data||{};
+  if(!d.ok){toast('Wise: '+(d.error||(r.error&&r.error.message)||'?'),true);if(el)el.innerHTML='<option value="">—</option>';return}
+  if(el)el.innerHTML='<option value="">— kies profiel —</option>'+d.profiles.map(function(p){return '<option value="'+p.id+'" '+(String(INT.row&&INT.row.wise_profile_id)===String(p.id)?'selected':'')+'>'+esc(p.name)+' ('+p.type.toLowerCase()+')'+(p.balances.length?' – '+p.balances.map(function(b){return b.currency+' '+Number(b.amount||0).toLocaleString('nl-BE',{minimumFractionDigits:2})}).join(', '):'')+'</option>'}).join('');
+  toast('✅ Wise-token werkt: '+d.profiles.length+' profiel(en)')}
+async function wiseSaveProfile(v){if(await intSave({wise_profile_id:v||null}))toast('Wise-profiel opgeslagen')}
+async function wiseSaveKey(){var k=(document.getElementById('ws_key')||{}).value||'';if(await intSave({wise_private_key:k.trim()||null}))toast(k.trim()?'Sleutel opgeslagen':'Sleutel verwijderd')}
+function wiseCfgd(){return !!(INT.row&&INT.row.wise_token&&INT.row.wise_profile_id)}
+function wiseMatchOne(p,open){var amt=Math.round(p.amount*100);var txt=((p.ref||'')+' '+(p.desc||'')).toUpperCase();
+  var byRef=open.filter(function(iv){return iv.ref&&txt.indexOf(String(iv.ref).toUpperCase())>=0});if(byRef.length===1)return {iv:byRef[0],how:'mededeling'};
+  var byAmt=open.filter(function(iv){return Math.round(invTot(iv)*100)===amt&&(!p.date||!iv.date||p.date>=iv.date)});
+  if(byAmt.length===1)return {iv:byAmt[0],how:'bedrag'};
+  if(byAmt.length>1){var c=byAmt.filter(function(iv){var cu=customer(iv.customerId);return cu&&p.from&&cu.name&&p.from.toUpperCase().indexOf(cu.name.toUpperCase().split(' ')[0])>=0});if(c.length===1)return {iv:c[0],how:'bedrag + naam'}}
+  return null}
+async function wiseSync(silent){if(!wiseCfgd()){if(!silent)toast('Wise nog niet ingesteld (Instellingen → Koppelingen)',true);return}
+  if(!silent)toast('Wise-betalingen ophalen…');
+  var r=await sb.functions.invoke('wise',{body:{mode:'payments'}});var d=r.data||{};INT.wiseLast=Date.now();
+  if(!d.ok){if(!silent)toast('Wise: '+(d.error||(r.error&&r.error.message)||'?'),true);return}
+  var pays=d.payments||[];var open=DATA.invoices.filter(function(iv){return iv.type!=='offerte'&&iv.status!=='concept'&&invStatus(iv)!=='betaald'});
+  var seen={};DATA.invoices.forEach(function(iv){if(iv.wiseId)seen[iv.wiseId]=1});
+  var rows=[],auto=0;
+  pays.forEach(function(p){if(p.id&&seen[p.id])return;var m=wiseMatchOne(p,open);
+    if(m&&m.how==='mededeling'){m.iv.status='betaald';m.iv.paidDate=p.date||today();m.iv.wiseId=p.id;(m.iv.log=m.iv.log||[]).push({t:Date.now(),txt:'Automatisch betaald via Wise ('+eur(p.amount)+(p.from?' van '+p.from:'')+')'});open=open.filter(function(x){return x!==m.iv});auto++;logAct('🏦 '+m.iv.ref+' betaald via Wise')}
+    else rows.push({p:p,m:m})});
+  if(auto){saveData();toast('🏦 '+auto+' factu'+(auto>1?'ren':'ur')+' automatisch afgevinkt via Wise');if(VIEW==='invoices'||VIEW==='dashboard')go(VIEW)}
+  if(silent)return;
+  INT.wiseRows=rows;
+  openM('🏦 Wise – inkomende betalingen (90 dagen)',
+    (d.scaNeeded?'<div class="hint" style="color:#FCD34D;margin-bottom:8px">Wise vroeg extra beveiliging (SCA) voor het rekeninguittreksel; ik gebruikte de activiteitenlijst (zonder mededeling). Voeg een private key toe bij Instellingen → Koppelingen voor volledige gegevens.</div>':'')+
+    (rows.length?'<div style="overflow-x:auto"><table><thead><tr><th>Datum</th><th>Van</th><th>Mededeling</th><th class="num">Bedrag</th><th>Koppelen aan</th><th></th></tr></thead><tbody>'+rows.map(function(x,i){var p=x.p;
+      return '<tr style="cursor:default"><td>'+fmtD(p.date)+'</td><td>'+esc(p.from||'')+'</td><td style="max-width:220px;font-size:.8rem">'+esc(p.ref||p.desc||'')+'</td><td class="num"><b>'+eur(p.amount)+'</b></td>'+
+      '<td><select id="ws_m'+i+'"><option value="">—</option>'+open.map(function(iv){return '<option value="'+iv.id+'" '+(x.m&&x.m.iv.id===iv.id?'selected':'')+'>'+esc(iv.ref)+' · '+esc(custName(iv.customerId))+' · '+eur(invTot(iv))+'</option>'}).join('')+'</select>'+(x.m?'<div class="hint" style="margin:2px 0 0">voorstel op '+x.m.how+'</div>':'')+'</td>'+
+      '<td><button class="btn sm" onclick="wiseApply('+i+')">✓ Betaald</button></td></tr>'}).join('')+'</tbody></table></div>':'<div class="hint">Geen nieuwe inkomende betalingen gevonden'+(pays.length?' (alles al gekoppeld)':'')+'.</div>'),
+    '<button class="btn subtle" onclick="closeM()">Sluiten</button>',true)}
+function wiseApply(i){var x=INT.wiseRows[i];var sel=document.getElementById('ws_m'+i);var iv=DATA.invoices.find(function(v){return v.id===sel.value});if(!iv){toast('Kies een factuur',true);return}
+  iv.status='betaald';iv.paidDate=x.p.date||today();iv.wiseId=x.p.id;(iv.log=iv.log||[]).push({t:Date.now(),txt:'Betaald via Wise ('+eur(x.p.amount)+(x.p.from?' van '+x.p.from:'')+')'});saveData();logAct('🏦 '+iv.ref+' betaald via Wise');toast(iv.ref+' afgevinkt');
+  sel.closest('tr').style.opacity='.35';sel.closest('tr').querySelector('button').disabled=true;if(VIEW==='invoices')setTimeout(function(){rInvoices()},10)}
+var _rInvoices0=rInvoices;rInvoices=function(){_rInvoices0();var tb=main().querySelector('.topbar > div:last-child');if(tb)tb.insertAdjacentHTML('afterbegin','<button class="btn subtle" onclick="wiseSync()" title="Inkomende betalingen ophalen en facturen afvinken">🏦 Wise</button>');
+  if(wiseCfgd()&&Date.now()-INT.wiseLast>60*60000)wiseSync(true)};
+
+/* ---------- WhatsApp Cloud API ---------- */
+function waCfgd(){return !!(INT.row&&INT.row.wa_token&&INT.row.wa_phone_id)}
+async function waSave(){var p={wa_token:(document.getElementById('wa_token').value||'').trim()||null,wa_phone_id:(document.getElementById('wa_phone').value||'').trim()||null,wa_verify_token:(document.getElementById('wa_verify').value||'').trim()||null};
+  if(await intSave(p)){toast('WhatsApp-instellingen opgeslagen');waTest()}}
+async function waTest(){var el=document.getElementById('wa_status');if(el)el.textContent='Testen…';var r=await sb.functions.invoke('whatsapp',{body:{test:true}});var d=r.data||{};
+  if(el)el.innerHTML=d.ok?'<span style="color:#86EFAC">● Verbonden: '+esc(d.verified_name||'')+' '+esc(d.display_phone_number||'')+'</span>':'<span style="color:#FCA5A5">● '+esc(d.error||(r.error&&r.error.message)||'mislukt')+'</span>'}
+async function waTemplates(){if(INT.waTemplates)return INT.waTemplates;var r=await sb.functions.invoke('whatsapp',{body:{templates:true}});var d=r.data||{};INT.waTemplates=(d.templates||[]).filter(function(t){return t.status==='APPROVED'});return INT.waTemplates}
+async function waHistory(waId){if(!sb||!CLOUD.uid)return[];var r=await sb.from('wa_messages').select('*').eq('user_id',CLOUD.uid).eq('wa_id',waId).order('ts',{ascending:true}).limit(200);return r.data||[]}
+function waBubbles(list){if(!list.length)return '<div class="hint" style="padding:20px;text-align:center">Nog geen berichten. Eerste contact? Stuur een goedgekeurd sjabloon.</div>';
+  return list.map(function(m){var out=m.direction==='out';return '<div style="display:flex;justify-content:'+(out?'flex-end':'flex-start')+';margin:4px 0"><div style="max-width:78%;padding:8px 12px;border-radius:14px;'+(out?'background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff;border-bottom-right-radius:4px':'background:rgba(255,255,255,.08);border-bottom-left-radius:4px')+'"><div style="white-space:pre-wrap;font-size:.9rem">'+esc(m.body)+'</div><div style="font-size:.68rem;opacity:.65;margin-top:3px;text-align:right">'+new Date(m.ts).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+(out?' · '+({sent:'✓',delivered:'✓✓',read:'✓✓ gelezen',failed:'⚠ mislukt'}[m.status]||''):'')+'</div></div></div>'}).join('')}
+async function waRender(waId,boxId){var box=document.getElementById(boxId);if(!box)return;var list=await waHistory(waId);box.innerHTML=waBubbles(list);box.scrollTop=box.scrollHeight;
+  if(list.length){var ids=list.filter(function(m){return m.direction==='in'&&m.status!=='read_crm'}).map(function(m){return m.id});if(ids.length)sb.from('wa_messages').update({status:'read_crm'}).in('id',ids).then(function(){})}}
+function waChatHtml(waId,boxId){return '<div id="'+boxId+'" style="max-height:340px;overflow:auto;padding:8px;background:rgba(0,0,0,.25);border-radius:12px;margin-top:8px"><span class="hint">Laden…</span></div>'+
+  '<div style="display:flex;gap:6px;margin-top:8px"><textarea id="'+boxId+'_in" placeholder="Typ een bericht… (Enter = verstuur)" style="min-height:44px;flex:1" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();waSend(\''+waId+'\',\''+boxId+'\')}"></textarea><button class="btn" onclick="waSend(\''+waId+'\',\''+boxId+'\')">➤</button></div>'+
+  '<div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="hint" style="margin:0">Eerste contact / na 24u:</span><select id="'+boxId+'_tpl" style="max-width:220px"><option value="">sjabloon laden…</option></select><button class="btn sm subtle" onclick="waSendTpl(\''+waId+'\',\''+boxId+'\')">Sjabloon sturen</button></div>'}
+async function waMount(waId,boxId){waRender(waId,boxId);var sel=document.getElementById(boxId+'_tpl');try{var t=await waTemplates();if(sel)sel.innerHTML='<option value="">— kies sjabloon —</option>'+t.map(function(x){return '<option value="'+esc(x.name)+'|'+esc(x.language)+'">'+esc(x.name)+' ('+esc(x.language)+')</option>'}).join('')}catch(e){if(sel)sel.innerHTML='<option value="">geen sjablonen</option>'}
+  clearInterval(INT.waPoll);INT.waPoll=setInterval(function(){if(document.getElementById(boxId))waRender(waId,boxId);else clearInterval(INT.waPoll)},8000)}
+async function waSend(waId,boxId){var ta=document.getElementById(boxId+'_in');var txt=(ta.value||'').trim();if(!txt)return;ta.disabled=true;
+  var r=await sb.functions.invoke('whatsapp',{body:{to:waId,text:txt}});var d=r.data||{};ta.disabled=false;
+  if(!d.ok){toast('WhatsApp: '+(d.error||(r.error&&r.error.message)||'?')+(d.hint?' – '+d.hint:''),true);return}
+  ta.value='';waRender(waId,boxId);var c=DATA.customers.find(function(x){return telDigits(x.phone)===waId});commLog({custId:c?c.id:'',type:'wa',dir:'out',to:waId,text:txt})}
+async function waSendTpl(waId,boxId){var v=(document.getElementById(boxId+'_tpl')||{}).value||'';if(!v){toast('Kies een sjabloon',true);return}var p=v.split('|');
+  var r=await sb.functions.invoke('whatsapp',{body:{to:waId,template:p[0],lang:p[1]||'nl'}});var d=r.data||{};if(!d.ok){toast('WhatsApp: '+(d.error||'?'),true);return}toast('Sjabloon verstuurd');waRender(waId,boxId)}
+function rCustComms(c){var mails=DATA.comms.filter(function(m){return m.custId===c.id});var waId=c.phone?telDigits(c.phone):'';
+  var h='<div class="panelbox"><h3>Communicatie <span style="display:flex;gap:6px">'+(c.email?'<button class="btn sm" onclick="mMailCust(\''+c.id+'\')">✉️ Mail</button>':'')+'</span></h3>';
+  h+=mails.length?'<div style="margin-top:6px">'+mails.slice(0,8).map(function(m){return '<div class="notecard" style="margin-bottom:6px"><div class="meta">'+new Date(m.t).toLocaleString('nl-BE')+' · '+(m.type==='wa'?'WhatsApp':'E-mail'+(m.via==='gmail-api'?' (verstuurd via CRM)':''))+(m.attach?' · 📎 '+esc(m.attach):'')+'</div><p><b>'+esc(m.subject||'')+'</b>'+(m.subject?'<br>':'')+esc(String(m.text||'').slice(0,160))+(String(m.text||'').length>160?'…':'')+'</p></div>'}).join('')+'</div>':'<div class="hint" style="margin-top:6px">Nog geen mails gelogd. Mails die je via de CRM verstuurt komen hier.</div>';
+  if(waCfgd()&&waId){h+='<h3 style="margin-top:16px">💬 WhatsApp <span class="hint" style="margin:0">+'+waId+'</span></h3>'+waChatHtml(waId,'wa_c');setTimeout(function(){waMount(waId,'wa_c')},30)}
+  else if(waId)h+='<div class="hint" style="margin-top:12px">WhatsApp Cloud API nog niet gekoppeld (Instellingen → Koppelingen) – tot dan opent WhatsApp via de knop hierboven.</div>';
+  return h+'</div>'}
+function waName(waId){var c=DATA.customers.find(function(x){return telDigits(x.phone)===waId});if(c)return {name:c.name,cid:c.id};var d=DATA.deals.find(function(x){return x.tel&&telDigits(x.tel)===waId});if(d)return {name:d.naam+' (lead)',did:d.id};return null}
+async function rWhatsapp(){main().innerHTML='<div class="topbar"><div><h2>WhatsApp</h2><div class="sub">Gesprekken via de Cloud API – inkomend en uitgaand</div></div><div style="display:flex;gap:8px"><button class="btn subtle" onclick="rWhatsapp()">↻</button><button class="btn" onclick="waNewChat()">+ Nieuw gesprek</button></div></div><div id="wa_list" class="panelbox"><span class="hint">Laden…</span></div>';
+  if(!waCfgd()){document.getElementById('wa_list').innerHTML='<div class="empty"><span class="big">💬</span>WhatsApp Cloud API nog niet ingesteld.<br><button class="btn" style="margin-top:12px" onclick="go(\'settings\')">Naar Instellingen → Koppelingen</button></div>';return}
+  var r=await sb.from('wa_messages').select('wa_id,name,direction,body,status,ts').eq('user_id',CLOUD.uid).order('ts',{ascending:false}).limit(400);var conv={},order=[];
+  (r.data||[]).forEach(function(m){if(!conv[m.wa_id]){conv[m.wa_id]={last:m,unread:0,name:m.name};order.push(m.wa_id)}if(m.direction==='in'&&m.status!=='read_crm')conv[m.wa_id].unread++;if(!conv[m.wa_id].name&&m.name)conv[m.wa_id].name=m.name});
+  var el=document.getElementById('wa_list');if(!el)return;
+  el.innerHTML=order.length?'<div style="overflow-x:auto"><table><tbody>'+order.map(function(id){var c=conv[id],who=waName(id);return '<tr onclick="waOpen(\''+id+'\')"><td style="width:40px"><div class="custav" style="width:36px;height:36px;font-size:.9rem">'+esc(((who&&who.name)||c.name||'?').charAt(0).toUpperCase())+'</div></td><td><b>'+esc((who&&who.name)||c.name||'+'+id)+'</b>'+(c.unread?' <span class="pill hoog">'+c.unread+' nieuw</span>':'')+'<br><span class="hint" style="margin:0">'+(c.last.direction==='out'?'Jij: ':'')+esc(String(c.last.body||'').slice(0,80))+'</span></td><td style="white-space:nowrap;color:var(--muted);font-size:.8rem">'+new Date(c.last.ts).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</td></tr>'}).join('')+'</tbody></table></div>':'<div class="empty"><span class="big">💬</span>Nog geen gesprekken. Start er een met "+ Nieuw gesprek".</div>'}
+function waOpen(waId){var who=waName(waId);openM('💬 '+((who&&who.name)||'+'+waId),(who&&who.cid?'<button class="btn sm subtle" onclick="closeM();CUSTVIEW=\''+who.cid+'\';go(\'custpage\')">→ Klantfiche</button>':who&&who.did?'<button class="btn sm subtle" onclick="closeM();vDeal(\''+who.did+'\')">→ Lead</button>':'<button class="btn sm subtle" onclick="waToCustomer(\''+waId+'\')">+ Als klant opslaan</button>')+waChatHtml(waId,'wa_m'),'<button class="btn subtle" onclick="closeM();if(VIEW===\'whatsapp\')rWhatsapp()">Sluiten</button>',true);waMount(waId,'wa_m')}
+function waToCustomer(waId){closeM();mCustomer();setTimeout(function(){document.getElementById('c_tel').value='+'+waId},60)}
+function waNewChat(){openM('Nieuw WhatsApp-gesprek','<div class="fgroup"><label>Klant</label>'+custPicker('wa_new')+'</div><div class="fgroup"><label>Of nummer</label><input id="wa_num" placeholder="+32 4xx xx xx xx"></div>','<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="waNewGo()">Open gesprek</button>')}
+function waNewGo(){var num=(document.getElementById('wa_num').value||'').trim();var pick=(document.getElementById('wa_new')||{}).value||'';if(!num&&pick){var c=customer(pick);if(c)num=c.phone}
+  if(!num){toast('Geen nummer bekend',true);return}closeM();setTimeout(function(){waOpen(telDigits(num))},50)}
+
+/* ---------- Website-monitor ---------- */
+function monSites(){return DATA.monitor}
+async function rMonitor(){var sites=monSites();
+  main().innerHTML='<div class="topbar"><div><h2>Websites</h2><div class="sub">Uptime-monitor: elk uur gecheckt, melding op je gsm bij storing of vervallend domein</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="monSuggest()">+ Klantensites toevoegen</button><button class="btn subtle" onclick="monCheckNow()">▶ Nu controleren</button><button class="btn" onclick="mMonSite()">+ Website</button></div></div>'+
+  '<div id="mon_box" class="panelbox">'+(sites.length?'<div style="overflow-x:auto"><table><thead><tr><th></th><th>Website</th><th>Klant</th><th>Status</th><th>Reactie</th><th>Uptime 24u</th><th>Domein vervalt</th><th>Laatste check</th><th></th></tr></thead><tbody>'+sites.map(function(s){return '<tr id="mon_'+s.id+'"><td><span class="mondot" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#64748b"></span></td><td><a href="'+esc(s.url)+'" target="_blank" style="color:#93C5FD"><b>'+esc(s.url.replace(/^https?:\/\/(www\.)?/,''))+'</b></a>'+(s.active===false?' <span class="pill inactief">gepauzeerd</span>':'')+'</td><td>'+esc(s.name||(s.cust?custName(s.cust):''))+'</td><td class="m_st">–</td><td class="m_ms">–</td><td class="m_up">–</td><td class="m_exp">–</td><td class="m_at">–</td><td><div class="rowactions"><button class="iconbtn" title="'+(s.active===false?'Hervatten':'Pauzeren')+'" onclick="monToggle(\''+s.id+'\')">'+(s.active===false?'▶':'⏸')+'</button><button class="iconbtn del" onclick="monDel(\''+s.id+'\')">🗑</button></div></td></tr>'}).join('')+'</tbody></table></div>':'<div class="empty"><span class="big">🛰️</span>Nog geen websites. Voeg de sites van je klanten toe, dan bewaak ik ze elk uur.<br><button class="btn" style="margin-top:12px" onclick="monSuggest()">+ Klantensites toevoegen</button></div>')+'</div>';
+  if(sites.length)monFill()}
+async function monFill(){if(!sb||!CLOUD.uid)return;var since=new Date(Date.now()-864e5).toISOString();var r=await sb.from('monitor_checks').select('url,ok,status,ms,error,domain_expires,checked_at').eq('user_id',CLOUD.uid).gte('checked_at',since).order('checked_at',{ascending:false}).limit(2000);var rows=r.data||[];
+  var last={};if(!rows.length){var r2=await sb.from('monitor_checks').select('url,ok,status,ms,error,domain_expires,checked_at').eq('user_id',CLOUD.uid).order('checked_at',{ascending:false}).limit(200);rows=r2.data||[]}
+  monSites().forEach(function(s){var u=monNorm(s.url);var mine=rows.filter(function(x){return x.url===u});var tr=document.getElementById('mon_'+s.id);if(!tr)return;
+    if(!mine.length){tr.querySelector('.m_st').innerHTML='<span class="hint" style="margin:0">nog niet gecheckt</span>';return}
+    var l=mine[0];var up=Math.round(100*mine.filter(function(x){return x.ok}).length/mine.length);
+    tr.querySelector('.mondot').style.background=l.ok?'#22c55e':'#ef4444';tr.querySelector('.mondot').style.boxShadow='0 0 10px '+(l.ok?'#22c55e':'#ef4444');
+    tr.querySelector('.m_st').innerHTML=l.ok?'<span class="pill betaald">online</span>':'<span class="pill vervallen">'+esc(l.error||'offline')+'</span>';
+    tr.querySelector('.m_ms').textContent=l.ms+' ms';tr.querySelector('.m_up').innerHTML='<b style="color:'+(up>=99?'#86EFAC':up>=90?'#FCD34D':'#FCA5A5')+'">'+up+'%</b> <span class="hint" style="margin:0">('+mine.length+' checks)</span>';
+    var exp=l.domain_expires;if(exp){var days=Math.round((Date.parse(exp)-Date.now())/864e5);tr.querySelector('.m_exp').innerHTML=fmtD(exp)+' <span class="hint" style="margin:0;color:'+(days<30?'#FCA5A5':'inherit')+'">('+days+' d)</span>'}
+    tr.querySelector('.m_at').textContent=new Date(l.checked_at).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})}
+function monNorm(u){u=String(u||'').trim();if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u.replace(/\/+$/,'')}
+function mMonSite(){openM('Website bewaken','<div class="fgroup"><label>URL</label><input id="mo_url" placeholder="https://www.klant.be"></div><div class="fgroup"><label>Klant</label>'+custPicker('mo_cust')+'</div>','<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="monAdd()">Toevoegen</button>');setTimeout(function(){document.getElementById('mo_url').focus()},30)}
+function monAdd(){var u=monNorm(document.getElementById('mo_url').value);if(!u){toast('Geef een URL op',true);return}var cid=(document.getElementById('mo_cust')||{}).value||'';
+  if(monSites().some(function(s){return monNorm(s.url)===u})){toast('Staat er al in',true);return}
+  DATA.monitor.push({id:nid('mon'),url:u,cust:cid,name:cid?custName(cid):'',active:true,added:today()});saveData();closeM();rMonitor();toast('Toegevoegd – eerste check volgt bij "Nu controleren" of binnen het uur')}
+function monSuggest(){var urls=[];DATA.customers.forEach(function(c){var i=c.info||{};[i.url,i.domein].forEach(function(u){if(u&&/\./.test(u))urls.push({u:monNorm(u),c:c})});(c.accounts||[]).forEach(function(a){if(a.url&&/^(website|site|hosting|wordpress|webshop)/i.test(a.platform||''))urls.push({u:monNorm(a.url),c:c})})});
+  var have={};DATA.monitor.forEach(function(s){have[monNorm(s.url)]=1});var seen={};urls=urls.filter(function(x){if(!x.u||have[x.u]||seen[x.u])return false;seen[x.u]=1;return true});
+  if(!urls.length){toast('Geen nieuwe sites gevonden bij je klanten (vul "Website/URL" in bij de klantgegevens)',true);return}
+  openM('Klantensites toevoegen','<div class="hint" style="margin-bottom:8px">Gevonden bij je klanten (Gegevens → URL/domein en accounts):</div>'+urls.map(function(x,i){return '<label style="display:flex;gap:8px;align-items:center;padding:6px 0;cursor:pointer"><input type="checkbox" class="mo_s" data-i="'+i+'" checked style="width:18px;height:18px"><span><b>'+esc(x.u.replace(/^https?:\/\//,''))+'</b> <span class="hint" style="margin:0">'+esc(x.c.name)+'</span></span></label>'}).join(''),'<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="monSuggestAdd()">Toevoegen</button>');INT.monSug=urls}
+function monSuggestAdd(){var n=0;document.querySelectorAll('.mo_s:checked').forEach(function(cb){var x=INT.monSug[parseInt(cb.dataset.i)];DATA.monitor.push({id:nid('mon'),url:x.u,cust:x.c.id,name:x.c.name,active:true,added:today()});n++});saveData();closeM();rMonitor();toast(n+' websites toegevoegd');if(n)monCheckNow()}
+function monToggle(id){var s=DATA.monitor.find(function(x){return x.id===id});if(s){s.active=s.active===false;saveData();rMonitor()}}
+function monDel(id){var s=DATA.monitor.find(function(x){return x.id===id});if(!s||!confirm(s.url+' niet meer bewaken?'))return;DATA.monitor=DATA.monitor.filter(function(x){return x.id!==id});saveData();rMonitor()}
+async function monCheckNow(){if(!sb||!CLOUD.uid){toast('Niet ingelogd in de cloud',true);return}toast('Websites controleren…');
+  try{await cloudPushChanged()}catch(e){}
+  var r=await sb.functions.invoke('monitor',{body:{check:true}});var d=r.data||{};if(!d.ok){toast('Monitor: '+(d.error||(r.error&&r.error.message)||'?'),true);return}
+  var down=(d.results||[]).filter(function(x){return !x.ok});toast(down.length?'⚠️ '+down.length+' site(s) offline: '+down.map(function(x){return x.url.replace(/^https?:\/\/(www\.)?/,'')}).join(', '):'✅ Alle '+d.checked+' sites online',!!down.length);if(VIEW==='monitor')monFill()}
+
+/* ---------- Instellingen-paneel ---------- */
+function intPanel(){var g=gCfg();var row=INT.row||{};var ep='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/whatsapp';
+  return '<div class="panelbox" style="margin-bottom:18px"><h3>🔌 Koppelingen</h3>'+
+  '<details open style="margin-top:8px"><summary style="cursor:pointer;font-weight:600">📅 Google Agenda &amp; Gmail</summary><div class="hint" style="margin:8px 0">Eénmalig: console.cloud.google.com → project "Marleo leadfinder" → APIs &amp; Services → <b>Library</b>: zet <b>Google Calendar API</b> en <b>Gmail API</b> aan → <b>Credentials</b> → Create credentials → <b>OAuth client ID</b> (Web application), Authorized JavaScript origin <code>https://marleo.tech</code>. Bij "OAuth consent screen" jezelf als testgebruiker toevoegen. Plak het client-id hier.</div>'+
+  '<div class="frow"><div class="fgroup"><label>OAuth client-id</label><input id="g_client" value="'+esc(g.clientId||'')+'" placeholder="1234567890-abc.apps.googleusercontent.com" onchange="gCfg().clientId=this.value.trim();saveData();gStatus()"></div><div class="fgroup"><label>Afzender (send-as in Gmail)</label><input value="'+esc(g.from||'')+'" onchange="gCfg().from=this.value.trim();saveData()"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Afzendernaam</label><input value="'+esc(g.fromName||'')+'" onchange="gCfg().fromName=this.value;saveData()"></div><div class="fgroup"><label>Agenda synchroniseren</label><select onchange="gCfg().sync=this.value===\'1\';saveData()"><option value="1" '+(g.sync!==false?'selected':'')+'>Ja – afspraken in beide richtingen</option><option value="0" '+(g.sync===false?'selected':'')+'>Nee, alleen Gmail</option></select></div></div>'+
+  '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm" onclick="gConnect()">Verbinden met Google</button><button class="btn sm subtle" onclick="gDisconnect()">Loskoppelen</button><span id="g_status" class="hint" style="margin:0"></span></div></details>'+
+  '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">🏦 Wise – betalingen automatisch afvinken</summary><div class="hint" style="margin:8px 0">wise.com → Instellingen → <b>API-tokens</b> → nieuw token (alleen-lezen volstaat). De token wordt server-side bewaard. Facturen waarvan het nummer in de mededeling staat worden automatisch op betaald gezet; de rest krijg je als voorstel via de knop 🏦 Wise bij Facturen.</div>'+
+  '<div class="frow"><div class="fgroup"><label>API-token</label><input id="ws_token" type="password" value="'+esc(row.wise_token||'')+'" placeholder="xxxxxxxx-xxxx-…"></div><div class="fgroup"><label>Profiel</label><select id="ws_prof" onchange="wiseSaveProfile(this.value)"><option value="">'+(row.wise_profile_id?'profiel #'+esc(row.wise_profile_id)+' (klik "Profielen laden" voor naam)':'— eerst token opslaan —')+'</option></select></div></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="wiseProfiles()">Token opslaan &amp; profielen laden</button><button class="btn sm subtle" onclick="wiseSync()">Betalingen ophalen</button></div>'+
+  '<details style="margin-top:10px"><summary style="cursor:pointer;color:var(--muted);font-size:.85rem">Extra beveiliging (SCA) – alleen als Wise dat vraagt</summary><div class="hint" style="margin:6px 0">Maak een sleutelpaar: <code>openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out wise.pem</code> en <code>openssl rsa -pubout -in wise.pem -out wise-pub.pem</code>. Upload <b>wise-pub.pem</b> bij Wise (API-tokens → Manage public keys) en plak de inhoud van <b>wise.pem</b> hier.</div><textarea id="ws_key" style="min-height:80px;font-family:monospace;font-size:.72rem" placeholder="-----BEGIN PRIVATE KEY-----">'+esc(row.wise_private_key||'')+'</textarea><button class="btn sm subtle" style="margin-top:6px" onclick="wiseSaveKey()">Sleutel opslaan</button></details></details>'+
+  '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">💬 WhatsApp Cloud API</summary><div class="hint" style="margin:8px 0">developers.facebook.com → app aanmaken (type Business) → product <b>WhatsApp</b> toevoegen. Bij <b>API Setup</b> vind je het <b>Phone number ID</b>; maak een <b>permanent token</b> via Business Settings → System users (rechten whatsapp_business_messaging + management). Bij <b>Configuration → Webhook</b>: plak de URL en het verify-token hieronder en abonneer op <b>messages</b>. Gratis tot 1.000 gesprekken/maand; eerste bericht naar een klant moet een goedgekeurd sjabloon zijn.</div>'+
+  '<div class="frow"><div class="fgroup"><label>Permanent access token</label><input id="wa_token" type="password" value="'+esc(row.wa_token||'')+'" placeholder="EAAG…"></div><div class="fgroup"><label>Phone number ID</label><input id="wa_phone" value="'+esc(row.wa_phone_id||'')+'" placeholder="1234567890"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Webhook-URL (kopieer naar Meta)</label><input readonly value="'+ep+'" onclick="this.select();navigator.clipboard&&navigator.clipboard.writeText(this.value);toast(\'Gekopieerd\')"></div><div class="fgroup"><label>Verify-token (kopieer naar Meta)</label><input id="wa_verify" value="'+esc(row.wa_verify_token||('marleo-'+rnd(8)))+'" onclick="this.select()"></div></div>'+
+  '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm" onclick="waSave()">Opslaan &amp; testen</button><span id="wa_status" class="hint" style="margin:0">'+(waCfgd()?'ingesteld':'')+'</span></div></details>'+
+  '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">🛰️ Website-monitor</summary><div class="hint" style="margin:8px 0">Werkt meteen, niets in te stellen. Beheer de sites via het menu <b>Websites</b>. Elk uur een check; om 6u ook domein-vervaldatum (KBO/RDAP). Meldingen via je gsm-notificaties.</div><button class="btn sm subtle" onclick="go(\'monitor\')">Naar Websites →</button></details>'+
+  '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">🔗 LinkedIn</summary><div class="hint" style="margin:8px 0">LinkedIn heeft geen open API voor zoeken; bij elke klant en lead staat een knop die de contactpersoon of het bedrijf meteen opzoekt op LinkedIn. Bij grotere bedrijven (IT/cybersecurity) handig om de beslisser te vinden.</div></details>'+
+  '</div>'}
+var _rSettings0=rSettings;rSettings=function(){_rSettings0();var el=main();var tmp=document.createElement('div');tmp.innerHTML=intPanel();el.insertBefore(tmp.firstChild,el.firstChild);gStatus();
+  if(!INT.loaded)intLoad().then(function(){var t=document.getElementById('ws_token');if(t&&!t.value)t.value=INT.row.wise_token||'';var w=document.getElementById('wa_token');if(w&&!w.value)w.value=INT.row.wa_token||'';var p=document.getElementById('wa_phone');if(p&&!p.value)p.value=INT.row.wa_phone_id||'';var v=document.getElementById('wa_verify');if(v&&INT.row.wa_verify_token)v.value=INT.row.wa_verify_token;var s=document.getElementById('wa_status');if(s&&waCfgd())s.textContent='ingesteld'})};
+
+/* injecties in bestaande schermen: communicatie-blok, LinkedIn-knoppen, mail-via-CRM */
+var _rCustPage0=rCustPage;rCustPage=function(){_rCustPage0();var c=customer(CUSTVIEW);if(!c)return;
+  var tb=main().querySelector('.topbar > div:last-child');
+  if(tb){var lg=liUrl(c.contact,c.name);tb.insertAdjacentHTML('afterbegin','<a class="btn subtle" href="'+lg+'" target="_blank" title="Zoek op LinkedIn">in LinkedIn</a>');
+    if(c.email)tb.querySelectorAll('button').forEach(function(b){if(/Sjabloon sturen/.test(b.textContent)){b.setAttribute('onclick','mMailCust(\''+c.id+'\')');b.innerHTML='✉ Mail sturen'}})}
+  var tmp=document.createElement('div');tmp.innerHTML=rCustComms(c);
+  var notesPanel=Array.prototype.slice.call(main().querySelectorAll('.panelbox')).filter(function(p){return /Notities/.test((p.querySelector('h3')||{}).textContent||'')})[0];
+  if(notesPanel)notesPanel.parentNode.insertBefore(tmp.firstChild,notesPanel);else main().appendChild(tmp.firstChild)};
+var _vInvoice0=vInvoice;vInvoice=function(id){_vInvoice0(id);var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;var c=customer(iv.customerId)||{};var f=document.getElementById('mFoot');
+  if(f&&(gCfg().clientId||c.email))f.insertAdjacentHTML('afterbegin','<button class="btn" onclick="mailInv(\''+id+'\')">✉️ '+(iv.type==='offerte'?'Offerte':'Factuur')+' mailen</button>')};
+var _vDeal0=vDeal;vDeal=function(id){_vDeal0(id);var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;var f=document.getElementById('mFoot');
+  if(f){f.insertAdjacentHTML('beforeend','<a class="btn sm subtle" href="'+liUrl(d.contact,d.naam)+'" target="_blank">in LinkedIn</a>');if(gCfg().clientId&&d.email)f.insertAdjacentHTML('beforeend','<button class="btn sm subtle" onclick="mMailDeal(\''+id+'\')">✉ Mail via CRM</button>');
+    if(waCfgd()&&d.tel)f.insertAdjacentHTML('beforeend','<button class="btn sm subtle" onclick="closeM();waOpen(\''+telDigits(d.tel)+'\')">💬 WhatsApp-chat</button>')}};
+
+/* menu + routes + hash-links vanuit meldingen */
+(function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='outreach'});MENU_ADMIN.splice(i+1,0,['whatsapp','WhatsApp',IC.chat]);var j=MENU_ADMIN.findIndex(function(m){return m[0]==='documents'});MENU_ADMIN.splice(j+1,0,['monitor','Websites',IC.rep])})();
+var _go0=go;go=function(v){if(v==='whatsapp'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rWhatsapp();window.scrollTo(0,0);return}if(v==='monitor'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rMonitor();window.scrollTo(0,0);return}_go0(v)};
+var _enterApp0=enterApp;enterApp=function(){_enterApp0();intLoad().then(function(){var h=location.hash||'';var m=/#wa=(\d+)/.exec(h);if(m){go('whatsapp');setTimeout(function(){waOpen(m[1])},300)}else if(h==='#monitor')go('monitor');if(h)history.replaceState(null,'',location.pathname)})};
+
 
 </script>
 </body>
