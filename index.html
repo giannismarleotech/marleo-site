@@ -742,8 +742,8 @@ function updateSyncBadge(){
   ['syncBadge','syncBadge2'].forEach(function(id){var e=document.getElementById(id);if(e)fillBadge(e)});
 }
 function fillBadge(el){
-  if(!atCfg().token){el.innerHTML='<span class="sdot off"></span>niet gekoppeld';el.className='syncbadge off';return}
-  el.className='syncbadge';el.innerHTML='<span class="sdot"></span>Gesynct '+fmtSince(DATA.lastSync)+' <span class="srefresh">\u21bb</span>';
+  if(CLOUD&&CLOUD.uid){el.className='syncbadge';el.innerHTML='<span class="sdot"></span>\u2601\ufe0f Cloud-sync actief'+(atCfg().token?' \u00b7 Airtable':'');return}
+  el.innerHTML='<span class="sdot off"></span>offline';el.className='syncbadge off';
 }
 function _oldUpdateSyncBadge(){
   var el=document.getElementById('syncBadge');if(!el)return;
@@ -868,7 +868,7 @@ function rDash(){
     var st=DATA.lastSyncStats||{added:0,updated:0};
     var todayISO=new Date().toISOString().slice(0,10);
     var newToday=DATA.deals.filter(function(d){return d.created&&new Date(d.created).toISOString().slice(0,10)===todayISO}).length;
-    if(!atCfg().token) return '<div class="panelbox" style="border-color:rgba(233,30,123,.35)"><h3>\ud83d\udd17 Koppel je automatisering</h3><div class="hint">Plak je Airtable-token in <b>Instellingen</b>, dan verschijnen hier automatisch je nieuwe leads uit Apify/n8n en synct alles vanzelf.</div><button class="btn sm" style="margin-top:10px" onclick="go(\'settings\')">Naar instellingen</button></div>';
+    if(!atCfg().token) return '';
     return '<div class="panelbox"><h3>\u26a1 Automatisch verwerkt <span id="syncBadge2" class="syncbadge" onclick="manualSync()" style="float:right"></span></h3>'+
     '<div style="display:flex;gap:22px;flex-wrap:wrap">'+
     '<div><div class="val gtext" style="font-size:1.5rem;font-family:var(--disp)">'+newToday+'</div><div class="hint">nieuwe leads vandaag</div></div>'+
