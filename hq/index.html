@@ -972,7 +972,7 @@ function invTable(list){
     var st=invStatus(iv);var isOff=(iv.type==='offerte');
     return '<tr onclick="vInvoice(\''+iv.id+'\')"><td><span class="pill '+(isOff?'normaal':'bezig')+'">'+({voorschot:'Voorschot',eindfactuur:'Eindfactuur',creditnota:'Creditnota',offerte:'Offerte'}[iv.type]||'Factuur')+'</span></td><td><b>'+esc(iv.ref)+'</b></td><td>'+esc(custName(iv.customerId))+'</td>'+
     '<td>'+fmtD(iv.date)+'</td><td>'+fmtD(iv.due)+'</td><td class="num"><b>'+eur(invTot(iv))+'</b></td>'+
-    '<td>'+(isOff?'<span class="pill normaal">offerte</span>':'<span class="pill '+st+'">'+st+'</span>')+'</td>'+
+    '<td>'+(isOff?(iv.signed||iv.status==='aanvaard'?'<span class="pill betaald">✍️ getekend</span>':'<span class="pill normaal">offerte</span>'):'<span class="pill '+st+'">'+st+'</span>')+'</td>'+
     '<td><div class="rowactions">'+(st!=='betaald'?'<button class="iconbtn ok" onclick="event.stopPropagation();payInv(\''+iv.id+'\')" title="Markeer als betaald">\u2713</button>':'<button class="iconbtn" onclick="event.stopPropagation();unpayInv(\''+iv.id+'\')" title="Zet terug op openstaand">\u21BA</button>')+
     '<button class="iconbtn" onclick="event.stopPropagation();invPdf(\''+iv.id+'\')" title="Download PDF">\ud83d\udcc4</button>'+
     '<button class="iconbtn" onclick="event.stopPropagation();mInvoice(\''+iv.id+'\')" title="Bewerken">\u270E</button>'+
@@ -4190,6 +4190,138 @@ function pipeStageSet(id,st){setStage(id,st);saveData();rPipeline()}
 
 
 function pipeWaLog(ev,id){ev.stopPropagation();var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;setTimeout(function(){logContact(id,'WhatsApp');if(d.stage==='nieuw'){d.stage='gecontacteerd'}if(!d.follow)d.follow=plusDays(today(),3);saveData();rPipeline()},150)}
+
+
+/* ===================================================================
+   BANK (Wise): saldo, potjes en transacties, ververst automatisch
+   =================================================================== */
+var BANK={data:null,filter:'klant',busy:false,timer:null,err:''};
+function bankIsClient(t){return t.incoming&&!t.pending&&!t.own&&!t.interbalance&&!t.refund}
+async function bankLoad(silent){
+  if(BANK.busy)return;if(!sb||!CLOUD.uid)return;
+  if(!INT.loaded)await intLoad();
+  if(!wiseCfgd()){BANK.err='nocfg';if(VIEW==='bank')rBank();return}
+  BANK.busy=true;if(!silent&&VIEW==='bank')bankStatus('Verversen…');
+  try{var r=await sb.functions.invoke('wise',{body:{mode:'overview',days:120}});var d=r.data||{};
+    if(!d.ok)throw new Error(d.error||(r.error&&r.error.message)||'Wise gaf geen antwoord');
+    BANK.data=d;BANK.err='';
+    bankAutoLink();
+  }catch(e){BANK.err=e.message}
+  BANK.busy=false;if(VIEW==='bank')rBank();
+}
+/* inkomende klantbetalingen automatisch aan open facturen koppelen (enkel bij 1 duidelijke match) */
+function bankAutoLink(){if(!BANK.data)return;var linked=0;
+  var seen={};DATA.invoices.forEach(function(iv){if(iv.wiseId)seen[iv.wiseId]=1});
+  var open=DATA.invoices.filter(function(iv){return iv.type!=='offerte'&&iv.status!=='concept'&&invStatus(iv)!=='betaald'});
+  BANK.data.transactions.filter(bankIsClient).forEach(function(t){if(seen[t.id])return;
+    var m=wiseMatchOne({amount:t.amount,from:t.title,ref:'',desc:t.desc,date:t.date},open);
+    var nameOk=m&&(function(){var c=customer(m.iv.customerId);if(!c||!c.name)return false;var w=c.name.toUpperCase().split(/\s+/).filter(function(x){return x.length>2});return w.some(function(x){return t.title.toUpperCase().indexOf(x)>=0})})();
+    if(m&&(m.how==='mededeling'||m.how==='bedrag + naam'||(m.how==='bedrag'&&nameOk))){m.iv.status='betaald';m.iv.paidDate=t.date;m.iv.wiseId=t.id;(m.iv.log=m.iv.log||[]).push({t:Date.now(),txt:'Automatisch betaald via Wise ('+eur(t.amount)+' van '+t.title+')'});open=open.filter(function(x){return x!==m.iv});linked++;logAct('🏦 '+m.iv.ref+' betaald via Wise')}
+  });
+  if(linked){saveData();toast('🏦 '+linked+' factu'+(linked>1?'ren':'ur')+' automatisch op betaald gezet')}
+}
+function bankStatus(t){var el=document.getElementById('bank_status');if(el)el.textContent=t}
+function bankLinkedInv(t){return DATA.invoices.find(function(iv){return iv.wiseId===t.id})}
+function bankLink(tid){var t=(BANK.data.transactions||[]).find(function(x){return x.id===tid});var sel=document.getElementById('bl_'+btoa(tid).replace(/[^a-z0-9]/gi,'').slice(-12));if(!t||!sel||!sel.value){toast('Kies een factuur',true);return}
+  var iv=DATA.invoices.find(function(x){return x.id===sel.value});if(!iv)return;iv.status='betaald';iv.paidDate=t.date;iv.wiseId=t.id;(iv.log=iv.log||[]).push({t:Date.now(),txt:'Betaald via Wise ('+eur(t.amount)+' van '+t.title+')'});saveData();logAct('🏦 '+iv.ref+' gekoppeld aan Wise-betaling');toast(iv.ref+' staat op betaald');rBank()}
+function bankUnlink(ivid){var iv=DATA.invoices.find(function(x){return x.id===ivid});if(!iv)return;iv.wiseId=null;iv.status='openstaand';iv.paidDate='';saveData();rBank()}
+function rBank(){
+  var el=main();
+  var top='<div class="topbar"><div><h2>Bank</h2><div class="sub">Wise · <span id="bank_status">'+(BANK.data?'Laatst ververst '+new Date(BANK.data.fetchedAt).toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit'})+' · ververst elke minuut':'')+'</span></div></div><div style="display:flex;gap:8px"><button class="btn subtle" onclick="bankLoad()">↻ Nu verversen</button></div></div>';
+  if(BANK.err==='nocfg'){el.innerHTML=top+'<div class="panelbox"><div class="empty"><span class="big">🏦</span>Wise is nog niet gekoppeld.<br><button class="btn" style="margin-top:12px" onclick="go(\'settings\')">Naar Instellingen → Koppelingen</button></div></div>';return}
+  if(!BANK.data){el.innerHTML=top+'<div class="panelbox">'+(BANK.err?'<div class="hint" style="color:#F87171">Fout: '+esc(BANK.err)+'</div>':'<span class="hint">Laden…</span>')+'</div>';if(!BANK.busy&&!BANK.err)bankLoad();return}
+  var d=BANK.data;var eurBal=d.balances.filter(function(b){return b.currency==='EUR'});
+  var total=eurBal.reduce(function(s,b){return s+b.amount},0);
+  var tx=d.transactions||[];
+  var now=new Date();var mStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+  var klant=tx.filter(bankIsClient);
+  var dezeMaand=klant.filter(function(t){return t.date>=mStart}).reduce(function(s,t){return s+t.amount},0);
+  var openInv=DATA.invoices.filter(function(iv){return iv.type!=='offerte'&&iv.status!=='concept'&&invStatus(iv)!=='betaald'});
+  var openSum=openInv.reduce(function(s,iv){return s+invTot(iv)},0);
+  var list=BANK.filter==='klant'?klant:BANK.filter==='in'?tx.filter(function(t){return t.incoming}):tx;
+  var cards='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px">'+
+    '<div class="panelbox" style="padding:16px;margin:0;border-color:rgba(34,197,94,.45)"><div class="hint">Totaal op Wise</div><div style="font-family:var(--disp);font-size:1.9rem;font-weight:700;color:#4ADE80">'+eur(total)+'</div><div class="hint">'+eurBal.length+' rekening'+(eurBal.length>1?'en':'')+'/potjes</div></div>'+
+    eurBal.map(function(b){return '<div class="panelbox" style="padding:16px;margin:0"><div class="hint">'+esc(b.type==='SAVINGS'?'🥫 '+b.name:'💳 '+b.name)+'</div><div style="font-family:var(--disp);font-size:1.4rem;font-weight:700">'+eur(b.amount)+'</div></div>'}).join('')+
+    '<div class="panelbox" style="padding:16px;margin:0"><div class="hint">Klanten betaalden deze maand</div><div style="font-family:var(--disp);font-size:1.4rem;font-weight:700;color:#4ADE80">'+eur(dezeMaand)+'</div></div>'+
+    '<div class="panelbox" style="padding:16px;margin:0"><div class="hint">Nog te ontvangen</div><div style="font-family:var(--disp);font-size:1.4rem;font-weight:700;color:#FBBF24">'+eur(openSum)+'</div><div class="hint">'+openInv.length+' open facturen</div></div>'+
+  '</div>';
+  var tabs='<div class="tabs" style="margin-bottom:10px">'+[['klant','Betalingen van klanten ('+klant.length+')'],['in','Alles inkomend'],['alle','Alle transacties']].map(function(f){return '<button class="tab'+(BANK.filter===f[0]?' active':'')+'" onclick="BANK.filter=\''+f[0]+'\';rBank()">'+f[1]+'</button>'}).join('')+'</div>';
+  var invOpts=openInv.map(function(iv){return '<option value="'+iv.id+'">'+esc(iv.ref)+' · '+esc(custName(iv.customerId))+' · '+eur(invTot(iv))+'</option>'}).join('');
+  var rows=list.slice(0,300).map(function(t){var li=bankLinkedInv(t);var sid='bl_'+btoa(t.id).replace(/[^a-z0-9]/gi,'').slice(-12);
+    var tag=t.pending?'<span class="pill open">onderweg</span>':t.own?'<span class="pill concept">eigen rekening</span>':t.interbalance?'<span class="pill concept">potje</span>':t.refund?'<span class="pill concept">terugbetaling</span>':'';
+    var koppel='';
+    if(bankIsClient(t)){koppel=li?'<span class="pill betaald">✓ '+esc(li.ref)+'</span> <button class="iconbtn" title="Ontkoppelen" onclick="bankUnlink(\''+li.id+'\')">×</button>':(openInv.length?'<select id="'+sid+'" style="padding:4px 6px!important;font-size:.78rem!important;width:auto;max-width:220px"><option value="">— koppel aan factuur —</option>'+invOpts+'</select> <button class="btn sm" onclick="bankLink(\''+t.id.replace(/'/g,'')+'\')">✓</button>':'')}
+    return '<tr style="cursor:default"><td style="white-space:nowrap">'+fmtD(t.date)+'</td><td><b>'+esc(t.title)+'</b>'+(t.desc?'<div class="hint" style="margin:0">'+esc(t.desc)+'</div>':'')+'</td><td>'+tag+'</td><td class="num" style="white-space:nowrap;font-weight:700;color:'+(t.amount>=0?'#4ADE80':'var(--text)')+'">'+(t.amount>=0?'+ ':'− ')+eur(Math.abs(t.amount)).replace('€ ','€ ')+'</td><td>'+koppel+'</td></tr>'}).join('');
+  el.innerHTML=top+(BANK.err?'<div class="hint" style="color:#F87171;margin-bottom:8px">Laatste verversing mislukt: '+esc(BANK.err)+'</div>':'')+cards+tabs+
+    '<div class="panelbox" style="padding:8px 12px"><div style="overflow-x:auto"><table><thead><tr><th>Datum</th><th>Van / naar</th><th></th><th class="num">Bedrag</th><th>Factuur</th></tr></thead><tbody>'+(rows||'<tr><td colspan="5" class="hint" style="padding:16px">Geen transacties</td></tr>')+'</tbody></table></div></div>';
+}
+/* automatisch verversen: elke minuut als de Bank-tab open staat, elk kwartier op de achtergrond */
+setInterval(function(){if(document.visibilityState==='visible'&&VIEW==='bank')bankLoad(true)},60000);
+setInterval(function(){if(document.visibilityState==='visible'&&CLOUD.uid&&wiseCfgd&&INT.loaded&&wiseCfgd())bankLoad(true)},15*60000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&VIEW==='bank')bankLoad(true)});
+/* auto-afvinken ook bij match op bedrag + naam */
+(function(){var _ws=wiseSync;wiseSync=function(silent){if(silent){bankLoad(true);return}return _ws(silent)}})();
+/* menu + route */
+(function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='invoices'});MENU_ADMIN.splice(i<0?MENU_ADMIN.length-1:i,0,['bank','Bank',IC.inv]);
+  var _go=go;go=function(v){if(v==='bank'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rBank();window.scrollTo(0,0);if(!BANK.data||Date.now()-new Date(BANK.data.fetchedAt).getTime()>60000)bankLoad(true);return}_go(v)};
+  if(typeof buildMenu==='function'&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu()})();
+
+
+
+/* ===================================================================
+   OFFERTE ONLINE LATEN TEKENEN (marleo.tech/offerte/?t=...)
+   =================================================================== */
+function offToken(){var a=new Uint8Array(18);crypto.getRandomValues(a);return Array.from(a).map(function(b){return 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'[b%58]}).join('')}
+function offSnapshot(iv){var co=coCfg();var c=customer(iv.customerId)||{};
+  return {ref:iv.ref,date:iv.date,valid:iv.due||'',
+    company:{name:co.name||'Marleo',legal:co.legal||co.name||'Marleo',vat:co.vat||'',address:co.address||'',zip:co.zip||'',city:co.city||'',email:co.email||'giannis@marleo.tech',phone:co.phone||'+32 456 92 00 25',iban:co.iban||''},
+    customer:{name:c.name||'',contact:c.contact||'',address:c.address||'',vat:c.vat||'',email:c.email||''},
+    lines:(iv.lines||[]).map(function(l){return {d:l.d,q:l.q,p:l.p}}),
+    sub:invSub(iv),vat:invVat(iv),tot:invTot(iv),vatRate:VAT_RATE,note:iv.note||'',
+    terms:(DATA.settings&&DATA.settings.offerTerms)||('Prijzen excl. btw. Bij akkoord ontvang je een voorschotfactuur van 50%, het saldo volgt bij oplevering.'+(iv.due?' Deze offerte is geldig tot '+fmtD(iv.due)+'.':''))};
+}
+function offUrl(tok){return 'https://marleo.tech/offerte/?t='+tok}
+async function offerLink(ivid){var iv=DATA.invoices.find(function(x){return x.id===ivid});if(!iv)return;
+  if(!sb||!CLOUD.uid){toast('Niet ingelogd in de cloud',true);return}
+  var r=await sb.from('offer_links').select('token,status,signed_name,signed_at,viewed_at').eq('user_id',CLOUD.uid).eq('invoice_id',iv.id).order('created_at',{ascending:false}).limit(1);
+  var row=(r.data&&r.data[0])||null;
+  if(!row){var tok=offToken();var ins=await sb.from('offer_links').insert({token:tok,user_id:CLOUD.uid,invoice_id:iv.id,data:offSnapshot(iv)});if(ins.error){toast(ins.error.message,true);return}row={token:tok,status:'open'}}
+  else if(row.status!=='getekend'){await sb.from('offer_links').update({data:offSnapshot(iv)}).eq('token',row.token)} // altijd de laatste versie tonen
+  iv.offerToken=row.token;saveData();
+  var url=offUrl(row.token);var c=customer(iv.customerId)||{};var vn=c.contact?c.contact.split(' ')[0]:'';
+  var txt='Dag'+(vn?' '+vn:'')+', hier is de offerte '+iv.ref+' ('+eur(invTot(iv))+' incl. btw). Je kan ze bekijken, downloaden en meteen online ondertekenen via deze link:\n'+url+'\n\nGroeten, Giannis (Marleo)';
+  var st=row.status==='getekend'?'<div class="notecard" style="border-color:rgba(34,197,94,.5)"><b>✍️ Ondertekend</b> door '+esc(row.signed_name)+' op '+new Date(row.signed_at).toLocaleString('nl-BE')+'</div>':(row.viewed_at?'<div class="hint">👀 De klant opende de offerte op '+new Date(row.viewed_at).toLocaleString('nl-BE')+'</div>':'<div class="hint">Nog niet geopend door de klant.</div>');
+  openM('🔗 Offerte '+esc(iv.ref)+' laten tekenen',
+    st+'<div class="fgroup" style="margin-top:10px"><label>Link voor de klant</label><input readonly value="'+esc(url)+'" onclick="this.select()"></div>'+
+    '<div class="fgroup"><label>Bericht</label><textarea id="off_txt" style="min-height:120px">'+esc(txt)+'</textarea></div>'+
+    '<div class="hint">De klant ziet de offerte, kan ze downloaden als PDF en tekent met vinger of muis. Jij krijgt een melding op je gsm zodra de offerte geopend en ondertekend is, en de offerte springt hier automatisch op "getekend".</div>',
+    '<button class="btn subtle" onclick="navigator.clipboard.writeText(\''+url+'\');toast(\'Link gekopieerd\')">📋 Kopieer link</button>'+
+    (isMobile(c.phone)?'<a class="btn subtle" href="https://wa.me/'+telDigits(c.phone)+'?text='+encodeURIComponent(txt)+'" target="_blank" rel="noopener">💬 WhatsApp</a>':'')+
+    '<button class="btn subtle" onclick="window.open(\''+url+'\',\'_blank\')">👁 Bekijk</button>'+
+    '<button class="btn" onclick="offMail(\''+iv.id+'\')">✉️ Mail link</button>',true);
+}
+function offMail(ivid){var iv=DATA.invoices.find(function(x){return x.id===ivid});var c=customer(iv.customerId)||{};var txt=(document.getElementById('off_txt')||{}).value||'';closeM();
+  setTimeout(function(){mMail({to:c.email||'',subject:'Offerte '+iv.ref+' – online bekijken en ondertekenen',text:txt,custId:c.id})},60)}
+/* ondertekende offertes binnenhalen */
+async function offPoll(){if(!sb||!CLOUD.uid)return;try{
+  var r=await sb.from('offer_links').select('invoice_id,status,signed_name,signed_at').eq('user_id',CLOUD.uid).eq('status','getekend');
+  var changed=0;(r.data||[]).forEach(function(o){var iv=DATA.invoices.find(function(x){return x.id===o.invoice_id});if(!iv||iv.signed)return;
+    iv.status='aanvaard';iv.signed={name:o.signed_name,at:o.signed_at};(iv.log=iv.log||[]).push({t:Date.now(),txt:'✍️ Online ondertekend door '+o.signed_name});
+    logAct('✍️ Offerte '+iv.ref+' ondertekend door '+o.signed_name);changed++;
+    var d=DATA.deals.find(function(x){return x.customerId===iv.customerId||(x.naam||'').toLowerCase()===(custName(iv.customerId)||'').toLowerCase()});if(d&&d.stage!=='gewonnen'){d.stage='gewonnen';(d.log=d.log||[]).push({t:Date.now(),txt:'Offerte '+iv.ref+' getekend → klant'})}
+    if(typeof autoTask==='function')autoTask('off-signed-'+iv.id,'Voorschotfactuur sturen: '+custName(iv.customerId)+' (offerte '+iv.ref+' getekend)',today(),'hoog',iv.customerId,'Open de offerte en klik op "→ Voorschot 50% + eindfactuur".');
+    toast('✍️ Offerte '+iv.ref+' is ondertekend door '+o.signed_name);
+  });
+  if(changed){saveData();if(typeof VIEW!=='undefined'&&(VIEW==='invoices'||VIEW==='quotes'||VIEW==='dashboard'||VIEW==='pipeline'))go(VIEW)}
+}catch(e){}}
+setInterval(function(){if(document.visibilityState==='visible')offPoll()},60000);
+(function(){var _e=enterApp;enterApp=function(){_e();setTimeout(offPoll,1500)}})();
+/* knop + status in de offerte-weergave */
+(function(){var _v=vInvoice;vInvoice=function(id){_v(id);var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv||iv.type!=='offerte')return;
+  var f=document.getElementById('mFoot');if(f&&!f.querySelector('.offlinkbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn offlinkbtn" onclick="offerLink(\''+id+'\')">'+(iv.signed?'✍️ Getekend – bekijk':'🔗 Laten tekenen')+'</button>');
+  if(iv.signed){var b=document.getElementById('mBody');if(b)b.insertAdjacentHTML('afterbegin','<div class="notecard" style="border-color:rgba(34,197,94,.5);margin-bottom:12px"><b>✍️ Online ondertekend</b> door '+esc(iv.signed.name)+' op '+new Date(iv.signed.at).toLocaleString('nl-BE')+'</div>')}
+}})();
+
 
 </script>
 </body>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Offerte · Marleo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF0F5;--card:#FFFFFF;--text:#1B1D2A;--muted:#60667A;--line:#E3E6EE;--grad:linear-gradient(100deg,#F97C1F,#EF4056 50%,#E91E7B);--green:#16A34A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:820px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:0 10px 40px rgba(20,24,40,.08);overflow:hidden}
+.top{background:#12131C;color:#fff;padding:26px 30px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.6rem;letter-spacing:.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top .meta{text-align:right;font-size:.85rem;color:#C9CCD8}
+.top .meta b{display:block;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:1.25rem;letter-spacing:.04em}
+.body{padding:28px 30px}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+.party{background:#F6F7FB;border-radius:12px;padding:14px 16px;font-size:.88rem}
+.party .lbl{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.party b{font-size:1rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+thead th{background:#12131C;color:#fff;font-weight:600;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;padding:10px 12px;text-align:left}
+thead th.num{text-align:right}
+tbody td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num{text-align:right;white-space:nowrap}
+.ldet{color:var(--muted);font-size:.82rem;white-space:pre-line;margin-top:2px}
+.tot{margin:18px 0 0 auto;max-width:320px}
+.tot div{display:flex;justify-content:space-between;padding:6px 0;font-size:.92rem}
+.tot .big{border-top:2px solid var(--text);margin-top:6px;padding-top:10px;font-size:1.2rem;font-weight:700}
+.tot .big span:last-child{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.note{margin-top:22px;background:#F6F7FB;border-radius:12px;padding:14px 16px;font-size:.88rem;white-space:pre-line}
+.terms{margin-top:14px;font-size:.82rem;color:var(--muted);white-space:pre-line}
+.sign{margin-top:18px;background:var(--card);border-radius:18px;box-shadow:0 10px 40px rgba(20,24,40,.08);padding:24px 30px}
+.sign h2{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;margin-bottom:6px}
+.sign p.h{color:var(--muted);font-size:.88rem;margin-bottom:16px}
+label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:6px}
+input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;margin-bottom:14px}
+input[type=text]:focus{outline:none;border-color:#EF4056;box-shadow:0 0 0 3px rgba(239,64,86,.15)}
+.pad{position:relative;border:2px dashed #C9CEDC;border-radius:12px;background:#FBFCFE;height:190px;touch-action:none}
+.pad canvas{width:100%;height:100%;display:block;cursor:crosshair}
+.pad .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#A5ABBD;pointer-events:none;font-size:.95rem}
+.row{display:flex;justify-content:space-between;align-items:center;margin:8px 0 14px;gap:10px;flex-wrap:wrap}
+.link{background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:.85rem}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;margin-bottom:16px;cursor:pointer}
+.chk input{width:20px;height:20px;margin-top:2px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:1rem;padding:14px 22px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(239,64,86,.3);font-family:inherit}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.alt{background:#12131C;box-shadow:none}
+.btn.full{width:100%}
+.ok{background:#E8F7EE;border:1px solid #9FD9B4;color:#14532D;border-radius:14px;padding:16px 18px;margin-top:18px}
+.ok img{max-width:260px;background:#fff;border-radius:8px;margin-top:10px;border:1px solid #D6EADD}
+.err{color:#DC2626;font-size:.88rem;margin-top:10px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.center{text-align:center;padding:60px 20px;color:var(--muted)}
+.foot{text-align:center;color:var(--muted);font-size:.78rem;margin-top:18px}
+@media(max-width:620px){.parties{grid-template-columns:1fr}.top,.body,.sign{padding:20px}.top .meta{text-align:left}thead th:nth-child(2),tbody td:nth-child(2),thead th:nth-child(3),tbody td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="center">Offerte laden…</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/offerte';
+var T=new URLSearchParams(location.search).get('t')||'';
+var S={data:null,status:'open',signed_name:'',signed_at:'',signature:null};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function eur(n){return '€ '+Number(n||0).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtD(s){if(!s)return '';var p=String(s).slice(0,10).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s}
+function fmtDT(s){try{return new Date(s).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch(e){return s}}
+async function call(body){body.t=T;var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json()}
+async function load(){
+  if(!T){document.getElementById('app').innerHTML='<div class="center">Deze link is onvolledig.</div>';return}
+  try{var j=await call({action:'get'});if(!j.ok)throw new Error(j.error||'Offerte niet gevonden');S=j;render()}
+  catch(e){document.getElementById('app').innerHTML='<div class="center">'+esc(e.message)+'</div>'}
+}
+function render(){
+  var d=S.data,co=d.company||{},cu=d.customer||{};
+  var lines=(d.lines||[]).map(function(l){var parts=String(l.d||'').split('\n');return '<tr><td><b>'+esc(parts[0])+'</b>'+(parts.length>1?'<div class="ldet">'+esc(parts.slice(1).join('\n'))+'</div>':'')+'</td><td class="num">'+esc(l.q)+'</td><td class="num">'+eur(l.p)+'</td><td class="num">'+eur(l.q*l.p)+'</td></tr>'}).join('');
+  var signed=S.status==='getekend';
+  var html='<div class="doc"><div class="top"><div><div class="brand">'+esc((co.name||'MARLEO').toUpperCase())+'</div><div style="color:#9EA3B5;font-size:.82rem;margin-top:4px">'+esc([co.address,[co.zip,co.city].filter(Boolean).join(' ')].filter(Boolean).join(', '))+'</div></div>'+
+    '<div class="meta"><b>OFFERTE '+esc(d.ref||'')+'</b>Datum: '+fmtD(d.date)+(d.valid?'<br>Geldig tot: '+fmtD(d.valid):'')+'</div></div>'+
+    '<div class="body"><div class="parties"><div class="party"><div class="lbl">Van</div><b>'+esc(co.legal||co.name||'')+'</b><br>'+esc(co.address||'')+'<br>'+esc([co.zip,co.city].filter(Boolean).join(' '))+(co.vat?'<br>BTW '+esc(co.vat):'')+(co.email?'<br>'+esc(co.email):'')+(co.phone?'<br>'+esc(co.phone):'')+'</div>'+
+    '<div class="party"><div class="lbl">Voor</div><b>'+esc(cu.name||'')+'</b>'+(cu.contact?'<br>t.a.v. '+esc(cu.contact):'')+(cu.address?'<br>'+esc(cu.address):'')+(cu.vat?'<br>BTW '+esc(cu.vat):'')+'</div></div>'+
+    '<table><thead><tr><th>Omschrijving</th><th class="num">Aantal</th><th class="num">Prijs</th><th class="num">Bedrag</th></tr></thead><tbody>'+lines+'</tbody></table>'+
+    '<div class="tot"><div><span>Subtotaal excl. btw</span><span>'+eur(d.sub)+'</span></div><div><span>BTW '+Math.round((d.vatRate||0.21)*100)+'%</span><span>'+eur(d.vat)+'</span></div><div class="big"><span>Totaal</span><span>'+eur(d.tot)+'</span></div></div>'+
+    (d.note?'<div class="note">'+esc(d.note)+'</div>':'')+(d.terms?'<div class="terms">'+esc(d.terms)+'</div>':'')+
+    '</div></div>';
+  if(signed){
+    html+='<div class="ok"><b>✓ Ondertekend</b> door '+esc(S.signed_name)+' op '+fmtDT(S.signed_at)+'.<br>Bedankt voor je vertrouwen! '+esc(co.name||'Marleo')+' neemt snel contact met je op om te starten.'+(S.signature?'<br><img src="'+S.signature+'" alt="Handtekening">':'')+'</div>'+
+      '<div class="actions"><button class="btn" onclick="pdf()">⬇ Download ondertekende offerte (PDF)</button></div>';
+  }else{
+    html+='<div class="sign"><h2>Akkoord? Onderteken hier</h2><p class="h">Teken met je vinger of muis in het vak. Na ondertekening kan je de offerte meteen downloaden.</p>'+
+      '<label for="nm">Je volledige naam</label><input type="text" id="nm" placeholder="Voornaam Naam" autocomplete="name">'+
+      '<label>Handtekening</label><div class="pad" id="pad"><canvas id="cv"></canvas><div class="ph" id="ph">Teken hier</div></div>'+
+      '<div class="row"><button class="link" onclick="clearPad()">Handtekening wissen</button></div>'+
+      '<label class="chk"><input type="checkbox" id="ag"> <span>Ik ga akkoord met deze offerte ('+eur(d.tot)+' incl. btw) en de vermelde voorwaarden.</span></label>'+
+      '<button class="btn full" id="sb" onclick="sign()">✍️ Offerte ondertekenen</button><div class="err" id="er"></div>'+
+      '<div class="actions" style="justify-content:center"><button class="link" onclick="pdf()">Offerte eerst downloaden (PDF)</button></div></div>';
+  }
+  html+='<div class="foot">'+esc(co.name||'Marleo')+(co.email?' · '+esc(co.email):'')+(co.phone?' · '+esc(co.phone):'')+'</div>';
+  document.getElementById('app').innerHTML=html;
+  if(!signed)initPad();
+}
+/* ---- handtekeningvak ---- */
+var cv,ctx,drawing=false,hasInk=false,last=null;
+function initPad(){cv=document.getElementById('cv');var r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.lineWidth=2.4;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#1B1D2A';hasInk=false;
+  function pos(e){var b=cv.getBoundingClientRect();return {x:e.clientX-b.left,y:e.clientY-b.top}}
+  cv.addEventListener('pointerdown',function(e){e.preventDefault();cv.setPointerCapture(e.pointerId);drawing=true;last=pos(e);ctx.beginPath();ctx.arc(last.x,last.y,1.1,0,Math.PI*2);ctx.fill();hasInk=true;document.getElementById('ph').style.display='none'});
+  cv.addEventListener('pointermove',function(e){if(!drawing)return;e.preventDefault();var p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;hasInk=true});
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){cv.addEventListener(ev,function(){drawing=false})});
+}
+function clearPad(){if(!cv)return;ctx.clearRect(0,0,cv.width,cv.height);hasInk=false;document.getElementById('ph').style.display='flex'}
+function trimmed(){/* handtekening bijsnijden op witte achtergrond */
+  var w=cv.width,h=cv.height,id=ctx.getImageData(0,0,w,h).data,x0=w,y0=h,x1=0,y1=0;
+  for(var y=0;y<h;y+=2)for(var x=0;x<w;x+=2){if(id[(y*w+x)*4+3]>0){if(x<x0)x0=x;if(y<y0)y0=y;if(x>x1)x1=x;if(y>y1)y1=y}}
+  var pad=12;x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(w,x1+pad);y1=Math.min(h,y1+pad);
+  var o=document.createElement('canvas');var sc=Math.min(1,600/(x1-x0));o.width=Math.max(1,(x1-x0)*sc);o.height=Math.max(1,(y1-y0)*sc);var oc=o.getContext('2d');oc.fillStyle='#fff';oc.fillRect(0,0,o.width,o.height);oc.drawImage(cv,x0,y0,x1-x0,y1-y0,0,0,o.width,o.height);return o.toDataURL('image/png')}
+async function sign(){
+  var er=document.getElementById('er');er.textContent='';
+  var nm=document.getElementById('nm').value.trim();
+  if(nm.length<2){er.textContent='Vul je naam in.';return}
+  if(!hasInk){er.textContent='Zet je handtekening in het vak.';return}
+  if(!document.getElementById('ag').checked){er.textContent='Vink aan dat je akkoord gaat.';return}
+  var b=document.getElementById('sb');b.disabled=true;b.textContent='Bezig met ondertekenen…';
+  try{var sig=trimmed();var j=await call({action:'sign',name:nm,signature:sig});if(!j.ok)throw new Error(j.error||'Ondertekenen mislukt');
+    S.status='getekend';S.signed_name=j.signed_name;S.signed_at=j.signed_at;S.signature=sig;render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  }catch(e){er.textContent=e.message;b.disabled=false;b.textContent='✍️ Offerte ondertekenen'}
+}
+/* ---- PDF ---- */
+function pdf(){
+  var d=S.data,co=d.company||{},cu=d.customer||{};var doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});var W=210,M=16,y;
+  doc.setFillColor(18,19,28);doc.rect(0,0,W,34,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text((co.name||'MARLEO').toUpperCase(),M,18);
+  doc.setFontSize(12);doc.text('OFFERTE '+(d.ref||''),W-M,15,{align:'right'});doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(200,204,216);
+  doc.text('Datum: '+fmtD(d.date)+(d.valid?'   Geldig tot: '+fmtD(d.valid):''),W-M,21,{align:'right'});
+  y=46;doc.setTextColor(96,102,122);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text('VAN',M,y);doc.text('VOOR',W/2+4,y);
+  doc.setTextColor(27,29,42);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+  var L=[co.legal||co.name,co.address,[co.zip,co.city].filter(Boolean).join(' '),co.vat?'BTW '+co.vat:'',co.email,co.phone].filter(Boolean);
+  var R=[cu.name,cu.contact?'t.a.v. '+cu.contact:'',cu.address,cu.vat?'BTW '+cu.vat:''].filter(Boolean);
+  L.forEach(function(t,i){doc.text(String(t),M,y+6+i*5)});R.forEach(function(t,i){doc.text(String(t),W/2+4,y+6+i*5)});
+  y+=10+Math.max(L.length,R.length)*5+4;
+  doc.setFillColor(18,19,28);doc.rect(M,y,W-2*M,8,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('OMSCHRIJVING',M+3,y+5.3);doc.text('AANTAL',128,y+5.3,{align:'right'});doc.text('PRIJS',155,y+5.3,{align:'right'});doc.text('BEDRAG',W-M-3,y+5.3,{align:'right'});y+=13;
+  doc.setTextColor(27,29,42);
+  (d.lines||[]).forEach(function(l){var parts=String(l.d||'').split('\n');doc.setFont('helvetica','bold');doc.setFontSize(9.5);var t=doc.splitTextToSize(parts[0],95);doc.text(t,M+3,y);
+    doc.setFont('helvetica','normal');doc.text(String(l.q),128,y,{align:'right'});doc.text(eur(l.p),155,y,{align:'right'});doc.text(eur(l.q*l.p),W-M-3,y,{align:'right'});y+=t.length*4.6;
+    if(parts.length>1){doc.setFontSize(8.3);doc.setTextColor(96,102,122);var dt=doc.splitTextToSize(parts.slice(1).join('\n'),95);doc.text(dt,M+3,y);y+=dt.length*4;doc.setTextColor(27,29,42)}
+    doc.setDrawColor(227,230,238);doc.line(M,y,W-M,y);y+=6;if(y>250){doc.addPage();y=20}});
+  y+=2;doc.setFontSize(9.5);doc.text('Subtotaal excl. btw',135,y);doc.text(eur(d.sub),W-M-3,y,{align:'right'});y+=6;
+  doc.text('BTW '+Math.round((d.vatRate||0.21)*100)+'%',135,y);doc.text(eur(d.vat),W-M-3,y,{align:'right'});y+=3;doc.setDrawColor(27,29,42);doc.line(135,y,W-M,y);y+=6;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Totaal',135,y);doc.text(eur(d.tot),W-M-3,y,{align:'right'});y+=10;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(96,102,122);
+  if(d.note){var n=doc.splitTextToSize(d.note,W-2*M);doc.text(n,M,y);y+=n.length*4+3}
+  if(d.terms){var tt=doc.splitTextToSize(d.terms,W-2*M);doc.text(tt,M,y);y+=tt.length*4+3}
+  if(y>225){doc.addPage();y=24}
+  y+=4;doc.setTextColor(27,29,42);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Voor akkoord',M,y);y+=5;doc.setFont('helvetica','normal');doc.setFontSize(9);
+  if(S.status==='getekend'){doc.text('Ondertekend door '+S.signed_name+' op '+fmtDT(S.signed_at),M,y);y+=3;
+    if(S.signature){try{var img=new Image();img.src=S.signature;var ratio=(img.naturalHeight||1)/(img.naturalWidth||3);var w=60,h=Math.min(28,w*ratio||20);doc.addImage(S.signature,'PNG',M,y,w,h);y+=h}catch(e){}}}
+  else{doc.setDrawColor(150,150,160);doc.line(M,y+18,M+70,y+18);doc.text('Naam en handtekening',M,y+23)}
+  doc.save('Offerte-'+(d.ref||'')+(S.status==='getekend'?'-ondertekend':'')+'.pdf');
+}
+load();
+</script>
+</body>
+</html>
