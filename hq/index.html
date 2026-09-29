@@ -1400,7 +1400,7 @@ function rCustPage(){
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
        (c.phone?'<a class="btn sm subtle" href="tel:'+esc(c.phone)+'">\ud83d\udcde Bel</a>':'')+
        (c.email?'<a class="btn sm subtle" href="mailto:'+esc(c.email)+'">\u2709 Mail</a>':'')+
-       (c.phone?'<a class="btn sm subtle" href="https://wa.me/'+telDigits(c.phone)+'" target="_blank">\ud83d\udcac WhatsApp</a>':'')+
+       (isMobile(c.phone)?'<a class="btn sm subtle" href="https://wa.me/'+telDigits(c.phone)+'" target="_blank">\ud83d\udcac WhatsApp</a>':'')+
       '</div>'+
       (c.note?'<div class="notecard" style="margin-top:12px"><div class="meta">Notitie</div><p>'+esc(c.note)+'</p></div>':'')+
     '</div>'+
@@ -2226,7 +2226,7 @@ function vDeal(id){
    '<button class="btn sm subtle" onclick="setVolgende(\''+d.id+'\')">\ud83d\udcc5 Volgende actie</button>'+
   '</div></div>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">'+
-   (d.tel?'<a class="btn sm" href="'+dealWa(d)+'" target="_blank" onclick="logContact(\''+d.id+'\',\'WhatsApp\')">\ud83d\udcac Open WhatsApp</a>':'')+
+   (isMobile(d.tel)?'<a class="btn sm" href="'+dealWa(d)+'" target="_blank" onclick="logContact(\''+d.id+'\',\'WhatsApp\')">\ud83d\udcac Open WhatsApp</a>':'')+
    (d.email?'<a class="btn sm" href="'+dealMail(d)+'" onclick="logContact(\''+d.id+'\',\'Gemaild\')">\u2709 Open mail</a>':'')+
    (d.tel?'<a class="btn sm subtle" href="tel:'+esc(d.tel)+'" onclick="logContact(\''+d.id+'\',\'Gebeld\')">\ud83d\udcde Bel</a>':'')+
    (d.demoLink?'<a class="btn sm subtle" href="'+esc(d.demoLink)+'" target="_blank">\ud83d\udd17 Demo</a>':'')+
@@ -2360,7 +2360,7 @@ function rOutreach(){
     '<div style="flex:1;min-width:170px"><b style="font-family:var(--disp)">'+esc(d.naam)+'</b><div class="hint">'+esc(d.cat||'')+' \u00b7 '+esc(d.plaats||'')+' \u00b7 '+esc(d.tel||'geen tel')+(d.note?'<br>\ud83d\udcdd '+esc(d.note):'')+'</div></div>'+
     '<span class="pill bezig">'+stageLabel(d.stage)+'</span></div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
-    (d.tel?'<a class="btn sm" href="'+dealWa(d)+'" target="_blank" onclick="logDeal(\''+d.id+'\',\'WhatsApp geopend\')">\ud83d\udcac WhatsApp</a>':'')+
+    (isMobile(d.tel)?'<a class="btn sm" href="'+dealWa(d)+'" target="_blank" onclick="logDeal(\''+d.id+'\',\'WhatsApp geopend\')">\ud83d\udcac WhatsApp</a>':'')+
     (d.email?'<a class="btn sm" href="'+dealMail(d)+'">\u2709 Mail</a>':'')+
     '<button class="btn sm subtle" onclick="setStage(\''+d.id+'\',\'gecontacteerd\')">\u2713 Gecontacteerd</button>'+
     '<button class="btn sm subtle" onclick="vDeal(\''+d.id+'\')">Details</button>'+
@@ -2433,7 +2433,7 @@ function rLeads(){
       (flags?'<div class="lc-flags">'+flags+'</div>':'')+
       '<div class="lc-web">'+web+(meta?' &nbsp;'+meta:'')+'</div>'+
       '<div class="lc-acts">'+
-        (l.tel?'<a class="btn sm" style="background:#25D366;box-shadow:none;color:#fff" href="'+waUrl+'" target="_blank" rel="noopener" onclick="lfWaLog('+i+')">\ud83d\udcac WhatsApp</a>':'')+
+        (isMobile(l.tel)?'<a class="btn sm" style="background:#25D366;box-shadow:none;color:#fff" href="'+waUrl+'" target="_blank" rel="noopener" onclick="lfWaLog('+i+')">\ud83d\udcac WhatsApp</a>':'')+
         '<button class="btn sm subtle" onclick="lfMail('+i+')">\u2709\ufe0f Mail</button>'+
         (l.tel?'<a class="btn sm subtle" href="tel:'+esc(l.tel.replace(/\s/g,''))+'">\ud83d\udcde Bel</a>':'')+
         (l.website?'<button class="btn sm subtle" onclick="scanLead('+i+')">\ud83d\udd0d Scan</button>':'<button class="btn sm subtle" onclick="demoFromLead('+i+')">\ud83c\udfa8 Demo</button>')+
@@ -2719,7 +2719,7 @@ function dealCard(d){
   '<b>'+esc(d.naam)+'</b> '+contact+(d.kanaal==='Website'?'<span class="pill hoog" style="font-size:.6rem;margin-left:4px">aanvraag</span>':'')+'<div class="dmeta">'+esc(d.cat||'')+(d.plaats?' · '+esc(d.plaats):'')+(d.online?' · '+esc(d.online):'')+'</div>'+
   '<div class="drow"><span>'+eur(d.value)+'</span>'+(d.follow?'<span class="'+(late?'flate':'fok')+'">⏰ '+fmtD(d.follow)+'</span>':(days!==null?'<span class="fok">'+days+'d geleden</span>':''))+'</div>'+
   (d.volgendeActie?'<div class="dnext">→ '+esc(d.volgendeActie)+'</div>':'')+
-  '<div class="dacts">'+(d.tel?'<button title="WhatsApp" onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">💬</button><button title="Gebeld" onclick="quickContact(event,\''+d.id+'\',\'Gebeld\')">📞</button>':'')+(d.email?'<button title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉</button>':'')+(d.stage!=='gewonnen'&&d.stage!=='verloren'?'<button title="Volgende fase" onclick="quickNext(event,\''+d.id+'\')">→</button>':'')+'</div></div>';
+  '<div class="dacts">'+(d.tel?(isMobile(d.tel)?'<button title="WhatsApp" onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">💬</button>':'')+'<button title="Gebeld" onclick="quickContact(event,\''+d.id+'\',\'Gebeld\')">📞</button>':'')+(d.email?'<button title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉</button>':'')+(d.stage!=='gewonnen'&&d.stage!=='verloren'?'<button title="Volgende fase" onclick="quickNext(event,\''+d.id+'\')">→</button>':'')+'</div></div>';
 }
 function rPipeline(){
   var t=today();var all=DATA.deals;var q=PIPEQ.toLowerCase();
@@ -2731,7 +2731,7 @@ function rPipeline(){
   main().innerHTML=
   '<div class="topbar"><div><h2>Pipeline</h2><div class="sub">'+open.length+' open · '+eur(totV)+' potentieel · '+won+' gewonnen · '+lost+' verloren</div></div>'+
   '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div class="searchbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="Zoek lead…" value="'+esc(PIPEQ)+'" oninput="PIPEQ=this.value;rPipeline();this.focus();this.setSelectionRange(this.value.length,this.value.length)"></div><button class="btn subtle" onclick="go(\'leads\')">🎯 Leads zoeken</button><button class="btn" onclick="mDeal()">+ Nieuwe deal</button></div></div>'+
-  (due.length&&!q?'<div class="panelbox" style="border-color:rgba(245,166,35,.45);margin-bottom:16px"><h3>⏰ Vandaag opvolgen ('+due.length+')</h3><div style="display:flex;gap:8px;flex-wrap:wrap">'+due.slice(0,8).map(function(d){return '<div class="dealcard" style="margin:0;min-width:200px;flex:1" onclick="vDeal(\''+d.id+'\')"><b>'+esc(d.naam)+'</b><div class="dmeta">'+stageLabel(d.stage)+(d.follow?' · '+fmtD(d.follow):' · nog niet gecontacteerd')+'</div><div class="dacts">'+(d.tel?'<button onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">💬 WhatsApp</button>':'')+(d.email?'<button onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉ Mail</button>':'')+'</div></div>'}).join('')+'</div></div>':'')+
+  (due.length&&!q?'<div class="panelbox" style="border-color:rgba(245,166,35,.45);margin-bottom:16px"><h3>⏰ Vandaag opvolgen ('+due.length+')</h3><div style="display:flex;gap:8px;flex-wrap:wrap">'+due.slice(0,8).map(function(d){return '<div class="dealcard" style="margin:0;min-width:200px;flex:1" onclick="vDeal(\''+d.id+'\')"><b>'+esc(d.naam)+'</b><div class="dmeta">'+stageLabel(d.stage)+(d.follow?' · '+fmtD(d.follow):' · nog niet gecontacteerd')+'</div><div class="dacts">'+(isMobile(d.tel)?'<button onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">💬 WhatsApp</button>':'')+(d.email?'<button onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉ Mail</button>':'')+'</div></div>'}).join('')+'</div></div>':'')+
   '<div class="pipewrap">'+STAGES.map(function(st){
     var list=dealsIn(st[0]).filter(match).sort(function(a,b){return (a.follow||'9').localeCompare(b.follow||'9')});
     return '<div class="pipecol" ondragover="event.preventDefault();this.classList.add(\'over\')" ondragleave="this.classList.remove(\'over\')" ondrop="this.classList.remove(\'over\');pipeDrop(event,\''+st[0]+'\')"><div class="pipehead"><span>'+st[1]+'</span><span class="pipesum">'+list.length+' · '+eur(pipeValue(st[0]))+'</span></div>'+
@@ -2892,7 +2892,7 @@ function rAanvragen(){
       '<td onclick="vDeal(\''+d.id+'\')" style="font-size:.85rem;color:var(--muted);max-width:360px;white-space:pre-line">'+esc((d.note||'').slice(0,220))+'</td>'+
       '<td onclick="vDeal(\''+d.id+'\')" style="font-size:.8rem;color:var(--muted);white-space:nowrap">'+when+'</td>'+
       '<td onclick="vDeal(\''+d.id+'\')"><span class="pill '+(d.stage==='nieuw'?'hoog':d.stage==='gewonnen'?'klaar':d.stage==='verloren'?'inactief':'bezig')+'">'+stageLabel(d.stage)+'</span></td>'+
-      '<td><div class="rowactions">'+(d.tel?'<button class="iconbtn" title="WhatsApp" onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">\ud83d\udcac</button>':'')+(d.email?'<button class="iconbtn" title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">\u2709</button>':'')+'<button class="iconbtn ok" title="Gewonnen" onclick="event.stopPropagation();setStage(\''+d.id+'\',\'gewonnen\');saveData();rAanvragen()">\u2713</button><button class="iconbtn del" title="Verwijderen" onclick="delDeal(\''+d.id+'\',event)">\ud83d\uddd1</button></div></td></tr>'}).join('')+
+      '<td><div class="rowactions">'+(isMobile(d.tel)?'<button class="iconbtn" title="WhatsApp" onclick="quickContact(event,\''+d.id+'\',\'WhatsApp\')">\ud83d\udcac</button>':'')+(d.email?'<button class="iconbtn" title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">\u2709</button>':'')+'<button class="iconbtn ok" title="Gewonnen" onclick="event.stopPropagation();setStage(\''+d.id+'\',\'gewonnen\');saveData();rAanvragen()">\u2713</button><button class="iconbtn del" title="Verwijderen" onclick="delDeal(\''+d.id+'\',event)">\ud83d\uddd1</button></div></td></tr>'}).join('')+
     '</tbody></table></div></div>':'<div class="panelbox"><div class="empty"><span class="big">\ud83d\udce9</span>Geen aanvragen'+(AANTAB==='nieuw'?' die nog nieuw zijn':'')+'.</div></div>');
 }
 function delAanvragen(mode){
@@ -4130,6 +4130,65 @@ function demoFromCust(id){var c=customer(id);if(!c)return;mDemo(null,{naam:c.nam
 /* demo-knop op klantfiche */
 (function(){if(typeof rCustPage!=='function')return;var _rCustPage=rCustPage;rCustPage=function(){_rCustPage();var c=customer(CUSTVIEW);if(!c)return;var tb=main().querySelector('.topbar > div:last-child');if(tb&&!tb.querySelector('.democustbtn'))tb.insertAdjacentHTML('beforeend','<button class="btn subtle democustbtn" onclick="demoFromCust(\''+c.id+'\')">🎨 Demo</button>')}})();
 
+
+
+/* ===== WhatsApp enkel naar Belgische gsm-nummers (04.. / +32 4..) ===== */
+function isMobileDigits(x){return /^324(5[5-9]|[6-9]\d)\d{6}$/.test(String(x||''))}
+function isMobile(t){if(!t)return false;var raw=String(t).replace(/[^0-9+]/g,'');if(!raw)return false;return isMobileDigits(telDigits(raw))}
+/* vangnet: elke wa.me-link of -popup naar een vast nummer tegenhouden */
+document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href*="wa.me/"]');if(!a)return;
+  var m=/wa\.me\/(\d+)/.exec(a.getAttribute('href')||'');if(m&&!isMobileDigits(m[1])){e.preventDefault();e.stopImmediatePropagation();toast('Vast nummer: WhatsApp kan hier niet, bel of mail',true)}},true);
+(function(){var _open=window.open;window.open=function(u){var m=/wa\.me\/(\d+)/.exec(String(u||''));if(m&&!isMobileDigits(m[1])){toast('Vast nummer: WhatsApp kan hier niet, bel of mail',true);return null}return _open.apply(window,arguments)}})();
+
+/* ===== Pipeline: compacte lijst (1 regel per deal, geen eindeloos scrollen) ===== */
+var PIPEONLYDUE=false,PIPECLOSED=(function(){try{return JSON.parse(localStorage.getItem('pipeclosed')||'{"gewonnen":1,"verloren":1}')}catch(e){return {gewonnen:1,verloren:1}}})();
+function pipeToggleStage(st){PIPECLOSED[st]=!PIPECLOSED[st];try{localStorage.setItem('pipeclosed',JSON.stringify(PIPECLOSED))}catch(e){}rPipeline()}
+function pipeStageSet(id,st){setStage(id,st);saveData();rPipeline()}
+(function(){var st=document.createElement('style');st.textContent=
+ '.plist{width:100%;border-collapse:collapse;font-size:.88rem}'+
+ '.plist td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}'+
+ '.plist tr.pl-row:hover td{background:var(--panel2)}'+
+ '.plist tr.pl-head td{background:var(--bg2);font-family:var(--disp);font-weight:700;font-size:.8rem;cursor:pointer;padding:9px 8px;position:sticky;top:0;z-index:1}'+
+ '.plist .pl-name{font-weight:600;cursor:pointer}.plist .pl-sub{color:var(--muted);font-size:.74rem}'+
+ '.plist select{padding:4px 6px!important;font-size:.78rem!important;width:auto;min-width:120px;border-radius:8px}'+
+ '.plist .pl-acts{display:flex;gap:4px;justify-content:flex-end}'+
+ '.plist .pl-acts button,.plist .pl-acts a{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:4px 8px;font-size:.85rem;cursor:pointer;min-height:0}'+
+ '.plist .late{color:#F87171;font-weight:700}'+
+ '.pl-wrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:calc(100vh - 260px)}'+
+ '@media(max-width:760px){.plist .pl-hide{display:none}.pl-wrap{max-height:none}.plist select{min-width:0}}';
+ document.head.appendChild(st)})();
+(function(){var _rP=rPipeline;rPipeline=function(){_rP();if(PIPEVIEW!=='lijst')return;
+  var wrap=main().querySelector('.pipewrap');if(!wrap)return;
+  var t=today();var q=(typeof PIPEQ!=='undefined'?PIPEQ:'').toLowerCase();
+  var match=function(d){return !q||(d.naam+' '+(d.plaats||'')+' '+(d.cat||'')).toLowerCase().indexOf(q)>=0};
+  var isDue=function(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'&&((d.follow&&d.follow<=t)||(d.stage==='nieuw'&&!d.laatstContact))};
+  var rows='';var total=0;
+  STAGES.forEach(function(st){var list=dealsIn(st[0]).filter(match);if(PIPEONLYDUE)list=list.filter(isDue);
+    list.sort(function(a,b){return (a.follow||'9').localeCompare(b.follow||'9')});total+=list.length;
+    if(!list.length&&PIPEONLYDUE)return;
+    var closed=!!PIPECLOSED[st[0]];var val=list.reduce(function(s,d){return s+Number(d.value||0)},0);
+    rows+='<tr class="pl-head" onclick="pipeToggleStage(\''+st[0]+'\')"><td colspan="6">'+(closed?'▸':'▾')+' '+st[1]+' <span style="color:var(--muted);font-weight:500">· '+list.length+' · '+eur(val)+'</span></td></tr>';
+    if(closed)return;
+    rows+=list.map(function(d){var seg=(typeof dealSeg==='function')?dealSeg(d):'web';var col=(typeof SEG!=='undefined'&&SEG[seg])?SEG[seg].color:'#2563EB';
+      var late=d.follow&&d.follow<=t;
+      return '<tr class="pl-row"><td style="width:6px;padding:0;background:'+col+'"></td>'+
+        '<td><div class="pl-name" onclick="vDeal(\''+d.id+'\')">'+esc(d.naam)+'</div><div class="pl-sub">'+esc([d.plaats,d.cat].filter(Boolean).join(' · '))+'</div></td>'+
+        '<td class="pl-hide" style="white-space:nowrap">'+eur(d.value)+'</td>'+
+        '<td class="pl-hide" style="white-space:nowrap">'+(d.follow?'<span class="'+(late?'late':'')+'">⏰ '+fmtD(d.follow)+'</span>':(d.stage==='nieuw'&&!d.laatstContact?'<span class="late">nog bellen</span>':'<span class="pl-sub">–</span>'))+'</td>'+
+        '<td><select onclick="event.stopPropagation()" onchange="pipeStageSet(\''+d.id+'\',this.value)">'+STAGES.map(function(s){return '<option value="'+s[0]+'" '+(s[0]===d.stage?'selected':'')+'>'+s[1]+'</option>'}).join('')+'</select></td>'+
+        '<td><div class="pl-acts">'+(isMobile(d.tel)?'<a title="WhatsApp" href="'+dealWa(d)+'" target="_blank" rel="noopener" onclick="pipeWaLog(event,\''+d.id+'\')">💬</a>':'')+(d.tel?'<a title="Bel" href="tel:'+esc(String(d.tel).replace(/\s/g,''))+'" onclick="quickContact(event,\''+d.id+'\',\'Gebeld\')">📞</a>':'')+(d.email?'<button title="Mail" onclick="quickContact(event,\''+d.id+'\',\'E-mail\')">✉</button>':'')+'</div></td></tr>'}).join('');
+  });
+  var dueN=DATA.deals.filter(isDue).length;
+  var bar='<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><button class="btn sm '+(PIPEONLYDUE?'':'subtle')+'" onclick="PIPEONLYDUE=!PIPEONLYDUE;rPipeline()">⏰ Enkel op te volgen ('+dueN+')</button><span class="hint" style="margin:0">Klik op een fase om ze open of dicht te klappen · fase wijzigen via het keuzemenu</span></div>';
+  var html=bar+'<div class="pl-wrap"><table class="plist"><tbody>'+(rows||'<tr><td class="pl-sub" style="padding:18px">Geen deals</td></tr>')+'</tbody></table></div>';
+  var box=document.createElement('div');box.innerHTML=html;
+  // grote "vandaag opvolgen"-kaart weg in lijstweergave (zit nu in de filterknop)
+  Array.prototype.slice.call(main().querySelectorAll('.panelbox')).forEach(function(p){var h=p.querySelector('h3');if(h&&/Vandaag opvolgen/.test(h.textContent))p.remove()});
+  wrap.replaceWith(box);
+}})();
+
+
+function pipeWaLog(ev,id){ev.stopPropagation();var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;setTimeout(function(){logContact(id,'WhatsApp');if(d.stage==='nieuw'){d.stage='gecontacteerd'}if(!d.follow)d.follow=plusDays(today(),3);saveData();rPipeline()},150)}
 
 </script>
 </body>
