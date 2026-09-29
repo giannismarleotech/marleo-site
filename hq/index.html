@@ -3646,37 +3646,87 @@ function itIssues(x){var h=leadHay(x);var out=[];
 function priceOf(re,fb){try{var p=(DATA.products||[]).find(function(x){return re.test(x.name||'')});return p&&p.price?'€'+String(p.price).replace('.',','):fb}catch(e){return fb}}
 function nameHash(s){var n=0;String(s||'').split('').forEach(function(c){n=(n*31+c.charCodeAt(0))>>>0});return n}
 function pick(arr,seed){return arr[nameHash(seed)%arr.length]}
-/* WhatsApp = kort, spreektaal, klinkt als een echt bericht */
-function waMsg(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var aanhef=vn?'Hey '+vn+'!':pick(['Hey!','Dag!','Hallo!'],naam);
-  var seg=(typeof dealSeg==='function')?dealSeg(x):'web';
+/* ===== Persoonlijke berichten v3: sector, gemeente, reviews, concrete bevindingen ===== */
+function leadCity(x){var c=x.city||x.plaats||'';if(!c&&x.adres){var m=/\b\d{4}\s+([^,]+)/.exec(x.adres);if(m)c=m[1]}return String(c).trim()}
+function leadBenefit(x){var t=((x.cat||'')+' '+(x.sector||'')+' '+(x.naam||'')).toLowerCase();
+  if(/kap|barb|coiff|beaut|schoonheid|nagel|salon|massage|wellness/.test(t))return 'klanten ook ’s avonds of in het weekend zelf online een afspraak boeken';
+  if(/resto|horeca|frituur|brasser|caf|bistro|pizz|traiteur|bakker|brood|tearoom|snack|bar\b|hotel|b&b/.test(t))return 'je menu, openingsuren en een reservatie- of bestelknop mooi op één plek staan';
+  if(/bouw|aannem|dak|schilder|elektr|loodgiet|renov|tegel|schrijnw|tuin|stukad|timmer|install|vloer|keuken|las|metaal|afsluit|omheining/.test(t))return 'je je realisaties toont en mensen meteen een offerte aanvragen';
+  if(/garage|auto|carwash|band|polijst|carrosser/.test(t))return 'klanten zelf een afspraak maken en meteen je diensten en prijzen zien';
+  if(/poets|schoonmaak|clean|ontruim/.test(t))return 'mensen meteen een prijs aanvragen voor hun woning of kantoor';
+  if(/advoc|boekhoud|notar|consult|verzeker|fiscal|architect|immo/.test(t))return 'je professioneler overkomt en nieuwe klanten makkelijker contact opnemen';
+  return 'mensen die je op Google zoeken je meteen vinden en contact opnemen'}
+function leadReviewLine(x){var r=parseFloat(String(x.rating||'').replace(',','.'))||0,n=parseInt(x.reviews)||0;
+  if(r>=4.3&&n>=8)return 'Ik zag dat jullie '+String(r).replace('.',',')+'★ hebben op Google met '+n+' reviews, knap! ';
+  if(n>=25)return 'Ik zag dat jullie al '+n+' reviews hebben op Google, dus jullie zijn duidelijk goed bezig. ';
+  return ''}
+function leadSiteIssues(x){var h=leadHay(x),o=[];
+  if(/niet mobiel/.test(h))o.push('niet goed werkt op gsm');
+  if(/copyright|verouderd/.test(h))o.push('al een tijdje niet meer bijgewerkt lijkt');
+  if(/gratis sitebouwer/.test(h))o.push('op een gratis sitebouwer draait');
+  if(/geen https/.test(h))o.push('geen beveiligd slotje heeft');
+  if(/bijna lege/.test(h))o.push('bijna leeg is');
+  return o.slice(0,2)}
+function leadIsNew(x){return !!(x.nieuw||x.bron==='KBO'||/Nieuw bedrijf/.test(x.cat||''))}
+function priceWeb(){return priceOf(/^website op maat/i,'€279')}
+function priceSeo(){return priceOf(/^seo-start/i,'€89')}
+
+function waMsg(x){var naam=x.naam||x.name||'jullie zaak';var vn=leadFirstName(x);var hi=vn?'Hallo '+vn+'!':pick(['Hallo!','Dag!','Hey!'],naam);
+  var seg=(typeof dealSeg==='function')?dealSeg(x):'web';var stad=leadCity(x);
   if(seg==='it'){var is=itIssues(x);
-    return aanhef+' Giannis hier van Marleo (IT & websites). Ik deed een snelle check op '+naam+' en '+(is.length?'zag dat '+is[0]+'.':'zag een paar dingen aan jullie beveiliging die beter kunnen.')+' Niks om van wakker te liggen, maar wel makkelijk in orde te brengen. Zal ik u er eens een kort overzichtje van doorsturen?';}
-  var s=leadSituation(x);var kern={
-    geen:'ik zocht '+naam+' eens op maar vond geen website. Verrast me, want ge zijt duidelijk goe bezig. Zal ik eens een voorbeeldje maken zodat ge ziet hoe da\' eruit zou zien?',
-    social:'ik zie dat '+naam+' enkel op Facebook zit. Met een eigen site wordt ge veel beter gevonden op Google. Zin dat ik eens iets in mekaar steek om te tonen?',
-    kapot:'ik wou eens naar de site van '+naam+' kijken maar die laadt niet goed. Zonde van de bezoekers die afhaken. Ik kijk er gerust eens gratis naar als ge wilt?',
-    oud:'ik bekeek de site van '+naam+' – werkt niet echt lekker op gsm en oogt een beetje gedateerd. Ik maak eens een nieuwe versie als voorbeeld, dan ziet ge \'t verschil?',
-    ok:'ik zag de site van '+naam+', ziet er al goe uit! Een paar kleine dingen kunnen er nog wat meer uithalen. Zin om eens samen te kijken?'
+    return hi+' Ik ben Giannis van Marleo uit Nevele. Ik help bedrijven'+(stad?' in de buurt van '+stad:' in de regio')+' met hun IT en beveiliging.\n\n'+
+      'Ik deed een korte, publieke check op '+naam+(is.length?' en zag dat '+is[0]+'.':' en zag een paar dingen aan jullie beveiliging die beter kunnen.')+' Dat kan misbruikt worden voor phishing in jullie naam, maar het is vlot op te lossen.\n\n'+
+      'Zal ik je het korte overzicht gratis doorsturen? Dan zie je zelf wat er speelt.\n\nGroeten,\nGiannis · Marleo';}
+  var ben=leadBenefit(x);
+  if(leadIsNew(x)){
+    return hi+' Proficiat met de start van '+naam+'! 🎉\n\nIk ben Giannis van Marleo uit Nevele. Ik help nieuwe zaken'+(stad?' in '+stad+' en omgeving':' in de regio')+' met een eerste website, zodat klanten jullie vanaf dag één vinden.\n\n'+
+      'Een site waar '+ben+': dat maak ik voor '+priceWeb()+' (excl. btw), eenmalig. Geen abonnement, geen verborgen kosten.\n\n'+
+      'Zal ik gratis een voorbeeld maken voor '+naam+'? Dan zie je eerst hoe het eruitziet.\n\nGroeten,\nGiannis · Marleo';}
+  var s=leadSituation(x);var rev=leadReviewLine(x);var iss=leadSiteIssues(x);
+  var obs={
+    geen:'Ik zocht '+naam+' op Google en vond geen eigen website. Wie jullie zoekt, komt nu enkel op Maps of Facebook terecht.',
+    social:'Ik zie dat '+naam+' vooral via Facebook werkt. Niet iedereen zit op Facebook, en op Google worden jullie zo minder gevonden.',
+    kapot:'Ik wou jullie website openen, maar die laadt niet (goed). Wie erop klikt, haakt meteen af.',
+    oud:'Ik bekeek jullie website en zag dat ze '+(iss.length?iss.join(' en '):'wat verouderd is')+'. Meer dan de helft van je bezoekers kijkt op gsm, dus daar verlies je klanten.',
+    ok:'Ik bekeek jullie website, die ziet er al goed uit. Met een paar kleine aanpassingen haal je er nog meer aanvragen uit.'
   }[s];
-  return aanhef+' Giannis hier, ik maak websites voor lokale zaken (Marleo). '+kern.charAt(0).toUpperCase()+kern.slice(1)+'\n\n'+((s==='ok')?'Om eerlijk te zijn over de prijs: een SEO-pakket start bij '+priceOf(/^seo-start/i,'€89')+' en een volledig nieuwe site kost '+priceOf(/^website op maat/i,'€279')+' (excl. btw), allebei eenmalig.':'Om eerlijk te zijn over de prijs: een nieuwe site kost bij mij '+priceOf(/^website op maat/i,'€279')+' (excl. btw), eenmalig. Geen abonnement, geen verborgen kosten.')+' Het voorbeeld is gratis hé. Groeten!';
+  if(rev&&s==='geen')obs='Maar een eigen website vond ik niet: wie jullie zoekt, komt nu enkel op Google Maps of Facebook terecht.';
+  var prijs=s==='ok'?'Beter gevonden worden op Google kan al vanaf '+priceSeo()+', en een volledig nieuwe site kost '+priceWeb()+' (excl. btw), allebei eenmalig.':
+    'Een nieuwe site waar '+ben+', maak ik voor '+priceWeb()+' (excl. btw), eenmalig. Geen abonnement, geen verborgen kosten.';
+  return hi+' Ik ben Giannis van Marleo uit Nevele, ik maak websites voor zelfstandigen en kleine zaken'+(stad?' in de buurt van '+stad:'')+'.\n\n'+rev+obs+'\n\n'+prijs+'\n\n'+
+    'Zal ik gratis een voorbeeld maken voor '+naam+'? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.\n\nGroeten,\nGiannis · Marleo';
 }
-/* E-mail = persoonlijk, kort, één duidelijke vraag */
-function mailMsg(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var groet=vn?'Dag '+vn+',':'Dag,';
-  var seg=(typeof dealSeg==='function')?dealSeg(x):'web';var sign='\n\nGroeten,\nGiannis – Marleo\n'+((typeof coCfg==='function'?coCfg().phone:'')||'+32 456 92 00 25')+' · giannis@marleo.tech';
+function mailMsg(x){var naam=x.naam||x.name||'jullie zaak';var vn=leadFirstName(x);var groet=vn?'Dag '+vn+',':'Dag,';
+  var seg=(typeof dealSeg==='function')?dealSeg(x):'web';var stad=leadCity(x);
+  var tel=((typeof coCfg==='function'?coCfg().phone:'')||'+32 456 92 00 25');
+  var sign='\n\nMet vriendelijke groeten,\n\nGiannis Baert\nMarleo – websites & IT\n'+tel+' · giannis@marleo.tech\nmarleo.tech';
   if(seg==='it'){var is=itIssues(x);var dom=(x.info&&x.info.domein)||naam;
     return {subject:'Iets opgevallen bij '+dom,
-      body:groet+'\n\nGiannis hier van Marleo. Ik hou me bezig met IT en beveiliging voor lokale bedrijven, en ik deed een snelle check op '+dom+'. Een paar dingen vielen me op:\n'+(is.length?is.slice(0,3).map(function(i){return '– '+i}).join('\n'):'– een paar basisinstellingen die vaak vergeten worden')+'\n\nKomt erop neer dat iemand vrij makkelijk mails in jullie naam zou kunnen versturen. Niks dramatisch, en snel op te lossen.\n\nZin om er eens kort over te bellen? Dan stuur ik ook het volledige overzicht mee.'+sign};}
-  var s=leadSituation(x);
-  var onderwerp={geen:'Een website voor '+naam+'?',social:naam+' enkel op Facebook?',kapot:'De site van '+naam+' hapert',oud:'Site van '+naam+' een opfrissing?',ok:'Kleine tip voor de site van '+naam}[s];
-  var kern={
-    geen:'Ik zocht '+naam+' eens op maar vond geen eigen website. Terwijl ge duidelijk goe bezig zijt – mensen die op Google zoeken vinden jullie nu gewoon niet.',
-    social:'Ik zie dat '+naam+' vandaag enkel via Facebook werkt. Met een eigen site komt ge professioneler over én wordt ge in Google gevonden.',
-    kapot:'Ik wou eens op de site van '+naam+' kijken, maar die laadt niet goed. Bezoekers haken daar meteen op af – zonde.',
-    oud:'Ik bekeek de site van '+naam+'. Ze werkt niet echt lekker op gsm en oogt wat gedateerd, en daar surft nochtans meer dan de helft van je bezoekers.',
-    ok:'Ik bekeek de site van '+naam+' – ziet er al goe uit. Met een paar kleine ingrepen (snelheid, mobiel, vindbaarheid) haalt ge er nog wat meer uit.'
+      body:groet+'\n\nIk ben Giannis van Marleo uit Nevele. Ik help bedrijven'+(stad?' rond '+stad:' in de regio')+' met hun IT en beveiliging.\n\n'+
+        'Bij een korte, publieke check van '+dom+' viel me dit op:\n'+(is.length?is.slice(0,3).map(function(i){return '• '+i}).join('\n'):'• een paar basisinstellingen die vaak vergeten worden')+'\n\n'+
+        'Concreet betekent dat: iemand kan vrij makkelijk mails versturen die van jullie lijken te komen, bijvoorbeeld een valse factuur naar een klant. Dat is snel en zonder gedoe op te lossen.\n\n'+
+        'Zal ik u het volledige overzicht gratis doorsturen? Of bellen we even 10 minuten, wanneer het u past.'+sign};}
+  var ben=leadBenefit(x);
+  if(leadIsNew(x)){
+    return {subject:'Proficiat met de start van '+naam+'!',
+      body:groet+'\n\nProficiat met de start van '+naam+'! Ik ben Giannis van Marleo uit Nevele en ik help nieuwe zaken'+(stad?' in '+stad+' en omgeving':' in de regio')+' met hun eerste website.\n\n'+
+        'Zo vinden klanten jullie vanaf dag één op Google, en kunnen ze '+ben.replace(/^(klanten|mensen|je) /,'')+'.\n\n'+
+        'Wat het kost: een website op maat kost bij mij '+priceWeb()+' (excl. btw), eenmalig. Geen abonnement, geen verborgen kosten. Wil je ook meteen goed scoren op Google, dan start een SEO-pakket bij '+priceSeo()+'.\n\n'+
+        'Zal ik gratis een voorbeeld maken voor '+naam+'? Antwoorden op deze mail volstaat.'+sign};}
+  var s=leadSituation(x);var rev=leadReviewLine(x);var iss=leadSiteIssues(x);
+  var onderwerp={geen:'Een website voor '+naam+'?',social:naam+' enkel op Facebook?',kapot:'De website van '+naam+' laadt niet',oud:'Een frissere website voor '+naam+'?',ok:'Een tip voor de website van '+naam}[s];
+  var obs={
+    geen:'Ik zocht '+naam+' op Google, maar vond geen eigen website. Wie jullie zoekt, komt nu enkel op Google Maps of Facebook terecht, en daar zie je niet wat jullie allemaal doen.',
+    social:'Ik zie dat '+naam+' vandaag vooral via Facebook werkt. Niet iedereen zit op Facebook, en op Google worden jullie zo minder gevonden dan zaken met een eigen site.',
+    kapot:'Ik wou jullie website openen, maar die laadt niet (goed). Wie erop klikt, haakt meteen af, en dat zijn net de mensen die al interesse hadden.',
+    oud:'Ik bekeek jullie website en zag dat ze '+(iss.length?iss.join(' en '):'wat verouderd is')+'. Meer dan de helft van je bezoekers kijkt op gsm, dus daar gaan klanten verloren.',
+    ok:'Ik bekeek jullie website: die ziet er al goed uit. Met een paar gerichte aanpassingen (snelheid, gsm, vindbaarheid op Google) haal je er nog meer aanvragen uit.'
   }[s];
+  if(rev&&s==='geen')obs='Maar een eigen website vond ik niet: wie jullie zoekt, komt nu enkel op Google Maps of Facebook terecht, en daar zie je niet wat jullie allemaal doen.';
   return {subject:onderwerp,
-    body:groet+'\n\nGiannis hier van Marleo, ik maak websites voor lokale zaken. '+kern+'\n\nIk maak gerust eens een voorbeeld zodat ge meteen ziet wat mogelijk is – helemaal vrijblijvend. Wat het kost: een nieuwe site kost bij mij '+priceOf(/^website op maat/i,'€279')+' (excl. btw), eenmalig. Geen abonnement en geen verborgen kosten. Beter gevonden worden op Google? Een SEO-pakket start bij '+priceOf(/^seo-start/i,'€89')+'.\n\nZin om eens te bellen of gewoon te antwoorden op deze mail?'+sign};
+    body:groet+'\n\nIk ben Giannis van Marleo uit Nevele. Ik maak websites voor zelfstandigen en kleine zaken'+(stad?' in de buurt van '+stad:'')+'.\n\n'+rev+obs+'\n\n'+
+      'Wat ik voorstel: een site waar '+ben+'. Die kost bij mij '+priceWeb()+' (excl. btw), eenmalig, zonder abonnement of verborgen kosten.'+(s==='ok'?' Wil je enkel beter gevonden worden, dan start een SEO-pakket bij '+priceSeo()+'.':'')+'\n\n'+
+      'Ik maak gerust eerst een gratis voorbeeld voor '+naam+', zodat je ziet hoe het eruitziet. Antwoorden op deze mail volstaat.'+sign};
 }
 
 /* bestaande functies vervangen door de persoonlijke versie */
@@ -4037,7 +4087,7 @@ async function newcoKbo(id){var x=newcoGet(id);if(!x)return;toast('Gegevens opha
     saveData();cloudPushChanged&&cloudPushChanged();toast('✅ Gegevens bijgewerkt');rNewco();
   }catch(e){toast('KBO: '+e.message,true)}}
 function newcoMsg(id){var x=newcoGet(id);if(!x)return;
-  var lead={naam:x.name,flags:['Geen website'],online:'Geen website',cat:x.sector||''};
+  var lead={naam:x.name,nieuw:true,flags:['Geen website'],online:'Geen website',cat:x.sector||'',sector:x.sector||'',city:x.city||'',tel:x.tel||''};
   var wa=(typeof waMsg==='function')?waMsg(lead):('Dag! Giannis hier van Marleo. Proficiat met de start van '+x.name+'! Al een website nodig?');
   var m=(typeof mailMsg==='function')?mailMsg(lead):{subject:'Website voor '+x.name+'?',body:wa};
   openM('📝 Bericht voor '+esc(x.name),
@@ -4369,7 +4419,7 @@ function kboPanel(){var row=INT.row||{};
 /* extra info op de kaart: telefoon/mail/web uit KBO */
 (function(){var _c=newcoCard;newcoCard=function(x){var h=_c(x);var extra=[x.tel?'📞 '+esc(x.tel):'',x.email?'✉ '+esc(x.email):'',x.web?'🌐 '+esc(x.web):''].filter(Boolean).join(' · ');
   if(extra)h=h.replace('<div class="lc-acts">','<div class="lc-web"><span class="hint">'+extra+'</span></div><div class="lc-acts">');
-  if(x.tel&&isMobile(x.tel))h=h.replace('<div class="lc-acts">','<div class="lc-acts"><a class="btn sm" style="background:#25D366;box-shadow:none;color:#fff" target="_blank" rel="noopener" href="https://wa.me/'+telDigits(x.tel)+'?text='+encodeURIComponent(waMsg({naam:x.name,flags:['Geen website'],online:'Geen website'}))+'" onclick="newcoMark(\''+x.id+'\',\'gecontacteerd\')">💬 WhatsApp</a>');
+  if(x.tel&&isMobile(x.tel))h=h.replace('<div class="lc-acts">','<div class="lc-acts"><a class="btn sm" style="background:#25D366;box-shadow:none;color:#fff" target="_blank" rel="noopener" href="https://wa.me/'+telDigits(x.tel)+'?text='+encodeURIComponent(waMsg({naam:x.name,nieuw:true,flags:['Geen website'],online:'Geen website',sector:x.sector||'',cat:x.sector||'',city:x.city||''}))+'" onclick="newcoMark(\''+x.id+'\',\'gecontacteerd\')">💬 WhatsApp</a>');
   return h}})();
 /* nieuwe telefoon/mail meenemen naar de deal */
 (function(){var _t=newcoToDeal;newcoToDeal=function(id){var x=newcoGet(id);_t(id);var d=DATA.deals[DATA.deals.length-1];if(x&&d&&d.naam===x.name){d.tel=d.tel||x.tel||'';d.email=d.email||x.email||'';saveData()}}})();
