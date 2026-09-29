@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2);font-weight:400}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#1a0d14}
+.p{position:relative;width:1080px;height:1350px;overflow:hidden;color:#fff;font-family:IN;
+ background:radial-gradient(900px 700px at 0% 0%,rgba(120,60,15,.55),transparent 70%),radial-gradient(900px 800px at 100% 100%,rgba(140,20,80,.55),transparent 70%),linear-gradient(120deg,#2a1a10 0%,#221019 45%,#35102a 100%)}
+.gl{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:180px 180px;background-position:-30px -30px}
+.plus{position:absolute;color:rgba(255,138,43,.7);font-size:34px;font-weight:400;line-height:1}
+.top{position:absolute;left:110px;right:110px;top:90px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:14px;font-weight:700;font-size:34px;letter-spacing:-.8px}
+.g{background:linear-gradient(90deg,#ff8a2b,#ff2a86);-webkit-background-clip:text;background-clip:text;color:transparent}
+.g2{background:linear-gradient(90deg,#ff4d6d,#ff2a86 60%,#ff6a3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{font-weight:500;font-size:22px;letter-spacing:5px;color:rgba(255,255,255,.55)}
+.lab{font-weight:700;font-size:22px;letter-spacing:5px;color:#ff8a2b;text-transform:uppercase}
+.lab2{font-weight:700;font-size:30px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+h1{font-weight:700;font-size:84px;line-height:1.03;letter-spacing:-3px}
+.sub{font-weight:400;font-size:32px;line-height:1.45;color:rgba(255,255,255,.75);letter-spacing:.2px}
+.abs{position:absolute}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:30px 30px 30px 40px;border-radius:18px;background:linear-gradient(90deg,#e0287a,#ff2a86 60%,#ff7a45);box-shadow:0 30px 80px rgba(255,42,134,.35)}
+.cta span{font-weight:700;font-size:30px;letter-spacing:3px;text-transform:uppercase;line-height:1.3}
+.cta i{width:84px;height:84px;border-radius:12px;background:#140a10;display:flex;align-items:center;justify-content:center;flex:none}
+.foot{position:absolute;left:110px;right:110px;bottom:80px;display:flex;justify-content:space-between;font-weight:500;font-size:22px;letter-spacing:4px;color:rgba(255,255,255,.5);text-transform:uppercase}
+.laptop .scr{border:14px solid #0c0c10;border-bottom-width:22px;border-radius:22px;overflow:hidden;background:#000;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.08)}
+.laptop .scr img{display:block;width:100%}
+.laptop .base{height:22px;margin:0 -60px;background:linear-gradient(#2a2a30,#121216);border-radius:0 0 26px 26px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.phone{border:11px solid #0c0c10;border-radius:48px;overflow:hidden;background:#000;box-shadow:0 40px 90px rgba(0,0,0,.65),0 0 0 2px rgba(255,255,255,.1);position:relative}
+.phone img{display:block;width:100%}
+.phone:after{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:32%;height:26px;border-radius:14px;background:#0c0c10}
+.orb{position:absolute;border-radius:50%;background:radial-gradient(circle at 38% 30%,#c9611c 0%,#8a2a55 45%,#3a0c26 72%,#1a0812 100%);box-shadow:0 0 160px rgba(255,42,134,.35)}
+.ring{position:absolute;border-radius:50%;border:2px solid rgba(255,138,43,.35)}
+.ring.d{border:2px dashed rgba(255,42,134,.35)}
+.chk{display:flex;align-items:center;gap:26px;padding:28px 32px;border-radius:18px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);font-size:30px}
+.chk b{font-family:'DejaVu Sans Mono',monospace;font-size:32px;width:150px}
+</style></head><body><div class="p" id="p"></div>
+<script>
+const LOGO='<svg width="36" height="41" viewBox="0 0 28 32" fill="none"><defs><linearGradient id="mgx" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs><path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mgx)" stroke-width="2"/><path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mgx)" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const ARROW='<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const HEX=(s)=>'<svg width="'+s+'" height="'+s+'" viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.8"><path d="M50 6 88 28v44L50 94 12 72V28z"/><path d="M50 50V6M50 50 88 72M50 50 12 72M50 50V94M50 50 12 28M50 50 88 28" stroke-opacity=".6"/></svg>';
+const orb=(x,y,r)=>'<div class="ring" style="left:'+(x-r*1.32)+'px;top:'+(y-r*1.32)+'px;width:'+r*2.64+'px;height:'+r*2.64+'px"></div><div class="ring d" style="left:'+(x-r*1.18)+'px;top:'+(y-r*1.18)+'px;width:'+r*2.36+'px;height:'+r*2.36+'px"></div><div class="orb" style="left:'+(x-r)+'px;top:'+(y-r)+'px;width:'+r*2+'px;height:'+r*2+'px"></div><div class="abs" style="left:'+(x-r*.62)+'px;top:'+(y-r*.62)+'px">'+HEX(r*1.24)+'</div>';
+const laptop=(img,x,y,w)=>'<div class="abs laptop" style="left:'+x+'px;top:'+y+'px;width:'+w+'px"><div class="scr"><img src="shots/'+img+'"></div><div class="base"></div></div>';
+const phone=(img,x,y,w,rot)=>'<div class="abs phone" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;transform:rotate('+(rot||0)+'deg)"><img src="shots/'+img+'"></div>';
+const head=(lab,h,sub,top)=>'<div class="abs" style="left:110px;right:110px;top:'+(top||230)+'px"><div class="lab">'+lab+'</div><h1 style="margin-top:22px">'+h+'</h1>'+(sub?'<div class="sub" style="margin-top:26px">'+sub+'</div>':'')+'</div>';
+const kase=(name,what,d,m)=>head('Recent work','<span class="g">'+name+'</span>',what,210)+laptop(d,110,640,720)+phone(m,700,560,270,4);
+const P={
+1:()=>'<div class="abs" style="left:0;right:0;top:250px;text-align:center"><div class="g2" style="font-weight:700;font-size:185px;letter-spacing:-7px;line-height:1">MARLEO</div><div style="margin-top:26px;font-weight:500;font-size:34px;letter-spacing:18px;color:rgba(255,255,255,.85)">IT · CLOUD · SECURITY · AI</div></div>'+orb(540,850,210)+'<div class="abs" style="left:110px;right:110px;top:1110px;text-align:center" ><div class="sub">Websites, marketing, IT and custom software.<br>One partner for the digital side of your business.</div></div>',
+2:()=>kase('Pain du Mie','Bakery &amp; tearoom · website with online table reservations','s_paindumie_d.png','s_paindumie_m.png'),
+3:()=>head('Websites','Your website has <span class="g">3 seconds.</span>','That is how long most visitors wait before they leave. Speed is your first impression, not a detail.')+orb(540,930,190)+'<div class="abs" style="left:0;right:0;top:880px;text-align:center;font-weight:700;font-size:120px;letter-spacing:-4px">3s</div>',
+4:()=>head('Recent work','<span class="g">Café Restaurant Nava</span>','Persian café in Ghent · multilingual site with menu, bookings and take-away',210)+laptop('s_nava_d.png',300,700,680)+phone('s_nava_m.png',110,600,290,-4),
+5:()=>head('Security','Anyone can send an email <span class="g">in your name.</span>','Unless your domain is protected. Three settings stop it.')+'<div class="abs" style="left:110px;right:110px;top:760px;display:flex;flex-direction:column;gap:18px">'+[['SPF','who may send for your domain'],['DKIM','a signature on every email'],['DMARC','what happens to fakes']].map(r=>'<div class="chk"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="url(#mgx)" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg><b>'+r[0]+'</b><span style="color:rgba(255,255,255,.75)">'+r[1]+'</span></div>').join('')+'</div>',
+6:()=>kase('TerraClean NB','Outdoor cleaning · Deinze · lead-generating site with quote requests','s_terraclean_d.png','s_terraclean_m.png'),
+7:()=>head('Automation','If you do it every week, <span class="g">a system should.</span>','Invoices, follow-ups, reminders, reports. We automate the repetitive work so you can focus on your clients.')+orb(540,1000,170),
+8:()=>kase('Rani Poetsservice','Cleaning service · Kortrijk region · modern site with WhatsApp contact','s_rani_d.png','s_rani_m.png'),
+9:()=>head('Let’s talk','Have a project <span class="g">in mind?</span>','From a new website to a complete digital system. Tell us what you need, we tell you honestly how we’d approach it.')+orb(830,1000,120)+'<div class="abs" style="left:110px;width:560px;top:930px"><div class="cta"><span>Start your<br>project</span><i>'+ARROW+'</i></div></div>'
+};
+const n=+location.hash.slice(1)||1;
+let h='<div class="gl"></div>';
+[[50,470],[1010,560],[50,1110],[1010,1180]].forEach(([x,y])=>h+='<div class="plus" style="left:'+x+'px;top:'+y+'px">+</div>');
+h+='<div class="top"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">0'+n+' / 09</div></div>';
+h+=P[n]();
+h+='<div class="foot"><span>marleo.tech</span><span>Belgium → worldwide</span></div>';
+document.getElementById('p').innerHTML=h;
+</script></body></html>
