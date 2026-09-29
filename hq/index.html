@@ -2423,7 +2423,7 @@ function rLeads(){
     var known=lfIsKnown(l);
     var col=lfScoreColor(l.score);
     var flags=(l.flags||[]).slice(0,4).map(function(f){return '<span class="pill concept">'+esc(f)+'</span>'}).join('');
-    var web=l.website?'<a href="'+esc(l.website)+'" target="_blank" rel="noopener" style="color:#60A5FA">'+esc(l.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))+'</a>':'<span class="pill vervallen">geen website</span>';
+    var web=l.website?(l.siteSource==='gevonden'?'<span class="pill lead" title="Niet op hun Google-profiel, gevonden via hun naam">\ud83d\udd0e zelf gevonden</span> ':'')+'<a href="'+esc(l.website)+'" target="_blank" rel="noopener" style="color:#60A5FA">'+esc(l.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))+'</a>':'<span class="pill vervallen">geen website</span>';
     var meta=(l.info&&l.info.mail?'<span class="hint">'+esc(l.info.mail)+(l.info.cms?' \u00b7 '+esc(l.info.cms):'')+'</span>':'')+(l.rating?'<span class="hint"> \u00b7 '+esc(l.rating)+'\u2605 ('+(l.reviews||0)+')</span>':'');
     var waTxt=l.tel?(typeof waMsg==='function'?waMsg(Object.assign({},l,{segment:LFMODE==='it'?'it':'web'})):''):'';
     var waUrl=l.tel?'https://wa.me/'+telDigits(l.tel)+'?text='+encodeURIComponent(waTxt):'';
@@ -2469,7 +2469,7 @@ async function lfSearch(){
     if(fr.error){var msg=fr.error.message||'fout';try{var ctx=await fr.error.context.json();if(ctx&&ctx.error)msg=ctx.error}catch(x){}throw new Error(msg)}
     var j=fr.data||{};if(j.error)throw new Error(j.error);
 var list=(Array.isArray(j)?j:(j.leads||j.results||[])).slice(0,n);
-    LEADS=list.map(function(x){return {naam:x.naam||x.name||'',adres:x.adres||x.address||'',tel:x.tel||x.phone||'',website:x.website||'',rating:x.rating||'',reviews:x.reviews||0,score:parseInt(x.score)||0,flags:x.flags||[],info:x.info||{},maps:x.maps||'',cat:q,plaats:loc,mode:LFMODE}})
+    LEADS=list.map(function(x){return {naam:x.naam||x.name||'',adres:x.adres||x.address||'',tel:x.tel||x.phone||'',website:x.website||'',rating:x.rating||'',reviews:x.reviews||0,score:parseInt(x.score)||0,flags:x.flags||[],info:x.info||{},maps:x.maps||'',siteSource:x.siteSource||'',cat:q,plaats:loc,mode:LFMODE}})
       .sort(function(a,b){return b.score-a.score});
     logAct('Leadfinder: '+LEADS.length+' resultaten voor "'+q+' '+loc+'"');
     toast('\u2705 '+LEADS.length+' bedrijven gevonden');
@@ -3683,6 +3683,7 @@ function waMsg(x){var naam=x.naam||x.name||'jullie zaak';var vn=leadFirstName(x)
       'Een site waar '+ben+': dat maak ik voor '+priceWeb()+' (excl. btw), eenmalig. Geen abonnement, geen verborgen kosten.\n\n'+
       'Zal ik gratis een voorbeeld maken voor '+naam+'? Dan zie je eerst hoe het eruitziet.\n\nGroeten,\nGiannis · Marleo';}
   var s=leadSituation(x);var rev=leadReviewLine(x);var iss=leadSiteIssues(x);
+  if(/niet op google-profiel/.test(leadHay(x)))rev+='Wat me opviel: jullie website staat niet op jullie Google-profiel, dus wie jullie via Google Maps vindt, ziet ze niet. Dat zet ik voor '+priceOf(/bedrijfsprofiel/i,'\u20ac49')+' in orde. ';
   var obs={
     geen:'Ik zocht '+naam+' op Google en vond geen eigen website. Wie jullie zoekt, komt nu enkel op Maps of Facebook terecht.',
     social:'Ik zie dat '+naam+' vooral via Facebook werkt. Niet iedereen zit op Facebook, en op Google worden jullie zo minder gevonden.',
@@ -3714,6 +3715,7 @@ function mailMsg(x){var naam=x.naam||x.name||'jullie zaak';var vn=leadFirstName(
         'Wat het kost: een website op maat kost bij mij '+priceWeb()+' (excl. btw), eenmalig. Geen abonnement, geen verborgen kosten. Wil je ook meteen goed scoren op Google, dan start een SEO-pakket bij '+priceSeo()+'.\n\n'+
         'Zal ik gratis een voorbeeld maken voor '+naam+'? Antwoorden op deze mail volstaat.'+sign};}
   var s=leadSituation(x);var rev=leadReviewLine(x);var iss=leadSiteIssues(x);
+  if(/niet op google-profiel/.test(leadHay(x)))rev+='Wat me opviel: jullie website staat niet op jullie Google-profiel. Wie jullie via Google Maps vindt, ziet ze dus niet, en dat kost aanvragen. ';
   var onderwerp={geen:'Een website voor '+naam+'?',social:naam+' enkel op Facebook?',kapot:'De website van '+naam+' laadt niet',oud:'Een frissere website voor '+naam+'?',ok:'Een tip voor de website van '+naam}[s];
   var obs={
     geen:'Ik zocht '+naam+' op Google, maar vond geen eigen website. Wie jullie zoekt, komt nu enkel op Google Maps of Facebook terecht, en daar zie je niet wat jullie allemaal doen.',
@@ -4427,6 +4429,24 @@ function kboPanel(){var row=INT.row||{};
 (function(){var _e=enterApp;enterApp=function(){_e();setTimeout(function(){intLoad().then(newcoFeedPull)},2500)}})();
 setInterval(function(){if(document.visibilityState==='visible')newcoFeedPull()},10*60000);
 (function(){var _l=intLoad;intLoad=async function(){var r=await _l();try{var u=document.getElementById('kbo_user');if(u&&!u.value&&r&&r.kbo_user){u.value=r.kbo_user;document.getElementById('kbo_pass').value=r.kbo_pass||''}}catch(e){}return r}})();
+
+
+/* ===== Bestaande leads opnieuw controleren op een eigen website ===== */
+async function dealFindSite(id,silent){var d=DATA.deals.find(function(x){return x.id===id});if(!d)return false;
+  if(!silent)toast('Zoeken naar een website voor '+d.naam+'…');
+  try{var r=await sb.functions.invoke('leadfinder',{body:{findSite:true,name:d.naam}});var u=(r.data||{}).url||'';
+    if(u){d.website=u;d.online='Website gevonden (niet op Google-profiel)';d.note=(d.note?d.note+'\n':'')+'Website: '+u+' (niet op Google-profiel)';(d.log=d.log||[]).push({t:Date.now(),txt:'🔎 Website gevonden: '+u});saveData();if(!silent){toast('✅ Website gevonden: '+u.replace(/^https?:\/\/(www\.)?/,''));closeM();vDeal(id)}return true}
+    else{d.siteChecked=today();saveData();if(!silent)toast('Geen eigen website gevonden voor '+d.naam);return false}
+  }catch(e){if(!silent)toast('Zoeken mislukt: '+e.message,true);return false}}
+function dealNoSite(d){return !d.website&&/geen website/i.test((d.online||'')+' '+(d.note||'')+' '+((d.flags||[]).join(' ')))&&!/Website:\s*http/i.test(d.note||'')}
+async function recheckAllNoSite(){var list=DATA.deals.filter(function(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'&&dealNoSite(d)&&!d.siteChecked});
+  if(!list.length){toast('Geen leads meer om na te kijken');return}
+  toast(list.length+' leads zonder website nakijken…');var n=0;
+  for(var i=0;i<list.length;i+=4){var part=list.slice(i,i+4);var res=await Promise.all(part.map(function(d){return dealFindSite(d.id,true)}));n+=res.filter(Boolean).length}
+  toast('✅ Klaar: bij '+n+' van de '+list.length+' leads toch een website gevonden');if(VIEW==='pipeline')rPipeline()}
+(function(){var _v=vDeal;vDeal=function(id){_v(id);var d=DATA.deals.find(function(x){return x.id===id});if(!d||!dealNoSite(d))return;var f=document.getElementById('mFoot');if(f&&!f.querySelector('.recheckbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn sm subtle recheckbtn" onclick="dealFindSite(\''+id+'\')">🔎 Toch een website?</button>')}})();
+(function(){var _r=rPipeline;rPipeline=function(){_r();var n=DATA.deals.filter(function(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'&&dealNoSite(d)&&!d.siteChecked}).length;if(!n)return;
+  var ctrl=main().querySelector('.topbar > div:last-child');if(ctrl&&!ctrl.querySelector('.recheckall'))ctrl.insertAdjacentHTML('beforeend','<button class="btn subtle recheckall" onclick="recheckAllNoSite()" title="Zoekt via de bedrijfsnaam of leads zonder website er toch een hebben">🔎 Nakijken ('+n+')</button>')}})();
 
 
 </script>
