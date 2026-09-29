@@ -243,6 +243,19 @@ body{-webkit-text-size-adjust:100%}
 .pipecol{min-width:215px;flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px}
 .pipehead{display:flex;justify-content:space-between;align-items:center;font-family:var(--disp);font-size:.8rem;font-weight:600;padding:4px 6px 10px}
 .pipesum{font-family:var(--mono);font-size:.62rem;color:var(--muted)}
+.leadgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.leadcard{background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:14px;padding:14px 15px;display:flex;flex-direction:column;gap:8px}
+.leadcard .lc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.leadcard .lc-name{font-weight:700;font-size:1.02rem;line-height:1.2}
+.leadcard .lc-addr{color:var(--muted);font-size:.8rem;margin-top:2px}
+.leadcard .lc-score{flex-shrink:0;width:46px;height:46px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;font-size:1.15rem;line-height:1;color:#fff}
+.leadcard .lc-score small{font-size:.5rem;font-weight:600;opacity:.85;margin-top:1px}
+.leadcard .lc-flags{display:flex;flex-wrap:wrap;gap:4px}
+.leadcard .lc-web{font-size:.85rem;word-break:break-all}
+.leadcard .lc-acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+.leadcard .lc-acts .btn{flex:1;min-width:calc(50% - 4px);justify-content:center}
+.leadcard .lc-acts .btn.full{min-width:100%}
+@media(max-width:560px){.leadgrid{grid-template-columns:1fr}}
 .pipeempty{text-align:center;color:var(--muted);font-size:.8rem;padding:14px 0}
 .taskcard{display:flex;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;align-items:flex-start}
 .taskcard.late{border-color:rgba(239,64,86,.45)}.taskcard.done{opacity:.55}.taskcard.done .ttitle b{text-decoration:line-through}
@@ -2402,33 +2415,42 @@ function lfScoreColor(s){return s>=70?'#EF4056':s>=40?'#F5A623':'#22C55E'}
 function lfIsKnown(l){var n=(l.naam||'').toLowerCase();return DATA.deals.some(function(d){return (d.naam||'').toLowerCase()===n})||DATA.customers.some(function(c){return (c.name||'').toLowerCase()===n})}
 function rLeads(){
   var c=lfCfg();
-  var rows=LEADS.length?LEADS.map(function(l,i){
+  var cards=LEADS.length?LEADS.map(function(l,i){
     var known=lfIsKnown(l);
-    var flags=(l.flags||[]).map(function(f){return '<span class="pill concept" style="margin:2px 3px 0 0">'+esc(f)+'</span>'}).join('');
-    return '<tr>'+
-      '<td><div style="font-weight:600">'+esc(l.naam)+'</div><div class="hint" style="margin:0">'+esc(l.adres||'')+'</div>'+flags+'</td>'+
-      '<td>'+(l.tel?'<a href="tel:'+esc(l.tel.replace(/\s/g,''))+'">'+esc(l.tel)+'</a>':'<span class="hint">geen</span>')+'</td>'+
-      '<td>'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" rel="noopener" style="color:#93C5FD">'+esc(l.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))+'</a>':'<span class="pill vervallen">geen website</span>')+(l.info&&l.info.mail?'<div class="hint" style="margin:0">'+esc(l.info.mail)+(l.info.cms?' \u00b7 '+esc(l.info.cms):'')+'</div>':'')+'</td>'+
-      '<td class="num">'+(l.rating?esc(l.rating)+' \u2605 <span class="hint" style="display:inline">('+(l.reviews||0)+')</span>':'-')+'</td>'+
-      '<td class="num"><b style="color:'+lfScoreColor(l.score)+';font-family:var(--disp);font-size:1.1rem">'+l.score+'</b></td>'+
-      '<td><div class="rowactions">'+(l.tel?'<button class="btn sm" style="background:#25D366;box-shadow:none" onclick="lfWa('+i+')" title="WhatsApp met klaargezet bericht">\ud83d\udcac</button>':'')+'<button class="btn sm subtle" onclick="lfCopyPitch('+i+')" title="Bericht kopi\u00ebren (mail/LinkedIn)">\ud83d\udccb</button>'+(known?'<span class="pill actief">in CRM</span>':'<button class="btn sm subtle" onclick="lfAdd('+i+')">\u2192 Pipeline</button>')+(l.maps?'<a class="iconbtn" title="Google Maps" href="'+esc(l.maps)+'" target="_blank" rel="noopener">\ud83d\udccd</a>':'')+'</div></td>'+
-    '</tr>'}).join(''):'';
+    var col=lfScoreColor(l.score);
+    var flags=(l.flags||[]).slice(0,4).map(function(f){return '<span class="pill concept">'+esc(f)+'</span>'}).join('');
+    var web=l.website?'<a href="'+esc(l.website)+'" target="_blank" rel="noopener" style="color:#93C5FD">'+esc(l.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))+'</a>':'<span class="pill vervallen">geen website</span>';
+    var meta=(l.info&&l.info.mail?'<span class="hint">'+esc(l.info.mail)+(l.info.cms?' \u00b7 '+esc(l.info.cms):'')+'</span>':'')+(l.rating?'<span class="hint"> \u00b7 '+esc(l.rating)+'\u2605 ('+(l.reviews||0)+')</span>':'');
+    return '<div class="leadcard" style="border-left-color:'+col+'">'+
+      '<div class="lc-top"><div><div class="lc-name">'+esc(l.naam)+'</div>'+(l.adres?'<div class="lc-addr">'+esc(l.adres)+'</div>':'')+'</div>'+
+        '<div class="lc-score" style="background:'+col+'">'+l.score+'<small>'+(LFMODE==='it'?'RISICO':'SCORE')+'</small></div></div>'+
+      (flags?'<div class="lc-flags">'+flags+'</div>':'')+
+      '<div class="lc-web">'+web+(meta?' &nbsp;'+meta:'')+'</div>'+
+      '<div class="lc-acts">'+
+        (l.tel?'<button class="btn sm" style="background:#25D366;box-shadow:none" onclick="lfWa('+i+')">\ud83d\udcac WhatsApp</button>':'')+
+        (l.tel?'<a class="btn sm subtle" href="tel:'+esc(l.tel.replace(/\s/g,''))+'">\ud83d\udcde Bel</a>':'')+
+        '<button class="btn sm subtle" onclick="lfCopyPitch('+i+')">\ud83d\udccb Pitch</button>'+
+        (l.website?'<button class="btn sm subtle" onclick="scanLead('+i+')">\ud83d\udd0d Scan</button>':'<button class="btn sm subtle" onclick="mDemo()">\ud83c\udfa8 Demo</button>')+
+        (l.maps?'<a class="btn sm subtle" href="'+esc(l.maps)+'" target="_blank" rel="noopener">\ud83d\udccd Maps</a>':'')+
+        (known?'<span class="btn sm full" style="background:#1f3a2e;color:#86EFAC;cursor:default">\u2713 Staat in je CRM</span>':'<button class="btn sm full" onclick="lfAdd('+i+')">\u2192 Toevoegen aan pipeline</button>')+
+      '</div></div>'}).join(''):'';
   main().innerHTML=
   '<div class="topbar"><div><h2>Leadfinder</h2><div class="sub">'+(LFMODE==='it'?'Zoek grotere bedrijven en zie meteen waar hun IT en e-mailbeveiliging tekortschiet':'Zoek bedrijven in een regio en zie meteen wie geen of een zwakke website heeft')+'</div></div>'+
   (LEADS.length?'<button class="btn subtle" onclick="lfAddAll()">'+(LFMODE==='it'?'Alle risico-leads':'Alle rode leads')+' \u2192 Pipeline</button>':'')+'</div>'+
   '<div class="tabs" style="margin-bottom:12px">'+[['web','\ud83c\udf10 Websites (kleine zaken)'],['it','\ud83d\udee1\ufe0f IT & security (grotere bedrijven)']].map(function(m){return '<button class="tab'+(LFMODE===m[0]?' active':'')+'" onclick="LFMODE=\''+m[0]+'\';LEADS=[];rLeads()">'+m[1]+'</button>'}).join('')+'</div>'+
-  (LFMODE==='it'?'<div class="hint" style="margin-bottom:10px">Snel zoeken: '+['boekhoudkantoor','advocatenkantoor','bouwbedrijf','transportbedrijf','productiebedrijf','verzekeringskantoor','notaris','architectenbureau','groothandel','tandartspraktijk'].map(function(q){return '<a href="#" style="color:#93C5FD;margin-right:8px" onclick="document.getElementById(\'lf_q\').value=\''+q+'\';return false">'+q+'</a>'}).join('')+'</div>':'')+
+  (LFMODE==='it'?'<div class="hint" style="margin-bottom:10px">Snel zoeken: '+['boekhoudkantoor','advocatenkantoor','bouwbedrijf','transportbedrijf','productiebedrijf','verzekeringskantoor','notaris','architectenbureau','groothandel','tandartspraktijk'].map(function(q){return '<a href="#" style="color:#93C5FD;margin-right:8px;white-space:nowrap" onclick="document.getElementById(\'lf_q\').value=\''+q+'\';return false">'+q+'</a>'}).join('')+'</div>':'')+
   '<div class="panelbox"><div class="frow3" style="grid-template-columns:1.4fr 1fr .6fr auto">'+
     '<div class="fgroup" style="margin:0"><label>Wat zoek je?</label><input id="lf_q" value="'+esc(c.lastQ)+'" placeholder="bv. schoonmaakbedrijf, kapper, garage, dakwerker" onkeydown="if(event.key===\'Enter\')lfSearch()"></div>'+
     '<div class="fgroup" style="margin:0"><label>Waar?</label><input id="lf_loc" value="'+esc(c.lastLoc)+'" placeholder="bv. Deinze, Gent, Roeselare" onkeydown="if(event.key===\'Enter\')lfSearch()"></div>'+
     '<div class="fgroup" style="margin:0"><label>Max.</label><select id="lf_n"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select></div>'+
     '<button class="btn" id="lf_btn" onclick="lfSearch()" '+(LEADS_BUSY?'disabled':'')+'>'+(LEADS_BUSY?'Zoeken\u2026':'Zoeken')+'</button></div>'+
     '<div class="hint" style="margin-top:10px">'+(LFMODE==='it'?'Score = IT-risico op basis van hun domein: SPF/DMARC (phishing in hun naam), https, beveiligingsheaders, zichtbare WordPress-/serverversies en mailprovider. 50+ = concreet aanknopingspunt voor een gratis security-check.':'Score 70+ = geen of kapotte website (bel deze eerst). 40-69 = verouderd of niet mobiel. Onder 40 = in orde.')+'</div></div>'+
-  (LEADS.length?'<div class="panelbox"><h3>'+LEADS.length+' resultaten <span class="hint" style="font-weight:400">'+LEADS.filter(function(l){return l.score>=70}).length+' zonder goede website</span></h3>'+
-    '<div style="overflow-x:auto"><table><thead><tr><th>Bedrijf</th><th>Telefoon</th><th>Website</th><th class="num">Rating</th><th class="num">Score</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'
+  (LEADS.length?'<div class="panelbox"><h3 style="margin-bottom:12px">'+LEADS.length+' resultaten <span class="hint" style="font-weight:400">\u00b7 '+LEADS.filter(function(l){return l.score>=70}).length+' zonder goede website</span></h3>'+
+    '<div class="leadgrid">'+cards+'</div></div>'
    :(LEADS_BUSY?'<div class="empty"><span class="big">\u23f3</span>Google doorzoeken en websites controleren\u2026 dit duurt 20 tot 60 seconden.</div>'
    :'<div class="empty"><span class="big">\ud83c\udfaf</span>Vul een branche en een gemeente in en klik op Zoeken.</div>'));
 }
+function scanLead(i){var l=LEADS[i];if(l)mScan(l.website||'',l.naam||'');}
 async function lfSearch(){
   var c=lfCfg();var q=document.getElementById('lf_q').value.trim(),loc=document.getElementById('lf_loc').value.trim(),n=parseInt(document.getElementById('lf_n').value)||20;
   if(!q||!loc){toast('Vul wat en waar in',true);return}
@@ -3587,6 +3609,150 @@ function custSegSet(s){CUSTSEG=s;rCustomers()}
 (function(){var _rCustPage=rCustPage;rCustPage=function(){_rCustPage();var c=customer(CUSTVIEW);if(!c)return;var tags=main().querySelector('.custtags');if(tags&&!tags.querySelector('.segpill'))tags.insertAdjacentHTML('afterbegin',segBadge(custSeg(c))+' ')}})();
 
 /* Dashboard: kleine splitsing tonen in de subtitel van de pipeline-kaart (indien aanwezig) */
+
+
+
+/* ===================================================================
+   PERSOONLIJKE OUTREACH: bericht past zich aan de situatie van de lead aan
+   (geen site / alleen Facebook / kapot / verouderd / ok  +  IT-security)
+   =================================================================== */
+function leadHay(x){return ((x.flags||[]).join(' ')+' '+(x.online||'')+' '+(x.note||'')+' '+(x.cat||'')).toLowerCase()}
+function leadHasWeb(x){return !!x.website||/website:\s*https?:/i.test(x.note||'')||/website ok|verouderd|niet mobiel|kapot/i.test(leadHay(x))}
+function leadSituation(x){var h=leadHay(x);
+  if(!leadHasWeb(x)||/geen website|geen eigen website/.test(h))return 'geen';
+  if(/facebook|instagram|alleen facebook|linktr/.test(h))return 'social';
+  if(/laadt niet|kapot|onbereikbaar|timeout|foutpagina|reageert niet/.test(h))return 'kapot';
+  if(/verouderd|copyright 20(1|20|21|22)|niet mobiel|gratis sitebouwer|wordpress-standaard|bijna lege|geen https/.test(h))return 'oud';
+  return 'ok'}
+function leadFirstName(x){var n=x.contact||'';return n?n.split(' ')[0]:''}
+function itIssues(x){var h=leadHay(x);var out=[];
+  if(/geen dmarc/.test(h))out.push('mails in jullie naam kunnen vervalst worden (geen DMARC-bescherming)');
+  else if(/dmarc.*(none|monitor)/.test(h))out.push('jullie phishing-bescherming staat nog op "monitoren" en blokkeert nog niks');
+  if(/geen spf/.test(h))out.push('jullie e-mailadres is makkelijk te vervalsen (geen SPF)');
+  if(/zonder https|geen https/.test(h))out.push('de website mist een beveiligde https-verbinding');
+  if(/wordpress-versie|serverversie|zichtbaar/.test(h))out.push('de gebruikte software is publiek zichtbaar, wat hackers een voorsprong geeft');
+  if(/geen hsts|beveiligingsheaders/.test(h))out.push('een aantal beveiligingsinstellingen ontbreken');
+  return out}
+
+/* WhatsApp = kort en persoonlijk */
+function waMsg(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var hoi='Dag'+(vn?' '+vn:'')+'! 👋';
+  var seg=(typeof dealSeg==='function')?dealSeg(x):'web';
+  if(seg==='it'){var is=itIssues(x);
+    return hoi+' Ik ben Giannis van Marleo (marleo.tech), IT- & securitypartner voor kmo\'s. Ik deed een korte, publieke check van '+naam+' en '+(is.length?'zag dat '+is[0]+'.':'zag een paar aandachtspunten in jullie beveiliging.')+' Niks dringends, maar wel eenvoudig op te lossen. Mag ik je er vrijblijvend een kort rapportje van doorsturen?';}
+  var s=leadSituation(x);var kern={
+    geen:'vond geen eigen website voor '+naam+', terwijl jullie duidelijk goed bezig zijn. Zonde, want zo mis je klanten die online zoeken.',
+    social:'zie dat '+naam+' enkel via Facebook zit. Een eigen website geeft veel meer vertrouwen én je komt in Google naar boven.',
+    kapot:'merkte dat de website van '+naam+' niet (goed) laadt. Bezoekers haken dan meteen af – jammer van het gemiste werk.',
+    oud:'bekeek de website van '+naam+' en ze oogt wat verouderd / niet echt mobielvriendelijk. Op gsm surft meer dan de helft van je klanten.',
+    ok:'bekeek de website van '+naam+'. Ze ziet er al netjes uit, maar met een paar kleine ingrepen haal je er nog meer klanten uit.'
+  }[s];
+  return hoi+' Ik ben Giannis van Marleo (marleo.tech), webbureau uit Nevele. Ik '+kern+' Ik maak vrijblijvend een gratis voorbeeld – zin om even te kijken?';
+}
+/* E-mail = iets uitgebreider, met onderwerp */
+function mailMsg(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var groet='Beste'+(vn?' '+vn:'')+',';
+  var seg=(typeof dealSeg==='function')?dealSeg(x):'web';var sign='\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo – '+((typeof coCfg==='function'?coCfg().phone:'')||'')+'\ngiannis@marleo.tech';
+  if(seg==='it'){var is=itIssues(x);var dom=(x.info&&x.info.domein)||naam;
+    return {subject:'Korte security-check van '+dom,
+      body:groet+'\n\nIk ben Giannis Baert van Marleo, IT- & securitypartner voor kmo\'s in Oost- en West-Vlaanderen.\n\nBij een korte, publieke check van '+dom+' viel me het volgende op:\n'+(is.length?is.map(function(i){return '• '+i}).join('\n'):'• Een paar basisinstellingen die veel bedrijven over het hoofd zien')+'\n\nDat klinkt technisch, maar het komt hierop neer: het maakt jullie kwetsbaar voor phishing en misbruik van jullie bedrijfsnaam. Allemaal vlot en betaalbaar in orde te brengen.\n\nZin om er eens 10 minuten over te bellen? Ik stuur ook graag vrijblijvend een volledig rapportje door.'+sign};}
+  var s=leadSituation(x);
+  var onderwerp={geen:'Een website voor '+naam+'?',social:'Meer dan Facebook voor '+naam+'?',kapot:'De website van '+naam+' hapert',oud:'Een frisse website voor '+naam+'?',ok:'Kleine verbeterpunten voor '+naam}[s];
+  var kern={
+    geen:'Ik zocht '+naam+' online op maar vond geen eigen website. Terwijl jullie duidelijk goed bezig zijn – zonde, want klanten die op Google zoeken vinden jullie zo niet.',
+    social:'Ik zie dat '+naam+' vandaag enkel via Facebook werkt. Een eigen website wekt meer vertrouwen, staat er professioneler uit én zorgt dat jullie in Google gevonden worden.',
+    kapot:'Ik merkte dat de website van '+naam+' niet (goed) laadt. Bezoekers haken daardoor meteen af – elke bezoeker die afhaakt is een gemiste klant.',
+    oud:'Ik bekeek de website van '+naam+' en ze oogt wat verouderd en niet echt mobielvriendelijk. Meer dan de helft van je bezoekers surft op gsm, dus daar valt snel winst te halen.',
+    ok:'Ik bekeek de website van '+naam+'. Ze ziet er al goed uit – met een paar gerichte ingrepen (snelheid, mobiel, vindbaarheid) haal je er nog meer uit.'
+  }[s];
+  return {subject:onderwerp,
+    body:groet+'\n\nIk ben Giannis Baert van Marleo (marleo.tech), webbureau uit Nevele.\n\n'+kern+'\n\nIk maak vrijblijvend een gratis voorbeeld zodat je meteen ziet wat mogelijk is. Een frisse, mobielvriendelijke website vanaf €279 excl. btw, eenmalig.\n\nZin om even te bellen of te mailen?'+sign};
+}
+
+/* bestaande functies vervangen door de persoonlijke versie */
+MSG_TPL=function(d){return waMsg(d)};
+itPitch=function(l){return mailMsg(l).body};
+if(typeof dealWa==='function')dealWa=function(d){return 'https://wa.me/'+telDigits(d.tel)+'?text='+encodeURIComponent(waMsg(d))};
+if(typeof dealMail==='function')dealMail=function(d){var m=mailMsg(d);return 'mailto:'+encodeURIComponent(d.email||'')+'?subject='+encodeURIComponent(m.subject)+'&body='+encodeURIComponent(m.body)};
+/* lfWa en lfCopyPitch: persoonlijk, met segment/situatie */
+if(typeof lfWa==='function')lfWa=function(i){var l=LEADS[i];if(!l||!l.tel){toast('Geen telefoonnummer',true);return}l.mode=LFMODE;window.open('https://wa.me/'+telDigits(l.tel)+'?text='+encodeURIComponent(waMsg(l)));if(!lfIsKnown(l))lfAdd(i,true).then(rLeads)};
+lfCopyPitch=function(i){var l=LEADS[i];l.mode=LFMODE;var txt=(LFMODE==='it')?mailMsg(l).body:waMsg(l);navigator.clipboard.writeText(txt).then(function(){toast('Bericht gekopieerd, plak het in mail, WhatsApp of LinkedIn');if(!lfIsKnown(l))lfAdd(i,true).then(rLeads)})};
+
+/* in de dealfiche: knop om het persoonlijke bericht te kopiëren/mailen */
+(function(){if(typeof vDeal!=='function')return;var _vDeal=vDeal;vDeal=function(id){_vDeal(id);var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;var f=document.getElementById('mFoot');if(f&&!f.querySelector('.pmsgbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn sm subtle pmsgbtn" onclick="copyLeadMsg(\''+id+'\')">📝 Persoonlijk bericht</button>')}})();
+function copyLeadMsg(id){var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;var seg=(typeof dealSeg==='function')?dealSeg(d):'web';
+  if(seg==='it'){var m=mailMsg(d);navigator.clipboard.writeText('Onderwerp: '+m.subject+'\n\n'+m.body).then(function(){toast('Persoonlijke e-mail gekopieerd')})}
+  else{navigator.clipboard.writeText(waMsg(d)).then(function(){toast('Persoonlijk WhatsApp-bericht gekopieerd')})}}
+
+
+/* ===================================================================
+   BEZOEKERS-ANALYTICS: privacyvriendelijke teller per klantensite
+   =================================================================== */
+var AN={key:null,rows:null,period:30,host:'',loaded:false};
+async function anKey(){if(AN.key)return AN.key;if(!sb||!CLOUD.uid)return '';var r=await sb.from('analytics_keys').select('key').eq('user_id',CLOUD.uid).maybeSingle();AN.key=(r.data&&r.data.key)||'';return AN.key}
+function anSnippet(k){return '<script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k='+k+'"><\/script>'}
+async function anLoad(){if(!sb||!CLOUD.uid)return[];var since=new Date(Date.now()-90*864e5).toISOString();
+  var r=await sb.from('analytics_hits').select('host,path,ref,vid,device,country,ts').gte('ts',since).order('ts',{ascending:false}).limit(8000);
+  AN.rows=r.data||[];AN.loaded=true;return AN.rows}
+function anHosts(){var h={};(AN.rows||[]).forEach(function(x){if(x.host)h[x.host]=(h[x.host]||0)+1});return Object.keys(h).sort(function(a,b){return h[b]-h[a]})}
+function anAgg(rows){
+  var pv=rows.length,uniq={},pages={},refs={},dev={},days={},hours={},countries={};
+  rows.forEach(function(x){uniq[x.vid]=1;pages[x.path||'/']=(pages[x.path||'/']||0)+1;
+    var rf=x.ref||'rechtstreeks';refs[rf]=(refs[rf]||0)+1;
+    dev[x.device||'?']=(dev[x.device||'?']||0)+1;
+    var d=String(x.ts).slice(0,10);days[d]=(days[d]||0)+1;
+    var hr=new Date(x.ts).getHours();hours[hr]=(hours[hr]||0)+1;
+    if(x.country)countries[x.country]=(countries[x.country]||0)+1;
+  });
+  return {pv:pv,uniq:Object.keys(uniq).length,pages:pages,refs:refs,dev:dev,days:days,hours:hours,countries:countries};
+}
+function anTop(obj,n){return Object.keys(obj).map(function(k){return [k,obj[k]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,n||6)}
+function anBar(list,total,color){total=total||Math.max.apply(null,list.map(function(x){return x[1]}).concat([1]));
+  return list.map(function(x){var pct=Math.round(100*x[1]/total);return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><div style="flex:1;min-width:0"><div style="font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(x[0])+'</div><div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-top:2px"><div style="height:100%;width:'+pct+'%;background:'+(color||'#7C3AED')+'"></div></div></div><b style="font-size:.85rem;width:44px;text-align:right">'+x[1]+'</b></div>'}).join('')}
+async function rAnalytics(){
+  main().innerHTML='<div class="topbar"><div><h2>Bezoekers</h2><div class="sub">Privacyvriendelijke bezoekersteller – geen cookies, geen banner nodig</div></div><div style="display:flex;gap:8px"><button class="btn subtle" onclick="anSnippetShow()">📋 Tracking-code</button><button class="btn subtle" onclick="AN.rows=null;rAnalytics()">↻ Vernieuwen</button></div></div><div id="an_box" class="panelbox"><span class="hint">Laden…</span></div>';
+  await anKey();if(!AN.rows)await anLoad();
+  var hosts=anHosts();
+  if(!hosts.length){document.getElementById('an_box').innerHTML='<div class="empty"><span class="big">📊</span>Nog geen bezoekers geregistreerd.<br><div class="hint" style="margin:10px 0">Plak de tracking-code in je klantensites, dan verschijnen hier de bezoekers.</div><button class="btn" onclick="anSnippetShow()">📋 Toon tracking-code</button></div>';return}
+  if(!AN.host||hosts.indexOf(AN.host)<0)AN.host=hosts[0];
+  var since=Date.now()-AN.period*864e5;
+  var rows=AN.rows.filter(function(x){return x.host===AN.host&&new Date(x.ts).getTime()>=since});
+  var a=anAgg(rows);
+  var siteOpts=hosts.map(function(h){return '<option value="'+esc(h)+'" '+(h===AN.host?'selected':'')+'>'+esc(h)+'</option>'}).join('');
+  var perTabs=[[1,'Vandaag'],[7,'7 dagen'],[30,'30 dagen'],[90,'90 dagen']].map(function(p){return '<button class="tab'+(AN.period===p[0]?' active':'')+'" onclick="AN.period='+p[0]+';rAnalytics()">'+p[1]+'</button>'}).join('');
+  // dag-grafiek
+  var dayList=[];for(var i=Math.min(AN.period,30)-1;i>=0;i--){var d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);dayList.push([d,a.days[d]||0])}
+  var maxDay=Math.max.apply(null,dayList.map(function(x){return x[1]}).concat([1]));
+  var dayBars=dayList.map(function(x){var h=Math.round(100*x[1]/maxDay);return '<div title="'+x[0]+': '+x[1]+' weergaven" style="flex:1;min-width:4px;display:flex;flex-direction:column;justify-content:flex-end;height:80px"><div style="background:#7C3AED;border-radius:3px 3px 0 0;height:'+Math.max(h,x[1]?6:0)+'%"></div></div>'}).join('');
+  // uren
+  var hourMax=Math.max.apply(null,Object.keys(a.hours).map(function(k){return a.hours[k]}).concat([1]));
+  var hourBars='';for(var hh=0;hh<24;hh++){var v=a.hours[hh]||0;hourBars+='<div title="'+hh+'u: '+v+'" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:50px"><div style="background:#2563EB;border-radius:2px 2px 0 0;height:'+Math.max(Math.round(100*v/hourMax),v?8:0)+'%"></div></div>'}
+  var box=document.getElementById('an_box');if(!box)return;
+  box.outerHTML=
+  '<div class="frow" style="grid-template-columns:1fr auto;align-items:end;margin-bottom:14px"><div class="fgroup" style="margin:0;max-width:340px"><label>Website</label><select onchange="AN.host=this.value;rAnalytics()">'+siteOpts+'</select></div></div>'+
+  '<div class="tabs" style="margin-bottom:14px">'+perTabs+'</div>'+
+  '<div class="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px">'+
+    '<div class="statcard panelbox" style="padding:16px"><div class="hint">Bezoekers</div><div style="font-family:var(--disp);font-size:1.8rem;font-weight:700">'+a.uniq+'</div></div>'+
+    '<div class="statcard panelbox" style="padding:16px"><div class="hint">Paginaweergaven</div><div style="font-family:var(--disp);font-size:1.8rem;font-weight:700">'+a.pv+'</div></div>'+
+    '<div class="statcard panelbox" style="padding:16px"><div class="hint">Weergaven/bezoeker</div><div style="font-family:var(--disp);font-size:1.8rem;font-weight:700">'+(a.uniq?(a.pv/a.uniq).toFixed(1):'0')+'</div></div>'+
+    '<div class="statcard panelbox" style="padding:16px"><div class="hint">Mobiel</div><div style="font-family:var(--disp);font-size:1.8rem;font-weight:700">'+(a.pv?Math.round(100*(a.dev['mobiel']||0)/a.pv):0)+'%</div></div>'+
+  '</div>'+
+  '<div class="panelbox" style="margin-bottom:16px"><h3>Bezoek per dag</h3><div style="display:flex;gap:2px;align-items:flex-end;margin-top:10px">'+dayBars+'</div></div>'+
+  '<div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+    '<div class="panelbox"><h3>Populairste pagina\'s</h3>'+anBar(anTop(a.pages,7),null,'#7C3AED')+'</div>'+
+    '<div class="panelbox"><h3>Waar komen ze vandaan</h3>'+anBar(anTop(a.refs,7),null,'#2563EB')+'</div>'+
+    '<div class="panelbox"><h3>Toestel</h3>'+anBar(anTop(a.dev,4),a.pv,'#059669')+'</div>'+
+    '<div class="panelbox"><h3>Op welke uren</h3><div style="display:flex;gap:2px;align-items:flex-end;margin-top:10px">'+hourBars+'</div><div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-top:4px"><span>0u</span><span>6u</span><span>12u</span><span>18u</span><span>23u</span></div></div>'+
+  '</div>';
+}
+function anSnippetShow(){var k=AN.key||'';
+  openM('📋 Tracking-code',
+    '<div class="hint" style="margin-bottom:10px">Plak dit één regeltje in de website van je klant, net vóór <code>&lt;/body&gt;</code>. Werkt op elke site. Geen cookies, geen toestemming nodig. Binnen enkele minuten verschijnen de bezoekers hier.</div>'+
+    '<div class="fgroup"><label>Jouw tracking-code</label><textarea readonly onclick="this.select()" style="font-family:monospace;font-size:.78rem;min-height:70px">'+esc(anSnippet(k))+'</textarea></div>'+
+    '<div class="hint">Sites die je maakt met de CRM-demo krijgen dit automatisch als je wil – vraag het me gerust. Tip: voeg de site ook toe bij <b>Websites</b> zodat je meteen ziet of ze online staat.</div>',
+    '<button class="btn subtle" onclick="closeM()">Sluiten</button><button class="btn" onclick="navigator.clipboard.writeText(anSnippet(AN.key||\'\'));toast(\'Gekopieerd\')">📋 Kopieer</button>',true);
+}
+/* menu + route */
+(function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='monitor'});if(i<0)i=MENU_ADMIN.length-2;MENU_ADMIN.splice(i+1,0,['analytics','Bezoekers',IC.rep]);
+  var _go=go;go=function(v){if(v==='analytics'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rAnalytics();window.scrollTo(0,0);return}_go(v)}})();
 
 
 </script>
