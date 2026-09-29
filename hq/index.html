@@ -3650,7 +3650,7 @@ function pick(arr,seed){return arr[nameHash(seed)%arr.length]}
 function waMsg(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var aanhef=vn?'Hey '+vn+'!':pick(['Hey!','Dag!','Hallo!'],naam);
   var seg=(typeof dealSeg==='function')?dealSeg(x):'web';
   if(seg==='it'){var is=itIssues(x);
-    return aanhef+' Giannis hier van Marleo (IT & websites). Ik deed een snelle check op '+naam+' en '+(is.length?'zag dat '+is[0]+'.':'zag een paar dingen aan jullie beveiliging die beter kunnen.')+' Niks om van wakker te liggen, maar wel makkelijk in orde te brengen. De check is gratis, e-mailbeveiliging in orde zetten kost '+priceOf(/mailbeveiliging/i,'€249')+' (excl. btw), eenmalig. Zal ik u het overzichtje doorsturen?';}
+    return aanhef+' Giannis hier van Marleo (IT & websites). Ik deed een snelle check op '+naam+' en '+(is.length?'zag dat '+is[0]+'.':'zag een paar dingen aan jullie beveiliging die beter kunnen.')+' Niks om van wakker te liggen, maar wel makkelijk in orde te brengen. Zal ik u er eens een kort overzichtje van doorsturen?';}
   var s=leadSituation(x);var kern={
     geen:'ik zocht '+naam+' eens op maar vond geen website. Verrast me, want ge zijt duidelijk goe bezig. Zal ik eens een voorbeeldje maken zodat ge ziet hoe da\' eruit zou zien?',
     social:'ik zie dat '+naam+' enkel op Facebook zit. Met een eigen site wordt ge veel beter gevonden op Google. Zin dat ik eens iets in mekaar steek om te tonen?',
@@ -3665,7 +3665,7 @@ function mailMsg(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var g
   var seg=(typeof dealSeg==='function')?dealSeg(x):'web';var sign='\n\nGroeten,\nGiannis – Marleo\n'+((typeof coCfg==='function'?coCfg().phone:'')||'+32 456 92 00 25')+' · giannis@marleo.tech';
   if(seg==='it'){var is=itIssues(x);var dom=(x.info&&x.info.domein)||naam;
     return {subject:'Iets opgevallen bij '+dom,
-      body:groet+'\n\nGiannis hier van Marleo. Ik hou me bezig met IT en beveiliging voor lokale bedrijven, en ik deed een snelle check op '+dom+'. Een paar dingen vielen me op:\n'+(is.length?is.slice(0,3).map(function(i){return '– '+i}).join('\n'):'– een paar basisinstellingen die vaak vergeten worden')+'\n\nKomt erop neer dat iemand vrij makkelijk mails in jullie naam zou kunnen versturen. Niks dramatisch, en snel op te lossen.\n\nWat het kost, zodat je weet waar je aan toe bent: de check is gratis, e-mailbeveiliging (SPF, DKIM, DMARC) in orde zetten kost '+priceOf(/mailbeveiliging/i,'€249')+' excl. btw, eenmalig. Een volledige IT-audit kost '+priceOf(/security-audit/i,'€690')+'.\n\nZin om er eens kort over te bellen? Dan stuur ik ook het volledige overzicht mee.'+sign};}
+      body:groet+'\n\nGiannis hier van Marleo. Ik hou me bezig met IT en beveiliging voor lokale bedrijven, en ik deed een snelle check op '+dom+'. Een paar dingen vielen me op:\n'+(is.length?is.slice(0,3).map(function(i){return '– '+i}).join('\n'):'– een paar basisinstellingen die vaak vergeten worden')+'\n\nKomt erop neer dat iemand vrij makkelijk mails in jullie naam zou kunnen versturen. Niks dramatisch, en snel op te lossen.\n\nZin om er eens kort over te bellen? Dan stuur ik ook het volledige overzicht mee.'+sign};}
   var s=leadSituation(x);
   var onderwerp={geen:'Een website voor '+naam+'?',social:naam+' enkel op Facebook?',kapot:'De site van '+naam+' hapert',oud:'Site van '+naam+' een opfrissing?',ok:'Kleine tip voor de site van '+naam}[s];
   var kern={
