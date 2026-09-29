@@ -4449,6 +4449,225 @@ async function recheckAllNoSite(){var list=DATA.deals.filter(function(d){return 
   var ctrl=main().querySelector('.topbar > div:last-child');if(ctrl&&!ctrl.querySelector('.recheckall'))ctrl.insertAdjacentHTML('beforeend','<button class="btn subtle recheckall" onclick="recheckAllNoSite()" title="Zoekt via de bedrijfsnaam of leads zonder website er toch een hebben">🔎 Nakijken ('+n+')</button>')}})();
 
 
+
+/* ===================================================================
+   PIPELINE v3: status, regio, volgende stap en notities in één overzicht
+   =================================================================== */
+var BE_CITIES={
+ 'Oost-Vlaanderen':'gent,deinze,lokeren,aalst,oudenaarde,nevele,eeklo,dendermonde,sint-niklaas,zottegem,ninove,geraardsbergen,ronse,wetteren,wachtebeke,zelzate,evergem,lochristi,merelbeke,melle,destelbergen,de pinte,sint-martens-latem,lievegem,waarschoot,zomergem,lovendegem,aalter,knesselare,maldegem,assenede,kaprijke,sint-laureins,zulte,nazareth,kruisem,zwalm,horebeke,brakel,lierde,herzele,sint-lievens-houtem,erpe-mere,lede,wichelen,berlare,zele,hamme,waasmunster,temse,kruibeke,beveren,stekene,moerbeke,sint-gillis-waas,laarne,oosterzele,gavere,denderleeuw,haaltert,maarkedal,wortegem-petegem,kluisbergen,drongen,mariakerke,wondelgem,ledeberg,gentbrugge,sint-amandsberg,oostakker,zwijnaarde,merelbeke-melle,kalken,landegem,vosselare,hansbeke,sint-denijs-westrem,afsnee,astene,petegem,bachte-maria-leerne,machelen-aan-de-leie,ursel,oosteeklo',
+ 'West-Vlaanderen':'brugge,kortrijk,waregem,tielt,oostende,roeselare,ieper,knokke-heist,knokke,blankenberge,de haan,middelkerke,nieuwpoort,koksijde,de panne,veurne,diksmuide,poperinge,menen,wevelgem,harelbeke,kuurne,lendelede,izegem,ingelmunster,meulebeke,pittem,ruiselede,wingene,oostkamp,beernem,zedelgem,torhout,lichtervelde,hooglede,staden,moorslede,zonnebeke,wervik,heuvelland,mesen,vleteren,alveringem,lo-reninge,houthulst,langemark-poelkapelle,kortemark,koekelare,gistel,oudenburg,jabbeke,damme,zuienkerke,bredene,deerlijk,anzegem,avelgem,spiere-helkijn,zwevegem,dentergem,oostrozebeke,wielsbeke,ledegem,ardooie,beveren-leie,sint-eloois-vijve,desselgem,sint-andries,assebroek,sint-kruis,heule,marke,bissegem,aarsele,kanegem',
+ 'Antwerpen':'antwerpen,antwerp,mechelen,turnhout,lier,mol,geel,herentals,boom,mortsel,kontich,edegem,hove,boechout,wommelgem,schoten,brasschaat,kapellen,stabroek,zoersel,malle,brecht,wuustwezel,kalmthout,essen,hoogstraten,rijkevorsel,beerse,vosselaar,oud-turnhout,arendonk,retie,dessel,balen,meerhout,laakdal,westerlo,herselt,hulshout,heist-op-den-berg,putte,bonheiden,sint-katelijne-waver,duffel,rumst,niel,schelle,hemiksem,aartselaar,wijnegem,ranst,zandhoven,grobbendonde,grobbendonk,vorselaar,nijlen,berlaar,willebroek,puurs,bornem,sint-amands,deurne,berchem,borgerhout,merksem,ekeren,hoboken,wilrijk,zwijndrecht,olen,kasterlee,lille,lint,schilde,zoersel',
+ 'Vlaams-Brabant':'leuven,vilvoorde,halle,aarschot,diest,tienen,zaventem,dilbeek,asse,grimbergen,machelen,wemmel,overijse,tervuren,kortenberg,herent,rotselaar,haacht,kampenhout,steenokkerzeel,zemst,kapelle-op-den-bos,londerzeel,meise,merchtem,opwijk,affligem,liedekerke,ternat,lennik,gooik,pepingen,beersel,sint-pieters-leeuw,drogenbos,linkebeek,sint-genesius-rode,hoeilaart,huldenberg,bertem,oud-heverlee,bierbeek,boutersem,holsbeek,lubbeek,glabbeek,tielt-winge,bekkevoort,scherpenheuvel-zichem,begijnendijk,tremelo,keerbergen,boortmeerbeek,landen,linter,zoutleeuw,geetbets,kortenaken,hoegaarden,kraainem,wezembeek-oppem,roosdaal,herne,galmaarden,bever,heverlee,kessel-lo,wilsele',
+ 'Limburg':'hasselt,genk,sint-truiden,tongeren,beringen,lommel,maasmechelen,bilzen,diepenbeek,zonhoven,houthalen-helchteren,heusden-zolder,lummen,herk-de-stad,halen,nieuwerkerken,alken,wellen,kortessem,borgloon,heers,gingelom,riemst,lanaken,dilsen-stokkem,maaseik,kinrooi,bree,bocholt,peer,hamont-achel,neerpelt,pelt,overpelt,hechtel-eksel,leopoldsburg,tessenderlo,ham,oudsbergen,opglabbeek,meeuwen-gruitrode,as,zutendaal,hoeselt,voeren,herstappe',
+ 'Brussel':'brussel,brussels,bruxelles,anderlecht,elsene,ixelles,etterbeek,schaarbeek,schaerbeek,ukkel,uccle,vorst,forest,jette,laken,molenbeek,sint-jans-molenbeek,sint-gillis,saint-gilles,oudergem,auderghem,watermaal-bosvoorde,sint-lambrechts-woluwe,sint-pieters-woluwe,evere,ganshoren,koekelberg,sint-agatha-berchem,sint-joost-ten-node',
+ 'Waals-Brabant':'waver,wavre,nijvel,nivelles,ottignies,louvain-la-neuve,waterloo,braine-l\'alleud,eigenbrakel,tubize,rixensart,genval,jodoigne,la hulpe,lasne,genappe',
+ 'Henegouwen':'charleroi,bergen,mons,doornik,tournai,moeskroen,mouscron,la louvière,ath,binche,soignies,edingen,enghien,lessines,peruwelz,comines',
+ 'Luik':'luik,liège,liege,verviers,seraing,herstal,eupen,spa,huy,waremme,sankt vith',
+ 'Namen':'namen,namur,dinant,gembloux,andenne,ciney,philippeville',
+ 'Luxemburg':'aarlen,arlon,bastogne,marche-en-famenne,libramont,durbuy,bouillon,virton'};
+var BE_CITYMAP=(function(){var m={};Object.keys(BE_CITIES).forEach(function(p){BE_CITIES[p].split(',').forEach(function(c){m[c.trim()]=p})});return m})();
+var CITY_NL={antwerp:'Antwerpen',brussels:'Brussel',bruxelles:'Brussel',ghent:'Gent',bruges:'Brugge',louvain:'Leuven',liege:'Luik','liège':'Luik',namur:'Namen',mons:'Bergen',munich:'München',milan:'Milaan',lisbon:'Lissabon',paris:'Parijs',rome:'Rome'};
+var FOREIGN={amsterdam:'Nederland',rotterdam:'Nederland',utrecht:'Nederland','den haag':'Nederland',eindhoven:'Nederland',breda:'Nederland',maastricht:'Nederland',paris:'Frankrijk',lyon:'Frankrijk',lille:'Frankrijk',marseille:'Frankrijk',berlin:'Duitsland',munich:'Duitsland','münchen':'Duitsland',hamburg:'Duitsland','köln':'Duitsland',cologne:'Duitsland',barcelona:'Spanje',madrid:'Spanje',valencia:'Spanje',milan:'Italië',rome:'Italië',lisbon:'Portugal',porto:'Portugal',london:'Verenigd Koninkrijk',ottawa:'VS / Canada',vancouver:'VS / Canada',toronto:'VS / Canada',surrey:'VS / Canada'};
+function titleCase(s){return String(s||'').toLowerCase().replace(/(^|[\s\-'(])([a-zà-ÿ])/g,function(a,b,c){return b+c.toUpperCase()})}
+function dealRegion(d){if(d._rg&&d._rgK===(d.plaats||'')+'|'+(d.tel||''))return d._rg;
+  var raw=String(d.plaats||'').trim();var low=raw.toLowerCase();var main=low.replace(/\s*\(.*\)\s*/g,'').trim();var sub=(/\(([^)]+)\)/.exec(low)||[])[1]||'';
+  var tel=String(d.tel||'').replace(/[^\d+()]/g,'');var land='',prov='',stad='';
+  var provHit=PROVS.filter(function(p){return p.toLowerCase()===main})[0];
+  if(provHit){land='België';prov=provHit}
+  else if(BE_CITYMAP[main]||BE_CITYMAP[sub]){land='België';prov=BE_CITYMAP[main]||BE_CITYMAP[sub];stad=CITY_NL[main]||titleCase(main)}
+  else if(FOREIGN[main]){land=FOREIGN[main];stad=CITY_NL[main]||titleCase(main)}
+  else{var z=/\b(\d{4})\b/.exec(raw);if(z&&zipProv(z[1])){land='België';prov=zipProv(z[1])}
+    stad=titleCase(main);
+    if(!land){if(/^\+32|^0[1-9]/.test(tel))land='België';else if(/^\+1|^\(\d{3}\)/.test(tel))land='VS / Canada';else if(/^\+31/.test(tel))land='Nederland';else if(/^\+33/.test(tel))land='Frankrijk';else if(/^\+49/.test(tel))land='Duitsland';else if(/^\+34/.test(tel))land='Spanje';else if(/^\+39/.test(tel))land='Italië';else if(/^\+351/.test(tel))land='Portugal';else if(/^\+44/.test(tel))land='Verenigd Koninkrijk';else land=raw?'Buitenland (overig)':'Onbekend'}}
+  var r={land:land,prov:land==='België'?(prov||'België – andere'):'',stad:stad,be:land==='België'};
+  r.groep=r.be?r.prov:'🌍 '+land;
+  try{Object.defineProperty(d,'_rg',{value:r,enumerable:false,configurable:true,writable:true});Object.defineProperty(d,'_rgK',{value:(d.plaats||'')+'|'+(d.tel||''),enumerable:false,configurable:true,writable:true})}catch(e){}
+  return r}
+function provShort(p){return {'Oost-Vlaanderen':'O-Vl','West-Vlaanderen':'W-Vl','Vlaams-Brabant':'Vl-Br','Waals-Brabant':'W-Br'}[p]||p}
+
+/* ---- status ---- */
+function dContacts(d){return (d.contacten||[]).filter(function(c){return c&&c.t})}
+function dContacted(d){return d.stage!=='nieuw'||dContacts(d).length>0}
+function dLast(d){var c=dContacts(d);if(c.length){var l=c[c.length-1];return {date:new Date(l.t).toISOString().slice(0,10),kanaal:l.kanaal||''}}
+  if(d.stage!=='nieuw'&&d.laatstContact)return {date:d.laatstContact,kanaal:d.kanaal||''};return null}
+function daysSince(iso){if(!iso)return null;return Math.floor((new Date(today()+'T00:00:00')-new Date(iso+'T00:00:00'))/864e5)}
+function dOpen(d){return d.stage!=='gewonnen'&&d.stage!=='verloren'}
+function dFollow(d){if(!d.follow)return '';var l=dLast(d);if(l&&l.date&&d.follow<l.date)return '';return d.follow}
+function dDue(d){if(!dOpen(d))return false;var t=today();var f=dFollow(d);if(f)return f<=t;
+  if(d.stage==='gecontacteerd'){var l=dLast(d);return !!(l&&daysSince(l.date)>=5)}return false}
+function dNote(d){var l=(d.log||[]).filter(function(x){return x&&x.note});return l.length?l[l.length-1]:null}
+var PTABS=[
+ ['todo','⏰','Te doen',function(d){return dDue(d)},'Opvolging gepland voor vandaag of eerder, of al 5+ dagen geen reactie'],
+ ['nieuw','🆕','Nog te contacteren',function(d){return d.stage==='nieuw'&&!dContacted(d)},'Nog nooit gecontacteerd'],
+ ['wacht','📨','Gecontacteerd',function(d){return d.stage==='gecontacteerd'||(d.stage==='nieuw'&&dContacted(d))},'Bericht gestuurd, wacht op reactie'],
+ ['lopend','💬','Lopend',function(d){return /gesprek|demo|offerte/.test(d.stage)},'In gesprek, demo of offerte'],
+ ['klant','✅','Klant',function(d){return d.stage==='gewonnen'},''],
+ ['verloren','❌','Verloren',function(d){return d.stage==='verloren'},''],
+ ['alle','📋','Alles',function(){return true},'']];
+var P3=(function(){var s={};try{s=JSON.parse(localStorage.getItem('pipe3')||'{}')}catch(e){}return {tab:s.tab||'todo',reg:s.reg||'alle',stad:s.stad||'alle',grp:s.grp||'regio',closed:s.closed||{},lim:60}})();
+function p3Save(){try{localStorage.setItem('pipe3',JSON.stringify({tab:P3.tab,reg:P3.reg,stad:P3.stad,grp:P3.grp,closed:P3.closed}))}catch(e){}}
+function p3Set(k,v){P3[k]=v;if(k==='reg')P3.stad='alle';if(k!=='closed')P3.lim=60;p3Save();rPipeline()}
+function p3Grp(g){P3.closed[g]=!P3.closed[g];p3Save();rPipeline()}
+function p3RegOk(d){var r=dealRegion(d);var v=P3.reg;
+  if(v==='alle')return true;if(v==='be')return r.be;if(v==='buiten')return !r.be;
+  if(v.indexOf('prov:')===0)return r.be&&r.prov===v.slice(5);if(v.indexOf('land:')===0)return r.land===v.slice(5);return true}
+
+(function(){var st=document.createElement('style');st.textContent=
+ '.p3tabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:0 0 12px}'+
+ '.p3tab{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 10px;cursor:pointer;text-align:left;color:var(--text);min-width:0}'+
+ '.p3tab .n{font-family:var(--disp);font-size:1.35rem;font-weight:800;line-height:1.1}.p3tab .l{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+ '.p3tab.on{border-color:#FBBF24;background:rgba(251,191,36,.12)}.p3tab.hot .n{color:#F87171}'+
+ '.p3filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}'+
+ '.p3filters select{width:auto;min-width:150px;padding:7px 10px!important;border-radius:10px}'+
+ '.p3progress{height:8px;border-radius:6px;background:var(--track);overflow:hidden;margin:4px 0 12px}.p3progress i{display:block;height:100%;background:linear-gradient(90deg,#4ADE80,#60A5FA)}'+
+ '.p3list{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}'+
+ '.p3gh{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--bg2);font-weight:700;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}'+
+ '.p3gh span.c{color:var(--muted);font-weight:500}'+
+ '.p3r{display:grid;grid-template-columns:5px minmax(0,1.7fr) 140px minmax(0,1.15fr) minmax(0,1.5fr) auto;gap:12px;align-items:center;padding:9px 14px 9px 0;border-bottom:1px solid var(--line)}'+
+ '.p3r:hover{background:var(--panel2)}.p3r .bar{align-self:stretch;border-radius:0 4px 4px 0}'+
+ '.p3r .nm{font-weight:700;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.p3r .nm:hover{text-decoration:underline}'+
+ '.p3r .sb{font-size:.75rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'+
+ '.p3r select{padding:5px 8px!important;font-size:.8rem!important;border-radius:9px;width:100%}'+
+ '.p3r .ok{color:#4ADE80;font-weight:600;font-size:.82rem}.p3r .no{color:#FBBF24;font-weight:600;font-size:.82rem}.p3r .late{color:#F87171;font-weight:700}'+
+ '.p3r .nx{font-size:.82rem;cursor:pointer}.p3r .nt{font-size:.75rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}'+
+ '.p3r .ac{display:flex;gap:5px;justify-content:flex-end}'+
+ '.p3r .ac a,.p3r .ac button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:6px 9px;font-size:.85rem;cursor:pointer;text-decoration:none;min-height:0;line-height:1}'+
+ '.p3r .ac .up{background:#FBBF24;color:#111;border-color:#FBBF24;font-weight:700}'+
+ '.p3more{padding:12px;text-align:center}'+
+ '.chipset{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}.chipset button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:20px;padding:7px 12px;font-size:.83rem;cursor:pointer}'+
+ '.chipset button.on{background:#FBBF24;color:#111;border-color:#FBBF24;font-weight:700}'+
+ '@media(max-width:1100px){.p3tabs{grid-template-columns:repeat(4,minmax(0,1fr))}}'+
+ '@media(max-width:760px){.p3tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.p3tab .n{font-size:1.1rem}'+
+ '.p3r{grid-template-columns:5px minmax(0,1fr) minmax(0,1fr);grid-template-areas:"b n s" "b c x" "b a a";row-gap:6px;padding-right:12px}'+
+ '.p3r .bar{grid-area:b}.p3r .c1{grid-area:n}.p3r .c2{grid-area:s;width:130px}.p3r .c3{grid-area:c}.p3r .c4{grid-area:x}.p3r .ac{grid-area:a;justify-content:flex-start;flex-wrap:wrap}'+
+ '.p3filters select{flex:1 1 45%;min-width:0}.p3tab .l{white-space:normal;line-height:1.2}'+
+ '.p3top .segtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.p3top .segtab{padding:7px 8px;font-size:.78rem;flex-direction:column;align-items:flex-start;gap:2px}'+
+ '.p3top .topbar > div:last-child{display:grid!important;grid-template-columns:1fr 1fr;gap:6px}.p3top .topbar > div:last-child .searchbox{grid-column:1/-1}.p3top .topbar .btn{padding:9px 10px;font-size:.84rem}}';
+ document.head.appendChild(st)})();
+
+function p3Row(d){var r=dealRegion(d);var seg=(typeof dealSeg==='function')?dealSeg(d):'web';var col=(SEG[seg]||SEG.web).color;var t=today();
+  var l=dLast(d);var n=dNote(d);var id=d.id.replace(/'/g,"\\'");
+  var contact=l?'<div class="ok">✓ '+fmtD(l.date).slice(0,5)+(l.kanaal?' · '+esc(l.kanaal):'')+'</div><div class="sb">'+(daysSince(l.date)===0?'vandaag':daysSince(l.date)+' d geleden')+'</div>':'<div class="no">✗ Nog niet</div><div class="sb">gecontacteerd</div>';
+  var fo=dFollow(d);var next=fo?'<span class="'+(fo<=t?'late':'')+'">⏰ '+fmtD(fo).slice(0,5)+'</span> '+esc(d.volgendeActie||'Opvolgen'):(dOpen(d)?(d.stage==='nieuw'&&!dContacted(d)?'<span class="no">→ Eerste bericht sturen</span>':(dDue(d)?'<span class="late">→ Opvolgen (geen reactie)</span>':'<span class="sb">+ volgende stap plannen</span>')):'<span class="sb">–</span>');
+  var place=[r.stad,r.be?provShort(r.prov):r.land].filter(Boolean).join(' · ');
+  return '<div class="p3r"><div class="bar" style="background:'+col+'"></div>'+
+   '<div class="c1" style="min-width:0"><div class="nm" onclick="vDeal(\''+id+'\')" title="'+esc(d.naam)+'">'+esc(d.naam)+'</div><div class="sb">📍 '+esc(place||'?')+(d.cat?' · '+esc(d.cat):'')+(d.value?' · '+eur(d.value):'')+'</div></div>'+
+   '<div class="c2"><select onchange="pipeStageSet(\''+id+'\',this.value)">'+STAGES.map(function(s){return '<option value="'+s[0]+'" '+(s[0]===d.stage?'selected':'')+'>'+s[1]+'</option>'}).join('')+'</select></div>'+
+   '<div class="c3" style="min-width:0">'+contact+'</div>'+
+   '<div class="c4" style="min-width:0"><div class="nx" onclick="pUpd(\''+id+'\')">'+next+'</div>'+(n?'<div class="nt" onclick="pUpd(\''+id+'\')" title="'+esc(n.note)+'">📝 '+esc(n.note)+'</div>':'')+'</div>'+
+   '<div class="ac">'+(isMobile(d.tel)?'<a title="WhatsApp" href="'+dealWa(d)+'" target="_blank" rel="noopener" onclick="pipeWaLog(event,\''+id+'\')">💬</a>':'')+
+   (d.tel?'<a title="Bellen" href="tel:'+esc(String(d.tel).replace(/[^\d+]/g,''))+'" onclick="setTimeout(function(){pUpd(\''+id+'\',\'Gebeld\')},400)">📞</a>':'')+
+   (d.email?'<button title="Mail" onclick="quickContact(event,\''+id+'\',\'E-mail\')">✉</button>':'')+
+   '<button class="up" title="Contact, resultaat, notitie of volgende stap" onclick="pUpd(\''+id+'\')">📝 Update</button></div></div>'}
+
+(function(){var _rP=rPipeline;rPipeline=function(){_rP();if(PIPEVIEW!=='lijst')return;
+  var old=main().querySelector('.pl-wrap');var box=old?old.parentNode:main().querySelector('.pipewrap');if(!box)return;
+  var q=(typeof PIPEQ!=='undefined'?PIPEQ:'').toLowerCase();
+  var base=DATA.deals.filter(function(d){return (typeof PIPESEG==='undefined'||PIPESEG==='alle'||dealSeg(d)===PIPESEG)&&(!q||(d.naam+' '+(d.plaats||'')+' '+(d.cat||'')+' '+(d.tel||'')+' '+(d.email||'')).toLowerCase().indexOf(q)>=0)});
+  var inReg=base.filter(p3RegOk);
+  var inStad=P3.stad==='alle'?inReg:inReg.filter(function(d){return dealRegion(d).stad===P3.stad});
+  var tabFn=(PTABS.filter(function(x){return x[0]===P3.tab})[0]||PTABS[0])[3];
+  /* tabs */
+  var tabs='<div class="p3tabs">'+PTABS.map(function(tb){var n=inStad.filter(tb[3]).length;return '<button class="p3tab'+(P3.tab===tb[0]?' on':'')+(tb[0]==='todo'&&n?' hot':'')+'" title="'+esc(tb[4])+'" onclick="p3Set(\'tab\',\''+tb[0]+'\')"><div class="n">'+n+'</div><div class="l">'+tb[1]+' '+tb[2]+'</div></button>'}).join('')+'</div>';
+  var open=inStad.filter(dOpen);var cont=open.filter(dContacted).length;var pct=open.length?Math.round(cont/open.length*100):0;
+  var prog='<div class="hint" style="margin:0">'+cont+' van de '+open.length+' open leads al gecontacteerd ('+pct+'%)</div><div class="p3progress"><i style="width:'+pct+'%"></i></div>';
+  /* regio-filter met aantallen */
+  var cnt={},lands={};base.forEach(function(d){var r=dealRegion(d);if(r.be)cnt[r.prov]=(cnt[r.prov]||0)+1;else lands[r.land]=(lands[r.land]||0)+1});
+  var beN=base.filter(function(d){return dealRegion(d).be}).length;
+  var regSel='<select onchange="p3Set(\'reg\',this.value)"><option value="alle">🗺️ Alle regio’s ('+base.length+')</option><option value="be" '+(P3.reg==='be'?'selected':'')+'>🇧🇪 Heel België ('+beN+')</option>'+
+   PROVS.concat(['België – andere']).filter(function(p){return cnt[p]}).map(function(p){return '<option value="prov:'+esc(p)+'" '+(P3.reg==='prov:'+p?'selected':'')+'>&nbsp;&nbsp;'+esc(p)+' ('+cnt[p]+')</option>'}).join('')+
+   '<option value="buiten" '+(P3.reg==='buiten'?'selected':'')+'>🌍 Buitenland ('+(base.length-beN)+')</option>'+
+   Object.keys(lands).sort().map(function(l){return '<option value="land:'+esc(l)+'" '+(P3.reg==='land:'+l?'selected':'')+'>&nbsp;&nbsp;'+esc(l)+' ('+lands[l]+')</option>'}).join('')+'</select>';
+  var sc={};inReg.forEach(function(d){var s=dealRegion(d).stad;if(s)sc[s]=(sc[s]||0)+1});
+  var stadSel='<select onchange="p3Set(\'stad\',this.value)"><option value="alle">📍 Alle gemeenten</option>'+Object.keys(sc).sort().map(function(s){return '<option '+(P3.stad===s?'selected':'')+' value="'+esc(s)+'">'+esc(s)+' ('+sc[s]+')</option>'}).join('')+'</select>';
+  var grpSel='<select onchange="p3Set(\'grp\',this.value)"><option value="regio" '+(P3.grp==='regio'?'selected':'')+'>Groeperen per regio</option><option value="stad" '+(P3.grp==='stad'?'selected':'')+'>Groeperen per gemeente</option><option value="fase" '+(P3.grp==='fase'?'selected':'')+'>Groeperen per fase</option><option value="geen" '+(P3.grp==='geen'?'selected':'')+'>Niet groeperen</option></select>';
+  var filters='<div class="p3filters">'+regSel+stadSel+grpSel+((P3.reg!=='alle'||P3.stad!=='alle')?'<button class="btn sm subtle" onclick="P3.reg=\'alle\';p3Set(\'stad\',\'alle\')">✕ Filter wissen</button>':'')+'</div>';
+  /* lijst */
+  var list=inStad.filter(tabFn);
+  var si=function(d){return STAGES.findIndex(function(s){return s[0]===d.stage})};
+  list.sort(function(a,b){
+    if(P3.tab==='todo')return (dFollow(a)||'0').localeCompare(dFollow(b)||'0');
+    if(P3.tab==='nieuw')return (Number(a.prio||9)-Number(b.prio||9))||(Number(b.rating||0)-Number(a.rating||0));
+    if(P3.tab==='wacht'){var la=dLast(a),lb=dLast(b);return ((la&&la.date)||'').localeCompare((lb&&lb.date)||'')}
+    return si(a)-si(b)||(a.follow||'9').localeCompare(b.follow||'9')});
+  var keyOf=function(d){var r=dealRegion(d);return P3.grp==='regio'?r.groep:P3.grp==='stad'?((r.stad||'?')+(r.be?' ('+provShort(r.prov)+')':' – '+r.land)):P3.grp==='fase'?stageLabel(d.stage):''};
+  var groups={},order=[];list.forEach(function(d){var k=keyOf(d);if(!groups[k]){groups[k]=[];order.push(k)}groups[k].push(d)});
+  if(P3.grp==='regio')order.sort(function(a,b){var ia=PROVS.indexOf(a),ib=PROVS.indexOf(b);ia=ia<0?(a.indexOf('🌍')===0?100:50):ia;ib=ib<0?(b.indexOf('🌍')===0?100:50):ib;return ia-ib||a.localeCompare(b)});
+  else if(P3.grp==='stad')order.sort(function(a,b){return groups[b].length-groups[a].length||a.localeCompare(b)});
+  else if(P3.grp==='fase')order.sort(function(a,b){return STAGES.findIndex(function(s){return s[1]===a})-STAGES.findIndex(function(s){return s[1]===b})});
+  var shown=0,html='';
+  order.forEach(function(k){var g=groups[k];var closed=!!P3.closed[P3.grp+':'+k];
+    if(P3.grp!=='geen')html+='<div class="p3gh" onclick="p3Grp(\''+esc((P3.grp+':'+k).replace(/'/g,"\\'"))+'\')"><span>'+(closed?'▸':'▾')+' '+esc(k)+'</span><span class="c">'+g.length+' leads · '+g.filter(dContacted).length+' gecontacteerd</span></div>';
+    if(closed)return;g.forEach(function(d){if(shown<P3.lim){html+=p3Row(d);shown++}})});
+  if(list.length>shown&&shown>=P3.lim)html+='<div class="p3more"><button class="btn sm subtle" onclick="P3.lim+=60;rPipeline()">Toon meer ('+(list.length-shown)+' resterend)</button></div>';
+  var tb=PTABS.filter(function(x){return x[0]===P3.tab})[0];
+  var emptyTxt={todo:'🎉 Niets meer op te volgen. Tijd om nieuwe leads te contacteren?',nieuw:'Iedereen in deze selectie is al gecontacteerd.',wacht:'Niemand in afwachting.',lopend:'Nog geen lopende gesprekken.',klant:'Nog geen klanten in deze selectie.',verloren:'Niets verloren 👍',alle:'Geen leads in deze selectie.'}[P3.tab];
+  var out='<div>'+tabs+filters+prog+(tb&&tb[4]?'<div class="hint" style="margin:0 0 8px">'+tb[1]+' <b>'+tb[2]+'</b>: '+esc(tb[4])+'</div>':'')+
+    '<div class="p3list">'+(html||'<div class="empty" style="padding:28px">'+emptyTxt+'</div>')+'</div></div>';
+  var nb=document.createElement('div');nb.innerHTML=out;box.replaceWith(nb.firstChild);main().classList.add('p3top');
+  var sub=main().querySelector('.topbar .sub');if(sub){var all=DATA.deals;sub.textContent=all.length+' leads · '+all.filter(dContacted).length+' gecontacteerd · '+all.filter(function(d){return d.stage==='nieuw'&&!dContacted(d)}).length+' nog niet · '+all.filter(dDue).length+' op te volgen · '+all.filter(function(d){return d.stage==='gewonnen'}).length+' klant'}
+}})();
+
+/* ---- snelle update: contact + resultaat + fase + notitie + volgende stap ---- */
+var PU={};
+var PU_RES=[['Geen antwoord','gecontacteerd','Opnieuw proberen',3],['Terugbellen','gecontacteerd','Terugbellen',1],['Interesse','gesprek','Afspraak / voorstel',2],['Demo gestuurd','demo','Demo bespreken',3],['Offerte gestuurd','offerte','Offerte opvolgen',4],['Geen interesse','verloren','',0],['Klant geworden','gewonnen','',0]];
+function pUpd(id,kanaal){var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
+  PU={id:id,kanaal:kanaal||'',res:'',stage:d.stage,follow:d.follow||'',actie:d.volgendeActie||''};
+  var l=dLast(d);var n=dNote(d);var chips=function(key,arr){return '<div class="chipset" id="pu_'+key+'">'+arr.map(function(x){return '<button type="button" data-v="'+esc(x[0])+'" onclick="puPick(\''+key+'\',this)">'+x[1]+'</button>'}).join('')+'</div>'};
+  openM(d.naam,
+   '<div class="hint" style="margin:0 0 12px">'+esc([d.tel,d.email,dealRegion(d).stad].filter(Boolean).join(' · '))+'<br>Laatste contact: <b>'+(l?fmtD(l.date)+(l.kanaal?' via '+esc(l.kanaal):''):'nog niet')+'</b>'+(n?'<br>Laatste notitie: <i>'+esc(n.note)+'</i>':'')+'</div>'+
+   '<label>1. Hoe had je contact?</label>'+chips('k',[['WhatsApp','💬 WhatsApp'],['Gebeld','📞 Gebeld'],['E-mail','✉ Gemaild'],['Langsgegaan','🚶 Langsgegaan'],['','Geen contact, enkel notitie']])+
+   '<label>2. Resultaat</label>'+chips('r',PU_RES.map(function(r){return [r[0],r[0]]}))+
+   '<div class="frow"><div class="fgroup"><label>Fase</label><select id="pu_stage">'+STAGES.map(function(s){return '<option value="'+s[0]+'" '+(s[0]===d.stage?'selected':'')+'>'+s[1]+'</option>'}).join('')+'</select></div>'+
+   '<div class="fgroup"><label>Volgende stap</label><input id="pu_actie" value="'+esc(d.volgendeActie||'')+'" placeholder="bv. Terugbellen, demo tonen…"></div></div>'+
+   '<label>Wanneer?</label>'+chips('f',[['','Geen'],['1','Morgen'],['3','Over 3 dagen'],['7','Over 1 week'],['14','Over 2 weken'],['30','Over 1 maand']])+
+   '<input type="date" id="pu_date" value="'+esc(d.follow||'')+'" style="max-width:200px;margin:-4px 0 12px">'+
+   '<div class="fgroup"><label>Notitie</label><textarea id="pu_note" rows="3" placeholder="Wat werd er gezegd? bv. eigenaar is er pas na 17u, wil prijs voor webshop…"></textarea></div>'+
+   ((d.log&&d.log.length)?'<details><summary style="cursor:pointer;font-size:.85rem;color:var(--muted)">Historiek ('+d.log.length+')</summary><ul class="activity" style="margin-top:8px">'+d.log.slice().reverse().slice(0,25).map(function(a){return '<li><span class="dot"></span><div>'+esc(a.txt)+'<time>'+new Date(a.t).toLocaleString('nl-BE')+'</time></div></li>'}).join('')+'</ul></details>':''),
+   '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn subtle" onclick="closeM();vDeal(\''+id+'\')">Volledige fiche</button><button class="btn" onclick="puSave()">✓ Opslaan</button>');
+  if(kanaal){var b=document.querySelector('#pu_k button[data-v="'+kanaal+'"]');if(b)b.classList.add('on')}
+  setTimeout(function(){var t=document.getElementById('pu_note');if(t&&window.innerWidth>760)t.focus()},80)}
+function puPick(key,btn){var set=btn.parentNode;var was=btn.classList.contains('on');set.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});if(!was)btn.classList.add('on');var v=was?null:btn.getAttribute('data-v');
+  if(key==='k')PU.kanaal=v||'';
+  if(key==='r'){PU.res=v||'';var r=PU_RES.filter(function(x){return x[0]===v})[0];if(r){document.getElementById('pu_stage').value=r[1];
+      if(r[2])document.getElementById('pu_actie').value=r[2];
+      if(r[3]){document.getElementById('pu_date').value=plusDays(today(),r[3]);document.querySelectorAll('#pu_f button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===String(r[3]))})}
+      else{document.getElementById('pu_date').value='';document.getElementById('pu_actie').value=''}
+      if(!PU.kanaal&&v!=='Klant geworden'){}}}
+  if(key==='f'){document.getElementById('pu_date').value=v?plusDays(today(),parseInt(v,10)):''}}
+function puSave(){var d=DATA.deals.find(function(x){return x.id===PU.id});if(!d)return;
+  var note=(document.getElementById('pu_note').value||'').trim();var st=document.getElementById('pu_stage').value;
+  var actie=(document.getElementById('pu_actie').value||'').trim();var dt=document.getElementById('pu_date').value||'';
+  var parts=[];
+  if(PU.kanaal){(d.contacten=d.contacten||[]).push({t:Date.now(),kanaal:PU.kanaal});d.kanaal=PU.kanaal;d.laatstContact=today();parts.push({WhatsApp:'💬',Gebeld:'📞','E-mail':'✉',Langsgegaan:'🚶'}[PU.kanaal]+' '+PU.kanaal);logAct(PU.kanaal+' bij '+d.naam)}
+  if(PU.res)parts.push(PU.res);
+  if(note)parts.push('“'+note+'”');
+  if(actie!==(d.volgendeActie||'')||dt!==(d.follow||'')){d.volgendeActie=actie;d.follow=dt;if(dt||actie)parts.push('Volgende: '+(actie||'opvolgen')+(dt?' op '+fmtD(dt):''))}
+  if(PU.kanaal&&st==='nieuw')st='gecontacteerd';
+  if(parts.length){var e={t:Date.now(),txt:parts.join(' · ')};if(note)e.note=note;(d.log=d.log||[]).push(e)}
+  if(!dt&&PU.kanaal&&st==='gecontacteerd'&&!PU.res){d.follow=plusDays(today(),3);d.volgendeActie=d.volgendeActie||'Opvolgen'}
+  if(st==='verloren'||st==='gewonnen'){if(st!==d.stage){d.follow='';d.volgendeActie=''}}
+  closeM();
+  if(st!==d.stage){setStage(d.id,st);saveData();if(st!=='gewonnen'&&VIEW==='pipeline')rPipeline()}
+  else{try{atPushOne(d)}catch(e){}saveData();if(VIEW==='pipeline')rPipeline();else go(VIEW)}
+  toast('✅ '+d.naam+' bijgewerkt')}
+/* notities zichtbaar in de fiche + knop */
+(function(){var _v=vDeal;vDeal=function(id){_v(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.pupdbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn sm pupdbtn" style="background:#FBBF24;color:#111" onclick="pUpd(\''+id+'\')">📝 Update / notitie</button>')}})();
+
+
+
+(function(){var _g=go;go=function(v){try{main().classList.remove('p3top')}catch(e){}return _g.apply(this,arguments)}})();
+/* ===== Garages: meerprijs occasiemodule (zelf wagens online zetten) ===== */
+(function(){function ensure(){if(!DATA||!DATA.products)return;if(DATA.products.some(function(p){return /occasiemodule/i.test(p.name||'')}))return;
+  DATA.products.push({id:nid('p'),name:'Occasiemodule (zelf wagens online zetten)',cat:'Modules',unit:'stuk',price:170,desc:'Beheerpagina waarop je zelf wagens toevoegt, aanpast of als verkocht markeert: foto’s, prijs, bouwjaar, kilometerstand, brandstof en opties. Met overzicht, filters en een contactknop per wagen.'});saveData()}
+ var _e=enterApp;enterApp=function(){_e();setTimeout(ensure,4000)}})();
+function isCarDealer(x){var t=((x.cat||'')+' '+(x.sector||'')+' '+(x.naam||x.name||'')).toLowerCase();return /garage|auto|occasion|car dealer|dealer|wagen|autobedrijf|car repair|used car/.test(t)&&!/carwash|car wash|band|polijst|detailing|verhuur/.test(t)}
+function priceCars(){return priceOf(/^occasiemodule/i,'€170')}
+function carLine(x){var naam=x.naam||x.name||'jullie zaak';return 'Verkopen jullie ook wagens? Dan kan ik er een occasiemodule bij zetten, zodat jullie zelf wagens online plaatsen met foto’s, prijs en kilometerstand, zonder mij te moeten bellen. Dat kost '+priceCars()+' extra (excl. btw), ook eenmalig.'}
+function carInsert(txt,x){var m=/\n\n(Zal ik gratis|Ik maak gerust)/.exec(txt);if(!m)return txt+'\n\n'+carLine(x);return txt.slice(0,m.index)+'\n\n'+carLine(x)+txt.slice(m.index)}
+(function(){var _w=waMsg;waMsg=function(x){var s=_w(x);try{if(dealSeg(x)!=='it'&&isCarDealer(x))s=carInsert(s,x)}catch(e){}return s};
+ var _m=mailMsg;mailMsg=function(x){var o=_m(x);try{if(dealSeg(x)!=='it'&&isCarDealer(x))o.body=carInsert(o.body,x)}catch(e){}return o}})();
+
 </script>
 </body>
 </html>
