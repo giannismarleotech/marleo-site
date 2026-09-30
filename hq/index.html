@@ -408,6 +408,29 @@ body{-webkit-text-size-adjust:100%}
 .docicon{font-size:32px;margin-bottom:12px}
 .doccard h3{font-family:var(--disp);font-size:1.15rem;margin-bottom:6px}
 .doccard p{color:var(--muted);font-size:.9rem;line-height:1.55}
+
+/* ===== Mobiel: nettere verhoudingen ===== */
+@media(max-width:760px){
+ .taskpop{left:12px!important;right:12px!important;bottom:calc(74px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;z-index:90!important}
+ .taskpop .tp-item,.taskpop .tp-more,.taskpop .tp-all{display:none!important}
+ .taskpop .tp-head{cursor:pointer;padding:11px 14px}
+ body:has(.modal-backdrop.open) .taskpop,body:has(#sbBack.open) .taskpop{display:none!important}
+ main,#main,.main{padding-bottom:110px!important}
+ .topbar{flex-wrap:wrap!important;gap:10px!important;align-items:flex-start!important}
+ .topbar>div:first-child{flex:1 1 100%;min-width:0}
+ .topbar .btn,.topbar button{white-space:nowrap}
+ .modal{max-height:92vh!important}
+ .modal-body{padding-bottom:12px}
+ .modal-foot{flex-wrap:wrap;gap:8px}
+ .modal-foot .btn{flex:1 1 calc(50% - 8px);justify-content:center;padding:8px 6px!important;font-size:.8rem!important;min-height:38px}
+ .modal-foot{max-height:34vh;overflow:auto}
+ #gs_out{max-height:60vh!important}
+ #gs_in{font-size:16px!important}
+ input,select,textarea{font-size:16px!important}
+ .card,.panelbox{padding-left:14px;padding-right:14px}
+ table{font-size:.85rem}
+ h2{font-size:1.5rem}
+}
 </style>
 </head>
 <body>
@@ -5885,6 +5908,8 @@ function ensureClose(t){var s=sigStrip(String(t||''));var last=s.split('\n').fil
   r.body=ensureClose(utLinks(b));return r}})();
 setTimeout(function(){try{if(!DATA.emailtemplates||DATA.tplFix2)return;var rep=[['\nGroeten,\nGiannis Baert','\nMet vriendelijke groeten,\nGiannis Baert'],['stuurde ik u een bericht','stuurde ik jullie een bericht'],['vindt u in bijlage','vind je in bijlage'],['ontvangt u de voorschotfactuur','ontvangen jullie de voorschotfactuur'],['Bedankt!\nGiannis · Marleo','Bedankt en met vriendelijke groeten,\nGiannis · Marleo']];
   DATA.emailtemplates.forEach(function(t){rep.forEach(function(r){t.body=String(t.body).split(r[0]).join(r[1])});if(/^Re: Korte security-check/.test(t.subject))t.subject=t.subject.replace(/^Re: Korte/,'Opvolging: korte')});DATA.tplFix2=1;saveData()}catch(e){}},4000);
+
+document.addEventListener('click',function(e){var h=e.target.closest&&e.target.closest('.taskpop .tp-head');if(h&&!e.target.closest('.tp-x')&&window.innerWidth<=760){var t=document.getElementById('taskPop');if(t)t.remove();go('tasks')}});
 
 </script>
 </body>
