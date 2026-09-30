@@ -5002,7 +5002,7 @@ function ag2Combo(){var sel=document.getElementById('a_who');if(!sel||document.g
 
 /* ================= Online boeken + beschikbaarheid + privé afspraken ================= */
 var BKDEF={on:true,hours:{'1':[['09:00','12:00'],['13:00','17:00']],'2':[['09:00','12:00'],['13:00','17:00']],'3':[['09:00','12:00'],['13:00','17:00']],'4':[['09:00','12:00'],['13:00','17:00']],'5':[['09:00','12:00'],['13:00','16:00']]},dur:30,buffer:15,notice:12,horizon:30,kinds:['meet','tel'],auto:false,meetLink:'',intro:'Gratis en vrijblijvend kennismakingsgesprek van 30 minuten',blocks:[]};
-function bkCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.booking)DATA.settings.booking=JSON.parse(JSON.stringify(BKDEF));var c=DATA.settings.booking;if(!c.blocks)c.blocks=[];if(!c.hours)c.hours={};return c}
+function bkCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.booking)DATA.settings.booking=JSON.parse(JSON.stringify(BKDEF));var c=DATA.settings.booking;if(!c.migrated){c.on=true;c.migrated=true;if(c.auto===undefined)c.auto=false}if(!c.blocks)c.blocks=[];if(!c.hours)c.hours={};return c}
 function bkMin(t){var p=String(t||'0:0').split(':');return (+p[0]||0)*60+(+p[1]||0)}
 var BKTIMER=null;
 function bkPushSoon(){clearTimeout(BKTIMER);BKTIMER=setTimeout(bkPush,1500)}
