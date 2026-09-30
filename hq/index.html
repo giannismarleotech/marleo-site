@@ -4668,6 +4668,153 @@ function carInsert(txt,x){var m=/\n\n(Zal ik gratis|Ik maak gerust)/.exec(txt);i
 (function(){var _w=waMsg;waMsg=function(x){var s=_w(x);try{if(dealSeg(x)!=='it'&&isCarDealer(x))s=carInsert(s,x)}catch(e){}return s};
  var _m=mailMsg;mailMsg=function(x){var o=_m(x);try{if(dealSeg(x)!=='it'&&isCarDealer(x))o.body=carInsert(o.body,x)}catch(e){}return o}})();
 
+
+/* ===================================================================
+   LEAD TOEVOEGEN v2: situatie aanvinken + live persoonlijk bericht
+   =================================================================== */
+var SITS=[
+ ['geen','Geen website'],['social','Enkel Facebook / Instagram'],['oud','Website verouderd'],['mobiel','Niet goed op gsm'],
+ ['kapot','Website werkt niet'],['traag','Website traag'],['onvindbaar','Slecht vindbaar op Google'],['gprofiel','Google-profiel onvolledig'],
+ ['goedrev','Sterke reviews'],['weinigrev','Weinig reviews'],['reserv','Geen online reservatie / afspraken'],['shop','Verkoopt producten, geen webshop'],
+ ['mail','Geen eigen e-mailadres (gmail/hotmail)'],['nieuw','Pas gestart'],['ok','Website is in orde']];
+var SECTORS=['Kapper / barbier','Schoonheidssalon / nagels','Restaurant / café','Bakker / traiteur','Frituur / snack','Bouw / renovatie','Schilder','Elektricien / loodgieter','Dakwerken','Tuinaanleg','Garage / autohandel','Carwash / detailing','Poetsdienst','Winkel / boetiek','Fitness / coach','Fotograaf','Boekhouder / advocaat','Immo','Hotel / B&B','Anders'];
+var BRONNEN=[['maps','Google Maps'],['fb','Facebook'],['ig','Instagram'],['voorbij','Voorbij gereden / langsgegaan'],['viavia','Via via / aanbeveling'],['kbo','Nieuw bedrijf (KBO)'],['anders','Anders']];
+var LF2={sit:{},seg:'web'};
+(function(){var st=document.createElement('style');st.textContent=
+ '.sitchips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 4px}.sitchips button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:20px;padding:7px 12px;font-size:.82rem;cursor:pointer}'+
+ '.sitchips button.on{background:#FBBF24;color:#111;border-color:#FBBF24;font-weight:700}'+
+ '.lf2grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px}'+
+ '.lf2prev{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px;position:sticky;top:0}'+
+ '.lf2prev pre{white-space:pre-wrap;font-family:inherit;font-size:.84rem;line-height:1.5;margin:8px 0 0;max-height:52vh;overflow:auto;color:var(--text)}'+
+ '.lf2tabs{display:flex;gap:6px}.lf2tabs button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:6px;font-size:.8rem;cursor:pointer}.lf2tabs button.on{color:var(--text);border-color:#FBBF24}'+
+ '.sitpills{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}.sitpills span{font-size:.7rem;padding:2px 8px;border-radius:12px;background:rgba(251,191,36,.14);color:#FBBF24;border:1px solid rgba(251,191,36,.35)}'+
+ '@media(max-width:820px){.lf2grid{grid-template-columns:1fr}.lf2prev{position:static}}';
+ document.head.appendChild(st)})();
+
+function sitFromLegacy(d){var s={};if(!d)return s;var h=leadHay(d);var k=leadSituation(d);
+  if(k==='geen')s.geen=1;if(k==='social')s.social=1;if(k==='kapot')s.kapot=1;if(k==='oud')s.oud=1;if(k==='ok')s.ok=1;
+  if(/niet mobiel/.test(h))s.mobiel=1;var r=parseFloat(String(d.rating||'').replace(',','.'))||0,n=parseInt(d.reviews)||0;if(r>=4.3&&n>=8)s.goedrev=1;else if(n&&n<8)s.weinigrev=1;
+  if(/nieuw bedrijf/i.test(d.cat||'')||d.bron==='KBO')s.nieuw=1;return s}
+
+mDeal=function(id){var d=id?DATA.deals.find(function(x){return x.id===id}):null;
+  LF2.sit={};(d&&d.sit&&d.sit.length?d.sit:Object.keys(sitFromLegacy(d))).forEach(function(k){LF2.sit[k]=1});
+  LF2.seg=d?dealSeg(d):'web';LF2.tab='wa';
+  var v=function(k){return esc(d&&d[k]!=null?String(d[k]):'')};
+  var catVal=d?d.cat||'':'';
+  openM(id?'Lead bewerken':'Lead toevoegen',
+  '<div class="lf2grid"><div>'+
+  '<div class="frow"><div class="fgroup"><label>Naam zaak *</label><input id="d_naam" value="'+v('naam')+'" oninput="lf2Prev()"></div><div class="fgroup"><label>Voornaam contactpersoon</label><input id="d_contact" value="'+v('contact')+'" placeholder="bv. Jan" oninput="lf2Prev()"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Sector</label><input id="d_cat" list="lf2sect" value="'+esc(catVal)+'" placeholder="Kies of typ…" oninput="lf2Prev()"><datalist id="lf2sect">'+SECTORS.map(function(s){return '<option value="'+esc(s)+'">'}).join('')+'</datalist></div><div class="fgroup"><label>Gemeente</label><input id="d_plaats" value="'+v('plaats')+'" oninput="lf2Prev()"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Telefoon</label><input id="d_tel" value="'+v('tel')+'"></div><div class="fgroup"><label>E-mail</label><input id="d_mail" value="'+v('email')+'" oninput="lf2Prev()"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Website (als ze er een hebben)</label><input id="d_web" value="'+v('website')+'" placeholder="www.…" oninput="lf2Prev()"></div><div class="fgroup"><label>Waar gezien?</label><select id="d_bron" onchange="lf2Prev()"><option value="">–</option>'+BRONNEN.map(function(b){return '<option value="'+b[0]+'" '+(d&&d.seen===b[0]?'selected':'')+'>'+b[1]+'</option>'}).join('')+'</select></div></div>'+
+  '<label>Type klant</label><div class="sitchips" id="lf2seg">'+[['web','🌐 Website / kleine zaak'],['it','🛡️ IT & bedrijf']].map(function(s){return '<button type="button" data-k="'+s[0]+'" class="'+(LF2.seg===s[0]?'on':'')+'" onclick="lf2Seg(\''+s[0]+'\')">'+s[1]+'</button>'}).join('')+'</div>'+
+  '<label style="margin-top:8px;display:block">Situatie (vink aan wat je zag)</label><div class="sitchips" id="lf2sit">'+SITS.map(function(s){return '<button type="button" data-k="'+s[0]+'" class="'+(LF2.sit[s[0]]?'on':'')+'" onclick="lf2Sit(\''+s[0]+'\')">'+s[1]+'</button>'}).join('')+'</div>'+
+  '<div class="frow"><div class="fgroup"><label>Google-score (optioneel)</label><input id="d_rating" value="'+v('rating')+'" placeholder="4,8" oninput="lf2Prev()"></div><div class="fgroup"><label>Aantal reviews</label><input id="d_reviews" type="number" value="'+v('reviews')+'" oninput="lf2Prev()"></div></div>'+
+  '<div class="fgroup"><label>Wat viel je op? (komt letterlijk in je bericht)</label><input id="d_obs" value="'+v('obs')+'" placeholder="bv. jullie taarten zien er echt top uit op Instagram" oninput="lf2Prev()"></div>'+
+  '<div class="frow"><div class="fgroup"><label>Fase</label><select id="d_stage">'+STAGES.map(function(st){return '<option value="'+st[0]+'" '+((d?d.stage:'nieuw')===st[0]?'selected':'')+'>'+st[1]+'</option>'}).join('')+'</select></div><div class="fgroup"><label>Waarde €</label><input id="d_val" type="number" value="'+(d?d.value:279)+'"></div><div class="fgroup"><label>Opvolgen op</label><input id="d_follow" type="date" value="'+v('follow')+'"></div></div>'+
+  '<div class="fgroup"><label>Interne notitie</label><textarea id="d_note" rows="2">'+v('note')+'</textarea></div>'+
+  '</div><div><div class="lf2prev"><div class="lf2tabs"><button id="lf2t_wa" class="on" onclick="LF2.tab=\'wa\';lf2Prev()">💬 WhatsApp</button><button id="lf2t_mail" onclick="LF2.tab=\'mail\';lf2Prev()">✉ E-mail</button></div><pre id="lf2pre"></pre><div style="display:flex;gap:6px;margin-top:8px"><button class="btn sm subtle" onclick="lf2Copy()">📋 Kopieer</button></div><div class="hint" style="margin:6px 0 0">Past zich live aan terwijl je aanvinkt en invult.</div></div></div></div>',
+  '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveDeal(\''+(id||'')+'\')">Opslaan</button>',true);
+  lf2Prev()};
+function lf2Seg(k){LF2.seg=k;document.querySelectorAll('#lf2seg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-k')===k)});lf2Prev()}
+function lf2Sit(k){LF2.sit[k]=!LF2.sit[k];
+  var excl={geen:['oud','mobiel','kapot','traag','ok'],ok:['geen','kapot','oud'],goedrev:['weinigrev'],weinigrev:['goedrev']};
+  if(LF2.sit[k]&&excl[k])excl[k].forEach(function(x){delete LF2.sit[x]});
+  if(LF2.sit[k]&&['oud','mobiel','kapot','traag'].indexOf(k)>=0){delete LF2.sit.geen;delete LF2.sit.ok}
+  document.querySelectorAll('#lf2sit button').forEach(function(b){b.classList.toggle('on',!!LF2.sit[b.getAttribute('data-k')])});lf2Prev()}
+function lf2Read(){var g=function(i){var e=document.getElementById(i);return e?e.value.trim():''};
+  return {naam:g('d_naam'),contact:g('d_contact'),cat:g('d_cat'),plaats:g('d_plaats'),tel:g('d_tel'),email:g('d_mail'),website:g('d_web'),seen:g('d_bron'),
+   rating:g('d_rating'),reviews:g('d_reviews'),obs:g('d_obs'),sit:Object.keys(LF2.sit).filter(function(k){return LF2.sit[k]}),segment:LF2.seg}}
+function lf2Prev(){var x=lf2Read();if(!x.naam)x.naam='[naam zaak]';var pre=document.getElementById('lf2pre');if(!pre)return;
+  ['wa','mail'].forEach(function(t){var b=document.getElementById('lf2t_'+t);if(b)b.classList.toggle('on',LF2.tab===t)});
+  if(LF2.tab==='mail'){var m=mailMsg(x);pre.textContent='Onderwerp: '+m.subject+'\n\n'+m.body}else pre.textContent=waMsg(x)}
+function lf2Copy(){var t=document.getElementById('lf2pre').textContent;navigator.clipboard.writeText(t).then(function(){toast('Bericht gekopieerd')})}
+saveDeal=function(id){var x=lf2Read();if(!x.naam){toast('Naam is verplicht',true);return}
+  var o={naam:x.naam,contact:x.contact,cat:x.cat,plaats:x.plaats,tel:x.tel,email:x.email,website:x.website,seen:x.seen,rating:x.rating,reviews:x.reviews,obs:x.obs,sit:x.sit,segment:x.segment,
+    value:parseFloat(document.getElementById('d_val').value)||0,stage:document.getElementById('d_stage').value,follow:document.getElementById('d_follow').value,note:document.getElementById('d_note').value.trim()};
+  o.online=x.sit.indexOf('geen')>=0?'Geen website':x.sit.indexOf('social')>=0?'Enkel Facebook/Instagram':x.sit.indexOf('kapot')>=0?'Website werkt niet':(x.sit.indexOf('oud')>=0||x.sit.indexOf('mobiel')>=0)?'Website verouderd':(x.website?'Heeft website':'');
+  if(id){var d=DATA.deals.find(function(q){return q.id===id});Object.assign(d,o);(d.log=d.log||[]).push({t:Date.now(),txt:'Gegevens/situatie bijgewerkt'});try{atPushOne(d)}catch(e){}}
+  else{o.id=nid('deal');o.log=[{t:Date.now(),txt:'Lead handmatig toegevoegd'+(x.seen?' (gezien via '+(BRONNEN.filter(function(b){return b[0]===x.seen})[0]||[,''])[1]+')':'')}];o.created=Date.now();o.bron='handmatig';DATA.deals.push(o);logAct('Nieuwe lead: '+o.naam)}
+  saveData();closeM();toast(id?'Lead bijgewerkt':'✅ Lead toegevoegd');if(VIEW==='pipeline')rPipeline();else go(VIEW)};
+
+/* ---------- Berichten v4: gebouwd op de aangevinkte situatie ---------- */
+function has(x,k){return (x.sit||[]).indexOf(k)>=0}
+function sectorWord(x){var c=(x.cat||'').toLowerCase();var m={kapper:'kapper',barb:'barbier',schoonheid:'schoonheidssalon',nagel:'nagelstudio',restaurant:'restaurant',caf:'café',bakker:'bakker',traiteur:'traiteur',frituur:'frituur',bouw:'renovatie',renov:'renovatie',schilder:'schilder',elektr:'elektricien',loodgiet:'loodgieter',dak:'dakwerker',tuin:'tuinaannemer',garage:'garage',auto:'garage',carwash:'carwash',detail:'car detailing',poets:'poetsdienst',winkel:'winkel',boetiek:'boetiek',fitness:'personal trainer',coach:'coach',fotograaf:'fotograaf',boekhoud:'boekhouder',advoca:'advocaat',immo:'immokantoor',hotel:'hotel','b&b':'B&B'};
+  for(var k in m)if(c.indexOf(k)>=0)return m[k];return ''}
+function capF(s){s=String(s||'').trim();if(!s)return '';s=s.charAt(0).toUpperCase()+s.slice(1);return /[.!?]$/.test(s)?s:s+'.'}
+function v4Opener(x,naam,stad){var o={maps:'Ik kwam '+naam+' tegen op Google Maps',fb:'Ik zag '+naam+' op Facebook',ig:'Ik zag jullie Instagram',voorbij:'Ik kwam onlangs voorbij jullie zaak',viavia:'Ik hoorde via via over '+naam,kbo:'Ik zag dat '+naam+' pas gestart is'}[x.seen]||'';
+  var obs=String(x.obs||'').trim();
+  if(o&&obs)return o+', en '+obs.replace(/\.$/,'')+'.';
+  if(o)return o+'.';if(obs)return capF(obs);return ''}
+function v4Problems(x,naam,stad){var p=[];var sw=sectorWord(x);
+  if(has(x,'kapot'))p.push('Alleen: jullie website laadt niet (goed). Wie erop klikt, haakt meteen af.');
+  else if(has(x,'geen')&&has(x,'social'))p.push('Ik vond wel jullie Facebook of Instagram, maar geen eigen website. Wie jullie via Google zoekt, vindt dus weinig.');
+  else if(has(x,'geen'))p.push('Alleen vond ik geen eigen website. Wie jullie zoekt, komt enkel op Google Maps terecht en ziet niet wat jullie allemaal doen.');
+  else if(has(x,'social'))p.push('Jullie werken vooral via Facebook of Instagram. Wie daar niet zit, vindt jullie op Google moeilijk.');
+  var iss=[];if(has(x,'oud'))iss.push('oogt wat verouderd');if(has(x,'mobiel'))iss.push('werkt niet goed op gsm');if(has(x,'traag'))iss.push('laadt traag');
+  if(iss.length)p.push('Jullie website '+iss.join(' en ')+'. Meer dan de helft van de mensen kijkt op hun gsm, dus daar gaan klanten verloren.');
+  if(has(x,'onvindbaar')&&p.length<2)p.push('Als ik zoek op "'+(sw||'jullie diensten')+(stad?' '+stad:'')+'", komen jullie niet bovenaan, terwijl jullie concurrenten dat wel doen.');
+  if(has(x,'gprofiel')&&p.length<2)p.push('Jullie Google-profiel is ook nog niet volledig, en daar kijken de meeste mensen eerst.');
+  if(has(x,'reserv')&&p.length<2)p.push('Online reserveren of een afspraak boeken kan nog niet, terwijl veel mensen dat ’s avonds of in het weekend willen doen.');
+  if(has(x,'shop')&&p.length<2)p.push('Jullie producten kunnen nog nergens online besteld worden.');
+  if(has(x,'mail')&&dealSeg(x)==='it'&&p.length<2)p.push('Jullie mailen nog via een gratis adres. Een e-mailadres op jullie eigen domein oogt professioneler en is beter te beveiligen.');
+  return p.slice(0,2)}
+function v4Rev(x,after){var r=parseFloat(String(x.rating||'').replace(',','.'))||0,n=parseInt(x.reviews)||0;
+  if(r>=4.3&&n>=8)return (after?'Jullie ':'Ik zag dat jullie ')+String(r).replace('.',',')+'★ '+(after?'op Google met '+n+' reviews zijn ook knap!':'hebben op Google met '+n+' reviews, knap!');
+  if(has(x,'goedrev'))return 'Jullie reviews op Google zijn trouwens sterk!';return ''}
+function v4Offer(x,it){var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||has(x,'oud')||has(x,'mobiel')||has(x,'traag');
+  var o=[];var ben=has(x,'reserv')?'mensen meteen zien wat jullie doen en jullie makkelijk contacteren':leadBenefit(x);
+  if(need)o.push({t:'een nieuwe website waar '+ben,p:priceOf(/^website op maat/i,'€279')});
+  if(has(x,'reserv'))o.push({t:'online reserveren of afspraken boeken',p:priceOf(/^reservatiemodule/i,'€170'),extra:need});
+  if(has(x,'shop'))o.push(need?{t:'een webshop erbij',p:priceOf(/^webshopmodule/i,'€249'),extra:1}:{t:'een webshop op maat',p:priceOf(/^webshop op maat/i,'€499')});
+  if(typeof isCarDealer==='function'&&isCarDealer(x)&&need)o.push({t:'een occasiemodule om zelf wagens online te zetten, als jullie ook wagens verkopen',p:priceOf(/^occasiemodule/i,'€170'),extra:1});
+  if(has(x,'gprofiel'))o.push({t:'jullie Google-profiel volledig in orde',p:priceOf(/^google bedrijfsprofiel/i,'€49')});
+  if(has(x,'onvindbaar')||(!need&&!o.length))o.push({t:'beter gevonden worden op Google (SEO)',p:priceOf(/^seo-start/i,'€89'),vanaf:1});
+  if(has(x,'mail'))o.push({t:'een professioneel e-mailadres op jullie eigen naam',p:priceOf(/^professioneel e-mailadres/i,'€29'),jaar:1});
+  return o}
+function v4PriceTxt(i){return (i.extra?'+':'')+(i.vanaf?'vanaf ':'')+i.p+(i.jaar?' per jaar':'')}
+function v4Wa(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var stad=leadCity(x);var hi=vn?'Hallo '+vn+'!':'Hallo!';
+  var it=dealSeg(x)==='it';var out=[];
+  var intro=(has(x,'nieuw')?'Proficiat met de start van '+naam+'! 🎉 ':'')+'Ik ben Giannis van Marleo uit Nevele'+(it?', ik help bedrijven met hun IT en beveiliging.':', ik maak websites voor zelfstandigen en kleine zaken'+(stad?' in de buurt van '+stad:'')+'.');
+  out.push(hi+' '+intro);
+  var op=v4Opener(x,naam,stad);var rev=v4Rev(x,!!op);
+  var pr=v4Problems(x,naam,stad);
+  var para=[op,rev.trim()].filter(Boolean).join(' ');if(para)out.push(para);if(pr.length)out.push(pr.join(' '));
+  var of=v4Offer(x,it);
+  if(it){out.push('Ik doe graag een gratis, korte check van jullie IT en e-mailbeveiliging: waar zitten de risico’s en wat kan beter. Vrijblijvend.');}
+  else if(of.length){var first=of[0];var s='Mijn voorstel: '+first.t+'. Dat kost '+v4PriceTxt(first)+' (excl. btw)'+(first.jaar?'.':', eenmalig, zonder abonnement of verborgen kosten.');
+    var rest=of.slice(1).map(function(i){return i.t+' ('+v4PriceTxt(i)+')'});if(rest.length)s+=' Ook mogelijk: '+rest.join(', ')+'.';out.push(s)}
+  var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||has(x,'oud')||has(x,'mobiel')||has(x,'traag');
+  out.push(it?'Zal ik je even bellen?':(need?'Zal ik gratis een voorbeeld maken voor '+naam+'? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.':'Zal ik je eens kort tonen wat ik zou doen? Vrijblijvend natuurlijk.'));
+  return out.join('\n\n')+'\n\nGroeten,\nGiannis · Marleo'}
+function v4Mail(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var stad=leadCity(x);var it=dealSeg(x)==='it';
+  var tel=((typeof coCfg==='function'?coCfg().phone:'')||'+32 456 92 00 25');
+  var sign='\n\nMet vriendelijke groeten,\n\nGiannis Baert\nMarleo – websites & IT\n'+tel+' · giannis@marleo.tech\nmarleo.tech';
+  var subj=has(x,'kapot')?'De website van '+naam+' laadt niet':has(x,'geen')?'Een website voor '+naam+'?':has(x,'social')?naam+' ook buiten Facebook vinden':(has(x,'oud')||has(x,'mobiel')||has(x,'traag'))?'Een frissere website voor '+naam+'?':has(x,'reserv')?'Online reserveren bij '+naam+'?':has(x,'onvindbaar')?naam+' beter vindbaar op Google':has(x,'nieuw')?'Proficiat met de start van '+naam+'!':'Een idee voor '+naam;
+  var b=[(vn?'Dag '+vn+',':'Dag,')];
+  b.push((has(x,'nieuw')?'Proficiat met de start van '+naam+'! ':'')+'Ik ben Giannis van Marleo uit Nevele. '+(it?'Ik help bedrijven met hun IT en beveiliging.':'Ik maak websites voor zelfstandigen en kleine zaken'+(stad?' in de buurt van '+stad:'')+'.'));
+  var op=v4Opener(x,naam,stad);var rev=v4Rev(x,!!op);var p1=[op,rev.trim()].filter(Boolean).join(' ');if(p1)b.push(p1);
+  var pr=v4Problems(x,naam,stad);if(pr.length)b.push(pr.join(' '));
+  var of=v4Offer(x,it);
+  if(!it&&of.length)b.push('Wat ik voorstel:\n'+of.map(function(i){return '• '+i.t.charAt(0).toUpperCase()+i.t.slice(1)+': '+v4PriceTxt(i)+(i.jaar?'':' eenmalig')}).join('\n')+'\n\nAlle prijzen zijn excl. btw, zonder abonnement of verborgen kosten.');
+  if(it)b.push('Ik doe graag een gratis, korte check van jullie IT en e-mailbeveiliging: waar zitten de risico’s en wat kan beter. Past een gesprek van 10 minuten deze week?');
+  else{var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||has(x,'oud')||has(x,'mobiel')||has(x,'traag');
+    b.push(need?'Ik maak gerust eerst een gratis voorbeeld voor '+naam+', zodat je ziet hoe het eruitziet. Antwoorden op deze mail volstaat.':'Zal ik je kort tonen wat ik zou aanpassen? Antwoorden op deze mail volstaat.')}
+  return {subject:subj,body:b.join('\n\n')+sign}}
+(function(){var _w=waMsg,_m=mailMsg;
+  waMsg=function(x){if(x&&((x.sit&&x.sit.length)||x.obs||x.seen))return v4Wa(x);return _w(x)};
+  mailMsg=function(x){if(x&&((x.sit&&x.sit.length)||x.obs||x.seen))return v4Mail(x);return _m(x)}})();
+
+/* situatie zichtbaar in de fiche + knop om te bewerken */
+(function(){var _v=vDeal;vDeal=function(id){_v(id);var d=DATA.deals.find(function(x){return x.id===id});if(!d)return;
+  var body=document.getElementById('mBody');var sit=(d.sit&&d.sit.length)?d.sit:Object.keys(sitFromLegacy(d));
+  if(body&&!body.querySelector('.sitbox')){var h='<div class="sitbox" style="margin:0 0 12px"><div class="lbl">Situatie</div><div class="sitpills">'+(sit.length?sit.map(function(k){var s=SITS.filter(function(q){return q[0]===k})[0];return '<span>'+esc(s?s[1]:k)+'</span>'}).join(''):'<span style="opacity:.7">nog niets aangevinkt</span>')+'</div>'+(d.obs?'<div class="hint" style="margin:6px 0 0">Opgevallen: '+esc(d.obs)+'</div>':'')+'</div>';body.insertAdjacentHTML('afterbegin',h)}
+  if(body)body.innerHTML=body.innerHTML.replace(/>, </g,'>–<');
+  var f=document.getElementById('mFoot');if(f){f.classList.add('dealfoot');f.querySelectorAll('button').forEach(function(b){if(b.textContent.trim()==='Bewerken')b.innerHTML='✅ Situatie &amp; gegevens'})}}})();
+(function(){var st=document.createElement('style');st.textContent='#mFoot.dealfoot{flex-wrap:wrap;gap:6px;justify-content:flex-end}#mFoot.dealfoot .btn{padding:8px 12px;font-size:.8rem;min-height:0}';document.head.appendChild(st)})();
+/* knoppen hernoemen */
+(function(){var _r=rPipeline;rPipeline=function(){_r();main().querySelectorAll('.topbar button').forEach(function(b){if(/Nieuwe deal/.test(b.textContent))b.textContent='+ Lead toevoegen'})}})();
+
 </script>
 </body>
 </html>
