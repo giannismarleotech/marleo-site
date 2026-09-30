@@ -4771,8 +4771,8 @@ function v4Offer(x,it){var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||
   if(has(x,'gprofiel'))o.push({t:'jullie Google-profiel volledig in orde',p:priceOf(/^google bedrijfsprofiel/i,'€49')});
   if(has(x,'onvindbaar')||(!need&&!o.length))o.push({t:'beter gevonden worden op Google (SEO)',p:priceOf(/^seo-start/i,'€89'),vanaf:1});
   if(has(x,'mail'))o.push({t:'een professioneel e-mailadres op jullie eigen naam',p:priceOf(/^professioneel e-mailadres/i,'€29'),jaar:1});
-  return o}
-function v4ResaNote(x){return has(x,'reserv')?'Let op: de reservatiemodule (op maat) komt bovenop de website en kost dus extra, zoals bij Pain du Mie, waar we ook een reservatie op maat bouwden.':''}
+  return o.filter(function(i){return !i.extra})}
+function v4ResaNote(x){return ''}
 function v4PriceTxt(i){return (i.extra?'+':'')+(i.vanaf?'vanaf ':'')+i.p+(i.jaar?' per jaar':'')}
 function v4Wa(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var stad=leadCity(x);var hi=vn?'Hallo '+vn+'!':'Hallo!';
   var it=dealSeg(x)==='it';var out=[];
