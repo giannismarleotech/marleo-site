@@ -5488,7 +5488,7 @@ function mxDesired(){var mc=bkMailCfg(),out=[],now=Date.now(),t=ag2Today();
 var MXSYNC=false;
 async function mxSyncQueue(){if(MXSYNC||!MXSRV.ready||!sb||!CLOUD||!CLOUD.uid)return;MXSYNC=true;try{
   var since=new Date(Date.now()-864e5).toISOString();
-  var r=await sb.from('mail_queue').select('id,appt_id,kind,send_at,sig,status').in('status',['pending','sending','sent']).gte('send_at',since);if(r.error)throw r.error;
+  var r=await sb.from('mail_queue').select('id,appt_id,kind,send_at,sig,status').in('kind',['rem','rem30']).in('status',['pending','sending','sent']).gte('send_at',since);if(r.error)throw r.error;
   var rows=r.data||[],want=mxDesired(),keep={};
   for(var i=0;i<want.length;i++){var w=want[i],m=mxBuild(w.kind,w.a),sig=mxHash(m.html+'|'+new Date(w.at).toISOString());
     var hit=rows.filter(function(x){return x.appt_id===w.a.id&&x.kind===w.kind&&x.sig===sig})[0];
@@ -5517,6 +5517,87 @@ function mxFromSel(o){var g=gCfg(),pers=esc((g.fromName||'Giannis Baert')+' <'+(
     var r=await sb.functions.invoke('mailer',{body:{action:'send',mail:{to:o.to,subject:o.subject,html:html,text:txt,attach:o.attach}}});
     if(r&&r.data&&r.data.ok)return r.data;throw new Error((r&&r.data&&r.data.error)||(r&&r.error&&r.error.message)||'Resend fout')}
   return _g(o)}})();
+
+/* ================= E-mailmarketing: campagnes met opvolging ================= */
+var CAMP={list:[],rows:[],unsub:[],loaded:false};
+function cpEsc(s){return esc(s==null?'':s)}
+async function cpLoad(){if(!sb||!CLOUD||!CLOUD.uid)return;
+  var a=await sb.from('campaigns').select('*').order('created_at',{ascending:false});CAMP.list=a.data||[];
+  var b=await sb.from('mail_queue').select('id,campaign_id,deal_id,to_email,status,error,send_at,sent_at,delivered_at,opened_at,clicked_at,opens,clicks,bounced,complained').not('campaign_id','is',null).limit(5000);CAMP.rows=b.data||[];
+  var c=await sb.from('mail_unsub').select('*').order('created_at',{ascending:false});CAMP.unsub=c.data||[];CAMP.loaded=true}
+function cpStats(id){var r=CAMP.rows.filter(function(x){return x.campaign_id===id});
+  var s={tot:r.length,gepland:0,verstuurd:0,afgeleverd:0,geopend:0,geklikt:0,bounce:0,klacht:0,afgemeld:0,mislukt:0};
+  r.forEach(function(x){if(x.status==='pending'||x.status==='sending')s.gepland++;if(x.status==='sent')s.verstuurd++;if(x.delivered_at)s.afgeleverd++;if(x.opened_at)s.geopend++;if(x.clicked_at)s.geklikt++;if(x.bounced)s.bounce++;if(x.complained)s.klacht++;if(x.status==='cancelled'&&x.error==='afgemeld')s.afgemeld++;if(x.status==='failed')s.mislukt++});return s}
+async function rCampagnes(){
+  main().innerHTML='<div class="topbar"><div><h2>Campagnes</h2><div class="sub">E-mailmarketing naar je leads, met opvolging van geopend, geklikt en afgemeld</div></div><button class="btn" onclick="mCamp()">+ Nieuwe campagne</button></div><div class="card" style="padding:16px">Laden…</div>';
+  try{await cpLoad()}catch(e){}
+  var warn=MXSRV.ready?'':'<div class="card" style="border-color:#FBBF24;margin-bottom:12px"><b style="color:#FBBF24">Resend is nog niet actief.</b> Campagnes worden pas verstuurd zodra de Resend-sleutel in Supabase staat.</div>';
+  var h='<div class="topbar"><div><h2>Campagnes</h2><div class="sub">E-mailmarketing naar je leads, met opvolging van geopend, geklikt en afgemeld</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="cpUnsubList()">🚫 Afgemeld ('+CAMP.unsub.length+')</button><button class="btn" onclick="mCamp()">+ Nieuwe campagne</button></div></div>'+warn;
+  if(!CAMP.list.length)h+='<div class="card" style="padding:22px;text-align:center;color:var(--muted)">Nog geen campagnes. Maak er één: kies wie je wil mailen, schrijf je bericht en het systeem verstuurt het gespreid, elke dag een beperkt aantal.</div>';
+  CAMP.list.forEach(function(c){var s=cpStats(c.id),pct=function(n){return s.verstuurd?Math.round(100*n/s.verstuurd)+'%':'–'};
+    h+='<div class="card" style="margin-bottom:12px;padding:16px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b style="font-size:1.05rem">'+cpEsc(c.name)+'</b><div style="color:var(--muted);font-size:.85rem">'+cpEsc(c.subject)+' · '+new Date(c.created_at).toLocaleDateString('nl-BE')+' · max '+c.daily_limit+'/dag</div></div><div style="display:flex;gap:6px"><button class="btn subtle" onclick="cpDetail(\''+c.id+'\')">Details</button>'+(s.gepland?'<button class="btn subtle" onclick="cpStop(\''+c.id+'\')">⏹ Stop</button>':'')+'</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-top:12px">'+[['Gepland',s.gepland],['Verstuurd',s.verstuurd],['Afgeleverd',s.afgeleverd],['Geopend',s.geopend+' ('+pct(s.geopend)+')'],['Geklikt',s.geklikt+' ('+pct(s.geklikt)+')'],['Afgemeld',s.afgemeld],['Bounce',s.bounce],['Spamklacht',s.klacht]].map(function(x){return '<div style="background:var(--track);border-radius:10px;padding:8px 10px"><div style="font-size:.7rem;color:var(--muted)">'+x[0]+'</div><b>'+x[1]+'</b></div>'}).join('')+'</div></div>'});
+  main().innerHTML=h}
+function cpVars(d,t){var first=String(d.contact||'').trim().split(/\s+/)[0]||'';
+  return String(t).replace(/\{aanhef\}/g,first?'Hallo '+first+',':'Hallo,').replace(/\{contact\}/g,first).replace(/\{bedrijf\}/g,d.naam||'').replace(/\{plaats\}/g,d.plaats||'').replace(/\{categorie\}/g,d.cat||'')}
+function cpAudience(f){var used={};CAMP.rows.forEach(function(x){used[String(x.to_email).toLowerCase()]=1});var un={};CAMP.unsub.forEach(function(x){un[x.email]=1});
+  var cust={};(DATA.customers||[]).forEach(function(c){if(c.email)cust[c.email.toLowerCase()]=1});var seen={};
+  return DATA.deals.filter(function(d){var e=String(d.email||'').toLowerCase().trim();if(!e||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)||seen[e])return false;
+    if(un[e]||cust[e])return false;if(!f.again&&used[e])return false;
+    if(f.stage&&f.stage!=='alle'&&d.stage!==f.stage)return false;if(d.stage==='verloren'||d.stage==='gewonnen')return false;
+    if(f.cat&&String(d.cat||'').toLowerCase().indexOf(f.cat.toLowerCase())<0)return false;
+    if(f.plaats&&String(d.plaats||'').toLowerCase().indexOf(f.plaats.toLowerCase())<0)return false;
+    seen[e]=1;return true})}
+function cpFilters(){var g=function(i){var e=document.getElementById(i);return e?e.value.trim():''};return {stage:g('cp_stage'),cat:g('cp_cat'),plaats:g('cp_plaats'),again:(document.getElementById('cp_again')||{}).checked}}
+function cpPrev(){var f=cpFilters(),a=cpAudience(f),n=+document.getElementById('cp_lim').value||20;var el=document.getElementById('cp_count');if(!el)return;
+  el.innerHTML='<b>'+a.length+'</b> ontvangers · verspreid over ongeveer <b>'+Math.max(1,Math.ceil(a.length/n))+'</b> werkdag(en)';
+  var pv=document.getElementById('cp_pv');if(pv){var d=a[0];pv.textContent=d?cpVars(d,document.getElementById('cp_body').value):'(geen ontvangers gevonden met deze filters)'}}
+function mCamp(){
+  var body='<div class="fgroup"><label>Naam (intern)</label><input id="cp_name" placeholder="bv. Kappers Deinze oktober"></div>'+
+  '<div class="frow"><div class="fgroup"><label>Fase van de lead</label><select id="cp_stage" onchange="cpPrev()"><option value="nieuw">Nieuw (nog niet gecontacteerd)</option><option value="alle">Alle fases</option>'+STAGES.filter(function(s){return s[0]!=='nieuw'&&s[0]!=='gewonnen'&&s[0]!=='verloren'}).map(function(s){return '<option value="'+s[0]+'">'+s[1]+'</option>'}).join('')+'</select></div><div class="fgroup"><label>Categorie bevat</label><input id="cp_cat" placeholder="bv. kapper" oninput="cpPrev()"></div><div class="fgroup"><label>Plaats bevat</label><input id="cp_plaats" placeholder="bv. Deinze" oninput="cpPrev()"></div></div>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin:0 0 10px;font-size:.85rem"><input type="checkbox" id="cp_again" style="width:auto" onchange="cpPrev()"> Ook leads die al in een vorige campagne zaten</label>'+
+  '<div id="cp_count" class="hint" style="margin-bottom:10px"></div>'+
+  '<div class="fgroup"><label>Onderwerp</label><input id="cp_sub" placeholder="bv. Een nieuwe website voor {bedrijf}?"></div>'+
+  '<div class="fgroup"><label>Bericht <span style="color:var(--muted);font-weight:400">— {aanhef} {contact} {bedrijf} {plaats} {categorie}</span></label><textarea id="cp_body" oninput="cpPrev()" style="min-height:190px">{aanhef}\n\nIk kwam {bedrijf} tegen en dacht meteen: daar valt online nog winst te halen. Ik help lokale zaken met een snelle, moderne website die klanten oplevert.\n\nHeb je deze week 15 minuten voor een kort gesprek? Je kan zelf een moment kiezen: https://marleo.tech/afspraak/\n\nMet vriendelijke groeten</textarea></div>'+
+  '<div class="fgroup"><label>Voorbeeld (eerste ontvanger)</label><div id="cp_pv" style="white-space:pre-wrap;background:var(--track);border-radius:10px;padding:10px;font-size:.85rem;color:var(--muted);max-height:140px;overflow:auto"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Max. per dag</label><input id="cp_lim" type="number" value="20" min="1" max="100" oninput="cpPrev()"></div><div class="fgroup"><label>Testmail naar</label><input id="cp_test" value="giannis@marleo.tech"></div></div>'+
+  '<div class="hint">Verstuurd van Marleo &lt;info@marleo.tech&gt; op werkdagen tussen 09:00 en 16:30, gespreid. Elke mail bevat je handtekening en een afmeldlink. Afgemelde adressen krijgen nooit meer een campagne.</div>';
+  openM('📧 Nieuwe campagne',body,'<button class="btn subtle" onclick="cpTest()">📨 Stuur test</button><button class="btn" id="cp_go" onclick="cpSchedule()">🚀 Inplannen</button>',true);
+  (async function(){try{if(!CAMP.loaded)await cpLoad()}catch(e){}cpPrev()})()}
+function cpHtml(text){return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(text)+'<br><br>'+SIG_HTML+'</div>'}
+async function cpTest(){var to=document.getElementById('cp_test').value.trim();var a=cpAudience(cpFilters())[0]||{naam:'Voorbeeldbedrijf',contact:'Sarah',plaats:'Deinze',cat:'Kapper'};
+  try{await gmSend({to:to,subject:'[TEST] '+cpVars(a,document.getElementById('cp_sub').value),text:cpVars(a,document.getElementById('cp_body').value),from:'info'});toast('✅ Testmail verstuurd naar '+to)}catch(e){toast('Test mislukt: '+e.message,true)}}
+function cpSlots(n,limit){var out=[],now=new Date(),day=new Date(now);day.setSeconds(0,0);
+  var i=0;while(i<n){var dow=day.getDay();if(dow>0&&dow<6){var start=9*60+5,end=16*60+30,cur=day.getHours()*60+day.getMinutes()+5,lo=Math.max(start,cur);
+      if(day.toDateString()!==now.toDateString())lo=start;var room=end-lo;
+      if(room>=10){var take=Math.min(limit,n-i,Math.floor(room/4)+1);var step=take>1?room/(take-1):0;
+        for(var k=0;k<take;k++){var m=Math.round(lo+k*step+(Math.random()*2-1));var t=new Date(day);t.setHours(Math.floor(m/60),m%60,Math.floor(Math.random()*50),0);if(t<new Date(Date.now()+60000))t=new Date(Date.now()+60000+k*240000);out.push(t)}i+=take}}
+    day=new Date(day.getFullYear(),day.getMonth(),day.getDate()+1,0,0,0)}
+  return out}
+async function cpSchedule(){
+  if(!MXSRV.ready){toast('Resend is nog niet actief',true);return}
+  var name=document.getElementById('cp_name').value.trim(),sub=document.getElementById('cp_sub').value.trim(),txt=document.getElementById('cp_body').value,lim=Math.max(1,Math.min(100,+document.getElementById('cp_lim').value||20));
+  if(!name||!sub||!txt.trim()){toast('Vul naam, onderwerp en bericht in',true);return}
+  var f=cpFilters(),aud=cpAudience(f);if(!aud.length){toast('Geen ontvangers met deze filters',true);return}
+  if(!confirm('Campagne "'+name+'" inplannen voor '+aud.length+' ontvangers ('+lim+' per dag, vanaf vandaag/eerstvolgende werkdag)?'))return;
+  var btn=document.getElementById('cp_go');btn.disabled=true;btn.textContent='Inplannen…';
+  try{var c=await sb.from('campaigns').insert({name:name,subject:sub,body:txt,filters:f,daily_limit:lim,status:'gepland'}).select('id');if(c.error)throw c.error;var cid=c.data[0].id;
+    var slots=cpSlots(aud.length,lim),rows=aud.map(function(d,i){var tx=cpVars(d,txt)+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id,status:'pending'}});
+    for(var i=0;i<rows.length;i+=50){var r=await sb.from('mail_queue').insert(rows.slice(i,i+50));if(r.error)throw r.error}
+    aud.forEach(function(d){(d.log=d.log||[]).push({t:Date.now(),txt:'📧 Ingepland in campagne "'+name+'"'})});saveData();logAct('Campagne ingepland: '+name+' ('+aud.length+')');
+    closeM();toast('✅ Campagne ingepland voor '+aud.length+' ontvangers');rCampagnes()}
+  catch(e){toast('Mislukt: '+(e.message||e),true);btn.disabled=false;btn.textContent='🚀 Inplannen'}}
+async function cpStop(id){if(!confirm('Alle nog niet verstuurde mails van deze campagne annuleren?'))return;
+  await sb.from('mail_queue').update({status:'cancelled',error:'gestopt'}).eq('campaign_id',id).eq('status','pending');toast('Campagne gestopt');rCampagnes()}
+function cpDetail(id){var c=CAMP.list.filter(function(x){return x.id===id})[0];if(!c)return;var r=CAMP.rows.filter(function(x){return x.campaign_id===id}).sort(function(a,b){return (b.clicked_at?2:b.opened_at?1:0)-(a.clicked_at?2:a.opened_at?1:0)});
+  var st=function(x){return x.complained?'🚨 spamklacht':x.bounced?'⛔ bounce':x.error==='afgemeld'?'🚫 afgemeld':x.clicked_at?'🔥 geklikt':x.opened_at?'👀 geopend':x.delivered_at?'✅ afgeleverd':x.status==='sent'?'📤 verstuurd':x.status==='pending'?'⏳ '+new Date(x.send_at).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):x.status==='failed'?'❌ '+cpEsc(x.error):'– '+cpEsc(x.error||x.status)};
+  var h='<div class="hint" style="margin-bottom:8px">Bovenaan staan de warmste leads: wie geklikt of geopend heeft, kan je best opbellen of persoonlijk mailen.</div><div style="max-height:60vh;overflow:auto">'+r.map(function(x){var d=DATA.deals.filter(function(y){return y.id===x.deal_id})[0];
+    return '<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line)"><div><b>'+cpEsc(d?d.naam:x.to_email)+'</b><div style="color:var(--muted);font-size:.8rem">'+cpEsc(x.to_email)+'</div></div><div style="text-align:right;white-space:nowrap">'+st(x)+(d?'<div><a href="#" onclick="closeM();vDeal(\''+d.id+'\');return false" style="font-size:.8rem">Open lead</a></div>':'')+'</div></div>'}).join('')+'</div>';
+  openM('📧 '+c.name,h,'',true)}
+function cpUnsubList(){var h='<div style="max-height:60vh;overflow:auto">'+(CAMP.unsub.length?CAMP.unsub.map(function(x){return '<div style="display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid var(--line)"><span>'+cpEsc(x.email)+'</span><span style="color:var(--muted);font-size:.8rem">'+cpEsc(x.source||'')+' · '+new Date(x.created_at).toLocaleDateString('nl-BE')+'</span></div>'}).join(''):'<div style="color:var(--muted)">Nog niemand afgemeld.</div>')+'</div>';openM('🚫 Afgemelde adressen',h,'',true)}
+(function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='outreach'});if(i>=0&&!MENU_ADMIN.some(function(m){return m[0]==='campagnes'}))MENU_ADMIN.splice(i+1,0,['campagnes','Campagnes',IC.chat]);
+  var _go=go;go=function(v){if(v==='campagnes'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rCampagnes();window.scrollTo(0,0);return}_go(v)};
+  if(typeof buildMenu==='function'&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu()})();
 
 </script>
 </body>
