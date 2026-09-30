@@ -5540,7 +5540,7 @@ async function rCampagnes(){
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-top:12px">'+[['Gepland',s.gepland],['Verstuurd',s.verstuurd],['Afgeleverd',s.afgeleverd],['Geopend',s.geopend+' ('+pct(s.geopend)+')'],['Geklikt',s.geklikt+' ('+pct(s.geklikt)+')'],['Afgemeld',s.afgemeld],['Bounce',s.bounce],['Spamklacht',s.klacht]].map(function(x){return '<div style="background:var(--track);border-radius:10px;padding:8px 10px"><div style="font-size:.7rem;color:var(--muted)">'+x[0]+'</div><b>'+x[1]+'</b></div>'}).join('')+'</div></div>'});
   main().innerHTML=h}
 function cpVars(d,t){var first=String(d.contact||'').trim().split(/\s+/)[0]||'';
-  return String(t).replace(/\{aanhef\}/g,first?'Hallo '+first+',':'Hallo,').replace(/\{contact\}/g,first).replace(/\{bedrijf\}/g,d.naam||'').replace(/\{plaats\}/g,d.plaats||'').replace(/\{categorie\}/g,d.cat||'')}
+  return String(t).replace(/\{aanhef\}/g,first?'Hallo '+first+',':'Hallo,').replace(/\{contact\}/g,first).replace(/\{bedrijf\}/g,d.naam||'jouw zaak').replace(/\{plaats\}/g,d.plaats||'').replace(/\{categorie\}/g,d.cat||'')}
 function cpAudience(f){var used={};CAMP.rows.forEach(function(x){used[String(x.to_email).toLowerCase()]=1});var un={};CAMP.unsub.forEach(function(x){un[x.email]=1});
   var cust={};(DATA.customers||[]).forEach(function(c){if(c.email)cust[c.email.toLowerCase()]=1});var seen={};
   return DATA.deals.filter(function(d){var e=String(d.email||'').toLowerCase().trim();if(!e||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)||seen[e])return false;
@@ -5583,9 +5583,9 @@ async function cpSchedule(){
   if(!confirm('Campagne "'+name+'" inplannen voor '+aud.length+' ontvangers ('+lim+' per dag, vanaf vandaag/eerstvolgende werkdag)?'))return;
   var btn=document.getElementById('cp_go');btn.disabled=true;btn.textContent='Inplannen…';
   try{var c=await sb.from('campaigns').insert({name:name,subject:sub,body:txt,filters:f,daily_limit:lim,status:'gepland'}).select('id');if(c.error)throw c.error;var cid=c.data[0].id;
-    var slots=cpSlots(aud.length,lim),rows=aud.map(function(d,i){var tx=cpVars(d,txt)+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id,status:'pending'}});
+    var slots=cpSlots(aud.length,lim),rows=aud.map(function(d,i){var tx=cpVars(d,txt)+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id||null,status:'pending'}});
     for(var i=0;i<rows.length;i+=50){var r=await sb.from('mail_queue').insert(rows.slice(i,i+50));if(r.error)throw r.error}
-    aud.forEach(function(d){(d.log=d.log||[]).push({t:Date.now(),txt:'📧 Ingepland in campagne "'+name+'"'})});saveData();logAct('Campagne ingepland: '+name+' ('+aud.length+')');
+    aud.forEach(function(d){if(!d.id)return;(d.log=d.log||[]).push({t:Date.now(),txt:'📧 Ingepland in campagne "'+name+'"'})});saveData();logAct('Campagne ingepland: '+name+' ('+aud.length+')');
     closeM();toast('✅ Campagne ingepland voor '+aud.length+' ontvangers');rCampagnes()}
   catch(e){toast('Mislukt: '+(e.message||e),true);btn.disabled=false;btn.textContent='🚀 Inplannen'}}
 async function cpStop(id){if(!confirm('Alle nog niet verstuurde mails van deze campagne annuleren?'))return;
@@ -5599,6 +5599,58 @@ function cpUnsubList(){var h='<div style="max-height:60vh;overflow:auto">'+(CAMP
 (function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='outreach'});if(i>=0&&!MENU_ADMIN.some(function(m){return m[0]==='campagnes'}))MENU_ADMIN.splice(i+1,0,['campagnes','Campagnes',IC.chat]);
   var _go=go;go=function(v){if(v==='campagnes'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rCampagnes();window.scrollTo(0,0);return}_go(v)};
   if(typeof buildMenu==='function'&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu()})();
+
+/* ===== Campagne-sjablonen (huisstijl, met afbeelding) + eigen lijst met adressen ===== */
+var CPT={
+ it:{n:'🖥️ Managed IT – nooit meer IT-problemen',sub:'Minder IT-gedoe voor {bedrijf}?',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik neem de IT van kleine bedrijven uit handen, zodat jij je kan focussen op je werk.',
+  bul:[['Beheer & support','Pc\'s, netwerk en printers die gewoon werken, en snel hulp als het even niet lukt.'],['Beveiliging & back-ups','Je gegevens veilig, ook bij een storing, een virus of een verloren laptop.'],['Eén vast aanspreekpunt','Geen callcenter, maar één persoon die jouw zaak kent.']],
+  end:'Wil je dat ik eens vrijblijvend meekijk naar jullie IT? Dat kost je niets.',cta:'Plan een gratis kennismaking'},
+ mail:{n:'🔒 E-mailbeveiliging – gratis check',sub:'Kan iemand mailen in naam van {bedrijf}?',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Zonder de juiste instellingen kan iemand e-mails versturen die eruitzien alsof ze van jullie komen. Dat is makkelijk te voorkomen.',
+  bul:[['Gratis check van je domein','Ik controleer SPF, DKIM en DMARC en stuur je een duidelijk overzicht.'],['Minder phishing in jullie naam','Nepmails met jullie naam worden geblokkeerd voor ze klanten bereiken.'],['Meer mails in de inbox','Goed ingestelde mail komt vaker aan en belandt minder in spam.']],
+  end:'Zal ik de check voor jullie doen? Het duurt een dag en je zit nergens aan vast.',cta:'Vraag de gratis check aan'},
+ cloud:{n:'☁️ Cloud & back-ups',sub:'Zijn de gegevens van {bedrijf} veilig opgeslagen?',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Wat als je laptop morgen niet meer opstart? Voor veel zaken is dat het moment waarop ze merken dat er geen goede back-up is.',
+  bul:[['Automatische back-ups','Je bestanden en mails worden elke dag veilig bewaard, zonder dat je eraan denkt.'],['Professionele mailboxen','E-mail op je eigen domein, met gedeelde agenda\'s en contacten.'],['Overal aan je bestanden','Werk vanaf kantoor, thuis of onderweg, op elk toestel.']],
+  end:'Ik kijk graag vrijblijvend mee wat er bij jullie al is en wat er ontbreekt.',cta:'Plan een gratis kennismaking'},
+ web:{n:'🌐 Websites',sub:'Een website voor {bedrijf} die klanten oplevert',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak snelle, moderne websites voor zelfstandigen en kleine zaken.',
+  bul:[['Snel en mobielvriendelijk','De meeste bezoekers komen via hun gsm. Jouw site is er klaar voor.'],['Vindbaar op Google','Zodat klanten in de buurt jou vinden en niet je concurrent.'],['Vanaf €279, eenmalig','Zonder abonnement en zonder verborgen kosten.']],
+  end:'Zal ik gratis een voorbeeld voor {bedrijf} maken? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'},
+ ai:{n:'🤖 AI & automatisering',sub:'Minder herhaald werk bij {bedrijf}',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Veel zaken verliezen uren aan werk dat een computer perfect kan doen: facturen, opvolging, herinneringen en rapporten.',
+  bul:[['Automatische opvolging','Herinneringen, offertes en facturen vertrekken op het juiste moment.'],['Slimme assistent','AI die mails voorbereidt en vragen van klanten beantwoordt, onder jouw controle.'],['Overzicht zonder moeite','Rapporten en cijfers die vanzelf klaarstaan.']],
+  end:'Vertel me wat jou de meeste tijd kost, dan zeg ik eerlijk wat er te automatiseren valt.',cta:'Plan een gratis gesprek'}};
+function cpRich(k,text,preview){var t=CPT[k];var esc2=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+  var paras=String(text).split(/\n\s*\n/).map(function(p){return '<p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#3d3f52">'+sigHtmlBody(p)+'</p>'}).join('');
+  var cards=t.bul.map(function(b){return '<tr><td style="padding:0 0 10px"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f7fb;border-radius:12px"><tr><td width="5" style="width:5px;background:#ef4056;background-image:linear-gradient(180deg,#f97c1f,#ef4056,#e91e7b);border-radius:12px 0 0 12px">&nbsp;</td><td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif"><div style="font-size:15px;font-weight:700;color:#14141c">'+esc2(b[0])+'</div><div style="font-size:14px;line-height:1.55;color:#5a5c70;margin-top:3px">'+esc2(b[1])+'</div></td></tr></table></td></tr>'}).join('');
+  return '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f9"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f4f9"><tr><td align="center" style="padding:24px 12px"><table width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;border-radius:16px;overflow:hidden;background:#ffffff">'+
+  '<tr><td bgcolor="#12131c" style="background:#12131c;padding:0"><img src="https://marleo.tech/marleo-mail-'+k+'.png" width="600" alt="Marleo – '+esc2(t.n.replace(/^\S+\s/,''))+'" style="display:block;width:100%;max-width:600px;height:auto;border:0;background:#12131c;color:#ffffff;font-family:Arial,sans-serif;font-size:22px;font-weight:800"></td></tr>'+
+  '<tr><td style="height:4px;line-height:4px;font-size:0;background:#ef4056;background-image:linear-gradient(90deg,#f97c1f,#ef4056,#e91e7b)">&nbsp;</td></tr>'+
+  '<tr><td style="padding:28px 30px 6px;font-family:Arial,Helvetica,sans-serif">'+paras+'<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 8px">'+cards+'</table>'+
+  '<p style="margin:14px 0 0;font-size:15px;line-height:1.65;color:#3d3f52">'+sigHtmlBody(t.end)+'</p>'+mxBtn('https://marleo.tech/afspraak/',esc2(t.cta))+
+  '<div style="font-size:13px;color:#6a6a7e;margin:0 0 6px">Liever antwoorden? Reageer gewoon op deze mail.</div></td></tr>'+
+  '<tr><td style="padding:6px 30px 26px;font-family:Arial,Helvetica,sans-serif">'+SIG_HTML+'</td></tr></table></td></tr></table></body></html>'}
+var CPTPL='';
+function cpPickTpl(k){CPTPL=k;var t=CPT[k];if(!t)return;document.getElementById('cp_sub').value=t.sub;document.getElementById('cp_body').value=t.body;
+  var n=document.getElementById('cp_name');if(!n.value)n.value=t.n.replace(/^\S+\s/,'');cpPrev()}
+function cpPreviewHtml(){var a=cpAudience(cpFilters())[0]||{naam:'Voorbeeldbedrijf',contact:'Sarah',plaats:'Deinze',cat:'Kapper'};var txt=cpVars(a,document.getElementById('cp_body').value);
+  var html=CPTPL?cpRich(CPTPL,txt):cpHtml(txt);var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(5,5,10,.9);display:flex;flex-direction:column;align-items:center;padding:14px';
+  ov.innerHTML='<button class="btn" style="margin-bottom:10px" id="cpx">Sluiten</button><iframe style="width:min(680px,100%);flex:1;border:0;border-radius:10px;background:#fff"></iframe>';document.body.appendChild(ov);ov.querySelector('iframe').srcdoc=html;ov.querySelector('#cpx').onclick=function(){ov.remove()}}
+function cpParseExtra(){var el=document.getElementById('cp_extra');if(!el)return [];var out=[];
+  el.value.split(/\n/).forEach(function(l){l=l.trim();if(!l)return;var m=l.match(/[^\s<>,;]+@[^\s<>,;]+\.[^\s<>,;]+/);if(!m)return;var e=m[0].toLowerCase();var rest=l.replace(m[0],'').replace(/[<>,;]/g,' ').trim();out.push({id:'',email:e,contact:rest,naam:'',stage:'extra'})});return out}
+var _cpAud0=cpAudience;cpAudience=function(f){var base=f.stage==='geen'?[]:_cpAud0(f);var seen={};base.forEach(function(d){seen[String(d.email).toLowerCase()]=1});
+  var used={};CAMP.rows.forEach(function(x){used[String(x.to_email).toLowerCase()]=1});var un={};CAMP.unsub.forEach(function(x){un[x.email]=1});
+  cpParseExtra().forEach(function(d){if(seen[d.email]||un[d.email]||(!f.again&&used[d.email]))return;seen[d.email]=1;base.push(d)});return base};
+var _mCamp0=mCamp;mCamp=function(){_mCamp0();var body=document.getElementById('mBody');if(!body)return;
+  var opt='<option value="">✍️ Eigen tekst (gewone mail)</option>'+Object.keys(CPT).map(function(k){return '<option value="'+k+'">'+CPT[k].n+'</option>'}).join('');
+  body.insertAdjacentHTML('afterbegin','<div class="fgroup"><label>Sjabloon (huisstijl-mail met afbeelding)</label><select id="cp_tpl" onchange="cpPickTpl(this.value)">'+opt+'</select></div>');
+  var st=document.getElementById('cp_stage');if(st)st.insertAdjacentHTML('afterbegin','<option value="geen">Geen leads uit het CRM (alleen de lijst hieronder)</option>');
+  var again=document.getElementById('cp_again');if(again&&again.parentNode)again.parentNode.insertAdjacentHTML('afterend','<div class="fgroup"><label>Extra e-mailadressen <span style="color:var(--muted);font-weight:400">— één per regel, eventueel met voornaam erachter</span></label><textarea id="cp_extra" oninput="cpPrev()" placeholder="info@kapsalon.be Lotte\nzaak@bedrijf.be" style="min-height:80px"></textarea></div>');
+  var foot=document.getElementById('mFoot');if(foot)foot.insertAdjacentHTML('afterbegin','<button class="btn subtle" onclick="cpPreviewHtml()">👁 Voorbeeld</button>');CPTPL=''};
+cpHtml=(function(_h){return function(text){return CPTPL?cpRich(CPTPL,text):_h(text)}})(cpHtml);
+var _cpSch0=cpSchedule;cpSchedule=async function(){var f0=cpFilters;cpFilters=function(){var x=f0();x.tpl=CPTPL;return x};try{return await _cpSch0()}finally{cpFilters=f0}};
 
 </script>
 </body>
