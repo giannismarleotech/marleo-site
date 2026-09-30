@@ -5290,7 +5290,7 @@ async function utSend(id){var r=utVals(id);if(!r.v.email){toast('Geen e-mailadre
 (function(){var _u=useTemplate;useTemplate=function(id){_u(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.utsend')&&gCfg().clientId)f.insertAdjacentHTML('beforeend','<button class="btn utsend" style="background:#16a34a" onclick="utSend(\''+id+'\')">📨 Verstuur nu</button>')}})();
 
 /* ================= Mooie huisstijl-mails voor afspraken + validatie (geen dubbel, geen verleden) ================= */
-function bkMailCfg(){var c=bkCfg();if(!c.mail)c.mail={recv:true,conf:true,decl:true,rem:true};return c.mail}
+function bkMailCfg(){var c=bkCfg();if(!c.mail)c.mail={recv:true,conf:true,decl:true,rem:true};if(c.mail.rem30===undefined)c.mail.rem30=true;return c.mail}
 function mxEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function mxDayName(d){return ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'][new Date(d+'T12:00:00').getDay()]}
 function mxDateLong(d){var x=new Date(d+'T12:00:00');return mxDayName(d)+' '+x.getDate()+' '+['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'][x.getMonth()]+' '+x.getFullYear()}
@@ -5325,9 +5325,12 @@ function mxBuild(kind,a){var n=mxFirst(a);var hi='Hallo'+(n?' '+mxEsc(n):'')+','
     var btn=(a.kind==='meet'&&a.meetLink)?mxBtn(a.meetLink,'📹 Deelnemen via Google Meet'):'';
     html=mxShell({tag:'Bevestigd',title:'Je afspraak is bevestigd ✅',intro:hi+'<br><br>Top, alles staat vast! Hieronder vind je de details. De afspraak zit ook als bijlage (.ics) in deze mail, dan staat hij meteen in je agenda.',card:mxCard(a),after:btn+'<div style="font-size:13px;line-height:1.7;color:#6a6a7e;margin-top:10px"><a href="'+mxEsc(mxGcal(a))+'" style="color:#ef4056;font-weight:700;text-decoration:none">📅 Toevoegen aan Google Agenda</a><br>Kan je toch niet? Antwoord op deze mail of kies een ander moment via <a href="https://marleo.tech/afspraak/" style="color:#ef4056">marleo.tech/afspraak</a>.</div>'});
     text=hi.replace(/<[^>]+>/g,'')+'\n\nJe afspraak is bevestigd:\n'+mxDateLong(a.date)+' om '+(a.time||'')+'\n'+(a.kind==='meet'?'Google Meet: '+(a.meetLink||'link volgt'):a.kind==='tel'?'Ik bel je.':(a.location||''))+'\n\nToevoegen aan agenda: '+mxGcal(a)+'\nKan je toch niet? Antwoord op deze mail of boek opnieuw: https://marleo.tech/afspraak/'}
-  else if(kind==='rem'){sub='Herinnering: morgen om '+(a.time||'')+' onze afspraak';
+  else if(kind==='rem30'){sub='Over 30 minuten: onze afspraak om '+(a.time||'');
+    var btn3=(a.kind==='meet'&&a.meetLink)?mxBtn(a.meetLink,'📹 Deelnemen via Google Meet'):'';
+    html=mxShell({tag:'Zo meteen',title:'Over 30 minuten ⏰',intro:hi+'<br><br>Onze afspraak begint over een halfuur.',card:mxCard(a),after:btn3+'<div style="font-size:13px;line-height:1.6;color:#6a6a7e;margin-top:10px">Tot zo meteen! Lukt het toch niet? Antwoord even op deze mail.</div>'})}
+  else if(kind==='rem'){sub='Herinnering: vandaag om '+(a.time||'')+' onze afspraak';
     var btn2=(a.kind==='meet'&&a.meetLink)?mxBtn(a.meetLink,'📹 Deelnemen via Google Meet'):'';
-    html=mxShell({tag:'Herinnering',title:'Tot morgen! ⏰',intro:hi+'<br><br>Een vriendelijke herinnering aan onze afspraak van morgen.',card:mxCard(a),after:btn2+'<div style="font-size:13px;line-height:1.6;color:#6a6a7e;margin-top:10px">Lukt het toch niet? Laat het me even weten door op deze mail te antwoorden.</div>'});
+    html=mxShell({tag:'Herinnering',title:'Tot vandaag! ⏰',intro:hi+'<br><br>Een vriendelijke herinnering: onze afspraak is vandaag.',card:mxCard(a),after:btn2+'<div style="font-size:13px;line-height:1.6;color:#6a6a7e;margin-top:10px">Lukt het toch niet? Laat het me even weten door op deze mail te antwoorden.</div>'});
     text=hi.replace(/<[^>]+>/g,'')+'\n\nHerinnering aan onze afspraak morgen ('+mxDateLong(a.date)+') om '+(a.time||'')+'.\n'+(a.meetLink?'Google Meet: '+a.meetLink+'\n':'')+'\nLukt het toch niet? Antwoord op deze mail.'}
   else{sub='Ander moment nodig voor je afspraak';
     html=mxShell({tag:'Afspraak',title:'Helaas past dit moment niet',intro:hi+'<br><br>Bedankt voor je aanvraag. Op '+mxEsc(mxDateLong(a.date))+(a.time?' om '+mxEsc(a.time):'')+' lukt het me helaas niet. Kies gerust een ander moment dat wel past, dan bevestig ik het snel.',after:mxBtn('https://marleo.tech/afspraak/','Kies een ander moment')+'<div style="font-size:13px;color:#6a6a7e">Liever bellen? <a href="tel:+32456920025" style="color:#ef4056">+32 456 92 00 25</a></div>'});
@@ -5354,9 +5357,9 @@ function htmlPart(A,pk){var h='\r\n--'+A+'\r\n';var enc=function(x){return b64ut
   return o+'\r\n--'+R+'--'}
 var MXLOCK={};
 async function mxClaim(a,k){var key=a.id+k;if(MXLOCK[key])return false;MXLOCK[key]=1;
-  try{if(a.bookingId&&typeof sb!=='undefined'&&sb){var col={recv:'mail_recv',conf:'mail_conf',rem:'mail_rem'}[k];if(col){var u={};u[col]=true;var r=await sb.from('bookings').update(u).eq('id',a.bookingId).eq(col,false).select('id');if(!r.error&&r.data&&!r.data.length){return false}}}}catch(e){}
+  try{if(a.bookingId&&typeof sb!=='undefined'&&sb){var col={recv:'mail_recv',conf:'mail_conf',rem:'mail_rem',rem30:'mail_rem30'}[k];if(col){var u={};u[col]=true;var r=await sb.from('bookings').update(u).eq('id',a.bookingId).eq(col,false).select('id');if(!r.error&&r.data&&!r.data.length){return false}}}}catch(e){}
   return true}
-function mxRelease(a,k){delete MXLOCK[a.id+k];try{if(a.bookingId&&sb){var col={recv:'mail_recv',conf:'mail_conf',rem:'mail_rem'}[k];if(col){var u={};u[col]=false;sb.from('bookings').update(u).eq('id',a.bookingId).then(function(){})}}}catch(e){}}
+function mxRelease(a,k){delete MXLOCK[a.id+k];try{if(a.bookingId&&sb){var col={recv:'mail_recv',conf:'mail_conf',rem:'mail_rem',rem30:'mail_rem30'}[k];if(col){var u={};u[col]=false;sb.from('bookings').update(u).eq('id',a.bookingId).then(function(){})}}}catch(e){}}
 async function mxSend(kind,a,to){var m=mxBuild(kind,a);var o={to:to||a.guestEmail,subject:m.subject,html:m.html,text:m.text};
   if(kind==='conf')o.attach={name:'afspraak-marleo.ics',type:'text/calendar; charset=utf-8; method=PUBLISH',b64:b64utf(mxICS(a))};return gmSend(o)}
 /* koppel aan de boekingsflow */
@@ -5365,7 +5368,7 @@ bkFinish=async function(a,quiet){var c=bkCfg(),mc=bkMailCfg();
   if(a.kind==='meet'&&!a.meetLink&&c.meetLink&&!gConnected())a.meetLink=c.meetLink;
   var conn=gConnected()&&gCfg().clientId;
   if(conn){try{await gcalPush(a,{meet:a.kind==='meet',invite:!mc.conf||!a.guestEmail})}catch(e){if(!quiet)toast('Google: '+e.message,true)}}
-  if(conn&&mc.conf&&a.guestEmail&&!a.mailed&&await mxClaim(a,'conf')){a.mailed=true;saveData();try{await mxSend('conf',a)}catch(e){a.mailed=false;mxRelease(a,'conf');if(!quiet)toast('Mail: '+e.message,true)}}
+  if(conn&&mc.conf&&a.guestEmail&&!a.mailed&&await mxClaim(a,'conf')){a.mailed=true;a.confDay=ag2Today();saveData();try{await mxSend('conf',a)}catch(e){a.mailed=false;mxRelease(a,'conf');if(!quiet)toast('Mail: '+e.message,true)}}
   saveData()};
 var _bkDecide0=bkDecide;bkDecide=async function(id,ok){var a=DATA.appointments.find(function(x){return x.id===id});
   if(!ok&&a&&a.guestEmail&&bkMailCfg().decl&&gConnected()){try{if(confirm('Afspraak weigeren en een vriendelijke mail sturen met een link naar een ander moment?')){await mxSend('decl',a);toast('✉ Mail verstuurd')}}catch(e){toast('Mail: '+e.message,true)}}
@@ -5375,7 +5378,7 @@ var _bkPull0=bkPull,MXPULL=false;bkPull=async function(){await _bkPull0();
   if(MXPULL)return;MXPULL=true;try{if(!gConnected()){MXPULL=false;return}var mc=bkMailCfg(),t=ag2Today(),tm=new Date();tm.setDate(tm.getDate()+1);var tms=tm.getFullYear()+'-'+String(tm.getMonth()+1).padStart(2,'0')+'-'+String(tm.getDate()).padStart(2,'0');var ch=false;
    for(var i=0;i<DATA.appointments.length;i++){var a=DATA.appointments[i];if(!a.guestEmail||a.kind==='prive'||a.declined)continue;
      if(a.fromWeb&&a.pending&&!a.mRecv&&mc.recv&&a.date>=t&&await mxClaim(a,'recv')){a.mRecv=true;ch=true;saveData();try{await mxSend('recv',a)}catch(e){a.mRecv=false;mxRelease(a,'recv')}}
-     if(!a.pending&&!a.mRem&&mc.rem&&a.date===tms&&a.time&&a.fromWeb&&await mxClaim(a,'rem')){a.mRem=true;ch=true;saveData();try{await mxSend('rem',a)}catch(e){a.mRem=false;mxRelease(a,'rem')}}}
+   }
    if(ch)saveData()}catch(e){}MXPULL=false};
 /* bij bevestigen van een aangevraagde afspraak: ook geen dubbele mail */
 /* knop op de kaart voor ontvangstbevestiging */
@@ -5386,7 +5389,7 @@ async function mxRecvBtn(id){var a=DATA.appointments.find(function(x){return x.i
 /* ---- instellingen: e-mails aanklikken + voorbeeld ---- */
 (function(){var _m=mBook;mBook=function(){_m();var body=document.getElementById('mBody')||document.querySelector('.modal .mbody,.modal-body');if(!body)return;var mc=bkMailCfg();
   var ck=function(k,l,d){return '<label style="display:flex;gap:8px;align-items:flex-start;margin:0 0 6px"><input type="checkbox" class="bk_m" data-k="'+k+'"'+(mc[k]?' checked':'')+' style="width:auto;margin-top:3px"><span><b>'+l+'</b><br><span style="color:var(--muted);font-size:.78rem">'+d+'</span></span> <button type="button" class="btn subtle sm" style="margin-left:auto;flex:none" onclick="mxPrev(\''+k+'\')">👁 Voorbeeld</button></label>'};
-  body.insertAdjacentHTML('beforeend','<div class="dssec">✉ E-mails aan bezoekers (huisstijl)</div>'+ck('recv','Ontvangstmail','Meteen bij een nieuwe aanvraag: "je aanvraag is ontvangen".')+ck('conf','Bevestigingsmail','Als jij bevestigt: details, Meet-knop, agenda-bijlage (.ics).')+ck('decl','Weigermail','Vriendelijke mail met knop naar een ander moment.')+ck('rem','Herinnering','De dag voor de afspraak.')+'<div class="hint" style="margin-top:6px">Mails worden verstuurd vanuit je Gmail zodra je in de CRM bent ingelogd bij Google.</div>')};
+  body.insertAdjacentHTML('beforeend','<div class="dssec">✉ E-mails aan bezoekers (huisstijl)</div>'+ck('recv','Ontvangstmail','Meteen bij een nieuwe aanvraag: "je aanvraag is ontvangen".')+ck('conf','Bevestigingsmail','Als jij bevestigt: details, Meet-knop, agenda-bijlage (.ics).')+ck('decl','Weigermail','Vriendelijke mail met knop naar een ander moment.')+ck('rem','Herinnering op de dag zelf','Automatisch de ochtend van de afspraak (vanaf 08:00).')+ck('rem30','Herinnering 30 min ervoor','Automatisch een halfuur voor de start, met Meet-knop.')+'<div class="hint" style="margin-top:6px">Mails worden verstuurd vanuit je Gmail zodra je in de CRM bent ingelogd bij Google.</div>')};
   var _s=bkSaveCfg;bkSaveCfg=function(){var mc=bkMailCfg();document.querySelectorAll('.bk_m').forEach(function(x){mc[x.dataset.k]=x.checked});return _s()}})();
 function mxSample(){var d=new Date();d.setDate(d.getDate()+2);var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');return {id:'demo',date:ds,time:'10:00',dur:30,kind:'meet',guestName:'Sarah',guestEmail:'sarah@voorbeeld.be',meetLink:'https://meet.google.com/abc-defg-hij'}}
 function mxPrev(k){var a=mxSample();var m=mxBuild(k,a);var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:300;background:rgba(5,5,10,.85);display:flex;flex-direction:column;align-items:center;padding:16px';
@@ -5457,6 +5460,18 @@ async function cancelDo(id){var a=DATA.appointments.find(function(x){return x.id
   ov.innerHTML='<div style="width:100%;max-width:680px;display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center"><b style="flex:1;color:#fff">'+mxEsc(m.subject)+'</b><input id="mx_to" value="giannis@marleo.tech" style="width:210px;font-size:14px!important"><button class="btn sm" id="mx_send">📨 Stuur test</button><button class="btn subtle sm" id="mx_x">✕ Sluiten</button></div><iframe style="flex:1;width:100%;max-width:680px;border:0;border-radius:12px;background:#fff" srcdoc="'+m.html.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></iframe>';
   document.body.appendChild(ov);ov.querySelector('#mx_x').onclick=function(){ov.remove()};ov.querySelector('#mx_send').onclick=async function(){try{await mxSend(k,a,ov.querySelector('#mx_to').value.trim());toast('✅ Testmail verstuurd')}catch(e){toast('Mislukt: '+e.message,true)}};return}
   return _p(k)}})();
+
+/* automatische herinneringen: dezelfde dag (vanaf 08:00) + 30 min voor de start */
+var MXREM=false;
+async function mxRemind(){if(MXREM||!gConnected())return;MXREM=true;try{var mc=bkMailCfg(),t=ag2Today(),now=new Date(),nm=now.getHours()*60+now.getMinutes(),ch=false;
+  for(var i=0;i<DATA.appointments.length;i++){var a=DATA.appointments[i];
+    if(!a.guestEmail||!a.time||a.date!==t||a.pending||a.declined||a.kind==='prive')continue;
+    var st=bkMin(a.time),left=st-nm;if(left<=0)continue;
+    if(mc.rem30&&!a.mRem30&&left<=30&&await mxClaim(a,'rem30')){a.mRem30=true;a.mRem=true;ch=true;saveData();try{await mxSend('rem30',a)}catch(e){a.mRem30=false;mxRelease(a,'rem30')}continue}
+    if(mc.rem&&!a.mRem&&nm>=480&&left>60&&a.confDay!==t&&await mxClaim(a,'rem')){a.mRem=true;ch=true;saveData();try{await mxSend('rem',a)}catch(e){a.mRem=false;mxRelease(a,'rem')}}}
+  if(ch)saveData()}catch(e){}MXREM=false}
+setInterval(function(){if(document.visibilityState==='visible')mxRemind()},60000);setTimeout(mxRemind,9000);
+var _bkPull2=bkPull;bkPull=async function(){await _bkPull2();mxRemind()};
 
 </script>
 </body>
