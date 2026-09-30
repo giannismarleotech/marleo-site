@@ -5361,7 +5361,9 @@ async function mxClaim(a,k){var key=a.id+k;if(MXLOCK[key])return false;MXLOCK[ke
   return true}
 function mxRelease(a,k){delete MXLOCK[a.id+k];try{if(a.bookingId&&sb){var col={recv:'mail_recv',conf:'mail_conf',rem:'mail_rem',rem30:'mail_rem30'}[k];if(col){var u={};u[col]=false;sb.from('bookings').update(u).eq('id',a.bookingId).then(function(){})}}}catch(e){}}
 async function mxSend(kind,a,to){var m=mxBuild(kind,a);var o={to:to||a.guestEmail,subject:m.subject,html:m.html,text:m.text};
-  if(kind==='conf')o.attach={name:'afspraak-marleo.ics',type:'text/calendar; charset=utf-8; method=PUBLISH',b64:b64utf(mxICS(a))};return gmSend(o)}
+  if(kind==='conf')o.attach={name:'afspraak-marleo.ics',type:'text/calendar; charset=utf-8; method=PUBLISH',b64:b64utf(mxICS(a))};return mxDeliver(o)}
+async function mxDeliver(o){if(MXSRV.ready){try{var r=await sb.functions.invoke('mailer',{body:{action:'send',mail:{to:o.to,subject:o.subject,html:o.html,text:o.text,attach:o.attach}}});if(r&&r.data&&r.data.ok)return r.data;console.warn('resend',r&&(r.error||r.data))}catch(e){console.warn('resend',e)}}
+  if(!gConnected())throw new Error('Mail niet verstuurd: Resend niet bereikbaar en Google niet verbonden');return gmSend(o)}
 /* koppel aan de boekingsflow */
 bkMail=async function(a,quiet){if(!a.guestEmail){toast('Geen e-mailadres bij deze afspraak',true);return}await mxSend('conf',a);a.mailed=true;saveData();if(!quiet)toast('✅ Bevestiging verstuurd naar '+a.guestEmail)};
 bkFinish=async function(a,quiet){var c=bkCfg(),mc=bkMailCfg();
@@ -5431,7 +5433,7 @@ mxICS=function(a,method){method=method||'PUBLISH';var s=new Date(a.date+'T'+(a.t
     html:mxShell({tag:'Verplaatst',title:'Je afspraak is verplaatst 🔄',intro:hi+'<br><br>Onze afspraak is verplaatst. Dit is het <b>nieuwe moment</b>:',card:mxCard(a),after:btn+'<div style="font-size:13px;line-height:1.7;color:#6a6a7e;margin-top:10px"><a href="'+mxEsc(mxGcal(a))+'" style="color:#ef4056;font-weight:700;text-decoration:none">📅 Toevoegen aan Google Agenda</a> (de bijlage werkt ook)<br>Past dit niet? Antwoord op deze mail of kies zelf een ander moment via <a href="https://marleo.tech/afspraak/" style="color:#ef4056">marleo.tech/afspraak</a>.</div>'}),
     text:hi.replace(/<[^>]+>/g,'')+'\n\nOnze afspraak is verplaatst. Nieuw moment: '+when+'.\n'+(a.meetLink?'Google Meet: '+a.meetLink+'\n':'')+'\nPast dit niet? Antwoord op deze mail of kies een ander moment: https://marleo.tech/afspraak/\n\n'+SIG_TXT}}})();
 (function(){var _s=mxSend;mxSend=async function(kind,a,to){if(kind!=='canc'&&kind!=='resc')return _s(kind,a,to);
-  var m=mxBuild(kind,a);return gmSend({to:to||a.guestEmail,subject:m.subject,html:m.html,text:m.text,attach:{name:kind==='canc'?'afspraak-geannuleerd.ics':'afspraak-marleo.ics',type:'text/calendar; charset=utf-8; method='+(kind==='canc'?'CANCEL':'PUBLISH'),b64:b64utf(mxICS(a,kind==='canc'?'CANCEL':'PUBLISH'))}})}})();
+  var m=mxBuild(kind,a);return mxDeliver({to:to||a.guestEmail,subject:m.subject,html:m.html,text:m.text,attach:{name:kind==='canc'?'afspraak-geannuleerd.ics':'afspraak-marleo.ics',type:'text/calendar; charset=utf-8; method='+(kind==='canc'?'CANCEL':'PUBLISH'),b64:b64utf(mxICS(a,kind==='canc'?'CANCEL':'PUBLISH'))}})}})();
 
 /* ---- annuleren met mail ---- */
 function mCancel(id){var a=DATA.appointments.find(function(x){return x.id===id});if(!a)return;var em=a.guestEmail;var ok=!!em&&mcOn('canc');
