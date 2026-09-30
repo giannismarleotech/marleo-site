@@ -3653,6 +3653,7 @@ function leadBenefit(x){var t=((x.cat||'')+' '+(x.sector||'')+' '+(x.naam||'')).
   if(/resto|horeca|frituur|brasser|caf|bistro|pizz|traiteur|bakker|brood|tearoom|snack|bar\b|hotel|b&b/.test(t))return 'je menu, openingsuren en een reservatie- of bestelknop mooi op één plek staan';
   if(/bouw|aannem|dak|schilder|elektr|loodgiet|renov|tegel|schrijnw|tuin|stukad|timmer|install|vloer|keuken|las|metaal|afsluit|omheining/.test(t))return 'je je realisaties toont en mensen meteen een offerte aanvragen';
   if(/garage|auto|carwash|band|polijst|carrosser/.test(t))return 'klanten zelf een afspraak maken en meteen je diensten en prijzen zien';
+  if(/ophaal|afval|container|verhuis|vuil|recycl|koerier|transport|taxi|chauffeur/.test(t))return 'klanten meteen online een ophaling, rit of offerte aanvragen';
   if(/poets|schoonmaak|clean|ontruim/.test(t))return 'mensen meteen een prijs aanvragen voor hun woning of kantoor';
   if(/advoc|boekhoud|notar|consult|verzeker|fiscal|architect|immo/.test(t))return 'je professioneler overkomt en nieuwe klanten makkelijker contact opnemen';
   return 'mensen die je op Google zoeken je meteen vinden en contact opnemen'}
@@ -4677,7 +4678,7 @@ var SITS=[
  ['kapot','Website werkt niet'],['traag','Website traag'],['onvindbaar','Slecht vindbaar op Google'],['gprofiel','Google-profiel onvolledig'],
  ['goedrev','Sterke reviews'],['weinigrev','Weinig reviews'],['reserv','Geen online reservatie / afspraken'],['shop','Verkoopt producten, geen webshop'],
  ['mail','Geen eigen e-mailadres (gmail/hotmail)'],['nieuw','Pas gestart'],['ok','Website is in orde']];
-var SECTORS=['Kapper / barbier','Schoonheidssalon / nagels','Restaurant / café','Bakker / traiteur','Frituur / snack','Bouw / renovatie','Schilder','Elektricien / loodgieter','Dakwerken','Tuinaanleg','Garage / autohandel','Carwash / detailing','Poetsdienst','Winkel / boetiek','Fitness / coach','Fotograaf','Boekhouder / advocaat','Immo','Hotel / B&B','Anders'];
+var SECTORS=['Kapper / barbier','Schoonheidssalon / nagels','Restaurant / café','Bakker / traiteur','Frituur / snack','Bouw / renovatie','Schilder','Elektricien / loodgieter','Dakwerken','Tuinaanleg','Garage / autohandel','Carwash / detailing','Poetsdienst','Winkel / boetiek','Fitness / coach','Fotograaf','Boekhouder / advocaat','Immo','Hotel / B&B','Ophaaldienst / afval / containers','Verhuisbedrijf','Transport / koerier','Taxi / chauffeur','Rijschool','Kinderopvang','Dierenarts / dierenzorg','Kinesist / therapeut','Tandarts / dokter','Apotheek / opticien','Bloemist','Slager / groentewinkel','Fietsen / motoren','Verwarming / HVAC','Zonnepanelen / installatie','Ramen / deuren / glas','Vloeren / keuken / meubelen','Stukadoor / tegelzetter','Alarm / beveiliging','Drukkerij / signalisatie','Evenementen / DJ / catering','Yoga / dans / sportclub','Opleiding / coaching','Marketing / reclame','IT-bedrijf / webdesign','Landbouw / tuinbouw','Vzw / vereniging','Anders'];
 var BRONNEN=[['maps','Google Maps'],['fb','Facebook'],['ig','Instagram'],['voorbij','Voorbij gereden / langsgegaan'],['viavia','Via via / aanbeveling'],['kbo','Nieuw bedrijf (KBO)'],['anders','Anders']];
 var LF2={sit:{},seg:'web'};
 (function(){var st=document.createElement('style');st.textContent=
@@ -5651,6 +5652,49 @@ var _mCamp0=mCamp;mCamp=function(){_mCamp0();var body=document.getElementById('m
   var foot=document.getElementById('mFoot');if(foot)foot.insertAdjacentHTML('afterbegin','<button class="btn subtle" onclick="cpPreviewHtml()">👁 Voorbeeld</button>');CPTPL=''};
 cpHtml=(function(_h){return function(text){return CPTPL?cpRich(CPTPL,text):_h(text)}})(cpHtml);
 var _cpSch0=cpSchedule;cpSchedule=async function(){var f0=cpFilters;cpFilters=function(){var x=f0();x.tpl=CPTPL;return x};try{return await _cpSch0()}finally{cpFilters=f0}};
+
+/* ===== Sector-sjablonen + typen in plaats van selecteren ===== */
+(function(){
+ var S=function(o){return o};
+ CPT.ophaal=S({img:'ophaal',cat:'ophaal,afval,container,verhuis,vuil,recycl',n:'🚛 Ophaaldiensten & containers',sub:'Ophalingen van {bedrijf} online regelen?',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak websites voor ophaal- en containerdiensten, zodat klanten hun aanvraag meteen online kunnen doen.',
+  bul:[['Online ophaling aanvragen','Klanten kiezen zelf datum en type, jij krijgt alles netjes binnen in plaats van losse telefoontjes.'],['Tarieven en zones duidelijk','Wat je ophaalt, waar je komt en wat het kost, meteen zichtbaar.'],['Gevonden in je regio','Wie "container huren" of "ophaaldienst" zoekt in jouw buurt, vindt jou.']],
+  end:'Zal ik gratis een voorbeeld maken voor {bedrijf}? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'});
+ CPT.horeca=S({img:'horeca',cat:'restaurant,café,cafe,bistro,frituur,snack,bakker,traiteur,tearoom,bar,hotel,b&b',n:'🍽️ Horeca',sub:'Meer gasten voor {bedrijf}, ook online',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak websites voor horecazaken, met menu, openingsuren en makkelijk contact.',
+  bul:[['Menu en openingsuren altijd up-to-date','Geen verouderde pdf meer: gasten zien meteen wat ze zoeken, ook op hun gsm.'],['Vindbaar op Google','Zodat gasten in de buurt jou vinden als ze honger hebben.'],['Snel en verzorgd','Een site die de sfeer van jouw zaak weergeeft.']],
+  end:'Zal ik gratis een voorbeeld maken voor {bedrijf}? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'});
+ CPT.bouw=S({img:'bouw',cat:'bouw,renov,aannem,dak,schilder,elektr,loodgiet,tegel,schrijn,tuin,stukad,timmer,vloer,las,metaal',n:'🔨 Bouw & vakmensen',sub:'Meer offerteaanvragen voor {bedrijf}',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak websites voor vakmensen die hun werk willen tonen en offerteaanvragen willen ontvangen.',
+  bul:[['Toon je realisaties','Foto\'s van je beste werk overtuigen meer dan elke folder.'],['Offerte in één klik','Klanten vullen een kort formulier in en jij krijgt alles wat je nodig hebt.'],['Lokaal gevonden','"Dakwerker in mijn buurt" en jij staat ertussen.']],
+  end:'Zal ik gratis een voorbeeld maken voor {bedrijf}? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'});
+ CPT.beauty=S({img:'beauty',cat:'kapper,barb,coiff,schoonheid,nagel,salon,massage,wellness,beauty',n:'💇 Kappers & beauty',sub:'Klanten van {bedrijf} zelf online laten boeken',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak websites voor kappers en beautysalons, met alles wat klanten willen weten en makkelijk contact.',
+  bul:[['Diensten en prijzen duidelijk','Geen vragen meer per telefoon over wat je doet en wat het kost.'],['Sfeer en werk in beeld','Laat zien wat je maakt, zodat nieuwe klanten meteen vertrouwen krijgen.'],['Vindbaar op Google','Zodat klanten uit de buurt jou vinden.']],
+  end:'Zal ik gratis een voorbeeld maken voor {bedrijf}? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'});
+ CPT.auto=S({img:'auto',cat:'garage,auto,carwash,band,polijst,carrosser,occasie',n:'🚗 Garages & auto',sub:'Meer afspraken voor {bedrijf}, minder telefoons',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak websites voor garages en autobedrijven, met diensten, prijzen en makkelijk contact.',
+  bul:[['Diensten en prijzen zichtbaar','Onderhoud, herstelling, keuring: klanten zien meteen wat je doet.'],['Occasies online tonen','Zet je wagens zelf online, met foto\'s en prijs.'],['Lokaal gevonden','Wie een garage in de buurt zoekt, vindt jou eerst.']],
+  end:'Zal ik gratis een voorbeeld maken voor {bedrijf}? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'});
+ CPT.praktijk=S({img:'praktijk',cat:'advoc,boekhoud,notar,consult,verzeker,fiscal,architect,immo,kine,tandarts,dokter,praktijk,coach',n:'💼 Praktijken & advies',sub:'Een professionele website voor {bedrijf}',
+  body:'{aanhef}\n\nIk ben Giannis van Marleo uit Nevele. Ik maak sobere, professionele websites voor praktijken en adviesbureaus.',
+  bul:[['Professioneel eerste indruk','Nieuwe klanten zoeken je eerst online. Een verzorgde site schept meteen vertrouwen.'],['Diensten helder uitgelegd','Wat je doet, voor wie en hoe ze je bereiken.'],['Gemakkelijk contact','Een duidelijke plek om een afspraak of vraag te sturen.']],
+  end:'Zal ik gratis een voorbeeld maken voor {bedrijf}? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.',cta:'Ja, toon me een voorbeeld'});
+})();
+cpRich=(function(_r){return function(k,text,p){var t=CPT[k];if(t&&t.img){var h=_r(k,text,p);return h.replace('marleo-mail-'+k+'.png','marleo-mail-'+t.img+'.png')}return _r(k,text,p)}})(cpRich);
+var _cpPick0=cpPickTpl;cpPickTpl=function(k){_cpPick0(k);var t=CPT[k];var c=document.getElementById('cp_cat');if(t&&c){c.value=t.cat||'';cpPrev()}};
+/* categorie-filter: meerdere zoektermen met komma (OR) + suggesties */
+var _cpAud1=cpAudience;cpAudience=function(f){var terms=String(f.cat||'').toLowerCase().split(',').map(function(x){return x.trim()}).filter(Boolean);
+  if(terms.length<2)return _cpAud1(f);var g=Object.assign({},f,{cat:''});return _cpAud1(g).filter(function(d){var c=String(d.cat||'').toLowerCase();return !d.id||terms.some(function(t){return c.indexOf(t)>=0})})};
+(function(){var _m=mCamp;mCamp=function(){_m();var c=document.getElementById('cp_cat');if(!c)return;c.setAttribute('list','cp_catlist');c.placeholder='typ een sector, bv. ophaal of kapper (meerdere: komma)';
+  var cats={};SECTORS.forEach(function(s){cats[s]=1});DATA.deals.forEach(function(d){if(d.cat)cats[String(d.cat).split('·').pop().trim()]=1});
+  c.insertAdjacentHTML('afterend','<datalist id="cp_catlist">'+Object.keys(cats).sort().map(function(x){return '<option value="'+esc(x)+'">'}).join('')+'</datalist>')}})();
+/* KBO-nieuwe bedrijven: sector typen i.p.v. selecteren */
+(function(){var _r=rNewco;rNewco=function(){_r();var sel=document.querySelector('select[onchange*="NCFILT.sector"]');if(!sel)return;
+  var inp=document.createElement('input');inp.value=NCFILT.sector||'';inp.placeholder='Alle sectoren – typ om te zoeken';inp.setAttribute('list','nc_sectlist');inp.style.minWidth='170px';
+  var dl='<datalist id="nc_sectlist">'+NC_SECTORS.map(function(s){return '<option value="'+esc(s)+'">'}).join('')+'</datalist>';
+  inp.onchange=function(){NCFILT.sector=NC_SECTORS.filter(function(s){return s.toLowerCase()===inp.value.trim().toLowerCase()})[0]||'';if(inp.value.trim()&&!NCFILT.sector){var m=NC_SECTORS.filter(function(s){return s.toLowerCase().indexOf(inp.value.trim().toLowerCase())>=0});NCFILT.sector=m.length===1?m[0]:''}rNewco()};
+  sel.parentNode.replaceChild(inp,sel);inp.insertAdjacentHTML('afterend',dl)}})();
 
 </script>
 </body>
