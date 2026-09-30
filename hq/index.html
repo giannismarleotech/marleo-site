@@ -5117,6 +5117,94 @@ setInterval(function(){if(document.visibilityState==='visible')bkPull()},120000)
 setTimeout(function(){bkPull();bkPushSoon()},6000);
 (function(){var st=document.createElement('style');st.textContent='.bkgrid{display:flex;flex-direction:column;gap:6px}.bkrow{display:flex;align-items:center;gap:6px;font-size:.85rem}.bkrow .bkd{width:110px;display:flex;gap:6px;align-items:center;cursor:pointer}.bkrow input[type=time]{width:96px;padding:6px 8px}.bksep{color:var(--muted);margin:0 4px}.ag2tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.ag2chk input[type=checkbox],.bkrow input[type=checkbox]{width:auto;flex:none;margin:0}.ag2chk label,.bkrow label{margin:0;color:var(--text);font-weight:500;font-size:.88rem}.ag2day{text-transform:none!important}.ag2day::first-letter{text-transform:uppercase}.ag2pill{font-size:.66rem;padding:1px 7px;border-radius:999px;background:rgba(251,191,36,.18);color:#FBBF24;font-weight:600;vertical-align:middle}.ag2pill.web{background:rgba(96,165,250,.18);color:#93c5fd}.ag2card.pend{border-color:#FBBF24}';document.head.appendChild(st)})();
 
+/* ================= Dossier per lead/klant: demo-sites, domein/hosting, logins (versleuteld) ================= */
+var DS={kind:'',id:'',w:null,key:null,show:{}};
+function dsObj(k,id){return k==='deal'?DATA.deals.find(function(x){return x.id===id}):customer(id)}
+function dsName(o,k){return k==='deal'?o.naam:o.name}
+function dsB64(b){var s='';new Uint8Array(b).forEach(function(x){s+=String.fromCharCode(x)});return btoa(s)}
+function dsUn64(s){var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u}
+async function dsDerive(pass,salt){var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:200000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function dsEnc(txt){var iv=crypto.getRandomValues(new Uint8Array(12));var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},DS.key,new TextEncoder().encode(txt));var o=new Uint8Array(12+ct.byteLength);o.set(iv);o.set(new Uint8Array(ct),12);return dsB64(o)}
+async function dsDec(b64){try{var u=dsUn64(b64);var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:u.slice(0,12)},DS.key,u.slice(12));return new TextDecoder().decode(pt)}catch(e){return null}}
+function dsVault(){DATA.settings=DATA.settings||{};return DATA.settings.vault||null}
+function dsUnlockUI(){dsCollect();DS.keep={k:DS.kind+DS.id,w:DS.w};var first=!dsVault();
+  openM(first?'🔐 Kluis instellen':'🔐 Kluis ontgrendelen',
+   '<div class="hint" style="margin-bottom:10px">'+(first?'Kies een kluiswachtwoord. Alle wachtwoorden in de dossiers worden hiermee <b>versleuteld</b> voor ze worden opgeslagen. Vergeet je dit wachtwoord, dan zijn de opgeslagen wachtwoorden niet meer te herstellen.':'Vul je kluiswachtwoord in om opgeslagen wachtwoorden te bekijken.')+'</div>'+
+   '<div class="fgroup"><label>Kluiswachtwoord</label><input id="vt_pw" type="password" autocomplete="off" onkeydown="if(event.key===\'Enter\')dsUnlock()"></div>'+(first?'<div class="fgroup"><label>Herhaal</label><input id="vt_pw2" type="password" autocomplete="off" onkeydown="if(event.key===\'Enter\')dsUnlock()"></div>':''),
+   '<button class="btn subtle" onclick="dsOpen(DS.kind,DS.id)">Annuleren</button><button class="btn" onclick="dsUnlock()">'+(first?'Instellen':'Ontgrendelen')+'</button>');
+  setTimeout(function(){var e=document.getElementById('vt_pw');if(e)e.focus()},50)}
+async function dsUnlock(){var pw=document.getElementById('vt_pw').value;if(!pw){toast('Vul een wachtwoord in',true);return}var v=dsVault();
+  if(!v){var p2=document.getElementById('vt_pw2').value;if(pw.length<6){toast('Minstens 6 tekens',true);return}if(pw!==p2){toast('De twee wachtwoorden zijn verschillend',true);return}
+    var salt=crypto.getRandomValues(new Uint8Array(16));DS.key=await dsDerive(pw,salt);DATA.settings.vault={salt:dsB64(salt),check:await dsEnc('marleo-kluis')};saveData();toast('🔐 Kluis ingesteld')}
+  else{var k=await dsDerive(pw,dsUn64(v.salt));DS.key=k;var ok=await dsDec(v.check);if(ok!=='marleo-kluis'){DS.key=null;toast('Verkeerd kluiswachtwoord',true);return}toast('🔓 Kluis ontgrendeld')}
+  dsOpen(DS.kind,DS.id)}
+function dsLock(){DS.key=null;DS.show={};dsOpen(DS.kind,DS.id)}
+
+async function dsOpen(kind,id){var o=dsObj(kind,id);if(!o)return;DS.kind=kind;DS.id=id;
+  var d=o.dossier||{};var info=kind==='klant'||kind==='cust'?custInfo(o):{};
+  if(kind==='cust')DS.kind='cust';
+  var w={demos:(d.demos||[]).map(function(x){return Object.assign({},x)}),dom:Object.assign({domein:'',registrar:'',hosting:'',dns:'',mail:''},d.dom||{}),logins:(d.logins||[]).map(function(x){return Object.assign({},x)}),notes:d.notes||''};
+  if(DS.kind==='cust'){['domein','registrar','hosting','mail'].forEach(function(k){if(!w.dom[k]&&info[k])w.dom[k]=info[k]});if(!w.demos.length&&info.url)w.demos.push({label:'Live website',url:info.url,note:''})}
+  if(DS.kind==='deal'&&!w.demos.length&&o.website)w.demos.push({label:'Huidige website',url:o.website,note:''});
+  /* van lead naar klant: dossier van de lead meenemen */
+  if(DS.kind==='cust'&&!(d.demos||d.logins)){var em=(o.email||'').toLowerCase(),nm=(o.name||'').toLowerCase();var dl=DATA.deals.filter(function(x){return x.dossier&&((em&&(x.email||'').toLowerCase()===em)||(x.naam||'').toLowerCase()===nm)})[0];if(dl){w.demos=(dl.dossier.demos||[]).map(function(x){return Object.assign({},x)});w.logins=(dl.dossier.logins||[]).map(function(x){return Object.assign({},x)});Object.keys(dl.dossier.dom||{}).forEach(function(k){if(!w.dom[k])w.dom[k]=dl.dossier.dom[k]});toast('Dossier van de lead overgenomen')}}
+  if(DS.keep&&DS.keep.k===DS.kind+id)w=DS.keep.w;DS.keep=null;
+  if(DS.key)for(var i=0;i<w.logins.length;i++){var l=w.logins[i];if(l.pw===undefined||l.pw===''){l.pw=l.pwEnc?(await dsDec(l.pwEnc)):'';if(l.pw===null)l.pw='⚠ kon niet ontcijferen'}}
+  DS.w=w;dsRender()}
+function dsRender(){var w=DS.w,o=dsObj(DS.kind,DS.id);var unlocked=!!DS.key;
+  var demos=w.demos.map(function(x,i){return '<div class="dsrow"><input placeholder="Naam (Demo / Live)" value="'+esc(x.label||'')+'" data-f="demos.'+i+'.label" style="flex:0 0 130px"><input placeholder="https://…" value="'+esc(x.url||'')+'" data-f="demos.'+i+'.url">'+
+     (x.url?'<a class="btn sm subtle" href="'+esc(x.url)+'" target="_blank" rel="noopener" title="Open">↗</a><button class="btn sm subtle" title="Voorbeeld hier tonen" onclick="dsPrev('+i+')">👁</button><button class="btn sm subtle" title="Kopieer link" onclick="navigator.clipboard.writeText(\''+esc(x.url)+'\');toast(\'Link gekopieerd\')">📋</button>':'')+'<button class="btn sm subtle danger" onclick="dsDel(\'demos\','+i+')">✕</button></div>'}).join('');
+  var logins=w.logins.map(function(x,i){var vis=DS.show[i];return '<div class="dslogin"><div class="dsrow"><input placeholder="Dienst (Cloudflare, Vimexx, Combell…)" value="'+esc(x.label||'')+'" data-f="logins.'+i+'.label"><input placeholder="Inlog-URL" value="'+esc(x.url||'')+'" data-f="logins.'+i+'.url"><button class="btn sm subtle danger" onclick="dsDel(\'logins\','+i+')">✕</button></div>'+
+     '<div class="dsrow"><input placeholder="Gebruikersnaam / e-mail" value="'+esc(x.user||'')+'" data-f="logins.'+i+'.user">'+(unlocked?'<input type="'+(vis?'text':'password')+'" autocomplete="new-password" placeholder="Wachtwoord" value="'+esc(x.pw||'')+'" data-f="logins.'+i+'.pw"><button class="btn sm subtle" onclick="dsToggle('+i+')">'+(vis?'🙈':'👁')+'</button><button class="btn sm subtle" onclick="dsCopyPw('+i+')">📋</button>':'<input disabled placeholder="🔒 wachtwoord (kluis is vergrendeld)"'+(x.pwEnc?' value="••••••••"':'')+'>')+'</div>'+
+     '<div class="dsrow"><select data-f="logins.'+i+'.who" style="flex:0 0 190px"><option value="klant"'+(x.who!=='ik'&&x.who!=='samen'?' selected':'')+'>Klant is eigenaar</option><option value="ik"'+(x.who==='ik'?' selected':'')+'>Ik beheer dit</option><option value="samen"'+(x.who==='samen'?' selected':'')+'>Samen / beheerdersrechten</option></select><input placeholder="Notitie (2FA, waar bewaard…)" value="'+esc(x.note||'')+'" data-f="logins.'+i+'.note"></div></div>'}).join('');
+  var dm=w.dom;var f=function(k,l,p){return '<div class="fgroup"><label>'+l+'</label><input value="'+esc(dm[k]||'')+'" placeholder="'+p+'" data-f="dom.'+k+'"></div>'};
+  openM('📁 Dossier – '+esc(dsName(o,DS.kind)),
+   '<div class="dssec">🖥 Demo &amp; websites</div>'+(demos||'<div class="hint" style="margin-bottom:6px">Nog geen demo. Voeg de link toe van de site die je maakte (bv. Netlify- of GitHub-link).</div>')+'<button class="btn sm subtle" onclick="dsAdd(\'demos\')">＋ Demo / website toevoegen</button><div id="ds_prev"></div>'+
+   '<div class="dssec">🌐 Domein &amp; hosting</div><div class="frow">'+f('domein','Domeinnaam','jouwzaak.be')+f('registrar','Geregistreerd bij','Cloudflare, Vimexx, Combell…')+'</div><div class="frow">'+f('hosting','Hosting','GitHub Pages, Netlify…')+f('dns','DNS / nameservers','Cloudflare…')+'</div>'+f('mail','E-mailadressen &amp; provider','info@jouwzaak.be (Google Workspace)')+
+   '<div class="dssec">🔑 Logins &amp; toegangen <span style="float:right;font-size:.75rem;font-weight:500">'+(unlocked?'<a href="#" onclick="dsLock();return false" style="color:#86EFAC">🔓 ontgrendeld · vergrendel</a>':'<a href="#" onclick="dsUnlockUI();return false" style="color:#FCD34D">🔒 ontgrendel de kluis</a>')+'</span></div>'+
+   (logins||'<div class="hint" style="margin-bottom:6px">Meestal blijven logins bij de klant. Noteer hier wie waar eigenaar van is en, indien nodig, de toegang.</div>')+'<button class="btn sm subtle" onclick="dsAdd(\'logins\')">＋ Login toevoegen</button>'+
+   '<div class="dssec">📝 Notities</div><textarea data-f="notes" rows="3" placeholder="Afspraken, wat nog moet gebeuren, contactpersoon bij de klant…">'+esc(w.notes||'')+'</textarea>',
+   '<button class="btn subtle" onclick="closeM()">Sluiten</button><button class="btn" onclick="dsSave()">Opslaan</button>',true)}
+function dsCollect(){document.querySelectorAll('#modal [data-f],.modal [data-f]').forEach(function(el){var p=el.dataset.f.split('.');var t=DS.w;for(var i=0;i<p.length-1;i++)t=t[p[i]];t[p[p.length-1]]=el.value})}
+function dsAdd(k){dsCollect();DS.w[k].push(k==='demos'?{label:DS.w.demos.length?'':'Demo',url:'',note:''}:{label:'',url:'',user:'',pw:'',who:'klant',note:''});dsRender()}
+function dsDel(k,i){dsCollect();DS.w[k].splice(i,1);DS.show={};dsRender()}
+function dsToggle(i){dsCollect();DS.show[i]=!DS.show[i];dsRender()}
+function dsCopyPw(i){dsCollect();var p=DS.w.logins[i].pw||'';if(!p){toast('Geen wachtwoord',true);return}navigator.clipboard.writeText(p);toast('Wachtwoord gekopieerd')}
+function dsPrev(i){dsCollect();var u=DS.w.demos[i].url;var el=document.getElementById('ds_prev');if(!el)return;el.innerHTML='<div class="dsprev"><div class="dsprevh"><span>'+esc(u)+'</span><span><a href="'+esc(u)+'" target="_blank" rel="noopener" class="btn sm subtle">↗ Volledig</a> <button class="btn sm subtle" onclick="document.getElementById(\'ds_prev\').innerHTML=\'\'">✕</button></span></div><iframe src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer"></iframe></div>';el.scrollIntoView({behavior:'smooth',block:'nearest'})}
+async function dsSave(){dsCollect();var w=DS.w,o=dsObj(DS.kind,DS.id);
+  var logins=[];for(var i=0;i<w.logins.length;i++){var l=w.logins[i];if(!(l.label||l.user||l.url||l.pw||l.pwEnc||l.note))continue;var n={label:l.label||'',url:l.url||'',user:l.user||'',who:l.who||'klant',note:l.note||''};
+    if(DS.key){n.pwEnc=l.pw?await dsEnc(l.pw):''}else n.pwEnc=l.pwEnc||'';logins.push(n)}
+  o.dossier={demos:w.demos.filter(function(x){return x.url||x.label}),dom:w.dom,logins:logins,notes:w.notes};
+  if(DS.kind==='cust'){var i2=custInfo(o);['domein','registrar','hosting','mail'].forEach(function(k){i2[k]=w.dom[k]||''});var live=w.demos.filter(function(x){return /live/i.test(x.label||'')})[0]||w.demos[0];if(live&&!i2.url)i2.url=live.url}
+  if(DS.kind==='deal'){(o.log=o.log||[]).push({t:Date.now(),txt:'📁 Dossier bijgewerkt'});if(!o.demoUrl&&w.demos[0])o.demoUrl=w.demos[0].url}
+  saveData();closeM();toast('Dossier opgeslagen');if(VIEW==='custpage')try{rCustPage()}catch(e){}}
+
+/* ---- knoppen ---- */
+(function(){var _v=vDeal;vDeal=function(id){_v(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.dsbtn')){var d=DATA.deals.find(function(x){return x.id===id});var n=d&&d.dossier?((d.dossier.demos||[]).length+(d.dossier.logins||[]).length):0;f.insertAdjacentHTML('afterbegin','<button class="btn sm dsbtn" style="background:#8B5CF6;color:#fff" onclick="closeM();dsOpen(\'deal\',\''+id+'\')">📁 Dossier'+(n?' ('+n+')':'')+'</button>')}}})();
+(function(){var _c=rCustPage;rCustPage=function(){_c.apply(this,arguments);var hs=main().querySelectorAll('h3');hs.forEach(function(h){if(/Gegevens van de klant/.test(h.textContent)&&!h.querySelector('.dsbtn')){var m=h.innerHTML.match(/mCustInfo\('([^']+)'\)/);if(m)h.insertAdjacentHTML('beforeend',' <button class="btn sm dsbtn" style="background:#8B5CF6;color:#fff" onclick="dsOpen(\'cust\',\''+m[1]+'\')">📁 Dossier</button>')}})}})();
+(function(){var st=document.createElement('style');st.textContent='.dssec{font-family:var(--disp);font-weight:600;margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--line)}.dssec:first-child{border-top:0;margin-top:0;padding-top:0}.dsrow{display:flex;gap:6px;margin-bottom:6px;align-items:center}.dsrow input,.dsrow select{flex:1;min-width:0}.dslogin{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px}.dsprev{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:10px}.dsprevh{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg2);font-size:.75rem;gap:8px}.dsprevh span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsprev iframe{width:100%;height:340px;border:0;background:#fff}';document.head.appendChild(st)})();
+
+/* ================= Handtekening automatisch in elke verzonden mail ================= */
+var SIG_HTML='<table cellpadding="0" cellspacing="0" border="0" style="color:#1a1a22;font-size:medium;border-collapse:collapse"><tbody><tr><td valign="middle" style="padding:0 20px 0 0;vertical-align:middle"><a href="https://marleo.tech/" style="text-decoration:none"><img src="https://marleo.tech/marleo-logo-mail.png" width="140" height="29" alt="marleo.tech" style="display:block;width:140px;height:29px;border:0"></a></td><td valign="middle" style="padding:0 20px 0 0;vertical-align:middle"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tbody><tr><td width="3" height="33" style="width:3px;height:33px;background:#f97c1f;font-size:0;line-height:0">&nbsp;</td></tr><tr><td width="3" height="33" style="width:3px;height:33px;background:#ef4056;font-size:0;line-height:0">&nbsp;</td></tr><tr><td width="3" height="33" style="width:3px;height:33px;background:#e91e7b;font-size:0;line-height:0">&nbsp;</td></tr></tbody></table></td><td valign="middle" style="padding:0;vertical-align:middle"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tbody><tr><td style="padding:0;font-size:17px;line-height:22px;font-weight:bold;color:#14141c">Giannis Baert</td></tr><tr><td style="padding:0 0 8px;font-size:13px;line-height:18px;color:#6a6a7e">Founder</td></tr><tr><td style="padding:0"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tbody><tr><td width="20" style="width:20px;padding:0;font-size:13px;line-height:21px;color:#f97c1f;font-weight:bold">T</td><td style="padding:0;font-size:13px;line-height:21px"><a href="tel:+32456920025" style="color:#1a1a22;text-decoration:none">+32 456 92 00 25</a></td></tr><tr><td width="20" style="width:20px;padding:0;font-size:13px;line-height:21px;color:#ef4056;font-weight:bold">E</td><td style="padding:0;font-size:13px;line-height:21px"><a href="mailto:giannis@marleo.tech" style="color:#1a1a22;text-decoration:none">giannis@marleo.tech</a></td></tr><tr><td width="20" style="width:20px;padding:0;font-size:13px;line-height:21px;color:#e91e7b;font-weight:bold">W</td><td style="padding:0;font-size:13px;line-height:21px"><a href="https://marleo.tech/" style="color:#1a1a22;text-decoration:none">marleo.tech</a></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>';
+var SIG_TXT='Giannis Baert\nFounder\nT +32 456 92 00 25\nE giannis@marleo.tech\nW marleo.tech';
+function sigStrip(t){var l=String(t||'').replace(/\s+$/,'').split('\n');
+  while(l.length&&/^\s*(giannis( baert)?(\s*[|·\-–]\s*marleo)?|founder.*|marleo|marleo\.tech|www\.marleo\.tech|https?:\/\/marleo\.tech\/?|t\s*\+?32.*|e\s+giannis@marleo\.tech|w\s+marleo\.tech|tel\.?:?\s*\+?32.*|)\s*$/i.test(l[l.length-1]))l.pop();
+  return l.join('\n')}
+function sigHtmlBody(t){var e=String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');e=e.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1">$1</a>').replace(/\n/g,'<br>');return e}
+gmSend=async function(o){var cfg=gCfg();var from=(cfg.fromName?mimeWord(cfg.fromName)+' ':'')+'<'+(cfg.from||'giannis@marleo.tech')+'>';
+  var body=o.noSig?String(o.text||''):sigStrip(o.text);
+  var txt=o.noSig?body:body+'\n\n'+SIG_TXT;
+  var html='<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(body)+(o.noSig?'':'<br><br>'+SIG_HTML)+'</div>';
+  var A='alt_'+Date.now().toString(36),lines=['From: '+from,'To: '+o.to,'Subject: '+mimeWord(o.subject||''),'MIME-Version: 1.0'];
+  var alt='--'+A+'\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(txt).replace(/(.{76})/g,'$1\r\n')+'\r\n--'+A+'\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(html).replace(/(.{76})/g,'$1\r\n')+'\r\n--'+A+'--';
+  var raw;
+  if(o.attach){var M='mix_'+Date.now().toString(36);lines.push('Content-Type: multipart/mixed; boundary="'+M+'"');
+    raw=lines.join('\r\n')+'\r\n\r\n--'+M+'\r\nContent-Type: multipart/alternative; boundary="'+A+'"\r\n\r\n'+alt+'\r\n--'+M+'\r\nContent-Type: '+(o.attach.type||'application/pdf')+'; name="'+o.attach.name+'"\r\nContent-Disposition: attachment; filename="'+o.attach.name+'"\r\nContent-Transfer-Encoding: base64\r\n\r\n'+o.attach.b64.replace(/(.{76})/g,'$1\r\n')+'\r\n--'+M+'--'}
+  else{lines.push('Content-Type: multipart/alternative; boundary="'+A+'"');raw=lines.join('\r\n')+'\r\n\r\n'+alt}
+  return gApi('POST','https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{raw:b64u(raw)})};
+/* bevestigingsmail: geen eigen handtekening meer, die komt automatisch */
+var _bmt=bkMailText;bkMailText=function(a){var m=_bmt(a);m.text=sigStrip(m.text);return m};
+
 </script>
 </body>
 </html>
