@@ -4971,6 +4971,35 @@ gcalPull=async function(silent){if(!gCfg().clientId||!gCfg().sync)return;try{
 '.ag2link{background:rgba(22,163,74,.12);border:1px solid rgba(22,163,74,.4);border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:.8rem;word-break:break-all}.ag2link a{color:#86EFAC}';
 document.head.appendChild(st)})();
 
+/* ---------- zoekvelden: focus behouden + doorzoekbare keuzelijst ---------- */
+(function(){var _r=rPipeline;rPipeline=function(){var a=document.activeElement;var was=a&&a.tagName==='INPUT'&&/Zoek lead/.test(a.placeholder||'');var pos=was?a.selectionStart:0;
+  _r.apply(this,arguments);
+  if(was){var n=main().querySelector('input[placeholder^="Zoek lead"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}}})();
+/* searchable: past select 'a_who' aan naar invoer + lijst */
+function ag2Items(sel){var out=[];sel.querySelectorAll('option').forEach(function(o){if(o.value==='')return;var g=o.parentNode.tagName==='OPTGROUP'?o.parentNode.label:'';out.push({v:o.value,t:o.textContent,g:g})});return out}
+function ag2Combo(){var sel=document.getElementById('a_who');if(!sel||document.getElementById('a_whoq'))return;
+  var items=ag2Items(sel);items=items.filter(function(i){return i.v!=='__new'}).concat(items.filter(function(i){return i.v==='__new'}));sel.style.display='none';
+  var cur=sel.options[sel.selectedIndex];
+  var box=document.createElement('div');box.style.position='relative';
+  box.innerHTML='<input id="a_whoq" autocomplete="off" placeholder="Typ om te zoeken: klant of lead…" value="'+esc(sel.value?cur.textContent:'')+'"><div id="a_whol" class="ag2dd" style="display:none"></div>';
+  sel.parentNode.insertBefore(box,sel);
+  var inp=box.querySelector('#a_whoq'),dd=box.querySelector('#a_whol');
+  function pick(v,t){sel.value=v;inp.value=v?(v==='__new'?'＋ Nieuwe lead of klant':t):'';dd.style.display='none';sel.dispatchEvent(new Event('change'))}
+  function show(){var q=inp.value.toLowerCase().trim();var s=(inp.dataset.sel===inp.value)?'':q;
+    var list=items.filter(function(i){return !s||i.t.toLowerCase().indexOf(s)>=0||i.v==='__new'});
+    var h='<div class="ag2opt" data-v="">– Niemand / eigen afspraak –</div>';var lastg='';
+    list.slice(0,40).forEach(function(i){if(i.g!==lastg&&i.v!=='__new'){if(i.g)h+='<div class="ag2grp">'+esc(i.g)+'</div>';lastg=i.g}h+='<div class="ag2opt" data-v="'+esc(i.v)+'">'+esc(i.t)+'</div>'});
+    if(!list.length)h+='<div class="ag2grp">Geen resultaat – kies "Nieuwe lead of klant"</div>';
+    dd.innerHTML=h;dd.style.display='block'}
+  inp.addEventListener('focus',function(){inp.select();show()});
+  inp.addEventListener('input',function(){inp.dataset.sel='';show()});
+  dd.addEventListener('mousedown',function(e){var o=e.target.closest('.ag2opt');if(!o)return;e.preventDefault();var v=o.dataset.v;var it=items.filter(function(i){return i.v===v})[0];pick(v,it?it.t:'');inp.dataset.sel=inp.value});
+  inp.addEventListener('blur',function(){setTimeout(function(){dd.style.display='none'},120)});
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var f=dd.querySelectorAll('.ag2opt')[1]||dd.querySelector('.ag2opt');if(f&&dd.style.display!=='none'){var v=f.dataset.v;var it=items.filter(function(i){return i.v===v})[0];pick(v,it?it.t:'');inp.dataset.sel=inp.value;inp.blur()}}});
+  inp.dataset.sel=inp.value}
+(function(){var _m=mAppt;mAppt=function(){_m.apply(this,arguments);setTimeout(ag2Combo,0)};
+ var st=document.createElement('style');st.textContent='.ag2dd{position:absolute;left:0;right:0;top:100%;z-index:50;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:240px;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5);margin-top:4px}.ag2opt{padding:9px 12px;cursor:pointer;font-size:.9rem}.ag2opt:hover{background:var(--bg2)}.ag2grp{padding:6px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}';document.head.appendChild(st)})();
+
 </script>
 </body>
 </html>
