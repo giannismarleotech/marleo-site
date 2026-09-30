@@ -5001,7 +5001,7 @@ function ag2Combo(){var sel=document.getElementById('a_who');if(!sel||document.g
  var st=document.createElement('style');st.textContent='.ag2dd{position:absolute;left:0;right:0;top:100%;z-index:50;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:240px;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5);margin-top:4px}.ag2opt{padding:9px 12px;cursor:pointer;font-size:.9rem}.ag2opt:hover{background:var(--bg2)}.ag2grp{padding:6px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}';document.head.appendChild(st)})();
 
 /* ================= Online boeken + beschikbaarheid + privé afspraken ================= */
-var BKDEF={on:false,hours:{'1':[['09:00','12:00'],['13:00','17:00']],'2':[['09:00','12:00'],['13:00','17:00']],'3':[['09:00','12:00'],['13:00','17:00']],'4':[['09:00','12:00'],['13:00','17:00']],'5':[['09:00','12:00'],['13:00','16:00']]},dur:30,buffer:15,notice:12,horizon:30,kinds:['meet','tel'],auto:false,meetLink:'',intro:'',blocks:[]};
+var BKDEF={on:true,hours:{'1':[['09:00','12:00'],['13:00','17:00']],'2':[['09:00','12:00'],['13:00','17:00']],'3':[['09:00','12:00'],['13:00','17:00']],'4':[['09:00','12:00'],['13:00','17:00']],'5':[['09:00','12:00'],['13:00','16:00']]},dur:30,buffer:15,notice:12,horizon:30,kinds:['meet','tel'],auto:false,meetLink:'',intro:'Gratis en vrijblijvend kennismakingsgesprek van 30 minuten',blocks:[]};
 function bkCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.booking)DATA.settings.booking=JSON.parse(JSON.stringify(BKDEF));var c=DATA.settings.booking;if(!c.blocks)c.blocks=[];if(!c.hours)c.hours={};return c}
 function bkMin(t){var p=String(t||'0:0').split(':');return (+p[0]||0)*60+(+p[1]||0)}
 var BKTIMER=null;
