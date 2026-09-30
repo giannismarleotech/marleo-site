@@ -5584,7 +5584,7 @@ async function cpSchedule(){
   var name=document.getElementById('cp_name').value.trim(),sub=document.getElementById('cp_sub').value.trim(),txt=document.getElementById('cp_body').value,lim=Math.max(1,Math.min(100,+document.getElementById('cp_lim').value||20));
   if(!name||!sub||!txt.trim()){toast('Vul naam, onderwerp en bericht in',true);return}
   var f=cpFilters(),aud=cpAudience(f);if(!aud.length){toast('Geen ontvangers met deze filters',true);return}
-  if(!confirm('Campagne "'+name+'" inplannen voor '+aud.length+' ontvangers ('+lim+' per dag, vanaf vandaag/eerstvolgende werkdag)?'))return;
+  if(!confirm('Campagne "'+name+'" inplannen voor '+aud.length+' ontvangers:\n'+aud.slice(0,8).map(function(d){return '• '+(d.naam||d.email)}).join('\n')+(aud.length>8?'\n… en '+(aud.length-8)+' anderen':'')+'\n\n('+lim+' per dag, vanaf vandaag/eerstvolgende werkdag)?'))return;
   var btn=document.getElementById('cp_go');btn.disabled=true;btn.textContent='Inplannen…';
   try{var c=await sb.from('campaigns').insert({name:name,subject:sub,body:txt,filters:f,daily_limit:lim,status:'gepland'}).select('id');if(c.error)throw c.error;var cid=c.data[0].id;
     var slots=cpSlots(aud.length,lim),rows=aud.map(function(d,i){var tx=cpVars(d,txt)+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id||null,status:'pending'}});
@@ -5698,6 +5698,23 @@ var _cpAud1=cpAudience;cpAudience=function(f){var terms=String(f.cat||'').toLowe
   var dl='<datalist id="nc_sectlist">'+NC_SECTORS.map(function(s){return '<option value="'+esc(s)+'">'}).join('')+'</datalist>';
   inp.onchange=function(){NCFILT.sector=NC_SECTORS.filter(function(s){return s.toLowerCase()===inp.value.trim().toLowerCase()})[0]||'';if(inp.value.trim()&&!NCFILT.sector){var m=NC_SECTORS.filter(function(s){return s.toLowerCase().indexOf(inp.value.trim().toLowerCase())>=0});NCFILT.sector=m.length===1?m[0]:''}rNewco()};
   sel.parentNode.replaceChild(inp,sel);inp.insertAdjacentHTML('afterend',dl)}})();
+
+/* ===== Campagne: duidelijk wie de ontvangers zijn (lijst + uitvinken) ===== */
+var CPEXC={};
+var cpAudienceAll=cpAudience;
+cpAudience=function(f){return cpAudienceAll(f).filter(function(d){return !CPEXC[String(d.email).toLowerCase().trim()]})};
+function cpTog(e,on){CPEXC[decodeURIComponent(e)]=!on;cpPrev()}
+function cpAllTog(on){cpAudienceAll(cpFilters()).forEach(function(d){CPEXC[String(d.email).toLowerCase().trim()]=!on});cpPrev()}
+var _cpPrev4=cpPrev;
+cpPrev=function(){_cpPrev4();var el=document.getElementById('cp_count');if(!el)return;
+  var all=cpAudienceAll(cpFilters()),sel=all.filter(function(d){return !CPEXC[String(d.email).toLowerCase().trim()]});
+  var n=+document.getElementById('cp_lim').value||20;
+  el.innerHTML='Deze campagne gaat naar <b>'+sel.length+'</b> van '+all.length+' gevonden leads · verspreid over ongeveer <b>'+Math.max(1,Math.ceil(sel.length/n))+'</b> werkdag(en)';
+  var box=document.getElementById('cp_list');if(!box){box=document.createElement('div');box.id='cp_list';el.parentNode.insertBefore(box,el.nextSibling)}
+  if(!all.length){box.innerHTML='';return}
+  box.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 6px"><b style="font-size:.85rem">Ontvangers</b><span style="font-size:.8rem"><a href="#" onclick="cpAllTog(true);return false">alles aan</a> · <a href="#" onclick="cpAllTog(false);return false">alles uit</a></span></div><div style="max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:12px">'+
+   all.map(function(d){var e=String(d.email).toLowerCase().trim(),on=!CPEXC[e];return '<label style="display:flex;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line);font-size:.83rem;cursor:pointer;margin:0;'+(on?'':'opacity:.45')+'"><input type="checkbox" style="width:auto" '+(on?'checked':'')+' onchange="cpTog(\''+encodeURIComponent(e)+'\',this.checked)"><span style="flex:1;min-width:0"><b>'+cpEsc(d.naam||e)+'</b>'+(d.contact?' · '+cpEsc(d.contact):'')+'<br><span style="color:var(--muted)">'+cpEsc(e)+(d.plaats?' · '+cpEsc(d.plaats):'')+(d.cat?' · '+cpEsc(d.cat):'')+'</span></span></label>'}).join('')+'</div>'};
+var _mCamp4=mCamp;mCamp=function(){CPEXC={};_mCamp4.apply(this,arguments)};
 
 </script>
 </body>
