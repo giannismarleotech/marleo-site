@@ -5473,6 +5473,34 @@ async function mxRemind(){if(MXREM||!gConnected())return;MXREM=true;try{var mc=b
 setInterval(function(){if(document.visibilityState==='visible')mxRemind()},60000);setTimeout(mxRemind,9000);
 var _bkPull2=bkPull;bkPull=async function(){await _bkPull2();mxRemind()};
 
+/* ===== Server-mails via Resend: herinneringen ook met CRM dicht ===== */
+var MXSRV={ready:false,checked:0};
+async function mxSrvCheck(){try{if(!sb||!CLOUD||!CLOUD.uid)return;var r=await sb.functions.invoke('mailer',{body:{ping:true}});MXSRV.ready=!!(r&&r.data&&r.data.ready);MXSRV.checked=Date.now()}catch(e){}}
+function mxHash(x){var h=5381;for(var i=0;i<x.length;i++)h=((h<<5)+h+x.charCodeAt(i))|0;return String(h)}
+function mxDesired(){var mc=bkMailCfg(),out=[],now=Date.now(),t=ag2Today();
+  DATA.appointments.forEach(function(a){if(!a.guestEmail||!a.time||a.pending||a.declined||a.kind==='prive'||a.date<t)return;
+    var st=new Date(a.date+'T'+a.time+':00').getTime();if(!(st>now))return;
+    if(mc.rem30){var at=st-30*60000;if(at>now-60000)out.push({a:a,kind:'rem30',at:at})}
+    if(mc.rem){var d8=new Date(a.date+'T08:00:00').getTime();if(st-d8>60*60000&&d8>now-60000&&a.confDay!==a.date)out.push({a:a,kind:'rem',at:d8})}});
+  return out}
+var MXSYNC=false;
+async function mxSyncQueue(){if(MXSYNC||!MXSRV.ready||!sb||!CLOUD||!CLOUD.uid)return;MXSYNC=true;try{
+  var since=new Date(Date.now()-864e5).toISOString();
+  var r=await sb.from('mail_queue').select('id,appt_id,kind,send_at,sig,status').in('status',['pending','sending','sent']).gte('send_at',since);if(r.error)throw r.error;
+  var rows=r.data||[],want=mxDesired(),keep={};
+  for(var i=0;i<want.length;i++){var w=want[i],m=mxBuild(w.kind,w.a),sig=mxHash(m.html+'|'+new Date(w.at).toISOString());
+    var hit=rows.filter(function(x){return x.appt_id===w.a.id&&x.kind===w.kind&&x.sig===sig})[0];
+    if(hit){keep[hit.id]=1;continue}
+    if(rows.some(function(x){return x.appt_id===w.a.id&&x.kind===w.kind&&x.status==='sent'&&Math.abs(new Date(x.send_at).getTime()-w.at)<60000}))continue;
+    var ins=await sb.from('mail_queue').insert({send_at:new Date(w.at).toISOString(),to_email:w.a.guestEmail,subject:m.subject,html:m.html,body_text:m.text||null,kind:w.kind,appt_id:w.a.id,sig:sig,status:'pending'}).select('id');
+    if(ins.data&&ins.data[0])keep[ins.data[0].id]=1}
+  var stale=rows.filter(function(x){return x.status==='pending'&&!keep[x.id]}).map(function(x){return x.id});
+  if(stale.length)await sb.from('mail_queue').update({status:'cancelled',error:'afspraak gewijzigd of geannuleerd'}).in('id',stale)
+  }catch(e){console.warn('mxSync',e)}MXSYNC=false}
+var _mxRemind0=mxRemind;mxRemind=async function(){if(MXSRV.ready)return;return _mxRemind0()};
+setTimeout(async function(){await mxSrvCheck();mxSyncQueue()},7000);
+setInterval(async function(){if(document.visibilityState!=='visible')return;if(Date.now()-MXSRV.checked>600000)await mxSrvCheck();mxSyncQueue()},60000);
+
 </script>
 </body>
 </html>
