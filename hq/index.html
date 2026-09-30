@@ -5916,6 +5916,57 @@ setTimeout(function(){try{if(!DATA.emailtemplates||DATA.tplFix2)return;var rep=[
 
 document.addEventListener('click',function(e){var h=e.target.closest&&e.target.closest('.taskpop .tp-head');if(h&&!e.target.closest('.tp-x')&&window.innerWidth<=760){var t=document.getElementById('taskPop');if(t)t.remove();go('tasks')}});
 
+
+/* ===== Voorschotfactuur websiteproject ===== */
+function waDefPrice(){var p=(DATA.products||[]).find(function(x){return /website/i.test(x.name||'')});return p?p.price:279}
+function mWebAdvance(cid){
+  var def=waDefPrice();
+  openM('Voorschotfactuur websiteproject',
+  '<p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">Maakt een voorschotfactuur met het juiste nummer. De eindfactuur (saldo) maak je later met één klik vanuit deze voorschotfactuur.</p>'+
+  '<div class="fgroup"><label>Klant *</label>'+custPicker('wa_cust',cid||'')+'</div>'+
+  '<div class="fgroup"><label>Omschrijving</label><input id="wa_desc" value="Website op maat"></div>'+
+  '<div class="frow"><div class="fgroup"><label>Totaalprijs project (excl. btw) *</label><input id="wa_tot" type="number" step="0.01" value="'+def+'" oninput="waCalc()"></div>'+
+  '<div class="fgroup"><label>Voorschot</label><select id="wa_pct" onchange="waCalc()"><option value="50" selected>50%</option><option value="30">30%</option><option value="40">40%</option><option value="100">100% (volledig vooraf)</option></select></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Factuurdatum</label><input id="wa_date" type="date" value="'+today()+'"></div><div class="fgroup"><label>Vervaldatum</label><input id="wa_due" type="date" value="'+plusDays(today(),14)+'"></div></div>'+
+  '<div class="fgroup"><label>Taal van het document</label><select id="wa_lang"><option value="nl">Nederlands</option><option value="fr">Frans</option><option value="en">Engels</option></select></div>'+
+  '<div class="totbox" id="wa_sum"></div>',
+  '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="saveWebAdvance()">Voorschotfactuur aanmaken</button>',true);
+  setTimeout(waCalc,50);
+}
+function waCalc(){var t=parseFloat((document.getElementById('wa_tot')||{}).value)||0,p=parseFloat((document.getElementById('wa_pct')||{}).value)||50,a=Math.round(t*p)/100,el=document.getElementById('wa_sum');
+  if(el)el.innerHTML='<div>Voorschot '+p+'%: <b>'+eur(a)+'</b> excl. btw ('+eur(Math.round(a*121)/100)+' incl. 21% btw)</div><div style="color:var(--muted)">Saldo bij oplevering: '+eur(Math.round((t-a)*100)/100)+' excl. btw</div>'}
+function saveWebAdvance(){
+  var cid=document.getElementById('wa_cust').value;if(!cid){toast('Kies een klant');return}
+  var t=parseFloat(document.getElementById('wa_tot').value)||0;if(t<=0){toast('Vul de totaalprijs in');return}
+  var p=parseFloat(document.getElementById('wa_pct').value)||50,a=Math.round(t*p)/100,desc=(document.getElementById('wa_desc').value||'Website op maat').trim();
+  var ref=nextRef('factuur');
+  var line=p>=100?desc+' — volledige betaling vooraf\nTotaalprijs '+money(t)+' excl. btw.':desc+' — voorschot '+p+'%\nTotaalprijs '+money(t)+' excl. btw; het saldo van '+money(Math.round((t-a)*100)/100)+' excl. btw volgt bij oplevering.';
+  var iv={id:nid('inv'),ref:ref,type:p>=100?'factuur':'voorschot',lang:document.getElementById('wa_lang').value,customerId:cid,date:document.getElementById('wa_date').value||today(),due:document.getElementById('wa_due').value||'',status:'openstaand',yourref:'',note:'',created:Date.now(),
+    lines:[{d:line,q:1,p:a}],project:{desc:desc,total:t,pct:p}};
+  DATA.invoices.push(iv);logAct('Voorschotfactuur '+ref+' ('+eur(a)+') voor '+custName(cid));saveData();closeM();toast('✅ Voorschotfactuur '+ref+' aangemaakt');
+  if(typeof VIEW!=='undefined')go(VIEW);setTimeout(function(){vInvoice(iv.id)},150);
+}
+function mkFinalFromAdvance(id){
+  var v=DATA.invoices.find(function(x){return x.id===id});if(!v)return;
+  var pr=v.project||{},adv=invSub(v),tot=pr.total||adv*2,desc=pr.desc||((v.lines[0]||{}).d||'Website').split('\n')[0].replace(/ — voorschot.*$/,'');
+  var saldo=Math.round((tot-adv)*100)/100;
+  var inp=prompt('Eindfactuur voor '+custName(v.customerId)+'\nTotaalprijs project excl. btw (voorschot '+eur(adv)+' wordt afgetrokken):',String(tot));if(inp===null)return;
+  tot=parseFloat(String(inp).replace(',','.'))||tot;saldo=Math.round((tot-adv)*100)/100;if(saldo<=0){toast('Saldo is 0, geen eindfactuur nodig');return}
+  var ref=nextRef('factuur');
+  var fin={id:nid('inv'),ref:ref,type:'eindfactuur',lang:v.lang||'nl',customerId:v.customerId,date:today(),due:plusDays(today(),14),status:'openstaand',yourref:v.yourref||'',note:'Saldo na voorschotfactuur '+v.ref,created:Date.now(),
+    lines:[{d:desc+' — saldo bij oplevering\nTotaalprijs '+money(tot)+' excl. btw, min voorschot '+v.ref+' van '+money(adv)+' excl. btw.',q:1,p:saldo}],advanceId:v.id};
+  DATA.invoices.push(fin);v.finalId=fin.id;logAct('Eindfactuur '+ref+' ('+eur(saldo)+') na voorschot '+v.ref);saveData();closeM();toast('✅ Eindfactuur '+ref+' aangemaakt');
+  if(typeof VIEW!=='undefined')go(VIEW);setTimeout(function(){vInvoice(fin.id)},150);
+}
+(function(){var _vi=vInvoice;vInvoice=function(id){_vi(id);var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv)return;var f=document.getElementById('mFoot');if(!f)return;
+  if(iv.type==='voorschot'){var fin=iv.finalId&&DATA.invoices.find(function(x){return x.id===iv.finalId})||DATA.invoices.find(function(x){return x.advanceId===iv.id||(x.type==='eindfactuur'&&x.note&&x.note.indexOf(iv.ref)>=0)});
+    f.insertAdjacentHTML('afterbegin',fin?'<button class="btn subtle" onclick="closeM();vInvoice(\''+fin.id+'\')">Eindfactuur '+esc(fin.ref)+' bekijken</button>':'<button class="btn" onclick="mkFinalFromAdvance(\''+id+'\')">→ Eindfactuur (saldo) maken</button>')}
+}})();
+(function(){var _ri=rInvoices;rInvoices=function(){_ri();var bar=document.querySelector('.topbar .btn[onclick="mInvoice()"]');if(bar&&!document.getElementById('waBtn'))bar.insertAdjacentHTML('beforebegin','<button class="btn subtle" id="waBtn" onclick="mWebAdvance()">+ Voorschot website</button>')};
+ if(typeof rCustPage==='function'){}
+})();
+(function(){var _go=go;go=function(v){_go.apply(this,arguments);setTimeout(function(){var b=document.querySelector('.topbar button[onclick^="mInvoiceFor("]');if(b&&!document.getElementById('waCBtn')){var cid=(b.getAttribute('onclick').match(/'([^']+)'/)||[])[1];b.insertAdjacentHTML('beforebegin','<button class="btn subtle" id="waCBtn" onclick="mWebAdvance(\''+cid+'\')">+ Voorschotfactuur</button>')}},0)}})();
+
 </script>
 </body>
 </html>
