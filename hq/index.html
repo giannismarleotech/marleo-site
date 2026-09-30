@@ -5000,6 +5000,123 @@ function ag2Combo(){var sel=document.getElementById('a_who');if(!sel||document.g
 (function(){var _m=mAppt;mAppt=function(){_m.apply(this,arguments);setTimeout(ag2Combo,0)};
  var st=document.createElement('style');st.textContent='.ag2dd{position:absolute;left:0;right:0;top:100%;z-index:50;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:240px;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5);margin-top:4px}.ag2opt{padding:9px 12px;cursor:pointer;font-size:.9rem}.ag2opt:hover{background:var(--bg2)}.ag2grp{padding:6px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}';document.head.appendChild(st)})();
 
+/* ================= Online boeken + beschikbaarheid + privé afspraken ================= */
+var BKDEF={on:false,hours:{'1':[['09:00','12:00'],['13:00','17:00']],'2':[['09:00','12:00'],['13:00','17:00']],'3':[['09:00','12:00'],['13:00','17:00']],'4':[['09:00','12:00'],['13:00','17:00']],'5':[['09:00','12:00'],['13:00','16:00']]},dur:30,buffer:15,notice:12,horizon:30,kinds:['meet','tel'],auto:false,meetLink:'',intro:'',blocks:[]};
+function bkCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.booking)DATA.settings.booking=JSON.parse(JSON.stringify(BKDEF));var c=DATA.settings.booking;if(!c.blocks)c.blocks=[];if(!c.hours)c.hours={};return c}
+function bkMin(t){var p=String(t||'0:0').split(':');return (+p[0]||0)*60+(+p[1]||0)}
+var BKTIMER=null;
+function bkPushSoon(){clearTimeout(BKTIMER);BKTIMER=setTimeout(bkPush,1500)}
+async function bkPush(){try{if(!sb||!CLOUD||!CLOUD.uid)return;var c=bkCfg(),t=ag2Today(),busy=[];
+  DATA.appointments.forEach(function(a){if(a.date<t||a.declined)return;if(a.time){var s=bkMin(a.time);busy.push({d:a.date,s:s,e:s+(a.dur||60)})}else if(a.kind==='prive')busy.push({d:a.date,s:0,e:1440})});
+  var blocks=c.blocks.filter(function(b){return (b.to||b.from)>=t});
+  var data={on:!!c.on,hours:c.hours,dur:c.dur,buffer:c.buffer,notice:c.notice,horizon:c.horizon,kinds:c.kinds,auto:c.auto===true,meetLink:c.meetLink||'',intro:c.intro||'',busy:busy,blocks:blocks};
+  var r=await sb.from('booking_config').upsert({id:1,data:data,updated_at:new Date().toISOString()});if(r.error)console.warn('bkPush',r.error.message)}catch(e){console.warn('bkPush',e)}}
+
+/* ---- binnenkomende boekingen verwerken ---- */
+var BKBUSY=false;
+async function bkPull(){if(BKBUSY||!sb||!CLOUD||!CLOUD.uid)return;BKBUSY=true;try{
+  var r=await sb.from('bookings').select('*').eq('processed',false).order('created_at');if(r.error||!r.data||!r.data.length){BKBUSY=false;return}
+  var n=0;for(var i=0;i<r.data.length;i++){var b=r.data[i];
+    if(DATA.appointments.some(function(a){return a.bookingId===b.id}))continue;
+    var em=(b.email||'').toLowerCase();var dl=DATA.deals.filter(function(x){return (x.email||'').toLowerCase()===em})[0];var cu=DATA.customers.filter(function(x){return (x.email||'').toLowerCase()===em})[0];
+    var dealId='',custId='';
+    if(cu)custId=cu.id;else if(dl)dealId=dl.id;
+    else{var d={id:nid('deal'),naam:b.bedrijf||b.naam,contact:b.naam,cat:'',plaats:'',tel:b.telefoon||'',email:b.email,website:'',sit:[],stage:'gecontacteerd',value:0,follow:b.d,volgendeActie:'Afspraak',note:'',created:Date.now(),bron:'boekpagina',log:[{t:Date.now(),txt:'🌐 Boekte zelf een afspraak via de website'}]};DATA.deals.push(d);dealId=d.id}
+    var pend=b.status==='aangevraagd';
+    var a={id:nid('appt'),title:(b.kind==='meet'?'Kennismaking (Meet)':b.kind==='tel'?'Telefonisch gesprek':'Afspraak')+' – '+(b.bedrijf||b.naam),date:b.d,time:b.t,dur:b.dur||30,kind:b.kind,dealId:dealId,customerId:custId,guestEmail:b.email,location:'',note:[b.naam+(b.telefoon?' · '+b.telefoon:''),b.bericht].filter(Boolean).join('\n'),meetLink:'',bookingId:b.id,pending:pend,fromWeb:true};
+    DATA.appointments.push(a);n++;logAct('Online afspraak: '+b.naam);
+    var linked=dealId?DATA.deals.filter(function(x){return x.id===dealId})[0]:null;if(linked){(linked.log=linked.log||[]).push({t:Date.now(),txt:'📅 Afspraak geboekt via website: '+fmtD(b.d)+' om '+b.t});linked.follow=b.d}
+    await sb.from('bookings').update({processed:true}).eq('id',b.id);
+    if(!pend)await bkFinish(a,true)}
+  saveData();if(n){bkPushSoon();if(VIEW==='agenda')rAgenda();if(VIEW==='dashboard')try{rDash()}catch(e){};toast('📅 '+n+' nieuwe online afspraak'+(n>1?'en':''))}
+  }catch(e){console.warn('bkPull',e)}BKBUSY=false}
+/* Google-event + Meet + bevestigingsmail; mislukt = knop op de kaart */
+async function bkFinish(a,quiet){var c=bkCfg();
+  if(a.kind==='meet'&&!a.meetLink&&c.meetLink&&!gConnected())a.meetLink=c.meetLink;
+  if(gConnected()&&gCfg().clientId){try{await gcalPush(a,{meet:a.kind==='meet',invite:a.kind==='meet'});if(a.kind==='meet'&&a.meetLink)a.mailed=true}catch(e){if(!quiet)toast('Google: '+e.message,true)}}
+  if(!a.mailed&&gConnected()&&a.guestEmail){try{await bkMail(a,true);a.mailed=true}catch(e){}}
+  saveData()}
+function bkMailText(a){var d=new Date(a.date+'T12:00:00');var dag=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'][d.getDay()];
+  var naam=((a.note||'').split(/[ ·\n]/)[0])||'';var who=ag2Who(a);var voor=who&&who.d&&who.d.contact?who.d.contact.split(' ')[0]:(naam||'');
+  var wat=a.kind==='meet'?'Het gesprek gaat door via Google Meet:\n'+(a.meetLink||'(de link volgt in de kalenderuitnodiging)'):a.kind==='tel'?'Ik bel je op het nummer dat je opgaf'+((who&&who.d&&who.d.tel)?' ('+who.d.tel+')':'')+'.':a.kind==='klant'?'Ik kom langs'+(a.location?' op '+a.location:'')+'.':'Locatie: '+(a.location||'volgt');
+  return {subject:'Bevestiging afspraak – '+dag+' '+fmtD(a.date)+(a.time?' om '+a.time:''),
+   text:'Hallo'+(voor?' '+voor:'')+',\n\nBedankt voor je afspraak! Bij deze de bevestiging:\n\n📅 '+dag+' '+fmtD(a.date)+(a.time?' om '+a.time:'')+(a.dur?' ('+ag2Dur(a.dur)+')':'')+'\n'+wat+'\n\nKan je toch niet? Antwoord gewoon op deze mail, dan zoeken we een ander moment.\n\nTot dan!\n\nGiannis Baert\nFounder · Marleo\nT +32 456 92 00 25\nmarleo.tech'}}
+async function bkMail(a,quiet){if(!a.guestEmail){toast('Geen e-mailadres bij deze afspraak',true);return}var m=bkMailText(a);await gmSend({to:a.guestEmail,subject:m.subject,text:m.text});a.mailed=true;saveData();if(!quiet)toast('✅ Bevestiging verstuurd naar '+a.guestEmail)}
+async function bkMailBtn(id){var a=DATA.appointments.find(function(x){return x.id===id});if(!a)return;try{await bkMail(a);rAgenda()}catch(e){toast(e.message,true)}}
+async function bkMeetBtn(id){var a=DATA.appointments.find(function(x){return x.id===id});if(!a)return;try{await gcalPush(a,{meet:true,invite:!!a.guestEmail});toast(a.meetLink?'✅ Meet-link gemaakt':'Geen link ontvangen');rAgenda()}catch(e){toast('Google: '+e.message,true)}}
+async function bkDecide(id,ok){var a=DATA.appointments.find(function(x){return x.id===id});if(!a)return;
+  if(ok){a.pending=false;saveData();if(a.bookingId)await sb.from('bookings').update({status:'bevestigd'}).eq('id',a.bookingId);await bkFinish(a);toast('✅ Bevestigd');rAgenda()}
+  else{if(!confirm('Afspraak weigeren? Het tijdslot komt weer vrij.'))return;a.declined=true;if(a.bookingId)await sb.from('bookings').update({status:'geannuleerd'}).eq('id',a.bookingId);var gid=a.gcalId;DATA.appointments=DATA.appointments.filter(function(x){return x.id!==id});saveData();if(gid)gcalDelete(gid);bkPushSoon();rAgenda();toast('Afspraak geweigerd – tijdslot vrijgegeven')}}
+
+/* ---- kaarten uitbreiden: privé, in afwachting, knoppen ---- */
+AKINDS.push(['prive','🔒 Privé']);
+var _card0=ag2Card;ag2Card=function(a){var h=_card0(a);
+  var btn='';if(a.pending)btn+='<button class="btn sm" style="background:#16a34a" onclick="bkDecide(\''+a.id+'\',true)">✓ Bevestig</button><button class="btn subtle sm" onclick="bkDecide(\''+a.id+'\',false)">✕ Weiger</button>';
+  if(a.kind==='meet'&&!a.meetLink&&!a.pending)btn+='<button class="btn sm" style="background:#2563eb" onclick="bkMeetBtn(\''+a.id+'\')">📹 Meet-link maken</button>';
+  if(a.fromWeb&&!a.mailed&&!a.pending&&a.guestEmail)btn+='<button class="btn subtle sm" onclick="bkMailBtn(\''+a.id+'\')">✉ Bevestig per mail</button>';
+  if(btn)h=h.replace('<div class="ag2act">','<div class="ag2act">'+btn);
+  if(a.pending)h=h.replace('class="ag2card','class="ag2card pend').replace('<div class="ag2t">','<div class="ag2t"><span class="ag2pill">In afwachting</span> ');
+  if(a.fromWeb)h=h.replace('<div class="ag2t">','<div class="ag2t"><span class="ag2pill web">🌐 Website</span> ');
+  return h};
+var _who0=ag2Who;ag2Who=function(a){return a.kind==='prive'?null:_who0(a)};
+var _ag2List0=ag2List;ag2List=function(){var h=_ag2List0();var c=bkCfg(),t=ag2Today();var bl=c.blocks.filter(function(b){return (b.to||b.from)>=t}).sort(function(a,b){return a.from.localeCompare(b.from)});
+  if(bl.length)h+='<div class="ag2day" style="margin-top:22px">🚫 Niet beschikbaar</div>'+bl.map(function(b,i){var idx=c.blocks.indexOf(b);return '<div class="ag2card"><div class="ag2time" style="min-width:110px;font-size:.85rem">'+fmtD(b.from)+((b.to&&b.to!==b.from)?' → '+fmtD(b.to):'')+'</div><div class="ag2main"><div class="ag2t">'+esc(b.note||'Niet beschikbaar')+'</div><div class="ag2s">'+((b.s!=null&&b.s!=='')?esc(b.st+'–'+b.et):'hele dag')+' · niet te boeken op de website</div></div><div class="ag2act"><button class="btn subtle sm danger" onclick="bkDelBlock('+idx+')">Verwijder</button></div></div>'}).join('');return h};
+/* prive: verberg irrelevante velden */
+var _k0=ag2Kind;ag2Kind=function(k){_k0(k);var p=k==='prive';['a_who','a_guest'].forEach(function(id){var e=document.getElementById(id);var g=e&&e.closest('.fgroup');if(g)g.style.display=p?'none':''});var w=document.getElementById('a_whoq');if(w&&w.parentNode)w.parentNode.style.display=p?'none':'';var ch=document.querySelector('.ag2chk');if(ch)ch.style.display=p?'none':'';var nw=document.getElementById('a_newwrap');if(nw&&p)nw.style.display='none'};
+var _mA0=mAppt;mAppt=function(id,pd,pre){_mA0(id,pd,pre);var k=AG2.kind;if(k==='prive')setTimeout(function(){ag2Kind('prive')},20)};
+var _sA0=saveAppt;saveAppt=function(id){if(AG2.kind==='prive'){var s=document.getElementById('a_who');if(s)s.value='';var g=document.getElementById('a_guest');if(g)g.value='';var m=document.getElementById('a_meet');if(m)m.checked=false;var iv=document.getElementById('a_inv');if(iv)iv.checked=false}return _sA0(id)};
+var _gb0=gcalBody;gcalBody=function(a){var b=_gb0(a);if(a.kind==='prive'){b.visibility='private';delete b.attendees}return b};
+var _sv2=saveAppt;saveAppt=function(id){var r=_sv2(id);bkPushSoon();return r};
+var _da2=delAppt;delAppt=function(id){_da2(id);bkPushSoon()};
+var _gp2=gcalPull;gcalPull=async function(s){await _gp2(s);bkPushSoon()};
+
+/* ---- niet beschikbaar ---- */
+function mBlock(){var t=ag2Today();openM('🚫 Niet beschikbaar',
+  '<div class="hint" style="margin-bottom:10px">In deze periode kunnen klanten niets boeken op de website.</div>'+
+  '<div class="frow"><div class="fgroup"><label>Van</label><input id="bl_from" type="date" value="'+t+'"></div><div class="fgroup"><label>Tot en met</label><input id="bl_to" type="date" value="'+t+'"></div></div>'+
+  '<div class="ag2chk"><label><input type="checkbox" id="bl_all" checked onchange="document.getElementById(\'bl_tw\').style.display=this.checked?\'none\':\'\'"> Hele dag(en)</label></div>'+
+  '<div class="frow" id="bl_tw" style="display:none"><div class="fgroup"><label>Vanaf</label><input id="bl_st" type="time" value="09:00"></div><div class="fgroup"><label>Tot</label><input id="bl_et" type="time" value="12:00"></div></div>'+
+  '<div class="fgroup"><label>Reden (voor jezelf)</label><input id="bl_note" placeholder="bv. Vakantie, bij klant, dokter"></div>',
+  '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="bkSaveBlock()">Opslaan</button>')}
+function bkSaveBlock(){var f=document.getElementById('bl_from').value,to=document.getElementById('bl_to').value||f;if(!f){toast('Kies een datum',true);return}if(to<f)to=f;
+  var all=document.getElementById('bl_all').checked;var b={from:f,to:to,note:document.getElementById('bl_note').value.trim()};
+  if(!all){b.st=document.getElementById('bl_st').value;b.et=document.getElementById('bl_et').value;b.s=bkMin(b.st);b.e=bkMin(b.et);if(b.e<=b.s){toast('Eindtijd moet na starttijd liggen',true);return}}
+  bkCfg().blocks.push(b);saveData();closeM();bkPushSoon();rAgenda();toast('Geblokkeerd – niet te boeken op de website')}
+function bkDelBlock(i){bkCfg().blocks.splice(i,1);saveData();bkPushSoon();rAgenda()}
+
+/* ---- instellingen boekpagina ---- */
+var BKDAYS=[['1','Maandag'],['2','Dinsdag'],['3','Woensdag'],['4','Donderdag'],['5','Vrijdag'],['6','Zaterdag'],['0','Zondag']];
+function mBook(){var c=bkCfg();var link='https://marleo.tech/afspraak/';
+  var rows=BKDAYS.map(function(d){var r=c.hours[d[0]]||[];var on=r.length>0;var r1=r[0]||['09:00','12:00'],r2=r[1]||['13:00','17:00'];
+   return '<div class="bkrow"><label class="bkd"><input type="checkbox" id="bk_on'+d[0]+'"'+(on?' checked':'')+'> '+d[1]+'</label><input type="time" id="bk_a'+d[0]+'" value="'+r1[0]+'"><span>–</span><input type="time" id="bk_b'+d[0]+'" value="'+r1[1]+'"><span class="bksep">en</span><input type="time" id="bk_c'+d[0]+'" value="'+(r[1]?r2[0]:'')+'"><span>–</span><input type="time" id="bk_d'+d[0]+'" value="'+(r[1]?r2[1]:'')+'"></div>'}).join('');
+  var k=function(v,l){return '<label><input type="checkbox" class="bk_k" value="'+v+'"'+(c.kinds.indexOf(v)>=0?' checked':'')+'> '+l+'</label>'};
+  openM('⚙ Boekpagina & beschikbaarheid',
+   '<div class="ag2chk"><label><input type="checkbox" id="bk_master"'+(c.on?' checked':'')+'> <b>Online boeken aan</b> (klanten kiezen zelf een moment)</label></div>'+
+   '<div class="ag2link" style="background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.4)">🔗 <a href="'+link+'" target="_blank" rel="noopener" style="color:#93c5fd">'+link+'</a> <button class="btn subtle sm" onclick="navigator.clipboard.writeText(\''+link+'\');toast(\'Link gekopieerd\')">Kopieer</button></div>'+
+   '<div class="fgroup"><label>Wanneer ben je beschikbaar?</label><div class="bkgrid">'+rows+'</div></div>'+
+   '<div class="frow" style="grid-template-columns:1fr 1fr 1fr 1fr"><div class="fgroup"><label>Duur (min)</label><select id="bk_dur">'+[15,20,30,45,60,90].map(function(m){return '<option'+(c.dur==m?' selected':'')+'>'+m+'</option>'}).join('')+'</select></div>'+
+   '<div class="fgroup"><label>Pauze erna (min)</label><select id="bk_buf">'+[0,5,10,15,30].map(function(m){return '<option'+(c.buffer==m?' selected':'')+'>'+m+'</option>'}).join('')+'</select></div>'+
+   '<div class="fgroup"><label>Minstens vooraf (uur)</label><input id="bk_notice" type="number" min="0" value="'+c.notice+'"></div>'+
+   '<div class="fgroup"><label>Vooruit boeken (dagen)</label><input id="bk_hor" type="number" min="1" max="90" value="'+c.horizon+'"></div></div>'+
+   '<div class="fgroup"><label>Soorten afspraak op de website</label><div class="ag2chk" style="flex-direction:row;flex-wrap:wrap;gap:16px">'+k('meet','📹 Google Meet')+k('tel','📞 Telefonisch')+k('klant','📍 Bij jou langskomen')+'</div></div>'+
+   '<div class="ag2chk"><label><input type="checkbox" id="bk_auto"'+(c.auto===true?' checked':'')+'> Meteen automatisch bevestigen (uit = jij bevestigt eerst zelf, aanbevolen)</label></div>'+
+   '<div class="fgroup"><label>Vaste Meet-link (optioneel, voor als Google niet gekoppeld is)</label><input id="bk_meet" value="'+esc(c.meetLink||'')+'" placeholder="https://meet.google.com/abc-defg-hij"></div>'+
+   '<div class="fgroup"><label>Tekst bovenaan de boekpagina (optioneel)</label><input id="bk_intro" value="'+esc(c.intro||'')+'" placeholder="bv. Gratis kennismaking van 30 minuten"></div>'+
+   '<div style="display:flex;gap:8px;margin-top:4px"><button class="btn subtle" onclick="closeM();mBlock()">🚫 Niet beschikbaar toevoegen</button></div>',
+   '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="bkSaveCfg()">Opslaan</button>',true)}
+function bkSaveCfg(){var c=bkCfg();var g=function(i){return document.getElementById(i)};c.on=g('bk_master').checked;var hours={};
+  BKDAYS.forEach(function(d){var k=d[0];if(!g('bk_on'+k).checked)return;var r=[];var a=g('bk_a'+k).value,b=g('bk_b'+k).value,cc=g('bk_c'+k).value,dd=g('bk_d'+k).value;if(a&&b&&b>a)r.push([a,b]);if(cc&&dd&&dd>cc)r.push([cc,dd]);if(r.length)hours[k]=r});
+  c.hours=hours;c.dur=parseInt(g('bk_dur').value)||30;c.buffer=parseInt(g('bk_buf').value)||0;c.notice=parseInt(g('bk_notice').value)||0;c.horizon=Math.min(90,parseInt(g('bk_hor').value)||30);
+  c.kinds=[].slice.call(document.querySelectorAll('.bk_k')).filter(function(x){return x.checked}).map(function(x){return x.value});if(!c.kinds.length)c.kinds=['meet'];
+  c.auto=g('bk_auto').checked;c.meetLink=g('bk_meet').value.trim();c.intro=g('bk_intro').value.trim();saveData();closeM();bkPush().then(function(){toast(c.on?'✅ Boekpagina staat aan':'Opgeslagen (boekpagina staat uit)')})}
+
+/* ---- knoppen in de agenda ---- */
+var _rA3=rAgenda;rAgenda=function(){_rA3();var tb=main().querySelector('.topbar');var aw=main().querySelector('.ag2wrap,.agwrap');if(tb&&aw)aw.insertAdjacentHTML('beforebegin','<div class="ag2tools"><button class="btn subtle sm" onclick="mBlock()">🚫 Niet beschikbaar</button><button class="btn subtle sm" onclick="mAppt(null,\'\',{kind:\'prive\',title:\'\'})">🔒 Privé afspraak</button><button class="btn subtle sm" onclick="mBook()">⚙ Boekpagina &amp; beschikbaarheid</button></div>');
+  bkPull();if(!INT.bkPushed){INT.bkPushed=1;bkPushSoon()}};
+setInterval(function(){if(document.visibilityState==='visible')bkPull()},120000);
+setTimeout(function(){bkPull();bkPushSoon()},6000);
+(function(){var st=document.createElement('style');st.textContent='.bkgrid{display:flex;flex-direction:column;gap:6px}.bkrow{display:flex;align-items:center;gap:6px;font-size:.85rem}.bkrow .bkd{width:110px;display:flex;gap:6px;align-items:center;cursor:pointer}.bkrow input[type=time]{width:96px;padding:6px 8px}.bksep{color:var(--muted);margin:0 4px}.ag2tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.ag2chk input[type=checkbox],.bkrow input[type=checkbox]{width:auto;flex:none;margin:0}.ag2chk label,.bkrow label{margin:0;color:var(--text);font-weight:500;font-size:.88rem}.ag2day{text-transform:none!important}.ag2day::first-letter{text-transform:uppercase}.ag2pill{font-size:.66rem;padding:1px 7px;border-radius:999px;background:rgba(251,191,36,.18);color:#FBBF24;font-weight:600;vertical-align:middle}.ag2pill.web{background:rgba(96,165,250,.18);color:#93c5fd}.ag2card.pend{border-color:#FBBF24}';document.head.appendChild(st)})();
+
 </script>
 </body>
 </html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Afspraak maken · Marleo</title>
+<meta name="description" content="Plan een gratis kennismaking met Marleo: websites, marketing, IT en software.">
+<link rel="icon" href="../marleo-logo-mail.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0C14;--card:#151624;--line:rgba(255,255,255,.1);--text:#F2F3FA;--muted:#9AA0B8;--grad:linear-gradient(100deg,#F97C1F,#EF4056 50%,#E91E7B);--ok:#4ADE80}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(900px 500px at 15% -10%,rgba(249,124,31,.16),transparent 60%),radial-gradient(900px 500px at 100% 0,rgba(233,30,123,.16),transparent 60%),var(--bg);color:var(--text);min-height:100vh;padding:28px 16px 70px;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.3rem;text-decoration:none;color:var(--text);margin-bottom:26px}
+.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.9rem,6vw,2.6rem);line-height:1.1;letter-spacing:-.02em;margin-bottom:10px}
+.sub{color:var(--muted);margin-bottom:26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.step{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#FF8A2B;margin-bottom:10px}
+.kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:22px}
+.kind{background:rgba(255,255,255,.04);border:1.5px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;text-align:left;color:var(--text);font:inherit}
+.kind b{display:block;font-size:1rem}.kind span{font-size:.8rem;color:var(--muted)}
+.kind.on{border-color:#EF4056;background:rgba(239,64,86,.12)}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:thin}
+.day{flex:none;min-width:66px;background:rgba(255,255,255,.04);border:1.5px solid var(--line);border-radius:12px;padding:9px 6px;text-align:center;cursor:pointer;color:var(--text);font:inherit}
+.day small{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.day b{font-size:1.15rem}.day em{display:block;font-style:normal;font-size:.68rem;color:var(--muted)}
+.day.on{border-color:#EF4056;background:rgba(239,64,86,.14)}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-bottom:6px}
+.time{background:rgba(255,255,255,.04);border:1.5px solid var(--line);border-radius:10px;padding:10px 0;text-align:center;cursor:pointer;color:var(--text);font:inherit;font-weight:600}
+.time.on{background:var(--grad);border-color:transparent;color:#fff}
+.form{display:grid;gap:12px;margin-top:20px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px}
+input,textarea{width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--line);border-radius:10px;color:var(--text);padding:12px 13px;font:inherit;font-size:16px}
+input:focus,textarea:focus{outline:none;border-color:#EF4056}
+textarea{min-height:84px;resize:vertical}
+.btn{background:var(--grad);border:0;color:#fff;font:inherit;font-weight:700;border-radius:12px;padding:15px 20px;cursor:pointer;width:100%;font-size:1rem;box-shadow:0 14px 40px rgba(239,64,86,.3)}
+.btn:disabled{opacity:.5;cursor:default}
+.sum{background:rgba(255,255,255,.05);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;font-size:.92rem;margin-bottom:6px}
+.err{color:#FCA5A5;font-size:.88rem;margin-top:8px}
+.hide{display:none!important}
+.done{text-align:center;padding:14px 4px}.done .ic{font-size:2.6rem}.done h2{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;margin:8px 0}
+.done p{color:var(--muted)}.done .when{color:var(--text);font-weight:600;font-size:1.05rem;margin:14px 0}
+.done a.btn2{display:inline-block;margin-top:14px;color:#fff;background:#16a34a;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:600}
+.foot{margin-top:26px;font-size:.8rem;color:var(--muted);text-align:center}.foot a{color:var(--muted)}
+.empty{color:var(--muted);padding:18px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <a class="logo" href="../"><svg width="28" height="32" viewBox="0 0 28 32" fill="none"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs><path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#lg)" stroke-width="2"/><path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#lg)" stroke-width="1.8" stroke-linecap="round"/></svg><span>marleo<span class="g">.tech</span></span></a>
+ <h1>Plan een <span class="g">afspraak</span></h1>
+ <p class="sub" id="intro">Kies zelf een moment dat past. Vrijblijvend en zonder verplichting.</p>
+
+ <div class="card" id="main">
+  <div id="load" class="empty">Beschikbare momenten laden…</div>
+  <div id="flow" class="hide">
+   <div class="step">1 · Soort afspraak</div>
+   <div class="kinds" id="kinds"></div>
+   <div class="step">2 · Kies een dag</div>
+   <div class="days" id="days"></div>
+   <div class="step" id="tstep">3 · Kies een uur</div>
+   <div class="times" id="times"></div>
+   <form class="form hide" id="form" autocomplete="on">
+    <div class="step" style="margin-top:8px">4 · Jouw gegevens</div>
+    <div class="sum" id="sum"></div>
+    <div class="row"><div><label>Naam *</label><input id="naam" name="name" autocomplete="name" required></div><div><label>Bedrijf</label><input id="bedrijf" name="org" autocomplete="organization"></div></div>
+    <div class="row"><div><label>E-mail *</label><input id="email" name="email" type="email" autocomplete="email" required></div><div><label>Telefoon</label><input id="tel" name="tel" type="tel" autocomplete="tel"></div></div>
+    <div><label>Waarover gaat het? (optioneel)</label><textarea id="msg" placeholder="bv. nieuwe website, webshop, IT-hulp…"></textarea></div>
+    <input id="hp" class="hide" tabindex="-1" autocomplete="off">
+    <button class="btn" id="go" type="submit">Afspraak aanvragen</button>
+    <div class="err hide" id="err"></div>
+   </form>
+  </div>
+  <div id="none" class="empty hide">Er zijn momenteel geen momenten beschikbaar.<br>Stuur gerust een mail naar <a href="mailto:info@marleo.tech" style="color:#FF8A2B">info@marleo.tech</a> of bel +32 456 92 00 25.</div>
+  <div id="done" class="done hide"></div>
+ </div>
+ <div class="foot">Marleo · Nevele, België · <a href="../">marleo.tech</a></div>
+</div>
+<script>
+var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/boek';
+var KINDS={meet:['📹','Videogesprek','Via Google Meet, link krijg je per mail'],tel:['📞','Telefonisch','Ik bel jou op'],klant:['📍','Bij jou langs','In de regio Nevele / Gent / Deinze']};
+var S={cfg:null,kind:null,d:null,t:null};
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmt(d){var x=new Date(d+'T12:00:00');return ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'][x.getDay()]+' '+x.getDate()+' '+['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'][x.getMonth()]}
+fetch(API).then(function(r){return r.json()}).then(function(c){
+  $('load').classList.add('hide');
+  if(!c.on||!Object.keys(c.days||{}).length){$('none').classList.remove('hide');return}
+  S.cfg=c;if(c.intro)$('intro').textContent=c.intro;
+  $('go').textContent=c.auto?'Afspraak bevestigen':'Afspraak aanvragen';
+  var ks=(c.kinds||['meet']).filter(function(k){return KINDS[k]});S.kind=ks[0];
+  $('kinds').innerHTML=ks.map(function(k){return '<button type="button" class="kind'+(k===S.kind?' on':'')+'" data-k="'+k+'"><b>'+KINDS[k][0]+' '+KINDS[k][1]+'</b><span>'+KINDS[k][2]+' · '+c.dur+' min</span></button>'}).join('');
+  $('kinds').onclick=function(e){var b=e.target.closest('.kind');if(!b)return;S.kind=b.dataset.k;[].forEach.call(document.querySelectorAll('.kind'),function(x){x.classList.toggle('on',x===b)});sum()};
+  var ds=Object.keys(c.days);
+  $('days').innerHTML=ds.map(function(d){var x=new Date(d+'T12:00:00');return '<button type="button" class="day" data-d="'+d+'"><small>'+['zo','ma','di','wo','do','vr','za'][x.getDay()]+'</small><b>'+x.getDate()+'</b><em>'+['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'][x.getMonth()]+'</em></button>'}).join('');
+  $('days').onclick=function(e){var b=e.target.closest('.day');if(!b)return;pickDay(b.dataset.d)};
+  $('flow').classList.remove('hide');pickDay(ds[0]);
+}).catch(function(){$('load').textContent='Kon de beschikbaarheid niet laden. Probeer later opnieuw of mail naar info@marleo.tech.'});
+function pickDay(d){S.d=d;S.t=null;[].forEach.call(document.querySelectorAll('.day'),function(x){x.classList.toggle('on',x.dataset.d===d)});
+  $('times').innerHTML=S.cfg.days[d].map(function(t){return '<button type="button" class="time" data-t="'+t+'">'+t+'</button>'}).join('');
+  $('times').onclick=function(e){var b=e.target.closest('.time');if(!b)return;S.t=b.dataset.t;[].forEach.call(document.querySelectorAll('.time'),function(x){x.classList.toggle('on',x===b)});$('form').classList.remove('hide');sum();$('form').scrollIntoView({behavior:'smooth',block:'nearest'})};
+  $('form').classList.add('hide')}
+function sum(){if(!S.t)return;var k=KINDS[S.kind];$('sum').innerHTML='<b>'+esc(fmt(S.d))+'</b> om <b>'+S.t+'</b> · '+S.cfg.dur+' min<br>'+k[0]+' '+k[1]}
+$('form').onsubmit=function(e){e.preventDefault();var er=$('err');er.classList.add('hide');var b=$('go');b.disabled=true;b.textContent='Bezig…';
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({d:S.d,t:S.t,kind:S.kind,naam:$('naam').value,bedrijf:$('bedrijf').value,email:$('email').value,telefoon:$('tel').value,bericht:$('msg').value,website_url:$('hp').value})})
+  .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})}).then(function(x){
+    if(!x.ok||!x.j.ok){er.textContent=x.j.error||'Er ging iets mis';er.classList.remove('hide');b.disabled=false;b.textContent=S.cfg.auto?'Afspraak bevestigen':'Afspraak aanvragen';
+      if(x.j&&/net niet meer/.test(x.j.error||'')){setTimeout(function(){location.reload()},2500)}return}
+    var j=x.j,k=KINDS[j.kind]||KINDS.meet;$('flow').classList.add('hide');var dn=$('done');dn.classList.remove('hide');
+    var conf=j.status==='bevestigd';
+    dn.innerHTML='<div class="ic">'+(conf?'✅':'📩')+'</div><h2>'+(conf?'Afspraak bevestigd':'Aanvraag ontvangen')+'</h2><div class="when">'+esc(fmt(j.d))+' om '+esc(j.t)+'<br>'+k[0]+' '+k[1]+'</div><p>'+(conf?'Je krijgt een bevestiging per mail'+(j.kind==='meet'?' met de Google Meet-link.':'.'):'Ik bevestig je afspraak zo snel mogelijk per mail. Dit tijdstip is intussen voor jou gereserveerd.')+'</p>'+(conf&&j.meetLink?'<a class="btn2" href="'+esc(j.meetLink)+'">📹 Google Meet-link</a>':'')+'<p style="margin-top:16px;font-size:.85rem">Vragen? <a href="mailto:info@marleo.tech" style="color:#FF8A2B">info@marleo.tech</a> · +32 456 92 00 25</p>';
+    window.scrollTo({top:0,behavior:'smooth'})})
+  .catch(function(){er.textContent='Geen verbinding, probeer opnieuw';er.classList.remove('hide');b.disabled=false})};
+</script>
+</body>
+</html>
