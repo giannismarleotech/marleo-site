@@ -1676,7 +1676,7 @@ function delTimelog(id){DATA.timelogs=DATA.timelogs.filter(function(x){return x.
 
 /* ============ E-MAILSJABLONEN ============ */
 var DEFAULT_TEMPLATES=[
-  {id:'tpl-eerste',name:'1. Eerste contact (na WhatsApp of Leadfinder)',subject:'Een website voor {bedrijf}?',body:'Dag {naam},\n\nIk ben Giannis van Marleo, webbureau uit Nevele. Ik zocht {bedrijf} op en zag dat jullie nog geen (goede) website hebben, terwijl jullie duidelijk goed bezig zijn.\n\nMijn aanbod is simpel: een professionele website op maat voor €279 excl. btw, eenmalig. Alles inbegrepen, geen abonnement, klaar binnen de week en 100% jullie eigendom.\n\nWil je vrijblijvend een voorbeeld zien? Dan maak ik dat gratis, zodat je kan beoordelen of het iets voor jullie is.\n\nGroeten,\nGiannis Baert\nMarleo · marleo.tech · 0456 92 00 25 · giannis@marleo.tech'},
+  {id:'tpl-eerste',name:'1. Eerste contact (na WhatsApp of Leadfinder)',subject:'Een website voor {bedrijf}?',body:'Dag {naam},\n\nIk ben Giannis van Marleo, webbureau uit Nevele. Ik zocht {bedrijf} op en zag dat jullie nog geen (goede) website hebben, terwijl jullie duidelijk goed bezig zijn.\n\nMijn aanbod is simpel: een professionele website op maat voor €279 excl. btw, eenmalig. Alles inbegrepen, geen abonnement, klaar binnen de week en 100% jullie eigendom.\n\nWil je vrijblijvend een voorbeeld zien? Dan maak ik dat gratis, zodat je kan beoordelen of het iets voor jullie is.\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo · marleo.tech · 0456 92 00 25 · giannis@marleo.tech'},
   {id:'tpl-demo',name:'2. Demo klaar',subject:'Jullie voorbeeldsite staat klaar',body:'Dag {naam},\n\nZoals beloofd: hier is een voorbeeld van hoe de website van {bedrijf} eruit kan zien:\n{link}\n\nBekijk hem gerust op je telefoon, daar komen de meeste bezoekers vandaan. Alles is nog aanpasbaar: teksten, foto\'s, kleuren.\n\nBevalt het? Dan werk ik hem volledig af voor €279 excl. btw. Je betaalt 50% bij de start en 50% bij oplevering.\n\nIk hoor graag wat je ervan vindt.\n\nGiannis · Marleo · 0456 92 00 25'},
   {id:'tpl-offerte',name:'3. Offerte verstuurd',subject:'Offerte {ref} voor {bedrijf}',body:'Dag {naam},\n\nIn bijlage vind je de offerte {ref} voor jullie website.\n\nKort samengevat:\n• Website op maat, volledig afgewerkt en mobielvriendelijk\n• Inbegrepen: beveiliging, SSL, contactformulier, SEO-basis en Google-profiel\n• Betaling: 50% bij start, 50% bij oplevering\n• Geen abonnement, de site is van jullie\n\nAkkoord? Antwoord gewoon met "ok" op deze mail, dan ontvang je de voorschotfactuur en start ik meteen.\n\nGiannis Baert\nMarleo · marleo.tech · giannis@marleo.tech'},
   {id:'tpl-opvolg',name:'4. Offerte opvolgen (na 3 dagen)',subject:'Nog vragen over offerte {ref}?',body:'Dag {naam},\n\nEen paar dagen geleden stuurde ik de offerte voor de website van {bedrijf}. Ik wilde even polsen of alles duidelijk is, of dat er nog vragen zijn.\n\nGeen haast, maar als je wil starten, dan kan de site er volgende week al staan.\n\nGiannis · Marleo · 0456 92 00 25'},
@@ -1687,8 +1687,8 @@ var DEFAULT_TEMPLATES=[
   {id:'tpl-herinner2',name:'9. Betalingsherinnering (dringend)',subject:'Tweede herinnering: factuur {ref}',body:'Dag {naam},\n\nFactuur {ref} van {bedrag} is intussen meer dan twee weken vervallen. Mag ik vragen om ze deze week in orde te brengen?\n\nIBAN BE90 9675 5953 1732, mededeling {ref}.\n\nIs er een reden waarom ze nog openstaat? Laat het gerust weten, dan zoeken we samen een oplossing.\n\nGiannis Baert · Marleo · 0456 92 00 25'},
   {id:'tpl-seo',name:'10. SEO-pakket voorstellen',subject:'Beter gevonden worden in Google',body:'Dag {naam},\n\nJullie website staat online, maar gevonden worden in Google is een tweede stap. Daarvoor heb ik drie eenmalige pakketten, geen abonnement:\n\n• SEO-start, €89 excl. btw: Google Bedrijfsprofiel optimaliseren, juiste titels en beschrijvingen, aanmelding bij Google, snelheidscheck.\n• SEO-plus, €149 excl. btw: alles van start + 3 geoptimaliseerde teksten, vermeldingen in lokale gidsen en een reviewkaartje met QR-code.\n• SEO-compleet, €249 excl. btw: alles van plus + 6 extra teksten, Google-advertentie opgezet en een rapport na 60 dagen.\n\nAlle prijzen zijn exclusief btw.\n\nIn bijlage een korte uitleg wat SEO precies is en wat je ervan mag verwachten.\n\nInteresse? Dan start ik deze week nog.\n\nGiannis · Marleo · giannis@marleo.tech'},
   {id:'tpl-it1',name:'11. IT & security: eerste contact (B2B)',subject:'Korte security-check van {bedrijf}',body:'Beste,\n\nIk ben Giannis Baert van Marleo, IT- en securitypartner voor kmo\'s in Oost- en West-Vlaanderen.\n\nBij een korte, publieke check van jullie domein viel me op dat de e-mailbeveiliging (SPF/DMARC) niet volledig is ingesteld. Concreet: iemand kan mails versturen die van {bedrijf} lijken te komen, naar jullie klanten of leveranciers. Zo verliezen kmo\'s vandaag het vaakst geld: valse facturen en gewijzigde rekeningnummers.\n\nIk zet dit graag gratis en vrijblijvend voor jullie op een rijtje in een security-check van 30 minuten, met concrete stappen. Geen verkooppraatje.\n\nPast een kort gesprek deze of volgende week?\n\nMet vriendelijke groeten,\nGiannis Baert\nMarleo \u00b7 IT, cloud & security\ngiannis@marleo.tech \u00b7 0456 92 00 25'},
-  {id:'tpl-it2',name:'12. IT & security: opvolging (B2B)',subject:'Re: Korte security-check van {bedrijf}',body:'Beste,\n\nVorige week stuurde ik u een bericht over de e-mailbeveiliging van {bedrijf}. Ik begrijp dat het druk is, dus heel kort:\n\n\u2022 Het probleem: jullie domein is vervalsbaar voor phishing.\n\u2022 De oplossing: een halve dag werk, eenmalig, geen abonnement.\n\u2022 De eerste stap: een gratis check van 30 minuten.\n\nZal ik een voorstel van datum doen?\n\nMet vriendelijke groeten,\nGiannis Baert \u00b7 Marleo \u00b7 0456 92 00 25'},
-  {id:'tpl-it3',name:'13. IT & security: na de gratis check (B2B)',subject:'Bevindingen security-check {bedrijf}',body:'Beste,\n\nBedankt voor het gesprek. Zoals afgesproken de samenvatting van de check:\n\n{bevindingen}\n\nMijn voorstel om dit aan te pakken vindt u in bijlage (offerte {ref}). Vaste prijs, geen abonnement, en ik voer het uit buiten de kantooruren zodat jullie er niets van merken.\n\nAkkoord? Dan plan ik het in en ontvangt u de voorschotfactuur.\n\nMet vriendelijke groeten,\nGiannis Baert \u00b7 Marleo \u00b7 giannis@marleo.tech'}
+  {id:'tpl-it2',name:'12. IT & security: opvolging (B2B)',subject:'Opvolging: korte security-check van {bedrijf}',body:'Beste,\n\nVorige week stuurde ik jullie een bericht over de e-mailbeveiliging van {bedrijf}. Ik begrijp dat het druk is, dus heel kort:\n\n\u2022 Het probleem: jullie domein is vervalsbaar voor phishing.\n\u2022 De oplossing: een halve dag werk, eenmalig, geen abonnement.\n\u2022 De eerste stap: een gratis check van 30 minuten.\n\nZal ik een voorstel van datum doen?\n\nMet vriendelijke groeten,\nGiannis Baert \u00b7 Marleo \u00b7 0456 92 00 25'},
+  {id:'tpl-it3',name:'13. IT & security: na de gratis check (B2B)',subject:'Bevindingen security-check {bedrijf}',body:'Beste,\n\nBedankt voor het gesprek. Zoals afgesproken de samenvatting van de check:\n\n{bevindingen}\n\nMijn voorstel om dit aan te pakken vind je in bijlage (offerte {ref}). Vaste prijs, geen abonnement, en ik voer het uit buiten de kantooruren zodat jullie er niets van merken.\n\nAkkoord? Dan plan ik het in en ontvangen jullie de voorschotfactuur.\n\nMet vriendelijke groeten,\nGiannis Baert \u00b7 Marleo \u00b7 giannis@marleo.tech'}
 ];
 
 function rEmails(){
@@ -2551,8 +2551,8 @@ function money(v){return '€ '+(Math.round(v*100)/100).toLocaleString('nl-BE',{
 function remindText(iv){
   var c=customer(iv.customerId)||{},co=coCfg(),d=daysOverdue(iv),tot=invTot(iv);
   var naam=c.contact?c.contact.split(' ')[0]:(c.name||'');
-  if(d<14)return 'Dag '+naam+',\n\nEven een vriendelijke herinnering: factuur '+iv.ref+' van '+money(tot)+' stond te betalen op '+fmtD(iv.due)+'. Misschien is ze aan je aandacht ontsnapt.\n\nOverschrijven kan op '+co.iban+' met mededeling '+iv.ref+'. Al betaald? Dan mag je dit bericht negeren.\n\nBedankt!\nGiannis · Marleo';
-  return 'Dag '+naam+',\n\nFactuur '+iv.ref+' van '+money(tot)+' is intussen '+d+' dagen vervallen. Mag ik vragen om ze deze week in orde te brengen?\n\nIBAN '+co.iban+' · mededeling '+iv.ref+'\n\nIs er een reden waarom ze nog openstaat? Laat het gerust weten, dan zoeken we een oplossing.\n\nGiannis · Marleo';
+  if(d<14)return 'Dag '+naam+',\n\nEven een vriendelijke herinnering: factuur '+iv.ref+' van '+money(tot)+' stond te betalen op '+fmtD(iv.due)+'. Misschien is ze aan je aandacht ontsnapt.\n\nOverschrijven kan op '+co.iban+' met mededeling '+iv.ref+'. Al betaald? Dan mag je dit bericht negeren.\n\nBedankt en met vriendelijke groeten,\nGiannis · Marleo';
+  return 'Dag '+naam+',\n\nFactuur '+iv.ref+' van '+money(tot)+' is intussen '+d+' dagen vervallen. Mag ik vragen om ze deze week in orde te brengen?\n\nIBAN '+co.iban+' · mededeling '+iv.ref+'\n\nIs er een reden waarom ze nog openstaat? Laat het gerust weten, dan zoeken we een oplossing.\n\nMet vriendelijke groeten,\nGiannis · Marleo';
 }
 function remindWa(id){var iv=DATA.invoices.find(function(x){return x.id===id});var c=customer(iv.customerId)||{};if(!c.phone){toast('Geen telefoonnummer bij deze klant',true);return}
   window.open('https://wa.me/'+telDigits(c.phone)+'?text='+encodeURIComponent(remindText(iv)));(iv.log=iv.log||[]).push({t:Date.now(),txt:'Herinnering via WhatsApp'});iv.reminded=today();saveData();logAct('Herinnering gestuurd voor '+iv.ref)}
@@ -5191,11 +5191,11 @@ async function dsSave(){dsCollect();var w=DS.w,o=dsObj(DS.kind,DS.id);
 var SIG_HTML='<table cellpadding="0" cellspacing="0" border="0" style="color:#1a1a22;font-size:medium;border-collapse:collapse"><tbody><tr><td valign="middle" style="padding:0 20px 0 0;vertical-align:middle"><a href="https://marleo.tech/" style="text-decoration:none"><img src="https://marleo.tech/marleo-logo-mail.png" width="140" height="29" alt="marleo.tech" style="display:block;width:140px;height:29px;border:0"></a></td><td valign="middle" style="padding:0 20px 0 0;vertical-align:middle"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tbody><tr><td width="3" height="33" style="width:3px;height:33px;background:#f97c1f;font-size:0;line-height:0">&nbsp;</td></tr><tr><td width="3" height="33" style="width:3px;height:33px;background:#ef4056;font-size:0;line-height:0">&nbsp;</td></tr><tr><td width="3" height="33" style="width:3px;height:33px;background:#e91e7b;font-size:0;line-height:0">&nbsp;</td></tr></tbody></table></td><td valign="middle" style="padding:0;vertical-align:middle"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tbody><tr><td style="padding:0;font-size:17px;line-height:22px;font-weight:bold;color:#14141c">Giannis Baert</td></tr><tr><td style="padding:0 0 8px;font-size:13px;line-height:18px;color:#6a6a7e">Founder</td></tr><tr><td style="padding:0"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tbody><tr><td width="20" style="width:20px;padding:0;font-size:13px;line-height:21px;color:#f97c1f;font-weight:bold">T</td><td style="padding:0;font-size:13px;line-height:21px"><a href="tel:+32456920025" style="color:#1a1a22;text-decoration:none">+32 456 92 00 25</a></td></tr><tr><td width="20" style="width:20px;padding:0;font-size:13px;line-height:21px;color:#ef4056;font-weight:bold">E</td><td style="padding:0;font-size:13px;line-height:21px"><a href="mailto:giannis@marleo.tech" style="color:#1a1a22;text-decoration:none">giannis@marleo.tech</a></td></tr><tr><td width="20" style="width:20px;padding:0;font-size:13px;line-height:21px;color:#e91e7b;font-weight:bold">W</td><td style="padding:0;font-size:13px;line-height:21px"><a href="https://marleo.tech/" style="color:#1a1a22;text-decoration:none">marleo.tech</a></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>';
 var SIG_TXT='Giannis Baert\nFounder\nT +32 456 92 00 25\nE giannis@marleo.tech\nW marleo.tech';
 function sigStrip(t){var l=String(t||'').replace(/\s+$/,'').split('\n');
-  while(l.length&&/^\s*(giannis( baert)?(\s*[|·\-–]\s*marleo)?|founder.*|marleo|marleo\.tech|www\.marleo\.tech|https?:\/\/marleo\.tech\/?|t\s*\+?32.*|e\s+giannis@marleo\.tech|w\s+marleo\.tech|tel\.?:?\s*\+?32.*|)\s*$/i.test(l[l.length-1]))l.pop();
+  while(l.length&&/^\s*(giannis( baert)?(\s*[|·\-–]\s*marleo)?|founder.*|marleo|marleo\.tech|www\.marleo\.tech|https?:\/\/marleo\.tech\/?|t\s*\+?32.*|e\s+giannis@marleo\.tech|w\s+marleo\.tech|tel\.?:?\s*\+?32.*|giannis\b.*(marleo|@marleo|0456|\+32).*|marleo\s*[·|\-–].*|.*0456 92 00 25.*|giannis@marleo\.tech.*|)\s*$/i.test(l[l.length-1]))l.pop();
   return l.join('\n')}
 function sigHtmlBody(t){var e=String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');e=e.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1">$1</a>').replace(/\n/g,'<br>');return e}
 gmSend=async function(o){var cfg=gCfg();var from=(cfg.fromName?mimeWord(cfg.fromName)+' ':'')+'<'+(cfg.from||'giannis@marleo.tech')+'>';
-  var body=o.noSig?String(o.text||''):sigStrip(o.text);
+  var body=o.noSig?String(o.text||''):ensureClose(sigStrip(o.text));
   var txt=o.noSig?body:body+'\n\n'+SIG_TXT;
   var html='<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(body)+(o.noSig?'':'<br><br>'+SIG_HTML)+'</div>';
   var A='alt_'+Date.now().toString(36),lines=['From: '+from,'To: '+o.to,'Subject: '+mimeWord(o.subject||''),'MIME-Version: 1.0'];
@@ -5288,7 +5288,7 @@ function tplSync(){if(!DATA.emailtemplates)return;if(!DATA.emailtemplates.length
   r.subject=tplFill(r.t.subject,v);r.body=tplFill(r.t.body,v);return r}})();
 /* verstuur direct via CRM met handtekening */
 async function utSend(id){var r=utVals(id);if(!r.v.email){toast('Geen e-mailadres bij deze lead of klant',true);return}
-  if(/\{\w+\}/.test(r.body+r.subject)&&!confirm('Er staan nog lege velden in de mail ('+(r.body+r.subject).match(/\{\w+\}/)[0]+'). Toch versturen?'))return;
+  if(PHRE.test(r.body+r.subject)&&!confirm('Er staan nog lege velden in de mail ('+(r.body+r.subject).match(PHRE)[0]+'). Toch versturen?'))return;
   try{await gmSend({to:r.v.email,subject:r.subject,text:r.body,from:mxIsCold(r.v.email)&&MXSRV.ready?'info':''});toast('✅ Verstuurd naar '+r.v.email+(mxIsCold(r.v.email)&&MXSRV.ready?' (van info@)':''));utLog(r);closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}}
 (function(){var _u=useTemplate;useTemplate=function(id){_u(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.utsend')&&gCfg().clientId)f.insertAdjacentHTML('beforeend','<button class="btn utsend" style="background:#16a34a" onclick="utSend(\''+id+'\')">📨 Verstuur nu</button>')}})();
 
@@ -5314,7 +5314,7 @@ function mxShell(o){var year=new Date().getFullYear();
   '<div style="font-size:26px;line-height:1.2;font-weight:800;color:#14141c;margin:0 0 14px">'+o.title+'</div>'+
   '<div style="font-size:15px;line-height:1.65;color:#3d3f52">'+o.intro+'</div>'+(o.card||'')+(o.after||'')+
   '</td></tr>'+
-  '<tr><td style="padding:10px 32px 30px">'+(typeof SIG_HTML!=='undefined'?'<div style="border-top:1px solid #ececf3;padding-top:22px;margin-top:8px">'+SIG_HTML+'</div>':'')+'</td></tr>'+
+  '<tr><td style="padding:10px 32px 30px">'+(o.close===false?'':'<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#3d3f52;margin:6px 0 16px">Met vriendelijke groeten,</div>')+(typeof SIG_HTML!=='undefined'?'<div style="border-top:1px solid #ececf3;padding-top:22px;margin-top:8px">'+SIG_HTML+'</div>':'')+'</td></tr>'+
   '<tr><td style="background:#f8f8fc;padding:16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#8a8ca0">Marleo · Graaf van Hoornestraat 2B, 9850 Nevele · BTW BE 0751.641.419<br>Je krijgt deze mail omdat je een afspraak boekte via marleo.tech. <a href="https://marleo.tech/privacy/" style="color:#8a8ca0">Privacy</a></td></tr>'+
   '</table></td></tr></table></body></html>'}
 function mxCard(a){var wat=a.kind==='meet'?'📹 Videogesprek via Google Meet':a.kind==='tel'?'📞 Telefonisch gesprek':a.kind==='klant'?'📍 Ik kom bij je langs':'📍 Op afspraak';
@@ -5330,15 +5330,16 @@ function mxBuild(kind,a){var n=mxFirst(a);var hi='Hallo'+(n?' '+mxEsc(n):'')+','
     text=hi.replace(/<[^>]+>/g,'')+'\n\nJe afspraak is bevestigd:\n'+mxDateLong(a.date)+' om '+(a.time||'')+'\n'+(a.kind==='meet'?'Google Meet: '+(a.meetLink||'link volgt'):a.kind==='tel'?'Ik bel je.':(a.location||''))+'\n\nToevoegen aan agenda: '+mxGcal(a)+'\nKan je toch niet? Antwoord op deze mail of boek opnieuw: https://marleo.tech/afspraak/'}
   else if(kind==='rem30'){sub='Over 30 minuten: onze afspraak om '+(a.time||'');
     var btn3=(a.kind==='meet'&&a.meetLink)?mxBtn(a.meetLink,'📹 Deelnemen via Google Meet'):'';
-    html=mxShell({tag:'Zo meteen',title:'Over 30 minuten ⏰',intro:hi+'<br><br>Onze afspraak begint over een halfuur.',card:mxCard(a),after:btn3+'<div style="font-size:13px;line-height:1.6;color:#6a6a7e;margin-top:10px">Tot zo meteen! Lukt het toch niet? Antwoord even op deze mail.</div>'})}
+    html=mxShell({tag:'Zo meteen',title:'Over 30 minuten ⏰',intro:hi+'<br><br>Onze afspraak begint over een halfuur.',card:mxCard(a),after:btn3+'<div style="font-size:13px;line-height:1.6;color:#6a6a7e;margin-top:10px">Tot zo meteen! Lukt het toch niet? Antwoord even op deze mail.</div>'});
+    text=hi.replace(/<[^>]+>/g,'')+'\n\nOnze afspraak begint over een halfuur, om '+(a.time||'')+'.\n'+(a.kind==='meet'&&a.meetLink?'Google Meet: '+a.meetLink+'\n':'')+'\nTot zo meteen! Lukt het toch niet? Antwoord even op deze mail.'}
   else if(kind==='rem'){sub='Herinnering: vandaag om '+(a.time||'')+' onze afspraak';
     var btn2=(a.kind==='meet'&&a.meetLink)?mxBtn(a.meetLink,'📹 Deelnemen via Google Meet'):'';
     html=mxShell({tag:'Herinnering',title:'Tot vandaag! ⏰',intro:hi+'<br><br>Een vriendelijke herinnering: onze afspraak is vandaag.',card:mxCard(a),after:btn2+'<div style="font-size:13px;line-height:1.6;color:#6a6a7e;margin-top:10px">Lukt het toch niet? Laat het me even weten door op deze mail te antwoorden.</div>'});
-    text=hi.replace(/<[^>]+>/g,'')+'\n\nHerinnering aan onze afspraak morgen ('+mxDateLong(a.date)+') om '+(a.time||'')+'.\n'+(a.meetLink?'Google Meet: '+a.meetLink+'\n':'')+'\nLukt het toch niet? Antwoord op deze mail.'}
+    text=hi.replace(/<[^>]+>/g,'')+'\n\nEen vriendelijke herinnering: onze afspraak is vandaag ('+mxDateLong(a.date)+') om '+(a.time||'')+'.\n'+(a.meetLink?'Google Meet: '+a.meetLink+'\n':'')+'\nLukt het toch niet? Antwoord op deze mail.'}
   else{sub='Ander moment nodig voor je afspraak';
     html=mxShell({tag:'Afspraak',title:'Helaas past dit moment niet',intro:hi+'<br><br>Bedankt voor je aanvraag. Op '+mxEsc(mxDateLong(a.date))+(a.time?' om '+mxEsc(a.time):'')+' lukt het me helaas niet. Kies gerust een ander moment dat wel past, dan bevestig ik het snel.',after:mxBtn('https://marleo.tech/afspraak/','Kies een ander moment')+'<div style="font-size:13px;color:#6a6a7e">Liever bellen? <a href="tel:+32456920025" style="color:#ef4056">+32 456 92 00 25</a></div>'});
     text=hi.replace(/<[^>]+>/g,'')+'\n\nBedankt voor je aanvraag. Op '+mxDateLong(a.date)+(a.time?' om '+a.time:'')+' lukt het me helaas niet. Kies gerust een ander moment: https://marleo.tech/afspraak/\n\nLiever bellen? +32 456 92 00 25'}
-  return {subject:sub,html:html,text:text+'\n\n'+SIG_TXT}}
+  return {subject:sub,html:html,text:text+'\n\nMet vriendelijke groeten,\n\n'+SIG_TXT}}
 /* gmSend: ondersteunt kant-en-klare HTML */
 (function(){var _g=gmSend;gmSend=async function(o){if(!o.html)return _g(o);
   var cfg=gCfg();var from=(cfg.fromName?mimeWord(cfg.fromName)+' ':'')+'<'+(cfg.from||'giannis@marleo.tech')+'>';
@@ -5567,9 +5568,9 @@ function mCamp(){
   '<div class="hint">Verstuurd van Marleo &lt;info@marleo.tech&gt; op werkdagen tussen 09:00 en 16:30, gespreid. Elke mail bevat je handtekening en een afmeldlink. Afgemelde adressen krijgen nooit meer een campagne.</div>';
   openM('📧 Nieuwe campagne',body,'<button class="btn subtle" onclick="cpTest()">📨 Stuur test</button><button class="btn" id="cp_go" onclick="cpSchedule()">🚀 Inplannen</button>',true);
   (async function(){try{if(!CAMP.loaded)await cpLoad()}catch(e){}cpPrev()})()}
-function cpHtml(text){return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(text)+'<br><br>'+SIG_HTML+'</div>'}
+function cpHtml(text){return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(ensureClose(text))+'<br><br>'+SIG_HTML+'</div>'}
 async function cpTest(){var to=document.getElementById('cp_test').value.trim();if(!to){toast('Vul een testadres in',true);return}var a=cpAudience(cpFilters())[0]||{naam:'Voorbeeldbedrijf',contact:'Sarah',plaats:'Deinze',cat:'Kapper'};
-  var tx=cpVars(a,document.getElementById('cp_body').value);
+  var tx=ensureClose(cpVars(a,document.getElementById('cp_body').value));
   try{if(MXSRV.ready){var r=await sb.functions.invoke('mailer',{body:{action:'send',mail:{to:to,subject:'[TEST] '+cpVars(a,document.getElementById('cp_sub').value),html:cpHtml(tx),text:tx+'\n\n'+SIG_TXT}}});if(!(r&&r.data&&r.data.ok))throw new Error((r&&r.error&&r.error.message)||'Resend fout')}
    else await gmSend({to:to,subject:'[TEST] '+cpVars(a,document.getElementById('cp_sub').value),html:cpHtml(tx),text:tx,from:'info'});
    toast('✅ Testmail (met ontwerp) verstuurd naar '+to)}catch(e){toast('Test mislukt: '+e.message,true)}}
@@ -5588,7 +5589,7 @@ async function cpSchedule(){
   if(!confirm('Campagne "'+name+'" inplannen voor '+aud.length+' ontvangers:\n'+aud.slice(0,8).map(function(d){return '• '+(d.naam||d.email)}).join('\n')+(aud.length>8?'\n… en '+(aud.length-8)+' anderen':'')+'\n\n('+lim+' per dag, vanaf vandaag/eerstvolgende werkdag)?'))return;
   var btn=document.getElementById('cp_go');btn.disabled=true;btn.textContent='Inplannen…';
   try{var c=await sb.from('campaigns').insert({name:name,subject:sub,body:txt,filters:f,daily_limit:lim,status:'gepland'}).select('id');if(c.error)throw c.error;var cid=c.data[0].id;
-    var slots=cpSlots(aud.length,lim),rows=aud.map(function(d,i){var tx=cpVars(d,txt)+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id||null,status:'pending'}});
+    var slots=cpSlots(aud.length,lim),rows=aud.map(function(d,i){var tx=ensureClose(cpVars(d,txt))+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id||null,status:'pending'}});
     for(var i=0;i<rows.length;i+=50){var r=await sb.from('mail_queue').insert(rows.slice(i,i+50));if(r.error)throw r.error}
     aud.forEach(function(d){if(!d.id)return;(d.log=d.log||[]).push({t:Date.now(),txt:'📧 Ingepland in campagne "'+name+'"'})});saveData();logAct('Campagne ingepland: '+name+' ('+aud.length+')');
     closeM();toast('✅ Campagne ingepland voor '+aud.length+' ontvangers');rCampagnes()}
@@ -5636,7 +5637,7 @@ function cpRich(k,text,preview){var t=CPT[k];var esc2=function(s){return String(
   '<tr><td style="padding:28px 30px 6px;font-family:Arial,Helvetica,sans-serif">'+paras+'<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 8px">'+cards+'</table>'+
   '<p style="margin:14px 0 0;font-size:15px;line-height:1.65;color:#3d3f52">'+sigHtmlBody(t.end)+'</p>'+mxBtn('https://marleo.tech/afspraak/',esc2(t.cta))+
   '<div style="font-size:13px;color:#6a6a7e;margin:0 0 6px">Liever antwoorden? Reageer gewoon op deze mail.</div></td></tr>'+
-  '<tr><td style="padding:6px 30px 26px;font-family:Arial,Helvetica,sans-serif">'+SIG_HTML+'</td></tr></table></td></tr></table></body></html>'}
+  '<tr><td style="padding:6px 30px 26px;font-family:Arial,Helvetica,sans-serif"><div style="font-size:15px;line-height:1.6;color:#3d3f52;margin:0 0 14px">Met vriendelijke groeten,</div>'+SIG_HTML+'</td></tr></table></td></tr></table></body></html>'}
 var CPTPL='';
 function cpPickTpl(k){CPTPL=k;var t=CPT[k];if(!t)return;document.getElementById('cp_sub').value=t.sub;document.getElementById('cp_body').value=t.body;
   var n=document.getElementById('cp_name');if(!n.value)n.value=t.n.replace(/^\S+\s/,'');cpPrev()}
@@ -5818,10 +5819,10 @@ async function rSocial(){
   if(typeof buildMenu==='function'&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu()})();
 
 /* ===== E-mailsjablonen: verzenden in huisstijl met handtekening ===== */
-function utHtml(subject,body){var paras=sigStrip(body).split(/\n\s*\n/).map(function(p){return '<p style="margin:0 0 14px">'+sigHtmlBody(p)+'</p>'}).join('');
-  return mxShell({tag:'Marleo',title:mxEsc(subject),intro:paras}).replace('Je krijgt deze mail omdat je een afspraak boekte via marleo.tech. ','Je ontvangt deze mail van Marleo. ')}
+function utHtml(subject,body){var paras=ensureClose(sigStrip(body)).split(/\n\s*\n/).map(function(p){return '<p style="margin:0 0 14px">'+sigHtmlBody(p)+'</p>'}).join('');
+  return mxShell({tag:'Marleo',title:mxEsc(subject),intro:paras,close:false}).replace('Je krijgt deze mail omdat je een afspraak boekte via marleo.tech. ','Je ontvangt deze mail van Marleo. ')}
 utSend=async function(id){var r=utVals(id);if(!r.v.email){toast('Geen e-mailadres bij deze lead of klant',true);return}
-  if(/\{\w+\}/.test(r.body+r.subject)&&!confirm('Er staan nog lege velden in de mail ('+(r.body+r.subject).match(/\{\w+\}/)[0]+'). Toch versturen?'))return;
+  if(PHRE.test(r.body+r.subject)&&!confirm('Er staan nog lege velden in de mail ('+(r.body+r.subject).match(PHRE)[0]+'). Toch versturen?'))return;
   var html=utHtml(r.subject,r.body),txt=sigStrip(r.body)+'\n\n'+SIG_TXT,cold=mxIsCold(r.v.email)&&MXSRV.ready;
   try{if(cold||!gConnected())await mxDeliver({to:r.v.email,subject:r.subject,html:html,text:txt});else await gmSend({to:r.v.email,subject:r.subject,html:html,text:txt});
     toast('✅ Verstuurd naar '+r.v.email+(cold?' (van info@)':''));utLog(r);closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}};
@@ -5858,13 +5859,25 @@ function mcVal(){return {to:document.getElementById('mc_to').value.trim(),sub:do
 function mcPreview(){var m=mcVal();var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(5,5,10,.9);display:flex;flex-direction:column;align-items:center;padding:14px';
   ov.innerHTML='<button class="btn" style="margin-bottom:10px" id="mcx">Sluiten</button><iframe style="width:min(680px,100%);flex:1;border:0;border-radius:10px;background:#fff"></iframe>';document.body.appendChild(ov);ov.querySelector('iframe').srcdoc=utHtml(m.sub||'(onderwerp)',m.body);ov.querySelector('#mcx').onclick=function(){ov.remove()}}
 async function mcSend(){var m=mcVal();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.to)){toast('Vul een geldig e-mailadres in',true);return}if(!m.sub||!m.body.trim()){toast('Vul onderwerp en bericht in',true);return}
-  if(/\{\w+\}/.test(m.sub+m.body)&&!confirm('Er staan nog lege velden in de mail ('+(m.sub+m.body).match(/\{\w+\}/)[0]+'). Toch versturen?'))return;
-  var html=utHtml(m.sub,m.body),txt=sigStrip(m.body)+'\n\n'+SIG_TXT,fr=(document.getElementById('mc_from')||{}).value||'info',cold=fr==='info';
+  if(PHRE.test(m.sub+m.body)&&!confirm('Er staan nog lege velden in de mail ('+(m.sub+m.body).match(PHRE)[0]+'). Toch versturen?'))return;
+  m.body=ensureClose(m.body);var html=utHtml(m.sub,m.body),txt=sigStrip(m.body)+'\n\n'+SIG_TXT,fr=(document.getElementById('mc_from')||{}).value||'info',cold=fr==='info';
   try{if(fr==='info')await mxDeliver({to:m.to,subject:m.sub,html:html,text:txt,from:'info'});else if(gConnected())await gmSend({to:m.to,subject:m.sub,html:html,text:txt});else{if(!MXSRV.ready)throw new Error('Resend is niet actief en Google niet verbonden');await mxDeliver({to:m.to,subject:m.sub,html:html,text:txt,from:'giannis'})}
     var p=mcParty(),o=p.o;(o.log=o.log||[]).push({t:Date.now(),txt:'✉️ E-mail verstuurd: "'+m.sub+'"'});if(MC.kind==='d'){o.laatstContact=today()}saveData();logAct('E-mail verstuurd naar '+p.bedrijf+': '+m.sub);
     toast('✅ Verstuurd naar '+m.to+(cold?' (van info@)':' (van giannis@)'));closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}}
 /* knoppen */
 (function(){var _vd=vDeal;vDeal=function(id){_vd(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.mcbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn subtle mcbtn" onclick="mCompose(\'d\',\''+id+'\')">✉ Verstuur e-mail</button>')}})();
+
+/* ===== Afsluiting, aanhef en opschoning voor alle mails ===== */
+var PHRE=/\{\w+\}|\[[^\]\n]{3,}\]/;
+function ensureClose(t){var s=sigStrip(String(t||''));var last=s.split('\n').filter(function(l){return l.trim()}).slice(-3).join(' ');
+  if(/groeten|groetjes|hartelijk|met dank/i.test(last))return s;return s.replace(/\s+$/,'')+'\n\nMet vriendelijke groeten,'}
+(function(){var _v=utVals;utVals=function(id){var r=_v(id);var who=(document.getElementById('ut_who')||{}).value||'',o=null;
+  if(who.indexOf('c:')===0)o=customer(who.slice(2));else if(who.indexOf('d:')===0)o=DATA.deals.find(function(x){return x.id===who.slice(2)});
+  var hasC=!!(o&&o.contact),fn=hasC?String(o.contact).split(' ')[0]:'';
+  var b=r.body;if(hasC)b=b.replace(/^Beste,/,'Beste '+fn+',');else b=b.replace(/^(Dag|Hallo|Beste)\s+[^\n,]*,/,'$1,');
+  r.body=ensureClose(b);return r}})();
+setTimeout(function(){try{if(!DATA.emailtemplates||DATA.tplFix2)return;var rep=[['\nGroeten,\nGiannis Baert','\nMet vriendelijke groeten,\nGiannis Baert'],['stuurde ik u een bericht','stuurde ik jullie een bericht'],['vindt u in bijlage','vind je in bijlage'],['ontvangt u de voorschotfactuur','ontvangen jullie de voorschotfactuur'],['Bedankt!\nGiannis · Marleo','Bedankt en met vriendelijke groeten,\nGiannis · Marleo']];
+  DATA.emailtemplates.forEach(function(t){rep.forEach(function(r){t.body=String(t.body).split(r[0]).join(r[1])});if(/^Re: Korte security-check/.test(t.subject))t.subject=t.subject.replace(/^Re: Korte/,'Opvolging: korte')});DATA.tplFix2=1;saveData()}catch(e){}},4000);
 
 </script>
 </body>
