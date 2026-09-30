@@ -5819,7 +5819,14 @@ async function rSocial(){
   if(typeof buildMenu==='function'&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu()})();
 
 /* ===== E-mailsjablonen: verzenden in huisstijl met handtekening ===== */
-function utHtml(subject,body){var paras=ensureClose(sigStrip(body)).split(/\n\s*\n/).map(function(p){return '<p style="margin:0 0 14px">'+sigHtmlBody(p)+'</p>'}).join('');
+function utLinks(t){return String(t||'').split('\n').map(function(l){var m=l.trim();
+  if(/^(?!https?:\/\/)(www\.|[a-z0-9-]+\.[a-z0-9.-]+\.[a-z]{2,}|[a-z0-9-]+\.(netlify\.app|github\.io|pages\.dev|vercel\.app|be|com|nl|eu|tech))(\/\S*)?$/i.test(m))return 'https://'+m;return l}).join('\n')}
+function utHtml(subject,body){var LK='color:#ef4056;font-weight:700;text-decoration:underline';
+  var subj=String(subject||'')+' '+String(body||''),lbl=/demo|voorbeeld/i.test(subj)?'👀 Bekijk de demo':'🌐 Bekijk de website';
+  var paras=ensureClose(sigStrip(utLinks(body))).split(/\n\s*\n/).map(function(p){
+    var lines=p.split('\n'),out=[],buf=[];
+    var flush=function(){if(buf.length){out.push('<p style="margin:0 0 14px">'+sigHtmlBody(buf.join('\n')).replace(/<a href="([^"]+)">[^<]*<\/a>/g,function(m,u){return '<a href="'+u+'" style="'+LK+'">'+mxEsc(u.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</a>'})+'</p>');buf=[]}};
+    lines.forEach(function(l){if(/^https?:\/\/\S+$/.test(l.trim())){flush();out.push(mxBtn(l.trim(),lbl)+'<div style="font-size:12px;color:#8a8ca0;margin:0 0 14px;word-break:break-all">'+mxEsc(l.trim())+'</div>')}else buf.push(l)});flush();return out.join('')}).join('');
   return mxShell({tag:'Marleo',title:mxEsc(subject),intro:paras,close:false}).replace('Je krijgt deze mail omdat je een afspraak boekte via marleo.tech. ','Je ontvangt deze mail van Marleo. ')}
 utSend=async function(id){var r=utVals(id);if(!r.v.email){toast('Geen e-mailadres bij deze lead of klant',true);return}
   if(PHRE.test(r.body+r.subject)&&!confirm('Er staan nog lege velden in de mail ('+(r.body+r.subject).match(PHRE)[0]+'). Toch versturen?'))return;
@@ -5860,7 +5867,7 @@ function mcPreview(){var m=mcVal();var ov=document.createElement('div');ov.style
   ov.innerHTML='<button class="btn" style="margin-bottom:10px" id="mcx">Sluiten</button><iframe style="width:min(680px,100%);flex:1;border:0;border-radius:10px;background:#fff"></iframe>';document.body.appendChild(ov);ov.querySelector('iframe').srcdoc=utHtml(m.sub||'(onderwerp)',m.body);ov.querySelector('#mcx').onclick=function(){ov.remove()}}
 async function mcSend(){var m=mcVal();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.to)){toast('Vul een geldig e-mailadres in',true);return}if(!m.sub||!m.body.trim()){toast('Vul onderwerp en bericht in',true);return}
   if(PHRE.test(m.sub+m.body)&&!confirm('Er staan nog lege velden in de mail ('+(m.sub+m.body).match(PHRE)[0]+'). Toch versturen?'))return;
-  m.body=ensureClose(m.body);var html=utHtml(m.sub,m.body),txt=sigStrip(m.body)+'\n\n'+SIG_TXT,fr=(document.getElementById('mc_from')||{}).value||'info',cold=fr==='info';
+  m.body=ensureClose(utLinks(m.body));var html=utHtml(m.sub,m.body),txt=sigStrip(m.body)+'\n\n'+SIG_TXT,fr=(document.getElementById('mc_from')||{}).value||'info',cold=fr==='info';
   try{if(fr==='info')await mxDeliver({to:m.to,subject:m.sub,html:html,text:txt,from:'info'});else if(gConnected())await gmSend({to:m.to,subject:m.sub,html:html,text:txt});else{if(!MXSRV.ready)throw new Error('Resend is niet actief en Google niet verbonden');await mxDeliver({to:m.to,subject:m.sub,html:html,text:txt,from:'giannis'})}
     var p=mcParty(),o=p.o;(o.log=o.log||[]).push({t:Date.now(),txt:'✉️ E-mail verstuurd: "'+m.sub+'"'});if(MC.kind==='d'){o.laatstContact=today()}saveData();logAct('E-mail verstuurd naar '+p.bedrijf+': '+m.sub);
     toast('✅ Verstuurd naar '+m.to+(cold?' (van info@)':' (van giannis@)'));closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}}
@@ -5875,7 +5882,7 @@ function ensureClose(t){var s=sigStrip(String(t||''));var last=s.split('\n').fil
   if(who.indexOf('c:')===0)o=customer(who.slice(2));else if(who.indexOf('d:')===0)o=DATA.deals.find(function(x){return x.id===who.slice(2)});
   var hasC=!!(o&&o.contact),fn=hasC?String(o.contact).split(' ')[0]:'';
   var b=r.body;if(hasC)b=b.replace(/^Beste,/,'Beste '+fn+',');else b=b.replace(/^(Dag|Hallo|Beste)\s+[^\n,]*,/,'$1,');
-  r.body=ensureClose(b);return r}})();
+  r.body=ensureClose(utLinks(b));return r}})();
 setTimeout(function(){try{if(!DATA.emailtemplates||DATA.tplFix2)return;var rep=[['\nGroeten,\nGiannis Baert','\nMet vriendelijke groeten,\nGiannis Baert'],['stuurde ik u een bericht','stuurde ik jullie een bericht'],['vindt u in bijlage','vind je in bijlage'],['ontvangt u de voorschotfactuur','ontvangen jullie de voorschotfactuur'],['Bedankt!\nGiannis · Marleo','Bedankt en met vriendelijke groeten,\nGiannis · Marleo']];
   DATA.emailtemplates.forEach(function(t){rep.forEach(function(r){t.body=String(t.body).split(r[0]).join(r[1])});if(/^Re: Korte security-check/.test(t.subject))t.subject=t.subject.replace(/^Re: Korte/,'Opvolging: korte')});DATA.tplFix2=1;saveData()}catch(e){}},4000);
 
