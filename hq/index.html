@@ -5750,6 +5750,48 @@ cpDetail=function(id){_cpDet5(id);var b=document.getElementById('mBody');if(!b)r
 setInterval(async function(){if(document.visibilityState!=='visible'||!sb||!CLOUD||!CLOUD.uid)return;try{await cpLoad()}catch(e){}},120000);
 setTimeout(function(){try{if(sb&&CLOUD&&CLOUD.uid)cpLoad()}catch(e){}},6000);
 
+/* ===== Campagne: duidelijke doelgroep (klant / lead / nieuw), redenen van uitsluiting, persoonlijk ===== */
+var CPWEB={'':'Alle',geen:'Geen website / enkel social of gids',zwak:'Zwakke, verouderde of kapotte website',heeft:'Heeft een goede website'};
+function cpWebKind(d){var o=String(d.online||'').toLowerCase();if(/geen website|enkel|kapot|zwak|verouderd|niet op google/.test(o)){return /geen website|enkel/.test(o)?'geen':'zwak'}if(/website/.test(o))return 'heeft';return ''}
+function cpIsInbound(d){return d.cat==='Website-aanvraag'||d.kanaal==='Website'}
+function cpFirst(d){return String(d.contact||'').trim().split(/\s+/)[0]||''}
+var _cpF6=cpFilters;cpFilters=function(){var x=_cpF6(),g=function(i){var e=document.getElementById(i);return e?e.value:''};x.web=g('cp_web');x.named=!!(document.getElementById('cp_named')||{}).checked;return x};
+cpAudienceAll=(function(_a){return function(f){var st=f.stage==='opvolg';var base=_a(st?Object.assign({},f,{stage:'alle'}):f);
+  return base.filter(function(d){if(!d.id)return true;if(cpIsInbound(d))return false;
+    if(st&&['gesprek','demo','offerte'].indexOf(d.stage)<0)return false;
+    if(f.web&&cpWebKind(d)!==f.web)return false;if(f.named&&!cpFirst(d))return false;return true})}})(cpAudienceAll);
+function cpWhy(f){var un={};CAMP.unsub.forEach(function(x){un[x.email]=1});var cu={};(DATA.customers||[]).forEach(function(c){if(c.email)cu[c.email.toLowerCase().trim()]=1});
+  var used={};CAMP.rows.forEach(function(x){used[String(x.to_email).toLowerCase()]=1});var inc={};cpAudienceAll(f).forEach(function(d){inc[d.id]=1});
+  var n={geen:0,klant:0,afgemeld:0,verloren:0,inkomend:0,eerder:0,anders:0},seen={};
+  DATA.deals.forEach(function(d){if(inc[d.id])return;var e=String(d.email||'').toLowerCase().trim();
+    if(!e||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))n.geen++;else if(cu[e]||d.stage==='gewonnen')n.klant++;else if(un[e])n.afgemeld++;else if(d.stage==='verloren')n.verloren++;else if(cpIsInbound(d))n.inkomend++;else if(!f.again&&used[e])n.eerder++;else n.anders++});
+  return n}
+var _cpPrev6=cpPrev;
+cpPrev=function(){_cpPrev6();var el=document.getElementById('cp_count');if(!el)return;var f=cpFilters(),all=cpAudienceAll(f),sel=all.filter(function(d){return !CPEXC[String(d.email).toLowerCase().trim()]});
+  var SL={};STAGES.forEach(function(s){SL[s[0]]=s[1]});
+  var box=document.getElementById('cp_list');
+  if(box){box.innerHTML=all.length?'<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 6px"><b style="font-size:.85rem">Ontvangers ('+sel.length+' van '+all.length+')</b><span style="font-size:.8rem"><a href="#" onclick="cpAllTog(true);return false">alles aan</a> · <a href="#" onclick="cpAllTog(false);return false">alles uit</a></span></div><div style="max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:8px">'+
+   all.map(function(d){var e=String(d.email).toLowerCase().trim(),on=!CPEXC[e],fn=cpFirst(d),wk=cpWebKind(d),nb=/^Nieuw bedrijf/.test(d.cat||'');
+    var tag=function(t,c){return '<span style="display:inline-block;font-size:.68rem;padding:1px 7px;border-radius:99px;margin-right:4px;background:'+c+'22;color:'+c+'">'+t+'</span>'};
+    var badges=(d.id?tag(nb?'🆕 nieuw bedrijf':'Lead · '+(SL[d.stage]||d.stage),nb?'#22C55E':'#60A5FA'):tag('Extra adres','#A78BFA'))+(wk==='geen'?tag('geen website','#F97C1F'):wk==='zwak'?tag('zwakke site','#FBBF24'):wk==='heeft'?tag('heeft site','#94A3B8'):'')+(fn?'':tag('⚠ geen voornaam → "Hallo,"','#FBBF24'));
+    return '<div style="display:flex;gap:8px;align-items:flex-start;padding:7px 10px;border-bottom:1px solid var(--line);font-size:.83rem;'+(on?'':'opacity:.45')+'"><input type="checkbox" style="width:auto;margin-top:3px" '+(on?'checked':'')+' onchange="cpTog(\''+encodeURIComponent(e)+'\',this.checked)"><span style="flex:1;min-width:0"><a href="#" onclick="cpPreviewFor(\''+encodeURIComponent(e)+'\');return false" style="font-weight:700;color:inherit" title="Toon de mail zoals deze persoon hem krijgt">'+cpEsc(d.naam||e)+'</a>'+(fn?' · '+cpEsc(d.contact):'')+'<br><span style="color:var(--muted)">'+cpEsc(e)+(d.plaats?' · '+cpEsc(d.plaats):'')+(d.cat?' · '+cpEsc(String(d.cat).replace(/^Nieuw bedrijf · /,'')):'')+'</span><br>'+badges+'</span></div>'}).join('')+'</div>':''}
+  var w=document.getElementById('cp_why');if(!w){w=document.createElement('div');w.id='cp_why';w.className='hint';w.style.marginBottom='12px';var b=document.getElementById('cp_list');if(b)b.parentNode.insertBefore(w,b.nextSibling)}
+  var n=cpWhy(f),parts=[];[['klant','🤝 huidige klanten (nooit gemaild)'],['afgemeld','🚫 afgemeld'],['geen','✉ zonder geldig e-mailadres'],['verloren','❌ verloren leads'],['inkomend','📥 inkomende aanvragen via website (die contacteer je persoonlijk)'],['eerder','📨 al eerder in een campagne'],['anders','⏭ andere fase of filter']].forEach(function(p){if(n[p[0]])parts.push('<b>'+n[p[0]]+'</b> '+p[1])});
+  var named=sel.filter(function(d){return cpFirst(d)}).length,extra='';
+  var t=CPT[CPTPL];if(t&&t.cat){var kw=String(t.cat).toLowerCase().split(',').map(function(x){return x.trim()}).filter(Boolean);var fit=sel.filter(function(d){var c=String(d.cat||'').toLowerCase();return kw.some(function(k){return c.indexOf(k)>=0})}).length;
+    if(sel.length&&fit<sel.length)extra='<br>⚠ <b>'+(sel.length-fit)+'</b> ontvangers passen niet bij de sector van dit sjabloon ('+cpEsc(t.n.replace(/^\S+\s/,''))+'). Vul hierboven "Categorie bevat" in of vink ze uit.'}
+  w.innerHTML='👤 <b>'+named+'</b> van '+sel.length+' hebben een voornaam ("Hallo Sarah,"), de rest krijgt "Hallo,".'+extra+(parts.length?'<br>Niet meegenomen: '+parts.join(' · '):'')};
+function cpPreviewFor(e){e=decodeURIComponent(e);var a=cpAudienceAll(cpFilters()).filter(function(d){return String(d.email).toLowerCase().trim()===e})[0];if(!a)return;
+  var html=cpQ(cpHtml(cpVars(a,document.getElementById('cp_body').value)),'test');var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(5,5,10,.9);display:flex;flex-direction:column;align-items:center;padding:14px';
+  ov.innerHTML='<div style="color:#fff;margin-bottom:8px">Zo ziet <b>'+cpEsc(a.naam||e)+'</b> de mail · onderwerp: '+cpEsc(cpVars(a,document.getElementById('cp_sub').value))+'</div><button class="btn" style="margin-bottom:10px" id="cpx">Sluiten</button><iframe style="width:min(680px,100%);flex:1;border:0;border-radius:10px;background:#fff"></iframe>';document.body.appendChild(ov);ov.querySelector('iframe').srcdoc=html;ov.querySelector('#cpx').onclick=function(){ov.remove()}}
+var _mCamp6=mCamp;mCamp=function(){_mCamp6.apply(this,arguments);
+  var st=document.getElementById('cp_stage');if(st){var lab={geen:'Geen leads uit het CRM (alleen extra adressen)',nieuw:'🆕 Nieuwe leads: nog niet gecontacteerd',alle:'Alle actieve leads (geen klanten)',gecontacteerd:'📨 Al gecontacteerd, nog geen gesprek'};
+    [].slice.call(st.options).forEach(function(o){if(lab[o.value])o.text=lab[o.value]});
+    if(![].some.call(st.options,function(o){return o.value==='opvolg'}))st.insertAdjacentHTML('beforeend','<option value="opvolg">💬 In opvolging (gesprek, demo of offerte)</option>');
+    var lb=st.parentNode.querySelector('label');if(lb)lb.textContent='Wie? (huidige klanten krijgen nooit een campagne)';
+    var row=st.closest('.frow');if(row&&!document.getElementById('cp_web'))row.insertAdjacentHTML('afterend','<div class="frow"><div class="fgroup"><label>Website van de lead</label><select id="cp_web" onchange="cpPrev()">'+Object.keys(CPWEB).map(function(k){return '<option value="'+k+'">'+CPWEB[k]+'</option>'}).join('')+'</select></div><div class="fgroup"><label style="display:flex;gap:8px;align-items:center;margin-top:22px"><input type="checkbox" id="cp_named" style="width:auto" onchange="cpPrev()"> Alleen leads met een voornaam</label></div></div>')}
+  cpPrev()};
+
 </script>
 </body>
 </html>
