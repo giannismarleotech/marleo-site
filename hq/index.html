@@ -1399,7 +1399,7 @@ function rCustPage(){
       '</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
        (c.phone?'<a class="btn sm subtle" href="tel:'+esc(c.phone)+'">\ud83d\udcde Bel</a>':'')+
-       (c.email?'<a class="btn sm subtle" href="mailto:'+esc(c.email)+'">\u2709 Mail</a>':'')+
+       '<button class="btn sm" onclick="mCompose(\'c\',\''+c.id+'\')">\u2709 Verstuur e-mail</button>'+
        (isMobile(c.phone)?'<a class="btn sm subtle" href="https://wa.me/'+telDigits(c.phone)+'" target="_blank">\ud83d\udcac WhatsApp</a>':'')+
       '</div>'+
       (c.note?'<div class="notecard" style="margin-top:12px"><div class="meta">Notitie</div><p>'+esc(c.note)+'</p></div>':'')+
@@ -5829,6 +5829,40 @@ function utPreview(id){var r=utVals(id);var ov=document.createElement('div');ov.
 (function(){var _u=useTemplate;useTemplate=function(id){_u(id);var f=document.getElementById('mFoot');if(!f)return;
   if(!f.querySelector('.utsend')&&(MXSRV.ready||gConnected()))f.insertAdjacentHTML('beforeend','<button class="btn utsend" style="background:#16a34a" onclick="utSend(\''+id+'\')">📨 Verstuur nu</button>');
   if(!f.querySelector('.utprev'))f.insertAdjacentHTML('afterbegin','<button class="btn subtle utprev" onclick="utPreview(\''+id+'\')">👁 Voorbeeld</button>')}})();
+
+/* ===== E-mail sturen vanuit klant of lead: zelf schrijven of sjabloon ===== */
+var MC={kind:'',id:''};
+function mcParty(){var o=MC.kind==='c'?(customer(MC.id)||{}):(DATA.deals.find(function(x){return x.id===MC.id})||{});
+  return MC.kind==='c'?{o:o,bedrijf:o.name||'',contact:o.contact||'',email:o.email||'',tel:o.phone||''}:{o:o,bedrijf:o.naam||'',contact:o.contact||'',email:o.email||'',tel:o.tel||''}}
+function mCompose(kind,id){MC={kind:kind,id:id};var p=mcParty();
+  var opts='<option value="">✍️ Zelf schrijven</option>'+(DATA.emailtemplates||[]).map(function(t){return '<option value="'+t.id+'">'+esc(t.name)+'</option>'}).join('');
+  openM('✉ E-mail naar '+p.bedrijf,
+   '<div class="fgroup"><label>Aan</label><input id="mc_to" value="'+esc(p.email)+'" placeholder="e-mailadres"></div>'+
+   '<div class="fgroup"><label>Sjabloon</label><select id="mc_tpl" onchange="mcPick()">'+opts+'</select></div>'+
+   '<div class="fgroup"><label>Onderwerp</label><input id="mc_sub" placeholder="Onderwerp"></div>'+
+   '<div class="fgroup"><label>Bericht</label><textarea id="mc_body" style="min-height:220px" placeholder="Schrijf hier je bericht…">'+esc(mcGreet())+'</textarea></div>'+
+   '<div class="hint">Je e-mailhandtekening wordt automatisch onderaan toegevoegd, in de huisstijl van Marleo. Vul eventuele {velden} in voor je verstuurt.</div>',
+   '<button class="btn subtle" onclick="mcPreview()">👁 Voorbeeld</button><button class="btn" style="background:#16a34a" onclick="mcSend()">📨 Verstuur</button>',true)}
+function mcVars(){var p=mcParty();return {bedrijf:p.bedrijf,naam:p.contact?p.contact.split(' ')[0]:p.bedrijf,email:p.email,tel:p.tel,boeklink:'https://marleo.tech/afspraak/'}}
+function mcPick(){var id=document.getElementById('mc_tpl').value;var body=document.getElementById('mc_body');
+  if(!id){document.getElementById('mc_sub').value='';body.value=mcGreet();return}
+  var t=DATA.emailtemplates.find(function(x){return x.id===id});if(!t)return;
+  var tmp=document.createElement('select');tmp.id='ut_who';tmp.style.display='none';tmp.innerHTML='<option value="'+MC.kind+':'+MC.id+'" selected>x</option>';document.body.appendChild(tmp);
+  var r;try{r=utVals(id)}finally{tmp.remove()}
+  var p=mcParty();if(!p.contact){r.body=r.body.replace(/^(Dag|Hallo|Beste)\s+[^\n,]*,/,'$1,')}
+  document.getElementById('mc_sub').value=r.subject;body.value=sigStrip(r.body)}
+function mcGreet(){var p=mcParty(),fn=p.contact?p.contact.split(' ')[0]:'';return (fn?'Dag '+fn+',':'Dag,')+'\n\n\n\nMet vriendelijke groeten'}
+function mcVal(){return {to:document.getElementById('mc_to').value.trim(),sub:document.getElementById('mc_sub').value.trim(),body:document.getElementById('mc_body').value}}
+function mcPreview(){var m=mcVal();var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(5,5,10,.9);display:flex;flex-direction:column;align-items:center;padding:14px';
+  ov.innerHTML='<button class="btn" style="margin-bottom:10px" id="mcx">Sluiten</button><iframe style="width:min(680px,100%);flex:1;border:0;border-radius:10px;background:#fff"></iframe>';document.body.appendChild(ov);ov.querySelector('iframe').srcdoc=utHtml(m.sub||'(onderwerp)',m.body);ov.querySelector('#mcx').onclick=function(){ov.remove()}}
+async function mcSend(){var m=mcVal();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.to)){toast('Vul een geldig e-mailadres in',true);return}if(!m.sub||!m.body.trim()){toast('Vul onderwerp en bericht in',true);return}
+  if(/\{\w+\}/.test(m.sub+m.body)&&!confirm('Er staan nog lege velden in de mail ('+(m.sub+m.body).match(/\{\w+\}/)[0]+'). Toch versturen?'))return;
+  var html=utHtml(m.sub,m.body),txt=sigStrip(m.body)+'\n\n'+SIG_TXT,cold=MC.kind==='d'&&mxIsCold(m.to)&&MXSRV.ready;
+  try{if(cold||!gConnected())await mxDeliver({to:m.to,subject:m.sub,html:html,text:txt});else await gmSend({to:m.to,subject:m.sub,html:html,text:txt});
+    var p=mcParty(),o=p.o;(o.log=o.log||[]).push({t:Date.now(),txt:'✉️ E-mail verstuurd: "'+m.sub+'"'});if(MC.kind==='d'){o.laatstContact=today()}saveData();logAct('E-mail verstuurd naar '+p.bedrijf+': '+m.sub);
+    toast('✅ Verstuurd naar '+m.to+(cold?' (van info@)':''));closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}}
+/* knoppen */
+(function(){var _vd=vDeal;vDeal=function(id){_vd(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.mcbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn subtle mcbtn" onclick="mCompose(\'d\',\''+id+'\')">✉ Verstuur e-mail</button>')}})();
 
 </script>
 </body>
