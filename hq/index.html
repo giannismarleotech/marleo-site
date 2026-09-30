@@ -5567,8 +5567,11 @@ function mCamp(){
   openM('📧 Nieuwe campagne',body,'<button class="btn subtle" onclick="cpTest()">📨 Stuur test</button><button class="btn" id="cp_go" onclick="cpSchedule()">🚀 Inplannen</button>',true);
   (async function(){try{if(!CAMP.loaded)await cpLoad()}catch(e){}cpPrev()})()}
 function cpHtml(text){return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(text)+'<br><br>'+SIG_HTML+'</div>'}
-async function cpTest(){var to=document.getElementById('cp_test').value.trim();var a=cpAudience(cpFilters())[0]||{naam:'Voorbeeldbedrijf',contact:'Sarah',plaats:'Deinze',cat:'Kapper'};
-  try{await gmSend({to:to,subject:'[TEST] '+cpVars(a,document.getElementById('cp_sub').value),text:cpVars(a,document.getElementById('cp_body').value),from:'info'});toast('✅ Testmail verstuurd naar '+to)}catch(e){toast('Test mislukt: '+e.message,true)}}
+async function cpTest(){var to=document.getElementById('cp_test').value.trim();if(!to){toast('Vul een testadres in',true);return}var a=cpAudience(cpFilters())[0]||{naam:'Voorbeeldbedrijf',contact:'Sarah',plaats:'Deinze',cat:'Kapper'};
+  var tx=cpVars(a,document.getElementById('cp_body').value);
+  try{if(MXSRV.ready){var r=await sb.functions.invoke('mailer',{body:{action:'send',mail:{to:to,subject:'[TEST] '+cpVars(a,document.getElementById('cp_sub').value),html:cpHtml(tx),text:tx+'\n\n'+SIG_TXT}}});if(!(r&&r.data&&r.data.ok))throw new Error((r&&r.error&&r.error.message)||'Resend fout')}
+   else await gmSend({to:to,subject:'[TEST] '+cpVars(a,document.getElementById('cp_sub').value),html:cpHtml(tx),text:tx,from:'info'});
+   toast('✅ Testmail (met ontwerp) verstuurd naar '+to)}catch(e){toast('Test mislukt: '+e.message,true)}}
 function cpSlots(n,limit){var out=[],now=new Date(),day=new Date(now);day.setSeconds(0,0);
   var i=0;while(i<n){var dow=day.getDay();if(dow>0&&dow<6){var start=9*60+5,end=16*60+30,cur=day.getHours()*60+day.getMinutes()+5,lo=Math.max(start,cur);
       if(day.toDateString()!==now.toDateString())lo=start;var room=end-lo;
