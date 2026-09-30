@@ -4772,6 +4772,7 @@ function v4Offer(x,it){var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||
   if(has(x,'onvindbaar')||(!need&&!o.length))o.push({t:'beter gevonden worden op Google (SEO)',p:priceOf(/^seo-start/i,'€89'),vanaf:1});
   if(has(x,'mail'))o.push({t:'een professioneel e-mailadres op jullie eigen naam',p:priceOf(/^professioneel e-mailadres/i,'€29'),jaar:1});
   return o}
+function v4ResaNote(x){return has(x,'reserv')?'Let op: de reservatiemodule (op maat) komt bovenop de website en kost dus extra, zoals bij Pain du Mie, waar we ook een reservatie op maat bouwden.':''}
 function v4PriceTxt(i){return (i.extra?'+':'')+(i.vanaf?'vanaf ':'')+i.p+(i.jaar?' per jaar':'')}
 function v4Wa(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var stad=leadCity(x);var hi=vn?'Hallo '+vn+'!':'Hallo!';
   var it=dealSeg(x)==='it';var out=[];
@@ -4783,7 +4784,7 @@ function v4Wa(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var stad
   var of=v4Offer(x,it);
   if(it){out.push('Ik doe graag een gratis, korte check van jullie IT en e-mailbeveiliging: waar zitten de risico’s en wat kan beter. Vrijblijvend.');}
   else if(of.length){var first=of[0];var s='Mijn voorstel: '+first.t+'. Dat kost '+v4PriceTxt(first)+' (excl. btw)'+(first.jaar?'.':', eenmalig, zonder abonnement of verborgen kosten.');
-    var rest=of.slice(1).map(function(i){return i.t+' ('+v4PriceTxt(i)+')'});if(rest.length)s+=' Ook mogelijk: '+rest.join(', ')+'.';out.push(s)}
+    var rest=of.slice(1).map(function(i){return i.t+' ('+v4PriceTxt(i)+')'});if(rest.length)s+=' Ook mogelijk: '+rest.join(', ')+'.';out.push(s);if(v4ResaNote(x))out.push(v4ResaNote(x))}
   var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||has(x,'oud')||has(x,'mobiel')||has(x,'traag');
   out.push(it?'Zal ik je even bellen?':(need?'Zal ik gratis een voorbeeld maken voor '+naam+'? Dan zie je eerst hoe het eruitziet, zonder verplichtingen.':'Zal ik je eens kort tonen wat ik zou doen? Vrijblijvend natuurlijk.'));
   return out.join('\n\n')+'\n\nGroeten,\nGiannis · Marleo'}
@@ -4796,7 +4797,7 @@ function v4Mail(x){var naam=x.naam||'jullie zaak';var vn=leadFirstName(x);var st
   var op=v4Opener(x,naam,stad);var rev=v4Rev(x,!!op);var p1=[op,rev.trim()].filter(Boolean).join(' ');if(p1)b.push(p1);
   var pr=v4Problems(x,naam,stad);if(pr.length)b.push(pr.join(' '));
   var of=v4Offer(x,it);
-  if(!it&&of.length)b.push('Wat ik voorstel:\n'+of.map(function(i){return '• '+i.t.charAt(0).toUpperCase()+i.t.slice(1)+': '+v4PriceTxt(i)+(i.jaar?'':' eenmalig')}).join('\n')+'\n\nAlle prijzen zijn excl. btw, zonder abonnement of verborgen kosten.');
+  if(!it&&of.length)b.push('Wat ik voorstel:\n'+of.map(function(i){return '• '+i.t.charAt(0).toUpperCase()+i.t.slice(1)+': '+v4PriceTxt(i)+(i.jaar?'':' eenmalig')}).join('\n')+'\n\nAlle prijzen zijn excl. btw, zonder abonnement of verborgen kosten.'+(v4ResaNote(x)?'\n\n'+v4ResaNote(x):''));
   if(it)b.push('Ik doe graag een gratis, korte check van jullie IT en e-mailbeveiliging: waar zitten de risico’s en wat kan beter. Past een gesprek van 10 minuten deze week?');
   else{var need=has(x,'geen')||has(x,'social')||has(x,'kapot')||has(x,'oud')||has(x,'mobiel')||has(x,'traag');
     b.push(need?'Ik maak gerust eerst een gratis voorbeeld voor '+naam+', zodat je ziet hoe het eruitziet. Antwoorden op deze mail volstaat.':'Zal ik je kort tonen wat ik zou aanpassen? Antwoorden op deze mail volstaat.')}
