@@ -5273,7 +5273,7 @@ var TPL_EXTRA=[
 {id:'tpl-x26',name:'26. Google Bedrijfsprofiel optimaliseren aanbieden',subject:'Meer klanten via Google: je bedrijfsprofiel',body:'Hallo {naam},\n\nVeel klanten zoeken eerst op Google Maps voor ze bellen of langskomen. Een goed ingevuld Google Bedrijfsprofiel maakt daar het verschil: juiste openingsuren, foto\'s, diensten en reviews.\n\nIk kan dat voor {bedrijf} opzetten of verbeteren, en je meteen tonen hoe je makkelijk meer reviews krijgt. Zal ik je een voorstel sturen?'}
 ];
 (function(){TPL_EXTRA.forEach(function(t){if(!DEFAULT_TEMPLATES.some(function(x){return x.id===t.id}))DEFAULT_TEMPLATES.push(t)})})();
-function tplSync(){if(!DATA.emailtemplates)return;var ids={};DATA.emailtemplates.forEach(function(t){ids[t.id]=1});var n=0;TPL_EXTRA.forEach(function(t){if(!ids[t.id]){DATA.emailtemplates.push(JSON.parse(JSON.stringify(t)));n++}});if(n)saveData()}
+function tplSync(){if(!DATA.emailtemplates)return;if(!DATA.emailtemplates.length){DATA.emailtemplates=JSON.parse(JSON.stringify(DEFAULT_TEMPLATES));saveData();return}var ids={};DATA.emailtemplates.forEach(function(t){ids[t.id]=1});var n=0;TPL_EXTRA.forEach(function(t){if(!ids[t.id]){DATA.emailtemplates.push(JSON.parse(JSON.stringify(t)));n++}});if(n)saveData()}
 (function(){var _r=rEmails;rEmails=function(){tplSync();return _r.apply(this,arguments)};tplSync()})();
 /* auto-invullen uit dossier + boeklink */
 (function(){var _u=utVals;utVals=function(id){var r=_u(id);var v=r.v;var who=(document.getElementById('ut_who')||{}).value||'';var o=null,cu=null;
