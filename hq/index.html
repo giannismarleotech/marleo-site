@@ -2993,7 +2993,7 @@ async function kboLookup(){
 /* ===== KOPPELINGEN: Google Agenda + Gmail, Wise, WhatsApp Cloud API, Website-monitor, LinkedIn ===== */
 if(!DATA.comms)DATA.comms=[];if(!DATA.monitor)DATA.monitor=[];
 var INT={row:null,loaded:false,waTemplates:null,wiseLast:0,gcalLast:0};
-function gCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.google)DATA.settings.google={clientId:'',from:'giannis@marleo.tech',fromName:'Giannis Baert | Marleo',sync:true};return DATA.settings.google}
+function gCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.google)DATA.settings.google={clientId:'973261511401-290h0ilg0i3e5gq5utaalje3pgm71n24.apps.googleusercontent.com',from:'giannis@marleo.tech',fromName:'Giannis Baert | Marleo',sync:true};if(!DATA.settings.google.clientId)DATA.settings.google.clientId='973261511401-290h0ilg0i3e5gq5utaalje3pgm71n24.apps.googleusercontent.com';return DATA.settings.google}
 async function intLoad(){if(!sb||!CLOUD.uid)return INT.row;var r=await sb.from('integrations').select('*').eq('user_id',CLOUD.uid).maybeSingle();INT.row=r.data||{};INT.loaded=true;return INT.row}
 async function intSave(patch){if(!sb||!CLOUD.uid){toast('Niet ingelogd in de cloud',true);return false}patch.user_id=CLOUD.uid;patch.updated_at=new Date().toISOString();var r=await sb.from('integrations').upsert(patch,{onConflict:'user_id'});if(r.error){toast(r.error.message,true);return false}INT.row=Object.assign(INT.row||{},patch);return true}
 function commLog(o){o.id=nid('cm');o.t=Date.now();DATA.comms.unshift(o);DATA.comms=DATA.comms.slice(0,500);saveData()}
