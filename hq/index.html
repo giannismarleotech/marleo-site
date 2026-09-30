@@ -5716,6 +5716,40 @@ cpPrev=function(){_cpPrev4();var el=document.getElementById('cp_count');if(!el)r
    all.map(function(d){var e=String(d.email).toLowerCase().trim(),on=!CPEXC[e];return '<label style="display:flex;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line);font-size:.83rem;cursor:pointer;margin:0;'+(on?'':'opacity:.45')+'"><input type="checkbox" style="width:auto" '+(on?'checked':'')+' onchange="cpTog(\''+encodeURIComponent(e)+'\',this.checked)"><span style="flex:1;min-width:0"><b>'+cpEsc(d.naam||e)+'</b>'+(d.contact?' · '+cpEsc(d.contact):'')+'<br><span style="color:var(--muted)">'+cpEsc(e)+(d.plaats?' · '+cpEsc(d.plaats):'')+(d.cat?' · '+cpEsc(d.cat):'')+'</span></span></label>'}).join('')+'</div>'};
 var _mCamp4=mCamp;mCamp=function(){CPEXC={};_mCamp4.apply(this,arguments)};
 
+/* ===== Campagne-reacties: "ja toon voorbeeld" / "afspraak" zichtbaar in CRM + mail ===== */
+var RXU='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/reageer?q=__QID__&a=';
+cpRich=(function(_r){return function(k,text,p){var h=_r(k,text,p),t=CPT[k]||{},ja=/^Ja/i.test(t.cta||'');
+  var i=h.lastIndexOf('href="https://marleo.tech/afspraak/"');
+  if(i>=0){h=h.slice(0,i)+'href="'+RXU+(ja?'ja':'afspraak')+'"'+h.slice(i+'href="https://marleo.tech/afspraak/"'.length)}
+  if(ja){h=h.replace('<div style="font-size:13px;color:#6a6a7e;margin:0 0 6px">Liever antwoorden?','<div style="font-size:13px;color:#6a6a7e;margin:0 0 8px">Liever eerst even praten? <a href="'+RXU+'afspraak" style="color:#ef4056">Plan zelf een moment</a>.</div><div style="font-size:13px;color:#6a6a7e;margin:0 0 6px">Of antwoord')}
+  return h}})(cpRich);
+var cpQ=function(h,id){return String(h).split('__QID__').join(id||'test')};
+cpTest=(function(_t){return async function(){var _h=cpHtml;cpHtml=function(x){return cpQ(_h(x),'test')};try{return await _t()}finally{cpHtml=_h}}})(cpTest);
+var _cpPH=cpPreviewHtml;cpPreviewHtml=function(){var _h=cpHtml;cpHtml=function(x){return cpQ(_h(x),'test')};try{return _cpPH()}finally{cpHtml=_h}};
+/* id vooraf bepalen zodat elke mail een eigen, persoonlijke link krijgt */
+var _cpIns=null;
+cpSchedule=(function(_s){return async function(){var q=sb.from.bind(sb);sb.from=function(tb){var o=q(tb);if(tb==='mail_queue'){var ins=o.insert.bind(o);o.insert=function(rows){if(Array.isArray(rows))rows=rows.map(function(r){var id=(crypto.randomUUID?crypto.randomUUID():null);if(!id||r.kind!=='campaign')return r;r.id=id;r.html=cpQ(r.html,id);return r});return ins(rows)}}return o};try{return await _s()}finally{sb.from=q}}})(cpSchedule);
+/* laden + weergave */
+cpLoad=async function(){if(!sb||!CLOUD||!CLOUD.uid)return;
+  var a=await sb.from('campaigns').select('*').order('created_at',{ascending:false});CAMP.list=a.data||[];
+  var b=await sb.from('mail_queue').select('id,campaign_id,deal_id,to_email,status,error,send_at,sent_at,delivered_at,opened_at,clicked_at,opens,clicks,bounced,complained,reaction,reacted_at').not('campaign_id','is',null).limit(5000);CAMP.rows=b.data||[];
+  var c=await sb.from('mail_unsub').select('*').order('created_at',{ascending:false});CAMP.unsub=c.data||[];CAMP.loaded=true;cpSyncReact()};
+function cpSyncReact(){var ch=false;CAMP.rows.forEach(function(x){if(!x.reaction||!x.deal_id)return;var d=DATA.deals.filter(function(y){return y.id===x.deal_id})[0];if(!d)return;
+  d.rx=d.rx||{};var key=x.id;if(d.rx[key])return;d.rx[key]=1;
+  (d.log=d.log||[]).push({t:new Date(x.reacted_at||Date.now()).getTime(),txt:(x.reaction==='afspraak'?'📅 Wil een afspraak (via campagnemail)':'🔥 Wil een voorbeeld (via campagnemail: "Ja, toon me een voorbeeld")')});
+  d.hot=true;ch=true;toast((x.reaction==='afspraak'?'📅 ':'🔥 ')+(d.naam||x.to_email)+(x.reaction==='afspraak'?' wil een afspraak':' wil een voorbeeld'))});if(ch)saveData()}
+var _cpDet5=cpDetail;
+var CPR=function(x){return x.reaction==='afspraak'?'📅 wil afspraak':x.reaction==='ja'?'🔥 wil voorbeeld':''};
+rCampagnes=(function(_r){return async function(){if(!MXSRV.ready){try{await mxSrvCheck()}catch(e){}}await _r();
+  var re=CAMP.rows.filter(function(x){return x.reaction}).sort(function(a,b){return new Date(b.reacted_at)-new Date(a.reacted_at)});
+  var box='<div class="card" style="margin-bottom:12px;padding:16px;border-color:'+(re.length?'#F97C1F':'var(--line)')+'"><b>🔥 Reacties op je campagnes</b> <span style="color:var(--muted);font-size:.85rem">(klik op "Ja, toon me een voorbeeld" of "Plan een afspraak")</span>'+
+   (re.length?re.map(function(x){var d=DATA.deals.filter(function(y){return y.id===x.deal_id})[0];return '<div style="display:flex;justify-content:space-between;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);flex-wrap:wrap"><div><b>'+cpEsc(d?d.naam:x.to_email)+'</b> · '+CPR(x)+'<div style="color:var(--muted);font-size:.8rem">'+cpEsc(x.to_email)+' · '+new Date(x.reacted_at).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</div></div><div style="display:flex;gap:6px;align-items:center">'+(d?'<button class="btn subtle sm" onclick="vDeal(\''+d.id+'\')">Open lead</button>':'')+'<a class="btn subtle sm" href="mailto:'+cpEsc(x.to_email)+'">✉ Mail</a></div></div>'}).join(''):'<div style="color:var(--muted);margin-top:6px">Nog geen reacties. Zodra iemand klikt, zie je het hier, in het leadlogboek en krijg je een mail op giannis@marleo.tech.</div>')+'</div>';
+  var m=main();var anchor=m.querySelector('.card');if(anchor)anchor.insertAdjacentHTML('beforebegin',box);else m.insertAdjacentHTML('beforeend',box)}})(rCampagnes);
+cpDetail=function(id){_cpDet5(id);var b=document.getElementById('mBody');if(!b)return;
+  CAMP.rows.filter(function(x){return x.campaign_id===id&&x.reaction}).forEach(function(x){var el=[].slice.call(b.querySelectorAll('div')).filter(function(e){return e.children.length===0&&e.textContent===x.to_email})[0];if(el){var c=el.parentNode.parentNode;var r=c.children[1];if(r)r.insertAdjacentHTML('afterbegin','<div style="color:#F97C1F;font-weight:700">'+CPR(x)+'</div>')}})};
+setInterval(async function(){if(document.visibilityState!=='visible'||!sb||!CLOUD||!CLOUD.uid)return;try{await cpLoad()}catch(e){}},120000);
+setTimeout(function(){try{if(sb&&CLOUD&&CLOUD.uid)cpLoad()}catch(e){}},6000);
+
 </script>
 </body>
 </html>
