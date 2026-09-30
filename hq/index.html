@@ -5196,7 +5196,8 @@ gmSend=async function(o){var cfg=gCfg();var from=(cfg.fromName?mimeWord(cfg.from
   var txt=o.noSig?body:body+'\n\n'+SIG_TXT;
   var html='<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(body)+(o.noSig?'':'<br><br>'+SIG_HTML)+'</div>';
   var A='alt_'+Date.now().toString(36),lines=['From: '+from,'To: '+o.to,'Subject: '+mimeWord(o.subject||''),'MIME-Version: 1.0'];
-  var alt='--'+A+'\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(txt).replace(/(.{76})/g,'$1\r\n')+'\r\n--'+A+'\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(html).replace(/(.{76})/g,'$1\r\n')+'\r\n--'+A+'--';
+  var pk=await cidPack(html);
+  var alt='--'+A+'\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(txt).replace(/(.{76})/g,'$1\r\n')+htmlPart(A,pk)+'\r\n--'+A+'--';
   var raw;
   if(o.attach){var M='mix_'+Date.now().toString(36);lines.push('Content-Type: multipart/mixed; boundary="'+M+'"');
     raw=lines.join('\r\n')+'\r\n\r\n--'+M+'\r\nContent-Type: multipart/alternative; boundary="'+A+'"\r\n\r\n'+alt+'\r\n--'+M+'\r\nContent-Type: '+(o.attach.type||'application/pdf')+'; name="'+o.attach.name+'"\r\nContent-Disposition: attachment; filename="'+o.attach.name+'"\r\nContent-Transfer-Encoding: base64\r\n\r\n'+o.attach.b64.replace(/(.{76})/g,'$1\r\n')+'\r\n--'+M+'--'}
@@ -5336,10 +5337,21 @@ function mxBuild(kind,a){var n=mxFirst(a);var hi='Hallo'+(n?' '+mxEsc(n):'')+','
 (function(){var _g=gmSend;gmSend=async function(o){if(!o.html)return _g(o);
   var cfg=gCfg();var from=(cfg.fromName?mimeWord(cfg.fromName)+' ':'')+'<'+(cfg.from||'giannis@marleo.tech')+'>';
   var A='alt_'+Date.now().toString(36),lines=['From: '+from,'To: '+o.to,'Subject: '+mimeWord(o.subject||''),'MIME-Version: 1.0'];
-  var alt='--'+A+'\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(o.text||'').replace(/(.{76})/g,'$1\r\n')+'\r\n--'+A+'\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(o.html).replace(/(.{76})/g,'$1\r\n')+'\r\n--'+A+'--';var raw;
+  var pk=await cidPack(o.html);
+  var alt='--'+A+'\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64utf(o.text||'').replace(/(.{76})/g,'$1\r\n')+htmlPart(A,pk)+'\r\n--'+A+'--';var raw;
   if(o.attach){var M='mix_'+Date.now().toString(36);lines.push('Content-Type: multipart/mixed; boundary="'+M+'"');raw=lines.join('\r\n')+'\r\n\r\n--'+M+'\r\nContent-Type: multipart/alternative; boundary="'+A+'"\r\n\r\n'+alt+'\r\n--'+M+'\r\nContent-Type: '+o.attach.type+'; name="'+o.attach.name+'"\r\nContent-Disposition: attachment; filename="'+o.attach.name+'"\r\nContent-Transfer-Encoding: base64\r\n\r\n'+o.attach.b64.replace(/(.{76})/g,'$1\r\n')+'\r\n--'+M+'--'}
   else{lines.push('Content-Type: multipart/alternative; boundary="'+A+'"');raw=lines.join('\r\n')+'\r\n\r\n'+alt}
   return gApi('POST','https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{raw:b64u(raw)})}})();
+var CIDC={};
+async function cidPack(html){var parts=[],n=0,seen={};var re=/src="https:\/\/marleo\.tech\/(marleo-logo-mail(?:-dark)?\.png)"/g,m,names=[];while((m=re.exec(html)))if(names.indexOf(m[1])<0)names.push(m[1]);
+  for(var i=0;i<names.length;i++){var f=names[i];try{if(!CIDC[f]){var r=await fetch('https://marleo.tech/'+f,{cache:'force-cache'});if(!r.ok)throw 0;var buf=new Uint8Array(await r.arrayBuffer()),bin='';for(var j=0;j<buf.length;j+=8192)bin+=String.fromCharCode.apply(null,buf.subarray(j,j+8192));CIDC[f]=btoa(bin)}
+    var cid='img'+i+'.'+Date.now().toString(36)+'@marleo.tech';html=html.split('src="https://marleo.tech/'+f+'"').join('src="cid:'+cid+'"');parts.push({cid:cid,name:f,b64:CIDC[f]})}catch(e){}}
+  return {html:html,parts:parts}}
+function htmlPart(A,pk){var h='\r\n--'+A+'\r\n';var enc=function(x){return b64utf(x).replace(/(.{76})/g,'$1\r\n')};
+  if(!pk.parts.length)return h+'Content-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+enc(pk.html);
+  var R='rel_'+Date.now().toString(36);var o=h+'Content-Type: multipart/related; boundary="'+R+'"\r\n\r\n--'+R+'\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+enc(pk.html);
+  pk.parts.forEach(function(x){o+='\r\n--'+R+'\r\nContent-Type: image/png; name="'+x.name+'"\r\nContent-ID: <'+x.cid+'>\r\nContent-Disposition: inline; filename="'+x.name+'"\r\nContent-Transfer-Encoding: base64\r\n\r\n'+x.b64.replace(/(.{76})/g,'$1\r\n')});
+  return o+'\r\n--'+R+'--'}
 var MXLOCK={};
 async function mxClaim(a,k){var key=a.id+k;if(MXLOCK[key])return false;MXLOCK[key]=1;
   try{if(a.bookingId&&typeof sb!=='undefined'&&sb){var col={recv:'mail_recv',conf:'mail_conf',rem:'mail_rem'}[k];if(col){var u={};u[col]=true;var r=await sb.from('bookings').update(u).eq('id',a.bookingId).eq(col,false).select('id');if(!r.error&&r.data&&!r.data.length){return false}}}}catch(e){}
@@ -5398,6 +5410,9 @@ function ag2Conflict(id,date,time,dur){if(!time)return null;var s=bkMin(time),e=
 /* ================= Annuleren & verplaatsen: gast wordt altijd verwittigd ================= */
 function mcOn(k){return bkMailCfg()[k]!==false}
 var _mxCard0=mxCard;mxCard=function(a){var h=_mxCard0(a);var t=mxEsc(mxDateLong(a.date));return h.replace('text-transform:capitalize">'+t,'">'+t.charAt(0).toUpperCase()+t.slice(1))};
+var _mxCard1=mxCard;mxCard=function(a){var h=_mxCard1(a);var g=mxEsc(mxGcal(a));var t=mxEsc(mxDateLong(a.date));t=t.charAt(0).toUpperCase()+t.slice(1);
+  h=h.replace('>'+t+'</td>','><a href="'+g+'" style="color:#14141c;text-decoration:none">'+t+'</a></td>');
+  var t2=mxEsc(a.time||'')+(mxEnd(a)?' – '+mxEnd(a):'');if(a.time)h=h.replace('>'+t2+'</td>','><a href="'+g+'" style="color:#ef4056;text-decoration:none">'+t2+'</a></td>');return h};
 mxICS=function(a,method){method=method||'PUBLISH';var s=new Date(a.date+'T'+(a.time||'09:00')+':00'),e=new Date(s.getTime()+(a.dur||30)*60000);var f=function(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')};
   var loc=a.kind==='meet'?(a.meetLink||'Google Meet'):a.kind==='tel'?'Telefonisch':(a.location||'');
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Marleo//Afspraak//NL','METHOD:'+method,'BEGIN:VEVENT','UID:'+a.id+'@marleo.tech','SEQUENCE:'+(method==='CANCEL'||a.moved?Math.floor(Date.now()/60000)%100000:0),'STATUS:'+(method==='CANCEL'?'CANCELLED':'CONFIRMED'),'DTSTAMP:'+f(new Date()),'DTSTART:'+f(s),'DTEND:'+f(e),'SUMMARY:Afspraak met Marleo','LOCATION:'+loc.replace(/[,;]/g,' '),'DESCRIPTION:'+(a.kind==='meet'&&a.meetLink?'Google Meet: '+a.meetLink+'\\n':'')+'Wijzigen? Antwoord op de bevestigingsmail of boek opnieuw via marleo.tech/afspraak','END:VEVENT','END:VCALENDAR'].join('\r\n')};
