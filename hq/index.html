@@ -3074,7 +3074,7 @@ async function gmSend(o){
 var MAILCTX=null;
 function mMail(o){MAILCTX=o||{};
   openM('✉️ E-mail versturen',
-   '<div class="frow"><div class="fgroup"><label>Aan</label><input id="gm_to" value="'+esc(o.to||'')+'" placeholder="klant@bedrijf.be"></div><div class="fgroup"><label>Van</label><input value="'+esc((gCfg().fromName||'')+' <'+(gCfg().from||'giannis@marleo.tech')+'>')+'" readonly></div></div>'+
+   '<div class="frow"><div class="fgroup"><label>Aan</label><input id="gm_to" value="'+esc(o.to||'')+'" placeholder="klant@bedrijf.be"></div><div class="fgroup"><label>Van</label>'+mxFromSel(o)+'</div></div>'+
    '<div class="fgroup"><label>Onderwerp</label><input id="gm_sub" value="'+esc(o.subject||'')+'"></div>'+
    '<div class="fgroup"><label>Bericht</label><textarea id="gm_body" style="min-height:220px">'+esc(o.text||'')+'</textarea></div>'+
    (o.attach?'<div class="hint">📎 Bijlage: <b>'+esc(o.attach.name)+'</b></div>':'')+
@@ -3084,7 +3084,7 @@ function mMail(o){MAILCTX=o||{};
 function mMailOpenGmail(){var to=document.getElementById('gm_to').value,su=document.getElementById('gm_sub').value,b=document.getElementById('gm_body').value;window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to)+'&su='+encodeURIComponent(su)+'&body='+encodeURIComponent(b));mMailAfter({to:to,subject:su,text:b,via:'gmail-web'});closeM()}
 async function mMailSend(){var to=document.getElementById('gm_to').value.trim(),su=document.getElementById('gm_sub').value.trim(),b=document.getElementById('gm_body').value;if(!to){toast('Geen ontvanger',true);return}
   var btn=document.getElementById('gm_send');btn.disabled=true;btn.textContent='Versturen…';
-  try{await gmSend({to:to,subject:su,text:b,attach:MAILCTX.attach});toast('✅ E-mail verstuurd naar '+to);mMailAfter({to:to,subject:su,text:b,via:'gmail-api'});closeM();if(MAILCTX.after)MAILCTX.after();if(VIEW==='custpage')rCustPage()}
+  var fs=document.getElementById('gm_from');try{await gmSend({to:to,subject:su,text:b,attach:MAILCTX.attach,from:fs&&fs.value==='info'?'info':''});toast('✅ E-mail verstuurd naar '+to+(fs&&fs.value==='info'?' (van info@)':''));mMailAfter({to:to,subject:su,text:b,via:'gmail-api'});closeM();if(MAILCTX.after)MAILCTX.after();if(VIEW==='custpage')rCustPage()}
   catch(e){toast('Versturen mislukt: '+e.message,true);btn.disabled=false;btn.textContent='➤ Verstuur'}}
 function mMailAfter(m){var o=MAILCTX||{};commLog({custId:o.custId||'',dealId:o.dealId||'',type:'mail',dir:'out',to:m.to,subject:m.subject,text:m.text,via:m.via,attach:o.attach?o.attach.name:''});
   if(o.dealId){var d=DATA.deals.find(function(x){return x.id===o.dealId});if(d){d.laatstContact=today();d.kanaal='E-mail';(d.log=d.log||[]).push({t:Date.now(),txt:'Mail: '+m.subject});if(d.stage==='nieuw')d.stage='gecontacteerd';saveData()}}
@@ -5286,7 +5286,7 @@ function tplSync(){if(!DATA.emailtemplates)return;if(!DATA.emailtemplates.length
 /* verstuur direct via CRM met handtekening */
 async function utSend(id){var r=utVals(id);if(!r.v.email){toast('Geen e-mailadres bij deze lead of klant',true);return}
   if(/\{\w+\}/.test(r.body+r.subject)&&!confirm('Er staan nog lege velden in de mail ('+(r.body+r.subject).match(/\{\w+\}/)[0]+'). Toch versturen?'))return;
-  try{await gmSend({to:r.v.email,subject:r.subject,text:r.body});toast('✅ Verstuurd naar '+r.v.email);utLog(r);closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}}
+  try{await gmSend({to:r.v.email,subject:r.subject,text:r.body,from:mxIsCold(r.v.email)&&MXSRV.ready?'info':''});toast('✅ Verstuurd naar '+r.v.email+(mxIsCold(r.v.email)&&MXSRV.ready?' (van info@)':''));utLog(r);closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}}
 (function(){var _u=useTemplate;useTemplate=function(id){_u(id);var f=document.getElementById('mFoot');if(f&&!f.querySelector('.utsend')&&gCfg().clientId)f.insertAdjacentHTML('beforeend','<button class="btn utsend" style="background:#16a34a" onclick="utSend(\''+id+'\')">📨 Verstuur nu</button>')}})();
 
 /* ================= Mooie huisstijl-mails voor afspraken + validatie (geen dubbel, geen verleden) ================= */
@@ -5502,6 +5502,21 @@ async function mxSyncQueue(){if(MXSYNC||!MXSRV.ready||!sb||!CLOUD||!CLOUD.uid)re
 var _mxRemind0=mxRemind;mxRemind=async function(){if(MXSRV.ready)return;return _mxRemind0()};
 setTimeout(async function(){await mxSrvCheck();mxSyncQueue()},7000);
 setInterval(async function(){if(document.visibilityState!=='visible')return;if(Date.now()-MXSRV.checked>600000)await mxSrvCheck();mxSyncQueue()},60000);
+
+/* ===== Afzender kiezen: persoonlijk (Giannis via Gmail) of koud/algemeen (info@ via Resend) ===== */
+function mxIsCold(email){var e=String(email||'').toLowerCase();if(!e)return false;if(DATA.customers.some(function(c){return (c.email||'').toLowerCase()===e}))return false;
+  var d=DATA.deals.filter(function(x){return (x.email||'').toLowerCase()===e})[0];return !!d&&d.stage==='nieuw'&&!d.laatstContact}
+function mxFromSel(o){var g=gCfg(),pers=esc((g.fromName||'Giannis Baert')+' <'+(g.from||'giannis@marleo.tech')+'>');
+  if(!MXSRV.ready)return '<input value="'+pers+'" readonly>';
+  var cold=mxIsCold(o&&o.to);
+  return '<select id="gm_from"><option value="giannis"'+(cold?'':' selected')+'>'+pers+' – persoonlijk</option><option value="info"'+(cold?' selected':'')+'>Marleo &lt;info@marleo.tech&gt; – koud / algemeen</option></select>'}
+(function(){var _g=gmSend;gmSend=async function(o){
+  if(o&&o.from==='info'){if(!MXSRV.ready)throw new Error('info@ verzenden is nog niet actief (Resend)');
+    var body=o.noSig?String(o.text||''):sigStrip(o.text),txt=o.noSig?body:body+'\n\n'+SIG_TXT;
+    var html='<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(body)+(o.noSig?'':'<br><br>'+SIG_HTML)+'</div>';
+    var r=await sb.functions.invoke('mailer',{body:{action:'send',mail:{to:o.to,subject:o.subject,html:html,text:txt,attach:o.attach}}});
+    if(r&&r.data&&r.data.ok)return r.data;throw new Error((r&&r.data&&r.data.error)||(r&&r.error&&r.error.message)||'Resend fout')}
+  return _g(o)}})();
 
 </script>
 </body>
