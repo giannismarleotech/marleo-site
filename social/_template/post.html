@@ -52,12 +52,13 @@ const P={
 6:()=>kase('TerraClean NB','Outdoor cleaning · Deinze · lead-generating site with quote requests','s_terraclean_d.png','s_terraclean_m.png'),
 7:()=>head('Automation','If you do it every week, <span class="g">a system should.</span>','Invoices, follow-ups, reminders, reports. We automate the repetitive work so you can focus on your clients.')+orb(540,1000,170),
 8:()=>kase('Rani Poetsservice','Cleaning service · Kortrijk region · modern site with WhatsApp contact','s_rani_d.png','s_rani_m.png'),
+10:()=>kase('TrustTap','NFC review cards · trilingual brand site, webshop &amp; custom CRM','s_trusttap_d.png','s_trusttap_m.png'),
 9:()=>head('Let’s talk','Have a project <span class="g">in mind?</span>','From a new website to a complete digital system. Tell us what you need, we tell you honestly how we’d approach it.')+orb(830,1000,120)+'<div class="abs" style="left:110px;width:560px;top:930px"><div class="cta"><span>Start your<br>project</span><i>'+ARROW+'</i></div></div>'
 };
 const n=+location.hash.slice(1)||1;
 let h='<div class="gl"></div>';
 [[50,470],[1010,560],[50,1110],[1010,1180]].forEach(([x,y])=>h+='<div class="plus" style="left:'+x+'px;top:'+y+'px">+</div>');
-h+='<div class="top"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">0'+n+' / 09</div></div>';
+h+='<div class="top"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">'+String(n).padStart(2,'0')+'</div></div>';
 h+=P[n]();
 h+='<div class="foot"><span>marleo.tech</span><span>Belgium → worldwide</span></div>';
 document.getElementById('p').innerHTML=h;

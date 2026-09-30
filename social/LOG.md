@@ -14,3 +14,4 @@ Afbeeldingen publiek via https://raw.githubusercontent.com/giannismarleotech/mar
 - 2026-10-14 automatisatie
 - 2026-10-16 case Rani Poetsservice
 - 2026-10-19 CTA "Have a project in mind?"
+- 2026-09-30 case TrustTap (post 10, direct gepost)
