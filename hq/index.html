@@ -5833,11 +5833,11 @@ utSend=async function(id){var r=utVals(id);if(!r.v.email){toast('Geen e-mailadre
   var html=utHtml(r.subject,r.body),txt=sigStrip(r.body)+'\n\n'+SIG_TXT,cold=mxIsCold(r.v.email)&&MXSRV.ready;
   try{if(cold||!gConnected())await mxDeliver({to:r.v.email,subject:r.subject,html:html,text:txt});else await gmSend({to:r.v.email,subject:r.subject,html:html,text:txt});
     toast('✅ Verstuurd naar '+r.v.email+(cold?' (van info@)':''));utLog(r);closeM()}catch(e){toast('Versturen mislukt: '+e.message,true)}};
-function utPreview(id){var r=utVals(id);var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(5,5,10,.9);display:flex;flex-direction:column;align-items:center;padding:14px';
+function utPreviewHtml(id){var r=utVals(id);var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(5,5,10,.9);display:flex;flex-direction:column;align-items:center;padding:14px';
   ov.innerHTML='<button class="btn" style="margin-bottom:10px" id="utx">Sluiten</button><iframe style="width:min(680px,100%);flex:1;border:0;border-radius:10px;background:#fff"></iframe>';document.body.appendChild(ov);ov.querySelector('iframe').srcdoc=utHtml(r.subject,r.body);ov.querySelector('#utx').onclick=function(){ov.remove()}}
 (function(){var _u=useTemplate;useTemplate=function(id){_u(id);var f=document.getElementById('mFoot');if(!f)return;
   if(!f.querySelector('.utsend')&&(MXSRV.ready||gConnected()))f.insertAdjacentHTML('beforeend','<button class="btn utsend" style="background:#16a34a" onclick="utSend(\''+id+'\')">📨 Verstuur nu</button>');
-  if(!f.querySelector('.utprev'))f.insertAdjacentHTML('afterbegin','<button class="btn subtle utprev" onclick="utPreview(\''+id+'\')">👁 Voorbeeld</button>')}})();
+  if(!f.querySelector('.utprev'))f.insertAdjacentHTML('afterbegin','<button class="btn subtle utprev" onclick="utPreviewHtml(\''+id+'\')">👁 Voorbeeld</button>')}})();
 
 /* ===== E-mail sturen vanuit klant of lead: zelf schrijven of sjabloon ===== */
 var MC={kind:'',id:''};
