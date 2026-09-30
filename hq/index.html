@@ -5792,6 +5792,30 @@ var _mCamp6=mCamp;mCamp=function(){_mCamp6.apply(this,arguments);
     var row=st.closest('.frow');if(row&&!document.getElementById('cp_web'))row.insertAdjacentHTML('afterend','<div class="frow"><div class="fgroup"><label>Website van de lead</label><select id="cp_web" onchange="cpPrev()">'+Object.keys(CPWEB).map(function(k){return '<option value="'+k+'">'+CPWEB[k]+'</option>'}).join('')+'</select></div><div class="fgroup"><label style="display:flex;gap:8px;align-items:center;margin-top:22px"><input type="checkbox" id="cp_named" style="width:auto" onchange="cpPrev()"> Alleen leads met een voornaam</label></div></div>')}
   cpPrev()};
 
+/* ===== Social media planner (Instagram via Metricool) ===== */
+var SOC={list:[],loaded:false,open:{}};
+async function socLoad(){if(!sb||!CLOUD||!CLOUD.uid)return;var r=await sb.from('social_posts').select('*').order('publish_at',{ascending:true});SOC.list=r.data||[];SOC.loaded=true}
+function socToggle(id){SOC.open[id]=!SOC.open[id];rSocial()}
+async function rSocial(){
+  if(!SOC.loaded){main().innerHTML='<div class="topbar"><div><h2>Social media</h2></div></div><div class="card" style="padding:16px">Laden…</div>';try{await socLoad()}catch(e){}}
+  var now=Date.now(),L=SOC.list,fut=L.filter(function(p){return new Date(p.publish_at).getTime()>now}),past=L.filter(function(p){return new Date(p.publish_at).getTime()<=now});
+  var st=function(p){var t=new Date(p.publish_at).getTime();if(p.status==='gepost')return ['✅ Gepost','#22C55E'];if(t<=now)return ['⏳ Tijd verstreken, controleer in Metricool','#FBBF24'];return ['🗓 Ingepland','#60A5FA']};
+  var fmt=function(p){var d=new Date(p.publish_at);return d.toLocaleDateString('nl-BE',{weekday:'short',day:'numeric',month:'long'})+' · '+d.toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit'})};
+  var next=fut[0];var last=L.length?L[L.length-1]:null;
+  var stat=function(a,b){return '<div style="background:var(--track);border-radius:10px;padding:10px 12px"><div style="font-size:.7rem;color:var(--muted)">'+a+'</div><b>'+b+'</b></div>'};
+  var h='<div class="topbar"><div><h2>Social media</h2><div class="sub">Instagram @marleo.tech · planning via Metricool, elke werkdag om 10:00 automatisch gepost</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn subtle" target="_blank" rel="noopener" href="https://app.metricool.com/">Open Metricool</a><a class="btn subtle" target="_blank" rel="noopener" href="https://www.instagram.com/marleo.tech/">Open Instagram</a></div></div>'+
+  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px">'+stat('Ingepland',fut.length)+stat('Volgende post',next?fmt(next):'–')+stat('Laatst ingepland tot',last?new Date(last.publish_at).toLocaleDateString('nl-BE',{day:'numeric',month:'short'}):'–')+stat('Gepost tot nu',L.filter(function(p){return p.status==='gepost'}).length)+'</div>';
+  if(!L.length)h+='<div class="card" style="padding:22px;text-align:center;color:var(--muted)">Nog geen posts in de planner.</div>';
+  var card=function(p){var s=st(p),o=SOC.open[p.id],body=String(p.body||''),sh=body.length>170&&!o?body.slice(0,170).replace(/\s+\S*$/,'')+'…':body;
+    return '<div class="card" style="margin-bottom:10px;padding:12px;display:flex;gap:14px;flex-wrap:wrap"><img src="'+cpEsc(p.image||'')+'" alt="" loading="lazy" style="width:112px;height:140px;object-fit:cover;border-radius:10px;background:var(--track);flex:none"><div style="flex:1;min-width:220px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+cpEsc(p.title||'Post')+'</b><span style="font-size:.75rem;padding:2px 9px;border-radius:99px;background:'+s[1]+'22;color:'+s[1]+'">'+s[0]+'</span></div><div style="color:var(--muted);font-size:.82rem;margin:2px 0 8px">'+fmt(p)+' · Instagram</div><div style="white-space:pre-wrap;font-size:.86rem;line-height:1.5">'+cpEsc(sh)+'</div>'+(body.length>170?'<a href="#" onclick="socToggle(\''+p.id+'\');return false" style="font-size:.8rem">'+(o?'Minder tonen':'Volledige tekst')+'</a>':'')+(p.metrics&&p.metrics.likes!=null?'<div style="margin-top:8px;font-size:.82rem">❤ '+(p.metrics.likes||0)+' · 💬 '+(p.metrics.comments||0)+' · 👁 '+(p.metrics.reach||0)+'</div>':'')+'</div></div>'};
+  if(fut.length)h+='<h3 style="margin:14px 0 8px">Komende posts</h3>'+fut.map(card).join('');
+  if(past.length)h+='<h3 style="margin:18px 0 8px">Al aan de beurt geweest</h3>'+past.slice().reverse().map(card).join('');
+  h+='<div class="hint" style="margin-top:12px">Deze pagina toont de planning zoals ze in Metricool staat. De cijfers (likes, bereik) verschijnen zodra de eerste posts gepubliceerd zijn en ik de planning bijwerk.'+(L.length?' Laatst bijgewerkt: '+new Date(L.reduce(function(m,p){return p.synced_at>m?p.synced_at:m},'')).toLocaleString('nl-BE',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'')+'</div>';
+  main().innerHTML=h}
+(function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='campagnes'});if(i>=0&&!MENU_ADMIN.some(function(m){return m[0]==='social'}))MENU_ADMIN.splice(i+1,0,['social','Social media',IC.chat]);
+  var _g2=go;go=function(v){if(v==='social'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rSocial();window.scrollTo(0,0);return}_g2(v)};
+  if(typeof buildMenu==='function'&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu()})();
+
 </script>
 </body>
 </html>
