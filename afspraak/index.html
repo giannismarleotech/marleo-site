@@ -47,7 +47,7 @@ textarea{min-height:84px;resize:vertical}
 .foot{margin-top:26px;font-size:.8rem;color:var(--muted);text-align:center}.foot a{color:var(--muted)}
 .empty{color:var(--muted);padding:18px;text-align:center}
 </style>
-</head>
+<script src="../i18n.js"></script></head>
 <body>
 <div class="wrap">
  <a class="logo" href="../"><svg width="28" height="32" viewBox="0 0 28 32" fill="none"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs><path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#lg)" stroke-width="2"/><path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#lg)" stroke-width="1.8" stroke-linecap="round"/></svg><span>marleo<span class="g">.tech</span></span></a>
@@ -81,39 +81,39 @@ textarea{min-height:84px;resize:vertical}
 </div>
 <script>
 var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/boek';
-var KINDS={meet:['📹','Videogesprek','Via Google Meet, link krijg je per mail'],tel:['📞','Telefonisch','Ik bel jou op'],klant:['📍','Bij jou langs','In de regio Nevele / Gent / Deinze']};
+var KINDS={meet:['📹',MT('Videogesprek'),MT('Via Google Meet, link krijg je per mail')],tel:['📞',MT('Telefonisch'),MT('Ik bel jou op')],klant:['📍',MT('Bij jou langs'),MT('In de regio Nevele / Gent / Deinze')]};
 var S={cfg:null,kind:null,d:null,t:null};
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function fmt(d){var x=new Date(d+'T12:00:00');return ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'][x.getDay()]+' '+x.getDate()+' '+['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'][x.getMonth()]}
+function fmt(d){var x=new Date(d+'T12:00:00');return MLANG==='en'?MDATE.days[x.getDay()]+' '+x.getDate()+' '+MDATE.months[x.getMonth()]:MDATE.days[x.getDay()]+' '+x.getDate()+' '+MDATE.months[x.getMonth()]}
 fetch(API).then(function(r){return r.json()}).then(function(c){
   $('load').classList.add('hide');
   if(!c.on||!Object.keys(c.days||{}).length){$('none').classList.remove('hide');return}
-  S.cfg=c;if(c.intro)$('intro').textContent=c.intro;
-  $('go').textContent=c.auto?'Afspraak bevestigen':'Afspraak aanvragen';
+  S.cfg=c;if(c.intro&&MLANG==='nl')$('intro').textContent=c.intro;
+  $('go').textContent=MT(c.auto?'Afspraak bevestigen':'Afspraak aanvragen');
   var ks=(c.kinds||['meet']).filter(function(k){return KINDS[k]});S.kind=ks[0];
   $('kinds').innerHTML=ks.map(function(k){return '<button type="button" class="kind'+(k===S.kind?' on':'')+'" data-k="'+k+'"><b>'+KINDS[k][0]+' '+KINDS[k][1]+'</b><span>'+KINDS[k][2]+' · '+c.dur+' min</span></button>'}).join('');
   $('kinds').onclick=function(e){var b=e.target.closest('.kind');if(!b)return;S.kind=b.dataset.k;[].forEach.call(document.querySelectorAll('.kind'),function(x){x.classList.toggle('on',x===b)});sum()};
   var ds=Object.keys(c.days);
-  $('days').innerHTML=ds.map(function(d){var x=new Date(d+'T12:00:00');return '<button type="button" class="day" data-d="'+d+'"><small>'+['zo','ma','di','wo','do','vr','za'][x.getDay()]+'</small><b>'+x.getDate()+'</b><em>'+['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'][x.getMonth()]+'</em></button>'}).join('');
+  $('days').innerHTML=ds.map(function(d){var x=new Date(d+'T12:00:00');return '<button type="button" class="day" data-d="'+d+'"><small>'+MDATE.ds[x.getDay()]+'</small><b>'+x.getDate()+'</b><em>'+MDATE.ms[x.getMonth()]+'</em></button>'}).join('');
   $('days').onclick=function(e){var b=e.target.closest('.day');if(!b)return;pickDay(b.dataset.d)};
   $('flow').classList.remove('hide');pickDay(ds[0]);
-}).catch(function(){$('load').textContent='Kon de beschikbaarheid niet laden. Probeer later opnieuw of mail naar info@marleo.tech.'});
+}).catch(function(){$('load').textContent=MT('Kon de beschikbaarheid niet laden. Probeer later opnieuw of mail naar info@marleo.tech.')});
 function pickDay(d){S.d=d;S.t=null;[].forEach.call(document.querySelectorAll('.day'),function(x){x.classList.toggle('on',x.dataset.d===d)});
   $('times').innerHTML=S.cfg.days[d].map(function(t){return '<button type="button" class="time" data-t="'+t+'">'+t+'</button>'}).join('');
   $('times').onclick=function(e){var b=e.target.closest('.time');if(!b)return;S.t=b.dataset.t;[].forEach.call(document.querySelectorAll('.time'),function(x){x.classList.toggle('on',x===b)});$('form').classList.remove('hide');sum();$('form').scrollIntoView({behavior:'smooth',block:'nearest'})};
   $('form').classList.add('hide')}
-function sum(){if(!S.t)return;var k=KINDS[S.kind];$('sum').innerHTML='<b>'+esc(fmt(S.d))+'</b> om <b>'+S.t+'</b> · '+S.cfg.dur+' min<br>'+k[0]+' '+k[1]}
-$('form').onsubmit=function(e){e.preventDefault();var er=$('err');er.classList.add('hide');var b=$('go');b.disabled=true;b.textContent='Bezig…';
-  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({d:S.d,t:S.t,kind:S.kind,naam:$('naam').value,bedrijf:$('bedrijf').value,email:$('email').value,telefoon:$('tel').value,bericht:$('msg').value,website_url:$('hp').value})})
+function sum(){if(!S.t)return;var k=KINDS[S.kind];$('sum').innerHTML='<b>'+esc(fmt(S.d))+'</b> '+MT('om')+' <b>'+S.t+'</b> · '+S.cfg.dur+' min<br>'+k[0]+' '+k[1]}
+$('form').onsubmit=function(e){e.preventDefault();var er=$('err');er.classList.add('hide');var b=$('go');b.disabled=true;b.textContent=MT('Bezig…');
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({d:S.d,t:S.t,kind:S.kind,naam:$('naam').value,bedrijf:$('bedrijf').value,email:$('email').value,telefoon:$('tel').value,bericht:$('msg').value,website_url:$('hp').value,lang:MLANG})})
   .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})}).then(function(x){
-    if(!x.ok||!x.j.ok){er.textContent=x.j.error||'Er ging iets mis';er.classList.remove('hide');b.disabled=false;b.textContent=S.cfg.auto?'Afspraak bevestigen':'Afspraak aanvragen';
+    if(!x.ok||!x.j.ok){er.textContent=(MLANG==='nl'&&x.j.error)||MT('Er ging iets mis');er.classList.remove('hide');b.disabled=false;b.textContent=MT(S.cfg.auto?'Afspraak bevestigen':'Afspraak aanvragen');
       if(x.j&&/net niet meer/.test(x.j.error||'')){setTimeout(function(){location.reload()},2500)}return}
     var j=x.j,k=KINDS[j.kind]||KINDS.meet;$('flow').classList.add('hide');var dn=$('done');dn.classList.remove('hide');
     var conf=j.status==='bevestigd';
-    dn.innerHTML='<div class="ic">'+(conf?'✅':'📩')+'</div><h2>'+(conf?'Afspraak bevestigd':'Aanvraag ontvangen')+'</h2><div class="when">'+esc(fmt(j.d))+' om '+esc(j.t)+'<br>'+k[0]+' '+k[1]+'</div><p>'+(conf?'Je krijgt een bevestiging per mail'+(j.kind==='meet'?' met de Google Meet-link.':'.'):'Ik bevestig je afspraak zo snel mogelijk per mail. Dit tijdstip is intussen voor jou gereserveerd.')+'</p>'+(conf&&j.meetLink?'<a class="btn2" href="'+esc(j.meetLink)+'">📹 Google Meet-link</a>':'')+'<p style="margin-top:16px;font-size:.85rem">Vragen? <a href="mailto:info@marleo.tech" style="color:#FF8A2B">info@marleo.tech</a> · +32 456 92 00 25</p>';
+    dn.innerHTML='<div class="ic">'+(conf?'✅':'📩')+'</div><h2>'+MT(conf?'Afspraak bevestigd':'Aanvraag ontvangen')+'</h2><div class="when">'+esc(fmt(j.d))+' '+MT('om')+' '+esc(j.t)+'<br>'+k[0]+' '+k[1]+'</div><p>'+(conf?MT('Je krijgt een bevestiging per mail')+(j.kind==='meet'?' '+MT('met de Google Meet-link.'):'.'):MT('Ik bevestig je afspraak zo snel mogelijk per mail. Dit tijdstip is intussen voor jou gereserveerd.'))+'</p>'+(conf&&j.meetLink?'<a class="btn2" href="'+esc(j.meetLink)+'">📹 Google Meet</a>':'')+'<p style="margin-top:16px;font-size:.85rem">'+MT('Vragen?')+' <a href="mailto:info@marleo.tech" style="color:#FF8A2B">info@marleo.tech</a> · +32 456 92 00 25</p>';
     window.scrollTo({top:0,behavior:'smooth'})})
-  .catch(function(){er.textContent='Geen verbinding, probeer opnieuw';er.classList.remove('hide');b.disabled=false})};
+  .catch(function(){er.textContent=MT('Geen verbinding, probeer opnieuw');er.classList.remove('hide');b.disabled=false})};
 </script>
 </body>
 </html>
