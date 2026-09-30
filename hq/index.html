@@ -5001,7 +5001,7 @@ function ag2Combo(){var sel=document.getElementById('a_who');if(!sel||document.g
  var st=document.createElement('style');st.textContent='.ag2dd{position:absolute;left:0;right:0;top:100%;z-index:50;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:240px;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5);margin-top:4px}.ag2opt{padding:9px 12px;cursor:pointer;font-size:.9rem}.ag2opt:hover{background:var(--bg2)}.ag2grp{padding:6px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}';document.head.appendChild(st)})();
 
 /* ================= Online boeken + beschikbaarheid + privé afspraken ================= */
-var BKDEF={on:true,hours:{'1':[['09:00','12:00'],['13:00','17:00']],'2':[['09:00','12:00'],['13:00','17:00']],'3':[['09:00','12:00'],['13:00','17:00']],'4':[['09:00','12:00'],['13:00','17:00']],'5':[['09:00','12:00'],['13:00','16:00']]},dur:30,buffer:15,notice:12,horizon:30,kinds:['meet','tel'],auto:false,meetLink:'',intro:'Gratis en vrijblijvend kennismakingsgesprek van 30 minuten',blocks:[]};
+var BKDEF={on:true,hours:{'1':[['09:00','12:00'],['13:00','19:00']],'2':[['09:00','12:00'],['13:00','19:00']],'3':[['09:00','12:00'],['13:00','19:00']],'4':[['09:00','12:00'],['13:00','19:00']],'5':[['09:00','12:00'],['13:00','19:00']]},dur:30,buffer:15,notice:12,horizon:30,kinds:['meet','tel'],auto:false,meetLink:'',intro:'Gratis en vrijblijvend kennismakingsgesprek van 30 minuten',blocks:[]};
 function bkCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.booking)DATA.settings.booking=JSON.parse(JSON.stringify(BKDEF));var c=DATA.settings.booking;if(!c.migrated){c.on=true;c.migrated=true;if(c.auto===undefined)c.auto=false}if(!c.blocks)c.blocks=[];if(!c.hours)c.hours={};return c}
 function bkMin(t){var p=String(t||'0:0').split(':');return (+p[0]||0)*60+(+p[1]||0)}
 var BKTIMER=null;
@@ -5087,7 +5087,7 @@ function bkDelBlock(i){bkCfg().blocks.splice(i,1);saveData();bkPushSoon();rAgend
 /* ---- instellingen boekpagina ---- */
 var BKDAYS=[['1','Maandag'],['2','Dinsdag'],['3','Woensdag'],['4','Donderdag'],['5','Vrijdag'],['6','Zaterdag'],['0','Zondag']];
 function mBook(){var c=bkCfg();var link='https://marleo.tech/afspraak/';
-  var rows=BKDAYS.map(function(d){var r=c.hours[d[0]]||[];var on=r.length>0;var r1=r[0]||['09:00','12:00'],r2=r[1]||['13:00','17:00'];
+  var rows=BKDAYS.map(function(d){var r=c.hours[d[0]]||[];var on=r.length>0;var r1=r[0]||['09:00','12:00'],r2=r[1]||['13:00','19:00'];
    return '<div class="bkrow"><label class="bkd"><input type="checkbox" id="bk_on'+d[0]+'"'+(on?' checked':'')+'> '+d[1]+'</label><input type="time" id="bk_a'+d[0]+'" value="'+r1[0]+'"><span>–</span><input type="time" id="bk_b'+d[0]+'" value="'+r1[1]+'"><span class="bksep">en</span><input type="time" id="bk_c'+d[0]+'" value="'+(r[1]?r2[0]:'')+'"><span>–</span><input type="time" id="bk_d'+d[0]+'" value="'+(r[1]?r2[1]:'')+'"></div>'}).join('');
   var k=function(v,l){return '<label><input type="checkbox" class="bk_k" value="'+v+'"'+(c.kinds.indexOf(v)>=0?' checked':'')+'> '+l+'</label>'};
   openM('⚙ Boekpagina & beschikbaarheid',
