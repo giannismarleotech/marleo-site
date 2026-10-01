@@ -3,8 +3,8 @@
 @font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2);font-weight:500}
 @font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2);font-weight:400}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:1080px;height:1350px;overflow:hidden;background:#1a0d14}
-.p{position:relative;width:1080px;height:1350px;overflow:hidden;color:#fff;font-family:IN;
+html,body{width:1080px;height:1920px;overflow:hidden;background:#1a0d14}
+.p{position:relative;width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:IN;
  background:radial-gradient(900px 700px at 0% 0%,rgba(120,60,15,.55),transparent 70%),radial-gradient(900px 800px at 100% 100%,rgba(140,20,80,.55),transparent 70%),linear-gradient(120deg,#2a1a10 0%,#221019 45%,#35102a 100%)}
 .gl{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:180px 180px;background-position:-30px -30px}
 .plus{position:absolute;color:rgba(255,138,43,.7);font-size:34px;font-weight:400;line-height:1}
@@ -56,11 +56,13 @@ const P={
 10:()=>kase('TrustTap','NFC review cards · trilingual brand site, webshop &amp; custom CRM','s_trusttap_d.png','s_trusttap_m.png'),
 9:()=>head('Let’s talk','Have a project <span class="g">in mind?</span>','From a new website to a complete digital system. Tell us what you need, we tell you honestly how we’d approach it.')+orb(830,1000,120)+'<div class="abs" style="left:110px;width:560px;top:930px"><div class="cta"><span>Start your<br>project</span><i>'+ARROW+'</i></div></div>'
 };
-const n=+location.hash.slice(1)||1;
+
 let h='<div class="gl"></div>';
-[[50,470],[1010,560],[50,1110],[1010,1180]].forEach(([x,y])=>h+='<div class="plus" style="left:'+x+'px;top:'+y+'px">+</div>');
-h+='<div class="top"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">'+String(n).padStart(2,'0')+'</div></div>';
-h+=P[n]();
-h+='<div class="foot"><span>marleo.tech</span><span>Belgium → worldwide</span></div>';
+[[50,520],[1010,700],[50,1500],[1010,1640]].forEach(([x,y])=>h+='<div class="plus" style="left:'+x+'px;top:'+y+'px">+</div>');
+h+='<div class="top" style="top:170px"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">NEW</div></div>';
+h+='<div class="abs" style="left:110px;right:110px;top:330px"><div class="lab">Now live · new website</div><h1 style="margin-top:22px;font-size:96px"><span class="g">The Cleaning Company</span></h1><div class="sub" style="margin-top:26px">Sofa &amp; carpet cleaning, Ghent region. Customers configure their sofa in live 3D and get their price in 2 minutes.</div></div>';
+h+=laptop('s_tcc_d.png',90,930,700)+phone('s_tcc_m.png',640,820,330,4);
+h+='<div class="abs" style="left:110px;right:110px;top:1560px"><div class="cta" style="justify-content:center;gap:24px"><span style="letter-spacing:1px;text-transform:none;font-size:34px">thecleaningcompany-be.com</span><i style="width:70px;height:70px">'+ARROW+'</i></div></div>';
+h+='<div class="foot" style="bottom:120px"><span>marleo.tech</span><span>Website by Marleo</span></div>';
 document.getElementById('p').innerHTML=h;
 </script></body></html>
