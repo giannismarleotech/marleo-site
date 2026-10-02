@@ -1077,7 +1077,7 @@ function offToInvoice(id){
 
 function mInvoice(id){
   var iv=id?DATA.invoices.find(function(x){return x.id===id}):null;
-  EDITLINES=iv?iv.lines.map(function(l){return{d:l.d,q:l.q,p:l.p}}):[{d:'',q:1,p:0}];
+  EDITLINES=iv?iv.lines.map(function(l){var o={d:l.d,q:l.q,p:l.p};if(l.disc){o.disc=l.disc;o.pct=l.pct;o.lbl=l.lbl}return o}):[{d:'',q:1,p:0}];
   openM(id?'Factuur bewerken':'Nieuwe factuur',
   '<div class="frow"><div class="fgroup"><label>Type</label><select id="i_type" onchange="document.getElementById(\'i_ref\').value=nextRef(this.value)">'+[['factuur','Factuur'],['voorschot','Voorschotfactuur'],['eindfactuur','Eindfactuur'],['creditnota','Creditnota'],['offerte','Offerte']].map(function(o){var t=o[0];return '<option value="'+t+'" '+(iv&&iv.type===t?'selected':(!iv&&t==='factuur'?'selected':''))+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
   '<div class="fgroup"><label>Nummer *</label><input id="i_ref" value="'+esc(iv?iv.ref:nextRef('factuur'))+'"></div></div>'+
@@ -5966,6 +5966,30 @@ function mkFinalFromAdvance(id){
  if(typeof rCustPage==='function'){}
 })();
 (function(){var _go=go;go=function(v){_go.apply(this,arguments);setTimeout(function(){var b=document.querySelector('.topbar button[onclick^="mInvoiceFor("]');if(b&&!document.getElementById('waCBtn')){var cid=(b.getAttribute('onclick').match(/'([^']+)'/)||[])[1];b.insertAdjacentHTML('beforebegin','<button class="btn subtle" id="waCBtn" onclick="mWebAdvance(\''+cid+'\')">+ Voorschotfactuur</button>')}},0)}})();
+
+
+/* ===== Korting op facturen/offertes ===== */
+function discBase(){return EDITLINES.reduce(function(s,l){return l.disc?s:s+Math.round((l.q||0)*(l.p||0)*100)/100},0)}
+function discSync(){var b=discBase();EDITLINES.forEach(function(l){if(l.disc==='pct'){l.q=1;l.p=-Math.round(b*(l.pct||0))/100;l.d='Korting '+String(l.pct).replace('.',',')+'%'+(l.lbl?' – '+l.lbl:'')}})}
+function addDiscount(){var t=document.getElementById('dc_t').value,v=parseFloat(String(document.getElementById('dc_v').value).replace(',','.'))||0,lbl=(document.getElementById('dc_l').value||'').trim();
+  if(v<=0){toast('Vul een korting in',true);return}
+  if(t==='pct'){if(v>100){toast('Maximaal 100%',true);return}EDITLINES.push({disc:'pct',pct:v,lbl:lbl,d:'',q:1,p:0})}
+  else EDITLINES.push({disc:'eur',d:'Korting'+(lbl?' – '+lbl:''),q:1,p:-Math.abs(v)});
+  document.getElementById('dc_v').value='';document.getElementById('dc_l').value='';renderLines()}
+(function(){
+ var _rl=renderLines;renderLines=function(){discSync();_rl();
+   var w=document.getElementById('lineWrap');if(!w)return;
+   [].forEach.call(w.querySelectorAll('.frow3'),function(row,i){var l=EDITLINES[i];if(!l||!l.disc)return;row.classList.add('discrow');
+     if(l.disc==='pct'){var ins=row.querySelectorAll('input,textarea');ins.forEach(function(x){x.readOnly=true});var q=row.querySelector('input');if(q)q.style.visibility='hidden'}});
+   if(!document.getElementById('dcBox')){var bx=document.createElement('div');bx.id='dcBox';bx.className='dcbox';
+     bx.innerHTML='<span class="dcl">Korting</span><select id="dc_t"><option value="pct">%</option><option value="eur">€ (excl. btw)</option></select><input id="dc_v" type="number" step="0.01" min="0" placeholder="bv. 10"><input id="dc_l" placeholder="reden (optioneel), bv. vaste klant"><button class="btn subtle sm" onclick="addDiscount()">+ Korting toevoegen</button>';
+     var tot=document.getElementById('i_tot');if(tot)tot.parentNode.insertBefore(bx,tot)}};
+ var _ct=calcTot;calcTot=function(){discSync();_ct();
+   var el=document.getElementById('i_tot'),d=EDITLINES.reduce(function(s,l){return l.disc?s+Math.round(l.q*l.p*100)/100:s},0);
+   if(el&&d){el.insertAdjacentHTML('afterbegin','<div class="totline"><span>Bedrag vóór korting</span><b>'+eur(discBase())+'</b></div><div class="totline" style="color:#16a34a"><span>Korting</span><b>'+eur(d)+'</b></div>')}
+   EDITLINES.forEach(function(l,i){if(l.disc==='pct'){var r=document.querySelectorAll('#lineWrap .frow3')[i];if(r){var ins=r.querySelectorAll('input');if(ins[1])ins[1].value=l.p;var ta=r.querySelector('textarea');if(ta)ta.value=l.d}}})};
+ var st=document.createElement('style');st.textContent='.dcbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 4px;padding:10px 12px;border:1px dashed var(--border,#3a3a44);border-radius:10px}.dcbox .dcl{font-weight:700;font-size:.85rem;margin-right:4px}.dcbox select,.dcbox input{width:auto;flex:0 1 auto;min-width:0}.dcbox #dc_v{width:90px}.dcbox #dc_l{flex:1 1 160px}.discrow textarea,.discrow input{color:#16a34a!important;font-weight:700}@media(max-width:640px){.dcbox #dc_l{flex-basis:100%}.dcbox .btn{width:100%}}';document.head.appendChild(st);
+})();
 
 </script>
 </body>
