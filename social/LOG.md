@@ -16,3 +16,4 @@ Afbeeldingen publiek via https://raw.githubusercontent.com/giannismarleotech/mar
 - 2026-10-19 CTA "Have a project in mind?"
 - 2026-09-30 case TrustTap (post 10, direct gepost)
 - 2026-10-01 case The Cleaning Company (post 11 + story, direct)
+- 2026-10-02 case Beauty Salon Elena (post 12 + story)
