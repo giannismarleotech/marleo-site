@@ -5991,6 +5991,122 @@ function addDiscount(){var t=document.getElementById('dc_t').value,v=parseFloat(
  var st=document.createElement('style');st.textContent='.dcbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 4px;padding:10px 12px;border:1px dashed var(--border,#3a3a44);border-radius:10px}.dcbox .dcl{font-weight:700;font-size:.85rem;margin-right:4px}.dcbox select,.dcbox input{width:auto;flex:0 1 auto;min-width:0}.dcbox #dc_v{width:90px}.dcbox #dc_l{flex:1 1 160px}.discrow textarea,.discrow input{color:#16a34a!important;font-weight:700}@media(max-width:640px){.dcbox #dc_l{flex-basis:100%}.dcbox .btn{width:100%}}';document.head.appendChild(st);
 })();
 
+
+/* ===== Eindfactuur-flow + zekere omzet in stats ===== */
+var WEB_STD='Website op maat – Ontwerp en bouw, onbeperkte revisies, beveiliging en SSL, SEO-basis, contactformulier en koppeling met je Google-profiel. 100% jouw eigendom, geen abonnement.';
+function advPart(v){var l=(v.lines||[])[0];return l?Math.round((l.q||0)*(l.p||0)*100)/100:0}
+function advTotal(v){
+  if(v.project&&v.project.total)return Number(v.project.total);
+  for(var i=0;i<(v.lines||[]).length;i++){var m=String(v.lines[i].d||'').match(/totaal(?:prijs)?\s*(?:€\s*)?(\d[\d.]*(?:,\d{1,2})?)/i);if(m)return parseFloat(m[1].replace(/\./g,'').replace(',','.'))}
+  return Math.round(advPart(v)*2*100)/100;
+}
+function advDesc(v){if(v.project&&v.project.desc)return v.project.desc;return (String(((v.lines||[])[0]||{}).d||'Website op maat').split('\n')[0].split(/ — |, voorschot| \(totaal/)[0]||'Website op maat').trim()}
+function advFinal(v){
+  var inv=DATA.invoices;
+  return (v.finalId&&inv.find(function(x){return x.id===v.finalId}))||inv.find(function(x){return x.type==='eindfactuur'&&x.advanceId===v.id})||
+    inv.find(function(x){return x.type==='eindfactuur'&&!x.advanceId&&x.customerId===v.customerId&&(x.date||'')>=(v.date||'')&&(x.note||'').indexOf('voorschot')<0})||
+    inv.find(function(x){return x.type==='eindfactuur'&&(x.note||'').indexOf(v.ref)>=0})||null;
+}
+function openAdvances(cid){return DATA.invoices.filter(function(v){return v.type==='voorschot'&&v.status!=='concept'&&(!cid||v.customerId===cid)&&!advFinal(v)&&advTotal(v)-advPart(v)>0.009})}
+function plannedFinals(){
+  var r=openAdvances().map(function(v){return {adv:v,cid:v.customerId,saldo:Math.round((advTotal(v)-advPart(v))*100)/100}});
+  DATA.invoices.forEach(function(x){if(x.type==='eindfactuur'&&x.status==='concept')r.push({fin:x,cid:x.customerId,saldo:invSub(x)})});
+  return r;
+}
+function plannedSum(){return plannedFinals().reduce(function(s,p){return s+p.saldo},0)}
+
+/* modal: kies klant -> alles ingevuld */
+function mFinal(cid,advId){
+  openM('Eindfactuur maken',
+  '<p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">Kies de klant. Het voorschot wordt automatisch opgezocht en afgetrokken.</p>'+
+  '<div class="fgroup"><label>Klant *</label>'+custPicker('ef_cust',cid||'')+'</div>'+
+  '<div id="ef_body"></div>',
+  '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" id="ef_go" onclick="saveFinal()">Eindfactuur aanmaken</button>',true);
+  window.EF_ADV=advId||'';setTimeout(efFill,30);
+}
+function efFill(){
+  var cid=(document.getElementById('ef_cust')||{}).value,b=document.getElementById('ef_body');if(!b)return;
+  if(!cid){b.innerHTML='';return}
+  var list=openAdvances(cid);
+  var adv=list.find(function(v){return v.id===window.EF_ADV})||list[0];
+  if(!adv){b.innerHTML='<div class="notecard" style="margin-top:6px"><p>Geen open voorschotfactuur gevonden voor deze klant. Vul het totaal in, dan wordt het een gewone eindfactuur zonder aftrek.</p></div>'+efFields(null,0,'Website op maat');efCalc();return}
+  window.EF_ADV=adv.id;
+  b.innerHTML=(list.length>1?'<div class="fgroup"><label>Voorschot</label><select id="ef_adv" onchange="window.EF_ADV=this.value;efFill()">'+list.map(function(v){return '<option value="'+v.id+'"'+(v.id===adv.id?' selected':'')+'>'+esc(v.ref)+' · '+eur(advPart(v))+' · '+fmtD(v.date)+'</option>'}).join('')+'</select></div>':
+    '<div class="hint" style="margin:4px 0 10px">Voorschot <b>'+esc(adv.ref)+'</b> van '+fmtD(adv.date)+': '+eur(advPart(adv))+' excl. btw'+(invStatus(adv)==='betaald'?' (betaald)':' (nog niet betaald)')+'</div>')+
+    efFields(adv,advTotal(adv),advDesc(adv));
+  efCalc();
+}
+function efFields(adv,tot,desc){
+  return '<div class="fgroup"><label>Omschrijving</label><input id="ef_desc" value="'+esc(/^website op maat$/i.test(desc)?WEB_STD:desc)+'"></div>'+
+  '<div class="frow"><div class="fgroup"><label>Totaalprijs project (excl. btw)</label><input id="ef_tot" type="number" step="0.01" value="'+tot+'" oninput="efCalc()"></div>'+
+  '<div class="fgroup"><label>Al betaald via voorschot</label><input id="ef_adv_amt" type="number" step="0.01" value="'+(adv?advPart(adv):0)+'" oninput="efCalc()"></div></div>'+
+  '<div class="frow"><div class="fgroup"><label>Factuurdatum</label><input id="ef_date" type="date" value="'+today()+'"></div><div class="fgroup"><label>Vervaldatum</label><input id="ef_due" type="date" value="'+plusDays(today(),14)+'"></div></div>'+
+  '<div class="totbox" id="ef_sum"></div>';
+}
+function efCalc(){var t=parseFloat((document.getElementById('ef_tot')||{}).value)||0,a=parseFloat((document.getElementById('ef_adv_amt')||{}).value)||0,s=Math.round((t-a)*100)/100,el=document.getElementById('ef_sum');
+  if(el)el.innerHTML='<div class="totline"><span>Saldo excl. btw</span><b>'+eur(s)+'</b></div><div class="totline big"><span>Te betalen incl. 21% btw</span><b class="gtext">'+eur(Math.round(s*121)/100)+'</b></div>'}
+function saveFinal(){
+  var cid=(document.getElementById('ef_cust')||{}).value;if(!cid){toast('Kies een klant',true);return}
+  var adv=window.EF_ADV&&DATA.invoices.find(function(x){return x.id===window.EF_ADV&&x.customerId===cid});
+  var t=parseFloat(document.getElementById('ef_tot').value)||0,a=parseFloat(document.getElementById('ef_adv_amt').value)||0,s=Math.round((t-a)*100)/100;
+  if(s<=0){toast('Saldo is 0, geen eindfactuur nodig',true);return}
+  var desc=(document.getElementById('ef_desc').value||'Website op maat').trim();
+  var line=adv?desc+'\nSaldo: totaalprijs '+money(t)+' excl. btw, min voorschot '+adv.ref+' ('+money(a)+' excl. btw).':desc;
+  var ref=nextRef('factuur');
+  var fin={id:nid('inv'),ref:ref,type:'eindfactuur',lang:(adv&&adv.lang)||'nl',customerId:cid,date:document.getElementById('ef_date').value||today(),due:document.getElementById('ef_due').value||'',status:'openstaand',yourref:(adv&&adv.yourref)||'',note:'',created:Date.now(),
+    lines:[{d:line,q:1,p:s}],advanceId:adv?adv.id:undefined};
+  DATA.invoices.push(fin);if(adv)adv.finalId=fin.id;
+  logAct('Eindfactuur '+ref+' ('+eur(s)+') voor '+custName(cid)+(adv?' na voorschot '+adv.ref:''));saveData();closeM();toast('✅ Eindfactuur '+ref+' aangemaakt');
+  if(typeof VIEW!=='undefined')go(VIEW);setTimeout(function(){vInvoice(fin.id)},150);
+}
+mkFinalFromAdvance=function(id){var v=DATA.invoices.find(function(x){return x.id===id});if(v)mFinal(v.customerId,id)};
+(function(){var _p=cpPick;cpPick=function(id,cid){_p(id,cid);if(id==='ef_cust'){window.EF_ADV='';efFill()}}})();
+
+/* knop in voorschot-detail: juiste koppeling */
+(function(){var _vi=vInvoice;vInvoice=function(id){_vi(id);var iv=DATA.invoices.find(function(x){return x.id===id});var f=document.getElementById('mFoot');if(!iv||!f||iv.type!=='voorschot')return;
+  f.querySelectorAll('button').forEach(function(b){var o=b.getAttribute('onclick')||'';if(o.indexOf('mkFinalFromAdvance')>=0||/Eindfactuur .* bekijken/.test(b.textContent))b.remove()});
+  var fin=advFinal(iv);
+  f.insertAdjacentHTML('afterbegin',fin?'<button class="btn subtle" onclick="closeM();vInvoice(\''+fin.id+'\')">Eindfactuur '+esc(fin.ref)+' bekijken</button>':'<button class="btn" onclick="closeM();mFinal(\''+iv.customerId+'\',\''+iv.id+'\')">→ Eindfactuur maken</button>')}})();
+
+/* rij-knop in factuurlijst */
+(function(){var _it=invTable;invTable=function(list){var h=_it(list);
+  openAdvances().forEach(function(v){var k='<button class="iconbtn" onclick="event.stopPropagation();invPdf(\''+v.id+'\')"';
+    h=h.replace(k,'<button class="iconbtn ok" style="width:auto;padding:0 8px;font-size:.72rem" onclick="event.stopPropagation();mFinal(\''+v.customerId+'\',\''+v.id+'\')" title="Eindfactuur maken">→ Eind</button>'+k)});
+  return h}})();
+
+/* nieuwe factuur: type kiezen = juiste flow */
+(function(){var _mi=mInvoice;mInvoice=function(id){_mi(id);if(id)return;var s=document.getElementById('i_type');if(!s)return;var old=s.onchange;
+  s.onchange=function(){var v=s.value,cid=(document.getElementById('i_cust')||{}).value||'';
+    if(v==='voorschot'&&!window.WA_FREE){closeM();setTimeout(function(){mWebAdvance(cid)},60);return}
+    if(v==='eindfactuur'){closeM();setTimeout(function(){mFinal(cid)},60);return}
+    if(old)old.call(s)}}})();
+
+/* Facturen-pagina: knop + blok met eindfacturen die nog moeten komen */
+function plannedPanel(){
+  var p=plannedFinals();if(!p.length)return '';
+  return '<div class="panelbox" id="plannedBox" style="border-color:rgba(74,222,128,.35)"><h3>📌 Eindfacturen nog te maken <span class="pill betaald">'+eur(plannedSum())+' zeker</span></h3>'+
+  '<div style="overflow-x:auto"><table><tbody>'+p.map(function(x){
+    return '<tr style="cursor:default"><td><b>'+esc(custName(x.cid))+'</b></td><td style="color:var(--muted);font-size:.85rem">'+(x.adv?'voorschot '+esc(x.adv.ref)+' ('+eur(advPart(x.adv))+(invStatus(x.adv)==='betaald'?', betaald':'')+')':'concept '+esc(x.fin.ref))+'</td><td class="num"><b>'+eur(x.saldo)+'</b></td>'+
+    '<td style="text-align:right">'+(x.adv?'<button class="btn sm" onclick="mFinal(\''+x.cid+'\',\''+x.adv.id+'\')">→ Eindfactuur</button>':'<button class="btn sm subtle" onclick="vInvoice(\''+x.fin.id+'\')">Openen</button>')+'</td></tr>'}).join('')+
+  '</tbody></table></div><div class="hint" style="margin-top:8px">Saldo excl. btw. Telt mee als zekere omzet in Statistieken.</div></div>';
+}
+(function(){var _ri=rInvoices;rInvoices=function(){_ri();
+  var bar=document.getElementById('waBtn');if(bar&&!document.getElementById('efBtn'))bar.insertAdjacentHTML('afterend','<button class="btn subtle" id="efBtn" onclick="mFinal()">+ Eindfactuur</button>');
+  var tabs=document.querySelector('#mainArea .tabs')||document.querySelector('.tabs');if(tabs&&!document.getElementById('plannedBox'))tabs.insertAdjacentHTML('beforebegin',plannedPanel())}})();
+
+/* Statistieken + dashboard: zekere omzet */
+(function(){var _rs=rStats;rStats=function(){_rs.apply(this,arguments);
+  var yr=new Date().getFullYear(),om=0;DATA.invoices.forEach(function(i){if(i.type!=='offerte'&&i.status!=='concept'&&i.date&&new Date(i.date).getFullYear()===yr)om+=invSub(i)});
+  var ps=plannedSum(),n=plannedFinals().length;
+  var g=main().querySelector('.topbar')&&main().querySelector('.topbar').nextElementSibling;if(!g||document.getElementById('zekerRow'))return;
+  g.insertAdjacentHTML('afterend','<div id="zekerRow" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:8px">'+
+    statCard('Zeker nog te factureren',eur(ps),n+' eindfactu'+(n===1?'ur':'ren')+' na voorschot','#38BDF8')+
+    statCard('Omzet dit jaar + zeker',eur(om+ps),'gefactureerd '+eur(om)+' + eindfacturen','#4ADE80')+'</div>')}})();
+(function(){var _rd=rDash;rDash=function(){_rd.apply(this,arguments);var s=document.querySelector('#mainArea .stats')||document.querySelector('.stats');
+  if(s&&!document.getElementById('dashZeker'))s.insertAdjacentHTML('afterend','<div id="dashZeker">'+plannedPanel().replace('id="plannedBox"','')+'</div>')}})();
+(function(){var _wa=mWebAdvance;mWebAdvance=function(cid){_wa(cid);var b=document.getElementById('mBody')||document.querySelector('.modal .modal-body');var f=document.getElementById('mFoot');
+  if(f)f.insertAdjacentHTML('afterbegin','<button class="btn subtle" style="margin-right:auto" onclick="window.WA_FREE=1;closeM();setTimeout(function(){mInvoice();var t=document.getElementById(\'i_type\');t.value=\'voorschot\';document.getElementById(\'i_ref\').value=nextRef(\'voorschot\');window.WA_FREE=0},60)">Vrije voorschotfactuur</button>')}})();
+
 </script>
 </body>
 </html>
