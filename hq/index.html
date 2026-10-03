@@ -1168,14 +1168,18 @@ function buildInvPdf(iv,returnData){
   var jsPDF=window.jspdf.jsPDF;var doc=new jsPDF({unit:'mm',format:'a4'});
   var W=210,M=17,ink=[17,17,20],grey=[110,110,120],faint=[225,225,230],dark=[13,13,20];
   function fmtLong(d){if(!d)return '';var dt=new Date(d+'T00:00:00');return dt.toLocaleDateString(L==='en'?'en-GB':L==='fr'?'fr-BE':'nl-BE',{day:'numeric',month:'short',year:'numeric'})}
-  function money(v){return '€ '+(Math.round(v*100)/100).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2})}
-  function fmtVat(v){v=String(v||'').replace(/\s/g,'');var m=v.match(/^([A-Z]{2})(\d{4})(\d{3})(\d{3})$/);return m?m[1]+' '+m[2]+'.'+m[3]+'.'+m[4]:v}
+  function money(v){var n=Math.round(v*100)/100;return (n<0?'-':'')+'€ '+Math.abs(n).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function fmtVat(v){v=String(v||'').replace(/[\s.]/g,'').toUpperCase();var m=v.match(/^([A-Z]{2})(\d{4})(\d{3})(\d{3})$/);return m?m[1]+' '+m[2]+'.'+m[3]+'.'+m[4]:v}
   function fmtIban(v){return String(v||'').replace(/\s/g,'').replace(/(.{4})/g,'$1 ').trim()}
   function gradText(txt,x,y,size,align){doc.setFont('helvetica','bold');doc.setFontSize(size);var w=doc.getTextWidth(txt);var sx=align==='right'?x-w:x;
     var n=Math.max(1,txt.length);for(var i=0;i<n;i++){var t=i/Math.max(1,n-1);var r=Math.round(249+(233-249)*t),g=Math.round(124+(30-124)*t),b=Math.round(31+(123-31)*t);doc.setTextColor(r,g,b);var ch=txt[i];doc.text(ch,sx,y);sx+=doc.getTextWidth(ch);}}
   function label(txt,x,y,align){doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(grey[0],grey[1],grey[2]);doc.text(txt.split('').join(' '),x,y,{align:align||'left'})}
   var immediate=!iv.due||iv.due===iv.date;
-  var payWhen=isOff?'':(immediate?T.nowPay:T.before+fmtLong(iv.due));
+  var PX={nl:{paid:'BETAALD',on:'Betaald op ',tot:'Totaal',adv:'VERREKENING VOORSCHOT',proj:'Totaalprijs project',prev:'Reeds gefactureerd via voorschotfactuur ',saldo:'Saldo op deze factuur',ex:' excl. btw',pd:' (betaald)'},
+          en:{paid:'PAID',on:'Paid on ',tot:'Total',adv:'ADVANCE SETTLEMENT',proj:'Total project price',prev:'Already invoiced via advance invoice ',saldo:'Balance on this invoice',ex:' excl. VAT',pd:' (paid)'},
+          fr:{paid:'PAYÉ',on:'Payé le ',tot:'Total',adv:'DÉCOMPTE ACOMPTE',proj:'Prix total du projet',prev:'Déjà facturé via facture d\'acompte ',saldo:'Solde de cette facture',ex:' HTVA',pd:' (payée)'}}[L]||{};
+  var isPaid=!isOff&&iv.status==='betaald';
+  var payWhen=isOff?'':isPaid?PX.on+fmtLong(iv.paidDate||iv.date):(immediate?T.nowPay:T.before+fmtLong(iv.due));
 
   /* logo */
   doc.setDrawColor(249,124,31);doc.setLineWidth(1.1);var hx=M+4,hy=19,hr=4.2;var pts=[];for(var i=0;i<6;i++){var a=Math.PI/6+i*Math.PI/3;pts.push([hx+hr*Math.cos(a),hy+hr*Math.sin(a)])}
@@ -1191,7 +1195,7 @@ function buildInvPdf(iv,returnData){
   doc.setFontSize(10);doc.text(iv.ref||'',W-M,27,{align:'right'});
   doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(grey[0],grey[1],grey[2]);
   doc.text(T.datum+' '+fmtLong(iv.date),W-M,34,{align:'right'});
-  doc.text(T.verval+' '+(immediate&&!isOff?T.now:fmtLong(iv.due)),W-M,38.5,{align:'right'});
+  if(!isPaid||iv.due)doc.text(T.verval+' '+(immediate&&!isOff?T.now:fmtLong(iv.due)),W-M,38.5,{align:'right'});
   doc.setDrawColor(ink[0],ink[1],ink[2]);doc.setLineWidth(0.9);doc.line(M,47,W-M,47);
 
   /* billed to + amount */
@@ -1199,9 +1203,9 @@ function buildInvPdf(iv,returnData){
   doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(ink[0],ink[1],ink[2]);doc.text(c.name||'',M,63);
   doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(60,60,70);var cy=68.5;
   if(c.contact){doc.text(T.tav+c.contact,M,cy);cy+=4.5}
-  if(c.address){doc.splitTextToSize(c.address,80).forEach(function(l){doc.text(l,M,cy);cy+=4.5})}
+  if(c.address&&!/geen gegevens/i.test(c.address)){doc.splitTextToSize(c.address,80).forEach(function(l){doc.text(l,M,cy);cy+=4.5})}
   if(c.vat){doc.text(fmtVat(c.vat),M,cy);cy+=4.5}
-  label(T.tb,W-M,56,'right');
+  label(isPaid?PX.paid:T.tb,W-M,56,'right');
   var tot=invTot(iv);gradText(money(tot),W-M,66,17,'right');
   if(payWhen){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(grey[0],grey[1],grey[2]);doc.text(payWhen,W-M,71.5,{align:'right'})}
 
@@ -1214,10 +1218,11 @@ function buildInvPdf(iv,returnData){
   var y=ty+15;
   iv.lines.forEach(function(l){
     var parts=String(l.d||'').split('\n');var head=parts.shift();var rest=parts.join(' ').trim();
-    doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(ink[0],ink[1],ink[2]);
+    var isDisc=!!l.disc||(l.p<0&&/korting|discount|remise/i.test(head));
+    doc.setFont('helvetica',isDisc?'normal':'bold');doc.setFontSize(8.5);doc.setTextColor(ink[0],ink[1],ink[2]);
     var hl=doc.splitTextToSize(head,95);doc.text(hl,cX.oms,y);
     doc.setFont('helvetica','normal');doc.setTextColor(ink[0],ink[1],ink[2]);doc.text(String(l.q),cX.q,y,{align:'right'});doc.text(money(l.p),cX.p,y,{align:'right'});doc.text('21%',cX.v,y,{align:'right'});
-    doc.setFont('helvetica','bold');doc.text(money(l.q*l.p),cX.t,y,{align:'right'});
+    doc.setFont('helvetica',isDisc?'normal':'bold');doc.text(money(l.q*l.p),cX.t,y,{align:'right'});
     y+=hl.length*4.2;
     if(rest){doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(grey[0],grey[1],grey[2]);var rl=doc.splitTextToSize(rest,95);doc.text(rl,cX.oms,y+1);y+=rl.length*3.8+1}
     y+=3;doc.setDrawColor(faint[0],faint[1],faint[2]);doc.setLineWidth(0.3);doc.line(M,y,W-M,y);y+=6;
@@ -1229,8 +1234,16 @@ function buildInvPdf(iv,returnData){
   doc.text(T.sub,lx,y+2);doc.setFont('helvetica','bold');doc.text(money(sub),W-M,y+2,{align:'right'});
   doc.setFont('helvetica','normal');doc.text(T.btwl,lx,y+8);doc.setFont('helvetica','bold');doc.text(money(vat),W-M,y+8,{align:'right'});
   doc.setDrawColor(ink[0],ink[1],ink[2]);doc.setLineWidth(0.6);doc.line(lx,y+13,W-M,y+13);
-  doc.setFontSize(10);doc.setTextColor(ink[0],ink[1],ink[2]);doc.text(T.tebet,lx,y+20);doc.setFontSize(12);doc.text(money(tot),W-M,y+20,{align:'right'});
-  if(iv.note){doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(grey[0],grey[1],grey[2]);doc.text(doc.splitTextToSize(iv.note,100).slice(0,4),M,y+4)}
+  doc.setFontSize(10);doc.setTextColor(ink[0],ink[1],ink[2]);doc.text(isPaid?PX.tot+' ('+PX.paid.toLowerCase()+')':T.tebet,lx,y+20);doc.setFontSize(12);doc.text(money(tot),W-M,y+20,{align:'right'});
+  var ny=y+4;
+  var adv=(iv.type==='eindfactuur'&&typeof advFinal==='function')?(DATA.invoices.find(function(x){return x.id===iv.advanceId})||DATA.invoices.find(function(x){return x.type==='voorschot'&&x.customerId===iv.customerId&&advFinal(x)===iv})):null;
+  if(adv){var ap=advPart(adv),at=Math.round((ap+sub)*100)/100;
+    label(PX.adv,M,y);doc.setFont('helvetica','normal');doc.setFontSize(7.8);doc.setTextColor(60,60,70);
+    var ay=y+5.5;
+    [[PX.proj,money(at)+PX.ex],[PX.prev+adv.ref+' ('+fmtLong(adv.date)+')'+(adv.status==='betaald'?PX.pd:''),money(-ap)+PX.ex],[PX.saldo,money(sub)+PX.ex]].forEach(function(r,i){
+      var tl=doc.splitTextToSize(r[0],52);doc.setFont('helvetica',i===2?'bold':'normal');doc.text(tl,M,ay);doc.text(r[1],M+84,ay,{align:'right'});ay+=tl.length*3.6+1.6});
+    ny=ay+2}
+  if(iv.note){doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(grey[0],grey[1],grey[2]);doc.text(doc.splitTextToSize(iv.note,84).slice(0,4),M,ny)}
 
   /* payment card */
   if(!isOff){
