@@ -14,6 +14,8 @@ Afbeeldingen publiek via https://raw.githubusercontent.com/giannismarleotech/mar
 - 2026-10-14 automatisatie
 - 2026-10-16 case Rani Poetsservice
 - 2026-10-19 CTA "Have a project in mind?"
+- 2026-10-21 tip: Google-bedrijfsprofiel (uren, foto's, reviews) – post 13
+- 2026-10-23 tip: backups, 3-2-1-regel – post 14
 - 2026-09-30 case TrustTap (post 10, direct gepost)
 - 2026-10-01 case The Cleaning Company (post 11 + story, direct)
 - 2026-10-02 case Beauty Salon Elena (post 12 + story)
