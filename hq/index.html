@@ -6208,6 +6208,61 @@ setTimeout(intakeSync,6000);setInterval(intakeSync,5*60*1000);
   var s=main().querySelector('.stats');if(!list.length||!s||document.getElementById('ikDash'))return;
   s.insertAdjacentHTML('afterend','<div class="panelbox" id="ikDash" style="border-color:rgba(34,197,94,.45)"><h3>📋 Nieuwe intakes</h3>'+list.map(function(r){var c=customer(r.customer_id)||{};return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><div><b>'+esc(c.name||(r.answers||{}).bedrijf||'Klant')+'</b><div class="hint" style="margin:0">'+new Date(r.submitted_at).toLocaleString('nl-BE')+' · '+(r.files||[]).length+' bestanden</div></div><button class="btn sm" onclick="intakeView(\''+r.token+'\')">Bekijken</button></div>'}).join('')+'</div>')}})();
 
+
+/* ===== WhatsApp-ronde: persoonlijke berichten, jij drukt op verzenden ===== */
+var WR={list:[],i:0,mode:'nieuw',seg:'alle',sent:0,max:20};
+function wrFollowMsg(d){var vn=leadFirstName(d);var naam=d.naam||'jullie zaak';var n=(d.contacten||[]).length;
+  if(n>=2)return (vn?'Dag '+vn+'! ':'Dag! ')+'Laatste berichtje van mij, beloofd 🙂 Als een nieuwe website voor '+naam+' later nog interessant wordt, mag je me altijd sturen. Succes ermee!\n\nGiannis · Marleo';
+  return (vn?'Dag '+vn+', ':'Dag, ')+'Giannis van Marleo hier. Ik stuurde je een paar dagen geleden een berichtje over een website voor '+naam+'. Zal ik gratis een voorbeeld maken, zodat je ziet hoe het eruit kan zien? Zonder verplichting.\n\nGroeten,\nGiannis';}
+function wrQueue(){var t=today();
+  var ok=function(d){if(!d.tel||!isMobile(d.tel))return false;if(d.stage==='gewonnen'||d.stage==='verloren'||d.waOptOut)return false;if(WR.seg!=='alle'&&(typeof dealSeg==='function'?dealSeg(d):'web')!==WR.seg)return false;return true};
+  var l=DATA.deals.filter(function(d){if(!ok(d))return false;
+    if(WR.mode==='nieuw')return d.stage==='nieuw'&&!d.laatstContact;
+    return d.stage==='gecontacteerd'&&d.follow&&d.follow<=t&&(d.contacten||[]).length<3});
+  l.sort(function(a,b){var pa=(a.prio==='hoog'?0:1),pb=(b.prio==='hoog'?0:1);if(pa!==pb)return pa-pb;return (Number(b.reviews||0))-(Number(a.reviews||0))});
+  return l}
+function wrCounts(){var m=WR.mode;WR.mode='nieuw';var a=wrQueue().length;WR.mode='opvolgen';var b=wrQueue().length;WR.mode=m;return {nieuw:a,opvolgen:b}}
+function mWaRonde(){var c=wrCounts();
+  openM('💬 WhatsApp-ronde',
+  '<p class="hint" style="margin-bottom:12px">Per lead staat een persoonlijk bericht klaar. Jij tikt op <b>WhatsApp</b>, kijkt het na en drukt op verzenden. HQ noteert het contact en zet een opvolging over 4 dagen.</p>'+
+  '<div class="fgroup"><label>Wat</label><select id="wr_mode"><option value="nieuw">Nieuwe leads, eerste bericht ('+c.nieuw+')</option><option value="opvolgen">Opvolgen, geen antwoord gekregen ('+c.opvolgen+')</option></select></div>'+
+  '<div class="frow"><div class="fgroup"><label>Soort</label><select id="wr_seg"><option value="alle">Alle</option><option value="web">Websites</option><option value="it">IT &amp; security</option></select></div>'+
+  '<div class="fgroup"><label>Aantal deze ronde</label><select id="wr_max"><option>10</option><option selected>20</option><option>30</option></select></div></div>'+
+  '<div class="notecard" style="margin-top:6px"><p style="margin:0">Tip: max. 20 à 30 nieuwe per dag. Stuur je er veel meer en markeren mensen ze als spam, dan kan WhatsApp je nummer blokkeren.</p></div>',
+  '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" onclick="wrStart()">Start ronde</button>',true)}
+function wrStart(){WR.mode=document.getElementById('wr_mode').value;WR.seg=document.getElementById('wr_seg').value;WR.max=+document.getElementById('wr_max').value||20;
+  WR.list=wrQueue().slice(0,WR.max);WR.i=0;WR.sent=0;if(!WR.list.length){toast('Geen leads met gsm-nummer in deze selectie');return}closeM();setTimeout(wrShow,60)}
+function wrShow(){var d=WR.list[WR.i];if(!d){wrDone();return}
+  var msg=WR.mode==='opvolgen'?wrFollowMsg(d):waMsg(d);
+  var info=[d.cat,d.plaats||leadCity(d),d.rating?('★ '+d.rating+(d.reviews?' ('+d.reviews+')':'')):'',d.website?'site: '+String(d.website).replace(/^https?:\/\//,'').slice(0,40):'geen website'].filter(Boolean).join(' · ');
+  var last=(d.contacten||[]).slice(-1)[0];
+  openM('💬 '+(WR.i+1)+' / '+WR.list.length+' · '+esc(d.naam),
+  '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div class="hint" style="margin:0">'+esc(info)+'</div><div class="hint" style="margin:0">📱 '+esc(d.tel)+'</div></div>'+
+  (last?'<div class="hint" style="margin:0 0 8px">Vorig contact: '+new Date(last.t).toLocaleDateString('nl-BE')+' via '+esc(last.kanaal)+'</div>':'')+
+  '<div class="bar" style="height:5px;margin-bottom:12px"><i style="width:'+Math.round(WR.i/WR.list.length*100)+'%"></i></div>'+
+  '<div class="fgroup"><label>Bericht (pas gerust aan)</label><textarea id="wr_txt" style="min-height:260px;font-size:.95rem">'+esc(msg)+'</textarea></div>'+
+  '<div class="hint">'+WR.sent+' verstuurd deze ronde</div>',
+  '<button class="btn subtle" onclick="wrSkip(\'verloren\')" title="Verkeerd nummer of geen interesse">✕ Geen interesse</button>'+
+  '<button class="btn subtle" onclick="wrSkip()">Overslaan</button>'+
+  '<button class="btn" style="background:#25D366;box-shadow:none" onclick="wrSend()">💬 WhatsApp →</button>',true)}
+function wrSend(){var d=WR.list[WR.i];var txt=(document.getElementById('wr_txt')||{}).value||'';if(!d)return;
+  window.open('https://wa.me/'+telDigits(d.tel)+'?text='+encodeURIComponent(txt),'_blank');
+  var t=Date.now();d.kanaal='WhatsApp';d.laatstContact=today();if(d.stage==='nieuw')d.stage='gecontacteerd';
+  (d.contacten=d.contacten||[]).push({t:t,kanaal:'WhatsApp'});(d.log=d.log||[]).push({t:t,txt:'💬 WhatsApp-ronde: '+(WR.mode==='opvolgen'?'opvolgbericht':'eerste bericht')+' verstuurd'});
+  d.follow=plusDays(today(),(d.contacten.length>=3)?30:4);
+  if(typeof commLog==='function')try{commLog({dealId:d.id,type:'wa',dir:'out',to:d.tel,text:txt,via:'wa.me'})}catch(e){}
+  if(typeof atPushOne==='function')try{atPushOne(d)}catch(e){}
+  WR.sent++;WR.i++;saveData();setTimeout(wrShow,400)}
+function wrSkip(st){var d=WR.list[WR.i];if(d&&st==='verloren'){d.stage='verloren';d.waOptOut=true;(d.log=d.log||[]).push({t:Date.now(),txt:'WhatsApp-ronde: geen interesse / verkeerd nummer'});saveData()}WR.i++;wrShow()}
+function wrDone(){logAct('WhatsApp-ronde: '+WR.sent+' berichten verstuurd');saveData();
+  openM('✅ Ronde klaar','<p>'+WR.sent+' berichten verstuurd. Wie niet antwoordt, verschijnt over 4 dagen bij <b>Opvolgen</b> in een nieuwe ronde.</p>','<button class="btn" onclick="closeM();go(VIEW)">Sluiten</button>')}
+
+/* knop in pipeline + dashboard */
+(function(){var _r=rPipeline;rPipeline=function(){_r.apply(this,arguments);var bar=main().querySelector('.topbar');if(!bar||document.getElementById('wrBtn'))return;var c=wrCounts(),n=c.nieuw+c.opvolgen;var tgt=bar.lastElementChild||bar;
+  tgt.insertAdjacentHTML('afterbegin','<button class="btn subtle" id="wrBtn" onclick="mWaRonde()">💬 WhatsApp-ronde'+(n?' ('+n+')':'')+'</button>')}})();
+(function(){var _rd=rDash;rDash=function(){_rd.apply(this,arguments);var c=wrCounts();if(!c.nieuw&&!c.opvolgen)return;var s=main().querySelector('.stats');if(!s||document.getElementById('wrDash'))return;
+  s.insertAdjacentHTML('afterend','<div class="panelbox" id="wrDash" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>💬 WhatsApp-ronde</b><div class="hint" style="margin:2px 0 0">'+c.nieuw+' nieuwe leads klaar · '+c.opvolgen+' om op te volgen</div></div><button class="btn sm" onclick="mWaRonde()">Start</button></div>')}})();
+
 </script>
 </body>
 </html>
