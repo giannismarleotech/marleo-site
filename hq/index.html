@@ -6217,8 +6217,10 @@ function wrFollowMsg(d){var vn=leadFirstName(d);var naam=d.naam||'jullie zaak';v
 function wrQueue(){var t=today();
   var ok=function(d){if(!d.tel||!isMobile(d.tel))return false;if(d.stage==='gewonnen'||d.stage==='verloren'||d.waOptOut)return false;if(WR.seg!=='alle'&&(typeof dealSeg==='function'?dealSeg(d):'web')!==WR.seg)return false;return true};
   var l=DATA.deals.filter(function(d){if(!ok(d))return false;
-    if(WR.mode==='nieuw')return d.stage==='nieuw'&&!d.laatstContact;
-    return d.stage==='gecontacteerd'&&d.follow&&d.follow<=t&&(d.contacten||[]).length<3});
+    var waN=(d.contacten||[]).filter(function(c){return c.kanaal==='WhatsApp'}).length,viaWa=waN>0||d.kanaal==='WhatsApp';
+    if(WR.mode==='nieuw')return !viaWa&&['nieuw','gecontacteerd'].indexOf(d.stage)>=0;
+    var due=d.follow?d.follow<=t:(d.laatstContact&&d.laatstContact<=plusDays(t,-4));
+    return viaWa&&['nieuw','gecontacteerd','demo','gesprek'].indexOf(d.stage)>=0&&due&&waN<3});
   l.sort(function(a,b){var pa=(a.prio==='hoog'?0:1),pb=(b.prio==='hoog'?0:1);if(pa!==pb)return pa-pb;return (Number(b.reviews||0))-(Number(a.reviews||0))});
   return l}
 function wrCounts(){var m=WR.mode;WR.mode='nieuw';var a=wrQueue().length;WR.mode='opvolgen';var b=wrQueue().length;WR.mode=m;return {nieuw:a,opvolgen:b}}
