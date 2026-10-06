@@ -6120,6 +6120,94 @@ function plannedPanel(){
 (function(){var _wa=mWebAdvance;mWebAdvance=function(cid){_wa(cid);var b=document.getElementById('mBody')||document.querySelector('.modal .modal-body');var f=document.getElementById('mFoot');
   if(f)f.insertAdjacentHTML('afterbegin','<button class="btn subtle" style="margin-right:auto" onclick="window.WA_FREE=1;closeM();setTimeout(function(){mInvoice();var t=document.getElementById(\'i_type\');t.value=\'voorschot\';document.getElementById(\'i_ref\').value=nextRef(\'voorschot\');window.WA_FREE=0},60)">Vrije voorschotfactuur</button>')}})();
 
+
+/* ===== Intakeformulier (marleo.tech/intake) ===== */
+var INTAKES={};// token -> row (cache)
+function intakeUrl(tok){return 'https://marleo.tech/intake/?t='+tok}
+function intakeSnap(c){return {name:c.name||'',contact:c.contact||'',email:c.email||'',phone:c.phone||'',address:c.address||'',vat:c.vat||''}}
+async function intakeFetch(cid){if(!sb||!CLOUD.uid)return [];var q=sb.from('intake_links').select('*').eq('user_id',CLOUD.uid).order('created_at',{ascending:false});if(cid)q=q.eq('customer_id',cid);var r=await q;(r.data||[]).forEach(function(x){INTAKES[x.token]=x});return r.data||[]}
+async function intakeLink(cid){var c=customer(cid);if(!c)return;
+  if(!sb||!CLOUD.uid){toast('Niet ingelogd in de cloud',true);return}
+  var rows=await intakeFetch(cid);var row=rows[0];
+  if(!row){var tok=offToken()+offToken().slice(0,6);var ins=await sb.from('intake_links').insert({token:tok,user_id:CLOUD.uid,customer_id:cid,data:intakeSnap(c)});if(ins.error){toast(ins.error.message,true);return}row={token:tok,status:'open'};logAct('Intake-link gemaakt voor '+c.name)}
+  else await sb.from('intake_links').update({data:intakeSnap(c)}).eq('token',row.token);
+  var url=intakeUrl(row.token),vn=c.contact?String(c.contact).replace(/^.*,\s*/,'').split(' ')[0]:'';
+  var txt='Dag'+(vn?' '+vn:'')+',\n\nNog eens bedankt voor het vertrouwen! Om je website te bouwen heb ik wat info en foto\'s nodig. Via deze link vul je alles op je eigen tempo in, ook vanop je gsm:\n'+url+'\n\nAlles wordt automatisch bewaard, dus je kan later verdergaan. Lukt iets niet, bel of app me gerust.\n\nGroeten,\nGiannis – Marleo\n0456 92 00 25';
+  var st=row.status==='ingediend'?'<div class="notecard" style="border-color:rgba(34,197,94,.5)"><b>✅ Ingevuld</b> op '+new Date(row.submitted_at).toLocaleString('nl-BE')+' <button class="btn sm" style="margin-left:8px" onclick="closeM();intakeView(\''+row.token+'\')">Bekijken</button></div>':(row.viewed_at?'<div class="hint">👀 Geopend op '+new Date(row.viewed_at).toLocaleString('nl-BE')+', nog niet verstuurd.</div>':'<div class="hint">Nog niet geopend door de klant.</div>');
+  openM('📋 Intake voor '+esc(c.name),
+    st+'<div class="fgroup" style="margin-top:10px"><label>Link voor de klant</label><input readonly value="'+esc(url)+'" onclick="this.select()"></div>'+
+    '<div class="fgroup"><label>Bericht</label><textarea id="ik_txt" style="min-height:170px">'+esc(txt)+'</textarea></div>'+
+    '<div class="hint">De klant vult in: gegevens, diensten, logo, kleuren, foto\'s, openingsuren, socials, domein en wensen. Je krijgt een melding zodra het binnen is, en er komt automatisch een taak "website bouwen".</div>',
+    '<button class="btn subtle" onclick="navigator.clipboard.writeText(\''+url+'\');toast(\'Link gekopieerd\')">📋 Kopieer</button>'+
+    (isMobile(c.phone)?'<a class="btn subtle" href="https://wa.me/'+telDigits(c.phone)+'?text='+encodeURIComponent(txt)+'" target="_blank" rel="noopener">💬 WhatsApp</a>':'')+
+    '<button class="btn subtle" onclick="window.open(\''+url+'\',\'_blank\')">👁 Bekijk</button>'+
+    '<button class="btn" onclick="intakeMail(\''+cid+'\')">✉️ Mail link</button>',true);
+}
+function intakeMail(cid){var c=customer(cid)||{};var txt=(document.getElementById('ik_txt')||{}).value||'';closeM();setTimeout(function(){mMail({to:c.email||'',subject:'Je nieuwe website – even alles invullen',text:txt,custId:cid})},60)}
+
+var IK_LABELS=[['bedrijf','Zaak'],['contact','Contact'],['telefoon','Telefoon'],['email','E-mail'],['btw','Btw'],['adres','Adres'],['regio','Regio'],['sector','Sector'],['sinds','Sinds'],['beschrijving','Wat ze doen'],['diensten','Diensten'],['usp','Waarom kiezen voor hen'],['doelgroep','Doelgroep'],['stijl','Stijl'],['voorbeelden','Voorbeeldsites'],['opafspraak','Enkel op afspraak'],['urenextra','Uitzonderingen uren'],['facebook','Facebook'],['instagram','Instagram'],['tiktok','TikTok/andere'],['google','Google-profiel'],['googlelink','Google-link'],['paginas','Onderdelen'],['talen','Talen'],['huidigesite','Huidige site'],['domein','Domein'],['domeinnaam','Domeinnaam'],['registrar','Registrar'],['mailadressen','Mailadressen'],['wensen','Wensen'],['deadline','Deadline'],['geenlogo','Heeft geen logo'],['stockok','Sfeerbeelden ok']];
+var IK_DAYS=['Ma','Di','Wo','Do','Vr','Za','Zo'];
+function ikVal(v){if(v===true)return 'ja';if(Array.isArray(v))return v.join(', ');return String(v==null?'':v)}
+function ikHours(a){var H=a.uren||{};var s=IK_DAYS.map(function(d,i){var h=H[i];return d+' '+(h&&h.open?h.van+'–'+h.tot:'gesloten')});return Object.keys(H).length?s.join(' · '):''}
+async function intakeView(tok){
+  var row=INTAKES[tok];if(!row){var r=await sb.from('intake_links').select('*').eq('token',tok).maybeSingle();row=r.data;if(row)INTAKES[tok]=row}
+  if(!row){toast('Intake niet gevonden',true);return}
+  var a=row.answers||{},files=row.files||[],c=customer(row.customer_id)||{};
+  var paths=files.map(function(f){return f.path});var urls={};
+  if(paths.length){var s=await sb.storage.from('intake').createSignedUrls(paths,3600);(s.data||[]).forEach(function(x){urls[x.path]=x.signedUrl})}
+  var rows=IK_LABELS.filter(function(l){var v=a[l[0]];return v!==undefined&&v!==''&&v!==false&&!(Array.isArray(v)&&!v.length)}).map(function(l){return '<tr style="cursor:default"><td style="color:var(--muted);white-space:nowrap;vertical-align:top">'+l[1]+'</td><td style="white-space:pre-line">'+esc(ikVal(a[l[0]]))+'</td></tr>'});
+  var hrs=ikHours(a);if(hrs)rows.splice(15,0,'<tr style="cursor:default"><td style="color:var(--muted)">Openingsuren</td><td>'+esc(hrs)+'</td></tr>');
+  if(!a.kleurkies&&(a.kleur1||a.kleur2))rows.push('<tr style="cursor:default"><td style="color:var(--muted)">Kleuren</td><td>'+[a.kleur1,a.kleur2].filter(Boolean).map(function(k){return '<span style="display:inline-flex;align-items:center;gap:6px;margin-right:12px"><i style="width:18px;height:18px;border-radius:5px;background:'+esc(k)+';display:inline-block;border:1px solid var(--line)"></i>'+esc(k)+'</span>'}).join('')+'</td></tr>');
+  else if(a.kleurkies)rows.push('<tr style="cursor:default"><td style="color:var(--muted)">Kleuren</td><td>Marleo mag kiezen (op basis van logo)</td></tr>');
+  var grp={logo:'Logo',foto:'Foto\'s',doc:'Documenten'};
+  var fh=Object.keys(grp).map(function(k){var fs=files.filter(function(f){return f.kind===k});if(!fs.length)return '';return '<h4 style="margin:14px 0 8px">'+grp[k]+' ('+fs.length+')</h4><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px">'+fs.map(function(f){var u=urls[f.path]||'';var img=/^image\/(jpeg|png|webp|gif|svg)/.test(f.type);return '<a href="'+esc(u)+'" target="_blank" rel="noopener" download="'+esc(f.name)+'" style="display:block;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--panel2,#222);border:1px solid var(--line);position:relative;font-size:.72rem;color:var(--muted);text-decoration:none">'+(img&&u?'<img src="'+esc(u)+'" style="width:100%;height:100%;object-fit:cover">':'<span style="position:absolute;inset:8px;display:flex;align-items:center;justify-content:center;text-align:center">📄 '+esc(f.name)+'</span>')+'</a>'}).join('')+'</div>'}).join('');
+  openM('📋 Intake – '+esc(a.bedrijf||c.name||''),
+    '<div class="hint" style="margin-bottom:10px">'+(row.status==='ingediend'?'✅ Ingestuurd op '+new Date(row.submitted_at).toLocaleString('nl-BE'):'⏳ Nog niet ingestuurd (tussentijds bewaard)')+(row.imported_at?' · overgenomen in klantfiche':'')+'</div>'+
+    (rows.length?'<div style="overflow-x:auto"><table><tbody>'+rows.join('')+'</tbody></table></div>':'<div class="empty">Nog niets ingevuld</div>')+fh,
+    (row.customer_id?'<button class="btn subtle" onclick="intakeImport(\''+tok+'\')">⤵ Overnemen in klantfiche</button>':'')+
+    '<button class="btn subtle" onclick="intakeBrief(\''+tok+'\')">⬇ Bouwbrief (.json)</button>'+
+    '<button class="btn subtle" onclick="intakeZipLinks(\''+tok+'\')">⬇ Alle bestanden</button>'+
+    (row.customer_id?'<button class="btn" onclick="closeM();vCustomer(\''+row.customer_id+'\')">Naar klant</button>':''),true);
+}
+async function intakeImport(tok){var row=INTAKES[tok];if(!row)return;var a=row.answers||{},c=customer(row.customer_id);if(!c){toast('Klant niet gevonden',true);return}
+  var map={phone:'telefoon',email:'email',address:'adres',vat:'btw',contact:'contact'},n=0;
+  Object.keys(map).forEach(function(k){var v=(a[map[k]]||'').trim();if(v&&(!c[k]||/geen gegevens/i.test(c[k]))){c[k]=v;n++}});
+  c.dossier=c.dossier||{};c.dossier.intake={token:tok,socials:{facebook:a.facebook||'',instagram:a.instagram||'',tiktok:a.tiktok||''},google:a.googlelink||'',domein:a.domeinnaam||'',registrar:a.registrar||'',mail:a.mailadressen||''};
+  if(a.domeinnaam){c.info=c.info||{};if(!c.info.domein)c.info.domein=a.domeinnaam;if(!c.info.registrar&&a.registrar)c.info.registrar=a.registrar}
+  await sb.from('intake_links').update({imported_at:new Date().toISOString()}).eq('token',tok);row.imported_at=new Date().toISOString();
+  logAct('Intake overgenomen in klantfiche '+c.name);saveData();toast('✅ '+n+' gegevens ingevuld, socials en domein bewaard');closeM();vCustomer(c.id)}
+function intakeBrief(tok){var row=INTAKES[tok];if(!row)return;var a=row.answers||{};
+  var brief={klant:a.bedrijf||'',sector:a.sector||'',contact:{naam:a.contact,telefoon:a.telefoon,email:a.email,adres:a.adres,btw:a.btw,regio:a.regio},
+    inhoud:{beschrijving:a.beschrijving,diensten:String(a.diensten||'').split('\n').map(function(s){return s.trim()}).filter(Boolean),usp:a.usp,doelgroep:a.doelgroep,sinds:a.sinds,wensen:a.wensen},
+    stijl:{kleuren:a.kleurkies?null:[a.kleur1,a.kleur2],stijl:a.stijl||[],voorbeelden:a.voorbeelden||''},
+    uren:{dagen:a.uren||{},opAfspraak:!!a.opafspraak,extra:a.urenextra||''},
+    socials:{facebook:a.facebook,instagram:a.instagram,tiktok:a.tiktok,google:a.googlelink},
+    site:{paginas:a.paginas||[],talen:a.talen||['Nederlands'],huidig:a.huidigesite,domein:a.domeinnaam,registrar:a.registrar,mail:a.mailadressen,deadline:a.deadline},
+    bestanden:(row.files||[]).map(function(f){return {soort:f.kind,naam:f.name,pad:f.path}})};
+  var b=new Blob([JSON.stringify(brief,null,2)],{type:'application/json'});var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='bouwbrief-'+String(a.bedrijf||'klant').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';l.click()}
+async function intakeZipLinks(tok){var row=INTAKES[tok];if(!row||!(row.files||[]).length){toast('Geen bestanden');return}
+  var s=await sb.storage.from('intake').createSignedUrls(row.files.map(function(f){return f.path}),3600);var list=s.data||[];toast('⬇ '+list.length+' bestanden worden gedownload…');
+  for(var i=0;i<list.length;i++){try{var r=await fetch(list[i].signedUrl);var bl=await r.blob();var l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download=(row.files[i].kind+'-'+(i+1)+'-'+row.files[i].name).replace(/[^\w.\-]+/g,'_');l.click();await new Promise(function(r){setTimeout(r,350)})}catch(e){}}}
+
+/* nieuwe inzendingen -> taak + melding */
+async function intakeSync(){if(!sb||!CLOUD.uid)return;var rows=await intakeFetch();var made=0;
+  rows.forEach(function(r){if(r.status!=='ingediend'||!r.customer_id)return;var c=customer(r.customer_id);var nm=c?c.name:((r.answers||{}).bedrijf||'klant');
+    if(autoTask('intake-'+r.token,'Website bouwen: intake van '+nm+' is binnen',today(),'hoog',r.customer_id,'Open de klant → Intake bekijken. Bouwbrief en foto\'s staan klaar.'))made++});
+  if(made){saveData();toast('📋 '+made+' nieuwe intake'+(made>1?'s':'')+' binnen');if(typeof VIEW!=='undefined'&&VIEW==='dashboard')rDash()}}
+setTimeout(intakeSync,6000);setInterval(intakeSync,5*60*1000);
+
+/* klantpagina: knop + status */
+(function(){var _go=go;go=function(v){_go.apply(this,arguments);if(v!=='custpage')return;setTimeout(async function(){var cid=CUSTVIEW;var b=document.querySelector('.topbar button[onclick^="mInvoiceFor("]');
+  if(b&&!document.getElementById('ikBtn'))b.insertAdjacentHTML('beforebegin','<button class="btn subtle" id="ikBtn" onclick="intakeLink(\''+cid+'\')">📋 Intake</button>');
+  var rows=await intakeFetch(cid);var r=rows[0];if(!r||CUSTVIEW!==cid)return;var hero=document.querySelector('.custhero');if(!hero||document.getElementById('ikBox'))return;
+  var n=(r.files||[]).length,st=r.status==='ingediend'?'✅ Intake ingevuld op '+new Date(r.submitted_at).toLocaleDateString('nl-BE')+' · '+n+' bestanden':(r.viewed_at?'👀 Intake geopend, nog niet verstuurd'+(n?' · '+n+' bestanden al geüpload':''):'⏳ Intake verstuurd, nog niet geopend');
+  hero.insertAdjacentHTML('afterend','<div class="panelbox" id="ikBox" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;'+(r.status==='ingediend'?'border-color:rgba(34,197,94,.45)':'')+'"><div><b>📋 Intake</b><div class="hint" style="margin:2px 0 0">'+st+'</div></div><div style="display:flex;gap:8px"><button class="btn sm subtle" onclick="intakeLink(\''+cid+'\')">Link</button><button class="btn sm" onclick="intakeView(\''+r.token+'\')">Bekijken</button></div></div>')},50)}})();
+
+/* dashboard: binnengekomen intakes die nog niet overgenomen zijn */
+(function(){var _rd=rDash;rDash=function(){_rd.apply(this,arguments);var list=Object.keys(INTAKES).map(function(k){return INTAKES[k]}).filter(function(r){return r.status==='ingediend'&&!r.imported_at});
+  var s=main().querySelector('.stats');if(!list.length||!s||document.getElementById('ikDash'))return;
+  s.insertAdjacentHTML('afterend','<div class="panelbox" id="ikDash" style="border-color:rgba(34,197,94,.45)"><h3>📋 Nieuwe intakes</h3>'+list.map(function(r){var c=customer(r.customer_id)||{};return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><div><b>'+esc(c.name||(r.answers||{}).bedrijf||'Klant')+'</b><div class="hint" style="margin:0">'+new Date(r.submitted_at).toLocaleString('nl-BE')+' · '+(r.files||[]).length+' bestanden</div></div><button class="btn sm" onclick="intakeView(\''+r.token+'\')">Bekijken</button></div>'}).join('')+'</div>')}})();
+
 </script>
 </body>
 </html>

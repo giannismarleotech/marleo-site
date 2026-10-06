@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#12131C">
+<title>Intake website · Marleo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF0F5;--card:#fff;--text:#1B1D2A;--muted:#60667A;--line:#E3E6EE;--soft:#F6F7FB;--grad:linear-gradient(100deg,#F97C1F,#EF4056 50%,#E91E7B);--accent:#EF4056;--green:#16A34A}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+html,body{overflow-x:hidden}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.55;min-height:100vh}
+.hero{background:#12131C;color:#fff;padding:22px 16px 70px}
+.hero-in{max-width:760px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem}
+.brand svg{width:26px;height:26px}
+.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,5vw,2.2rem);line-height:1.15;margin:22px 0 8px}
+.hero p{color:#C9CCD8;max-width:560px}
+.wrap{max-width:760px;margin:-48px auto 0;padding:0 16px 120px}
+.card{background:var(--card);border-radius:18px;box-shadow:0 10px 40px rgba(20,24,40,.08);padding:26px 24px}
+@media(min-width:640px){.card{padding:32px 34px}}
+.prog{display:flex;gap:6px;margin-bottom:18px}
+.prog i{flex:1;height:5px;border-radius:9px;background:var(--line);transition:.3s}
+.prog i.on{background:var(--grad)}
+.stepno{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h2{font-family:'Space Grotesk',sans-serif;font-size:1.45rem;margin:4px 0 4px}
+.lead{color:var(--muted);margin-bottom:20px}
+.f{margin-bottom:16px}
+.f label,.lbl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+.f small,.hint{display:block;color:var(--muted);font-size:.8rem;margin-top:4px}
+input[type=text],input[type=email],input[type=tel],input[type=url],input[type=time],textarea,select{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--soft);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;outline:none;transition:border .15s,background .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);background:#fff}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;gap:12px}
+@media(min-width:560px){.row.c2{grid-template-columns:1fr 1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--soft);border-radius:999px;padding:9px 14px;font-size:.9rem;cursor:pointer;user-select:none;transition:.15s;-webkit-tap-highlight-color:transparent}
+.chip.on{background:#1B1D2A;color:#fff;border-color:#1B1D2A}
+.drop{border:2px dashed #CDD2DE;border-radius:14px;padding:22px 16px;text-align:center;background:var(--soft);cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:#FFF5F7}
+.drop b{display:block;font-size:1rem;margin-bottom:2px}
+.drop span{color:var(--muted);font-size:.85rem}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:12px}
+.th{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#E9ECF3;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);text-align:center;padding:4px}
+.th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.th.logo{background:#fff;border:1.5px solid var(--line)}.th.logo img{object-fit:contain;padding:10px}
+.th .x{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(18,19,28,.75);color:#fff;font-size:15px;cursor:pointer;line-height:26px}
+.th.busy::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.6) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="%23EF4056" stroke-width="4" stroke-dasharray="60 30"><animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.9s" repeatCount="indefinite"/></circle></svg>') center/34px no-repeat}
+.hours{display:grid;gap:8px}
+.hr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--soft);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;min-height:52px}
+.hr .d{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.9rem;width:118px;flex:none;cursor:pointer}
+.hr .d input{width:20px;height:20px;accent-color:#EF4056}
+.hr .t{display:flex;gap:6px;align-items:center;flex:1 1 210px;min-width:0}
+.hr .t input{width:100%;flex:1 1 0;min-width:0;padding:8px 8px;background:#fff}
+.hr .cl{color:var(--muted);font-size:.85rem}
+.tg{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted);cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:#EF4056}
+.check{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.check input{width:20px;height:20px;margin-top:1px;accent-color:#EF4056;flex:none}
+.warn{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;border-radius:12px;padding:12px 14px;font-size:.86rem;margin:4px 0 16px}
+.colors{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.col{display:flex;align-items:center;gap:8px;background:var(--soft);border:1.5px solid var(--line);border-radius:12px;padding:6px 12px 6px 6px}
+.col input[type=color]{width:38px;height:38px;border:0;border-radius:9px;background:none;padding:0;cursor:pointer}
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+.nav-in{max-width:760px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:14px 20px;cursor:pointer;font-size:1rem;-webkit-tap-highlight-color:transparent}
+.btn.p{background:var(--grad);color:#fff;flex:1;box-shadow:0 8px 20px rgba(239,64,86,.28)}
+.btn.s{background:var(--soft);color:var(--text);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5}
+.saved{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.done{text-align:center;padding:20px 0}
+.done .ok{width:70px;height:70px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-size:34px}
+.err{background:#FEF2F2;color:#B91C1C;border-radius:12px;padding:14px;margin-top:10px}
+.sum{background:var(--soft);border-radius:12px;padding:14px 16px;font-size:.88rem}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.sum div span:first-child{color:var(--muted)}
+.foot{text-align:center;color:var(--muted);font-size:.8rem;margin-top:22px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-in">
+  <div class="brand"><svg viewBox="0 0 32 32" fill="none"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#F97C1F"/><stop offset=".5" stop-color="#EF4056"/><stop offset="1" stop-color="#E91E7B"/></linearGradient></defs><path d="M16 2.5 28 9.5v13L16 29.5 4 22.5v-13z" stroke="url(#g)" stroke-width="2.4" stroke-linejoin="round"/><path d="m12.5 12.5-3.5 3.5 3.5 3.5M19.5 12.5l3.5 3.5-3.5 3.5M17.2 11l-2.4 10" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/></svg><b style="font-weight:700">marleo<span>.tech</span></b></div>
+  <h1 id="hTitle">Alles voor je nieuwe website</h1>
+  <p id="hSub">Vul dit in op je eigen tempo. Alles wordt automatisch bewaard, je kan dus stoppen en later verdergaan via dezelfde link.</p>
+</div></div>
+
+<div class="wrap"><div class="card" id="card">
+  <div id="loading" style="padding:30px 0;text-align:center;color:var(--muted)">Even laden…</div>
+  <div id="form" class="hidden">
+    <div class="prog" id="prog"></div>
+    <div id="steps"></div>
+  </div>
+  <div id="fatal" class="hidden"></div>
+</div>
+<div class="foot">Vragen? Bel of WhatsApp Giannis op <a href="https://wa.me/32456920025" style="color:inherit">0456 92 00 25</a> · <a href="mailto:giannis@marleo.tech" style="color:inherit">giannis@marleo.tech</a></div>
+</div>
+
+<div class="nav hidden" id="nav"><div class="nav-in">
+  <button class="btn s" id="back">Terug</button>
+  <span class="saved" id="saved"></span>
+  <button class="btn p" id="next">Volgende</button>
+</div></div>
+
+<script>
+var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/intake';
+var T=new URLSearchParams(location.search).get('t')||'';
+var A={},FILES=[],DATA={},STEP=0,STATUS='open',dirty=false,saveTimer=null;
+var DAYS=['Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag','Zondag'];
+function $(s,r){return (r||document).querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+async function call(b){b.t=T;var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});var j=await r.json().catch(function(){return{ok:false,error:'Geen verbinding'}});return j}
+
+/* ---------- velden ---------- */
+function inp(k,label,o){o=o||{};return '<div class="f"><label for="q_'+k+'">'+label+(o.req?' *':'')+'</label><input id="q_'+k+'" data-k="'+k+'" type="'+(o.type||'text')+'" placeholder="'+esc(o.ph||'')+'" value="'+esc(A[k]||'')+'"'+(o.ac?' autocomplete="'+o.ac+'"':'')+'>'+(o.hint?'<small>'+o.hint+'</small>':'')+'</div>'}
+function ta(k,label,o){o=o||{};return '<div class="f"><label for="q_'+k+'">'+label+(o.req?' *':'')+'</label><textarea id="q_'+k+'" data-k="'+k+'" placeholder="'+esc(o.ph||'')+'">'+esc(A[k]||'')+'</textarea>'+(o.hint?'<small>'+o.hint+'</small>':'')+'</div>'}
+function chips(k,label,opts,multi,hint){var v=A[k];return '<div class="f"><span class="lbl">'+label+'</span><div class="chips" data-chips="'+k+'" data-multi="'+(multi?1:0)+'">'+opts.map(function(o){var on=multi?(Array.isArray(v)&&v.indexOf(o)>=0):v===o;return '<span class="chip'+(on?' on':'')+'" data-v="'+esc(o)+'">'+esc(o)+'</span>'}).join('')+'</div>'+(hint?'<small class="hint">'+hint+'</small>':'')+'</div>'}
+function chk(k,label){return '<label class="check f"><input type="checkbox" data-k="'+k+'"'+(A[k]?' checked':'')+'><span>'+label+'</span></label>'}
+function drop(kind,label,sub,multi){return '<div class="f"><span class="lbl">'+label+'</span><label class="drop" data-drop="'+kind+'"><input type="file" class="hidden" accept="image/*,.pdf,.svg"'+(multi?' multiple':'')+' data-file="'+kind+'"><b>'+(multi?'Foto\'s kiezen of hierheen slepen':'Bestand kiezen')+'</b><span>'+sub+'</span></label><div class="thumbs" data-thumbs="'+kind+'"></div></div>'}
+
+var STEPS=[
+ {t:'Je zaak',l:'De basisgegevens zoals ze op je website mogen komen.',h:function(){return inp('bedrijf','Naam van je zaak',{req:1,ac:'organization'})+
+   '<div class="row c2">'+inp('contact','Je naam',{ac:'name'})+inp('telefoon','Telefoon',{type:'tel',ac:'tel',ph:'04xx xx xx xx'})+'</div>'+
+   '<div class="row c2">'+inp('email','E-mail',{type:'email',ac:'email'})+inp('btw','Btw-nummer',{ph:'BE 0xxx.xxx.xxx'})+'</div>'+
+   inp('adres','Adres',{ac:'street-address',hint:'Werk je enkel bij klanten aan huis en wil je je adres niet tonen? Zet het er toch, we tonen dan alleen de gemeente.'})+
+   inp('regio','In welke regio werk je?',{ph:'bv. Gent, Deinze en omgeving'})}},
+ {t:'Wat je doet',l:'Schrijf zoals je het aan een klant zou vertellen. Wij maken er mooie teksten van.',h:function(){return chips('sector','Soort zaak',['Kapper / salon','Garage / auto','Schoonmaak','Horeca','Bouw / renovatie','Winkel','Vrij beroep','Andere'])+
+   ta('beschrijving','Wat doe je, in je eigen woorden?',{req:1,ph:'bv. Wij reinigen zetels, matrassen en tapijten bij mensen thuis…'})+
+   ta('diensten','Je diensten of producten',{ph:'Eén per lijn, met prijs als je die wil tonen\nbv. Heren knippen – € 22',hint:'Prijzen tonen is niet verplicht.'})+
+   ta('usp','Waarom kiezen klanten voor jou?',{ph:'bv. 20 jaar ervaring, snel ter plaatse, eerlijke prijzen…'})+
+   inp('doelgroep','Wie zijn je klanten?',{ph:'bv. particulieren, bedrijven, jonge gezinnen…'})+
+   inp('sinds','Sinds wanneer bestaat je zaak?',{ph:'bv. 2015'})}},
+ {t:'Uitstraling',l:'Hoe moet je website aanvoelen?',h:function(){return drop('logo','Je logo','Liefst png, svg of pdf. Een foto van je visitekaartje mag ook.',false)+
+   chk('geenlogo','Ik heb nog geen logo (Marleo kan er een maken)')+
+   '<div class="f"><span class="lbl">Je kleuren</span><div class="colors"><label class="col"><input type="color" data-k="kleur1" value="'+esc(A.kleur1||'#1B1D2A')+'">Hoofdkleur</label><label class="col"><input type="color" data-k="kleur2" value="'+esc(A.kleur2||'#EF4056')+'">Accentkleur</label></div></div>'+
+   chk('kleurkies','Kies jij de kleuren maar, op basis van mijn logo')+
+   chips('stijl','Stijl (meerdere mogelijk)',['Modern & strak','Luxe & elegant','Warm & gezellig','Stoer','Speels & kleurrijk','Zakelijk'],true)+
+   ta('voorbeelden','Websites die je mooi vindt',{ph:'Plak links van sites die je aanspreken, ook van concurrenten. Zeg gerust wat je er goed aan vindt.'})}},
+ {t:'Foto\'s',l:'Echte foto\'s van je zaak, je werk en je team maken het grootste verschil.',h:function(){return drop('foto','Foto\'s uploaden','Gsm-foto\'s zijn prima. Je kan er meerdere tegelijk kiezen.',true)+
+   '<div class="sum" style="margin-bottom:16px"><b style="display:block;margin-bottom:4px">Handige foto\'s</b>Je gevel of zaak · je aan het werk · voor/na-resultaten · je team · interieur · producten</div>'+
+   chk('stockok','Ik heb weinig foto\'s, gebruik gerust passende sfeerbeelden')+
+   drop('doc','Andere documenten (optioneel)','Prijslijst, folder, menukaart… (pdf of foto)',true)}},
+ {t:'Praktisch',l:'Openingsuren, sociale media en Google.',h:function(){var H=A.uren||{};return '<div class="f"><span class="lbl">Openingsuren</span><small class="hint" style="margin:-2px 0 8px">Vink de dagen aan waarop je open bent.</small><div class="hours">'+DAYS.map(function(d,i){var h=H[i]||{};return '<div class="hr" data-day="'+i+'"><label class="d"><input type="checkbox" class="dopen"'+(h.open?' checked':'')+'>'+d+'</label><div class="t'+(h.open?'':' hidden')+'"><input type="time" class="dvan" value="'+esc(h.van||'09:00')+'"><span>–</span><input type="time" class="dtot" value="'+esc(h.tot||'18:00')+'"></div><span class="cl'+(h.open?' hidden':'')+'">gesloten</span></div>'}).join('')+'</div><small class="hint">Middagpauze of andere uitzondering? Zet het hieronder.</small></div>'+
+   chk('opafspraak','Enkel op afspraak')+
+   inp('urenextra','Uitzonderingen',{ph:'bv. middagpauze 12u–13u, gesloten op feestdagen'})+
+   '<div class="row c2">'+inp('facebook','Facebook',{type:'url',ph:'link of naam van je pagina'})+inp('instagram','Instagram',{ph:'@jouwzaak'})+'</div>'+
+   inp('tiktok','TikTok of andere',{ph:'optioneel'})+
+   chips('google','Heb je een Google Bedrijfsprofiel?',['Ja','Nee','Weet ik niet'])+
+   inp('googlelink','Link naar je Google-profiel (als je die hebt)',{type:'url',ph:'https://maps.app.goo.gl/…'})}},
+ {t:'Website & domein',l:'Wat moet er op je site, en waar komt ze te staan?',h:function(){return chips('paginas','Welke onderdelen wil je? (meerdere mogelijk)',['Home','Diensten','Prijzen','Over ons','Realisaties / galerij','Reviews','Contact','Afspraak / reservatie','Webshop','Nieuws / blog','Veelgestelde vragen','Vacatures'],true)+
+   chips('talen','Talen',['Nederlands','Frans','Engels','Duits'],true)+
+   inp('huidigesite','Heb je nu al een website?',{type:'url',ph:'www.…  (leeg laten als je er geen hebt)'})+
+   chips('domein','Domeinnaam (bv. jouwzaak.be)',['Ik heb er al een','Ik heb er nog geen','Weet ik niet'])+
+   '<div class="row c2">'+inp('domeinnaam','Welke domeinnaam?',{ph:'jouwzaak.be'})+inp('registrar','Bij wie staat die?',{ph:'bv. Combell, One.com, Vimexx, Proximedia…'})+'</div>'+
+   inp('mailadressen','Welke e-mailadressen wil je?',{ph:'bv. info@jouwzaak.be, kevin@jouwzaak.be'})+
+   '<div class="warn"><b>Stuur nooit wachtwoorden via dit formulier.</b> Voor de toegang tot je domein of huidige website neem ik zelf contact op, zodat dat veilig gebeurt.</div>'}},
+ {t:'Nog iets?',l:'Laatste wensen, en dan ben je klaar.',h:function(){return ta('wensen','Extra wensen of ideeën',{ph:'Alles wat je nog kwijt wil: een slogan, iets wat zeker moet, iets wat zeker níet mag…'})+
+   inp('deadline','Is er een datum waarop de site online moet?',{ph:'bv. voor de opening op 15 november'})+
+   '<div class="sum" id="sumBox"></div>'}}
+];
+
+function render(){
+  $('#prog').innerHTML=STEPS.map(function(_,i){return '<i class="'+(i<=STEP?'on':'')+'"></i>'}).join('');
+  var s=STEPS[STEP];
+  $('#steps').innerHTML='<div class="stepno">Stap '+(STEP+1)+' van '+STEPS.length+'</div><h2>'+s.t+'</h2><p class="lead">'+s.l+'</p>'+s.h();
+  bind();renderThumbs();
+  $('#back').style.visibility=STEP?'visible':'hidden';
+  $('#next').textContent=STEP===STEPS.length-1?(STATUS==='ingediend'?'Wijzigingen versturen':'Versturen naar Marleo'):'Volgende';
+  if(STEP===STEPS.length-1)renderSum();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderSum(){var b=$('#sumBox');if(!b)return;var n=function(k){return FILES.filter(function(f){return f.kind===k}).length};
+  b.innerHTML='<b style="display:block;margin-bottom:6px">Overzicht</b>'+[['Zaak',A.bedrijf||'—'],['Logo',n('logo')?'✓ ontvangen':(A.geenlogo?'nog geen logo':'—')],['Foto\'s',n('foto')+' ontvangen'],['Openingsuren',A.opafspraak?'op afspraak':(A.uren&&Object.keys(A.uren).some(function(k){return A.uren[k].open})?'✓ ingevuld':'—')],['Onderdelen',(A.paginas||[]).length?(A.paginas||[]).join(', '):'—']].map(function(r){return '<div><span>'+r[0]+'</span><b style="text-align:right">'+esc(r[1])+'</b></div>'}).join('')}
+function bind(){
+  document.querySelectorAll('#steps [data-k]').forEach(function(el){el.addEventListener(el.type==='checkbox'||el.type==='color'?'change':'input',function(){A[el.dataset.k]=el.type==='checkbox'?el.checked:el.value.trim()==='' ? '' : el.value;touch()})});
+  document.querySelectorAll('#steps [data-chips]').forEach(function(w){var k=w.dataset.chips,m=w.dataset.multi==='1';w.addEventListener('click',function(e){var c=e.target.closest('.chip');if(!c)return;var v=c.dataset.v;
+    if(m){var a=Array.isArray(A[k])?A[k].slice():[];var i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);A[k]=a;c.classList.toggle('on')}
+    else{A[k]=A[k]===v?'':v;w.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('on',x.dataset.v===A[k])})}touch()})});
+  document.querySelectorAll('#steps [data-day]').forEach(function(v){var i=v.dataset.day;function upd(){var o=v.querySelector('.dopen').checked;v.querySelector('.t').classList.toggle('hidden',!o);v.querySelector('.cl').classList.toggle('hidden',o);A.uren=A.uren||{};A.uren[i]={open:o,van:v.querySelector('.dvan').value,tot:v.querySelector('.dtot').value};touch()}v.querySelector('.dopen').addEventListener('change',function(){if(this.checked){var H=A.uren||{},prev=null;for(var j=0;j<7;j++){if(H[j]&&H[j].open&&String(j)!==i){prev=H[j];if(j<+i)continue;break}}if(prev){v.querySelector('.dvan').value=prev.van;v.querySelector('.dtot').value=prev.tot}}});v.querySelectorAll('input').forEach(function(x){x.addEventListener('change',upd)})});
+  document.querySelectorAll('#steps [data-file]').forEach(function(f){f.addEventListener('change',function(){handleFiles(f.dataset.file,f.files);f.value=''})});
+  document.querySelectorAll('#steps [data-drop]').forEach(function(d){['dragenter','dragover'].forEach(function(ev){d.addEventListener(ev,function(e){e.preventDefault();d.classList.add('over')})});['dragleave','drop'].forEach(function(ev){d.addEventListener(ev,function(e){e.preventDefault();d.classList.remove('over')})});d.addEventListener('drop',function(e){handleFiles(d.dataset.drop,e.dataTransfer.files)})});
+}
+function touch(){dirty=true;$('#saved').textContent='…';try{localStorage.setItem('mi_'+T,JSON.stringify(A))}catch(e){}clearTimeout(saveTimer);saveTimer=setTimeout(save,1200)}
+async function save(){if(!dirty)return;dirty=false;var r=await call({action:'save',answers:A});$('#saved').textContent=r.ok?'✓ Bewaard':'Niet bewaard, probeer opnieuw';}
+
+/* ---------- uploads ---------- */
+var BUSY=0;
+function renderThumbs(){document.querySelectorAll('[data-thumbs]').forEach(function(w){var k=w.dataset.thumbs;w.innerHTML=FILES.filter(function(f){return f.kind===k}).map(function(f){var img=/^image\/(jpeg|png|webp|gif|svg)/.test(f.type)&&f.url;return '<div class="th'+(f.busy?' busy':'')+(k==='logo'?' logo':'')+'">'+(img?'<img src="'+esc(f.url)+'" alt="">':'<span>'+esc(f.name)+'</span>')+(f.busy?'':'<button class="x" type="button" data-rm="'+esc(f.path)+'" aria-label="Verwijderen">×</button>')+'</div>'}).join('');
+  w.querySelectorAll('[data-rm]').forEach(function(b){b.onclick=async function(){var p=b.dataset.rm;FILES=FILES.filter(function(f){return f.path!==p});renderThumbs();await call({action:'unfile',path:p})}})})}
+function readB64(blob){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1])};r.onerror=rej;r.readAsDataURL(blob)})}
+function shrink(file){return new Promise(function(res){if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size<900000){res(file);return}
+  var url=URL.createObjectURL(file),img=new Image();img.onload=function(){var m=2400,w=img.naturalWidth,h=img.naturalHeight,s=Math.min(1,m/Math.max(w,h));var c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  c.toBlob(function(b){URL.revokeObjectURL(url);res(b&&b.size<file.size?new File([b],file.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):file)},'image/jpeg',0.85)};img.onerror=function(){res(file)};img.src=url})}
+async function handleFiles(kind,list){
+  var arr=[].slice.call(list||[]);if(kind==='logo')arr=arr.slice(0,1);
+  for(var i=0;i<arr.length;i++){(function(file){var tmp={path:'tmp'+Math.random(),name:file.name,type:file.type,kind:kind,busy:true,url:/^image\//.test(file.type)?URL.createObjectURL(file):null};FILES.push(tmp);BUSY++;renderThumbs();
+    (async function(){try{var f=await shrink(file);var type=f.type||(/\.pdf$/i.test(file.name)?'application/pdf':/\.svg$/i.test(file.name)?'image/svg+xml':/\.hei[cf]$/i.test(file.name)?'image/heic':'');
+      if(f.size>10*1024*1024)throw new Error(file.name+' is groter dan 10 MB');
+      var r=await call({action:'upload',kind:kind,name:f.name,type:type,b64:await readB64(f)});
+      if(!r.ok)throw new Error(r.error||'Upload mislukt');
+      var i2=FILES.indexOf(tmp);r.file.url=r.file.url||tmp.url;if(i2>=0)FILES[i2]=r.file;
+    }catch(e){FILES=FILES.filter(function(x){return x!==tmp});alert(e.message||'Upload mislukt')}
+    BUSY--;renderThumbs();if(STEP===STEPS.length-1)renderSum()})()})(arr[i])}
+}
+
+/* ---------- navigatie ---------- */
+$('#back').onclick=function(){if(STEP>0){STEP--;render()}};
+$('#next').onclick=async function(){
+  if(STEP===0&&!(A.bedrijf||'').trim()){alert('Vul de naam van je zaak in.');$('#q_bedrijf').focus();return}
+  if(STEP<STEPS.length-1){save();STEP++;render();return}
+  if(BUSY){alert('Even wachten, er worden nog bestanden geüpload.');return}
+  var b=$('#next');b.disabled=true;b.textContent='Versturen…';clearTimeout(saveTimer);
+  var r=await call({action:'submit',answers:A});b.disabled=false;
+  if(!r.ok){b.textContent='Opnieuw proberen';alert(r.error||'Versturen mislukt');return}
+  STATUS='ingediend';showDone();
+};
+function showDone(){$('#nav').classList.add('hidden');$('#form').innerHTML='<div class="done"><div class="ok">✓</div><h2>Bedankt'+(A.contact?', '+esc(String(A.contact).indexOf(',')>0?String(A.contact).split(',')[1].trim().split(' ')[0]:String(A.contact).split(' ')[0]):'')+'!</h2><p class="lead" style="margin:8px auto 20px;max-width:440px">Alles is goed aangekomen. Ik ga aan de slag met je website en hou je op de hoogte. Iets vergeten? Open deze link gewoon opnieuw en vul aan.</p><button class="btn s" onclick="location.reload()">Iets aanvullen</button></div>'}
+
+/* ---------- start ---------- */
+(async function(){
+  if(!T){fatal('Deze link is niet volledig. Vraag een nieuwe link aan Giannis.');return}
+  var r=await call({action:'get'});
+  if(!r.ok){fatal(r.error||'Er ging iets mis.');return}
+  DATA=r.data||{};A=r.answers||{};FILES=r.files||[];STATUS=r.status||'open';
+  try{var loc=JSON.parse(localStorage.getItem('mi_'+T)||'null');if(loc&&Object.keys(loc).length>Object.keys(A).length)A=loc}catch(e){}
+  var pre={bedrijf:DATA.name,contact:DATA.contact,telefoon:DATA.phone,email:DATA.email,adres:DATA.address,btw:DATA.vat};
+  Object.keys(pre).forEach(function(k){if(!A[k]&&pre[k]&&!/geen gegevens/i.test(pre[k]))A[k]=pre[k]});
+  if(DATA.name){$('#hTitle').textContent='Jullie nieuwe website, '+DATA.name;}
+  $('#loading').classList.add('hidden');$('#form').classList.remove('hidden');$('#nav').classList.remove('hidden');
+  if(STATUS==='ingediend'){$('#hSub').textContent='Je hebt dit al ingestuurd, bedankt! Je kan hier nog dingen aanvullen of aanpassen.'}
+  render();
+})();
+function fatal(m){$('#loading').classList.add('hidden');var f=$('#fatal');f.classList.remove('hidden');f.innerHTML='<div class="err">'+esc(m)+'</div>'}
+window.addEventListener('beforeunload',function(){if(dirty){navigator.sendBeacon&&navigator.sendBeacon(API,new Blob([JSON.stringify({t:T,action:'save',answers:A})],{type:'text/plain'}))}});
+</script>
+</body>
+</html>
