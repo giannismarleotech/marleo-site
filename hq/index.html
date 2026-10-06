@@ -6263,6 +6263,32 @@ function wrDone(){logAct('WhatsApp-ronde: '+WR.sent+' berichten verstuurd');save
 (function(){var _rd=rDash;rDash=function(){_rd.apply(this,arguments);var c=wrCounts();if(!c.nieuw&&!c.opvolgen)return;var s=main().querySelector('.stats');if(!s||document.getElementById('wrDash'))return;
   s.insertAdjacentHTML('afterend','<div class="panelbox" id="wrDash" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>💬 WhatsApp-ronde</b><div class="hint" style="margin:2px 0 0">'+c.nieuw+' nieuwe leads klaar · '+c.opvolgen+' om op te volgen</div></div><button class="btn sm" onclick="mWaRonde()">Start</button></div>')}})();
 
+
+/* ===== Automatische WhatsApp voor warme leads (instellingen) ===== */
+var WA_TPL_LEAD='Dag {{1}}, bedankt voor je aanvraag bij Marleo! Ik heb ze goed ontvangen en neem vandaag nog contact met je op. Liever meteen iets vragen? Antwoord gewoon op dit bericht. Groeten, Giannis';
+var WA_TPL_BOEK='Dag {{1}}, je afspraak met Marleo op {{2}} om {{3}} is goed ontvangen. De bevestiging krijg je ook per mail. Moet je verzetten? Antwoord gewoon op dit bericht. Tot dan! Giannis';
+var WA_WELCOME='Dag {naam}, bedankt voor je bericht! 👋 Ik ben Giannis van Marleo. Ik antwoord zo snel mogelijk, meestal binnen het uur tijdens de werkdag. Wil je meteen een afspraak? marleo.tech/afspraak';
+function waAutoCfg(){var a=(INT.row&&INT.row.wa_auto)||{};return {lead:a.lead||{},boek:a.boek||{},welcome:a.welcome||{}}}
+function waAutoPanel(){var a=waAutoCfg();
+  function row(k,lbl,tpl,vars){var c=a[k];return '<div class="notecard" style="margin:10px 0"><label style="display:flex;gap:10px;align-items:center;font-weight:600;cursor:pointer"><input type="checkbox" id="waa_'+k+'_on"'+(c.on?' checked':'')+' style="width:18px;height:18px">'+lbl+'</label>'+
+    '<div class="frow" style="margin-top:8px"><div class="fgroup"><label>Sjabloonnaam (zoals goedgekeurd in Meta)</label><input id="waa_'+k+'_tpl" list="waa_tpls" value="'+esc(c.tpl||'')+'" placeholder="'+(k==='lead'?'marleo_aanvraag':'marleo_afspraak')+'"></div><div class="fgroup"><label>Taal</label><select id="waa_'+k+'_lang">'+['nl','nl_BE','en','fr'].map(function(l){return '<option'+((c.lang||'nl')===l?' selected':'')+'>'+l+'</option>'}).join('')+'</select></div></div>'+
+    '<div class="hint" style="margin:0">Maak in Meta een sjabloon (categorie <b>Utility</b>) met precies deze variabelen: '+vars+'. Voorbeeldtekst:</div><textarea readonly style="min-height:64px;margin-top:6px;font-size:.85rem" onclick="this.select()">'+esc(tpl)+'</textarea></div>'}
+  return '<details style="margin-top:14px" id="waAutoBox"><summary style="cursor:pointer;font-weight:600">🤖 Automatische WhatsApp voor warme leads</summary>'+
+  '<div class="hint" style="margin:8px 0">Alleen naar mensen die zelf contact opnemen en op je site <b>"Stuur me ook een bevestiging via WhatsApp"</b> aanvinken, of die jou eerst een WhatsApp sturen. Zo blijf je binnen de regels van WhatsApp en de GDPR. Werkt pas nadat de WhatsApp Cloud API hierboven ingesteld is.</div>'+
+  row('lead','Aanvraag via contactformulier → bevestiging',WA_TPL_LEAD,'{{1}} = voornaam')+
+  row('boek','Afspraak geboekt → bevestiging',WA_TPL_BOEK,'{{1}} = voornaam, {{2}} = datum (bv. "dinsdag 14 oktober"), {{3}} = uur')+
+  '<div class="notecard" style="margin:10px 0"><label style="display:flex;gap:10px;align-items:center;font-weight:600;cursor:pointer"><input type="checkbox" id="waa_w_on"'+(a.welcome.on?' checked':'')+' style="width:18px;height:18px">Iemand stuurt jou voor het eerst een WhatsApp → welkomstbericht</label>'+
+  '<div class="fgroup" style="margin-top:8px"><label>Tekst ({naam} = voornaam)</label><textarea id="waa_w_txt" style="min-height:80px">'+esc(a.welcome.text||WA_WELCOME)+'</textarea></div><div class="hint" style="margin:0">Geen sjabloon nodig: de klant stuurde zelf eerst.</div></div>'+
+  '<datalist id="waa_tpls"></datalist><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm" onclick="waAutoSave()">Opslaan</button><span class="hint" id="waa_st" style="margin:0"></span></div></details>'}
+async function waAutoSave(){var g=function(id){return document.getElementById(id)};
+  var wa={lead:{on:g('waa_lead_on').checked,tpl:g('waa_lead_tpl').value.trim(),lang:g('waa_lead_lang').value},boek:{on:g('waa_boek_on').checked,tpl:g('waa_boek_tpl').value.trim(),lang:g('waa_boek_lang').value},welcome:{on:g('waa_w_on').checked,text:g('waa_w_txt').value.trim()}};
+  if((wa.lead.on&&!wa.lead.tpl)||(wa.boek.on&&!wa.boek.tpl)){toast('Vul de sjabloonnaam in',true);return}
+  if(await intSave({wa_auto:wa})){INT.row=INT.row||{};INT.row.wa_auto=wa;toast('✅ Automatische WhatsApp opgeslagen');var s=g('waa_st');if(s)s.textContent=waCfgd()?'actief':'opgeslagen, wacht op WhatsApp Cloud API'}}
+(function(){var _rs=rSettings;rSettings=function(){_rs.apply(this,arguments);
+  function put(){var old=document.getElementById('waAutoBox');if(old)old.remove();var anchor=[].slice.call(main().querySelectorAll('details')).find(function(d){return /WhatsApp Cloud API/.test(d.textContent)});if(!anchor)return;anchor.insertAdjacentHTML('afterend',waAutoPanel());
+    if(waCfgd()&&typeof waTemplates==='function')waTemplates().then(function(ts){var dl=document.getElementById('waa_tpls');if(dl)dl.innerHTML=(ts||[]).map(function(t){return '<option value="'+esc(t.name)+'">'+esc(t.language+' · '+t.category)+'</option>'}).join('')}).catch(function(){})}
+  if(INT.loaded)put();else intLoad().then(put)}})();
+
 </script>
 </body>
 </html>

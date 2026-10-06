@@ -68,6 +68,7 @@ textarea{min-height:84px;resize:vertical}
     <div class="sum" id="sum"></div>
     <div class="row"><div><label>Naam *</label><input id="naam" name="name" autocomplete="name" required></div><div><label>Bedrijf</label><input id="bedrijf" name="org" autocomplete="organization"></div></div>
     <div class="row"><div><label>E-mail *</label><input id="email" name="email" type="email" autocomplete="email" required></div><div><label>Telefoon</label><input id="tel" name="tel" type="tel" autocomplete="tel"></div></div>
+    <label id="waoptl" style="display:flex;gap:9px;align-items:center;font-size:.9rem;cursor:pointer;margin:4px 0 10px"><input type="checkbox" id="waopt" style="width:18px;height:18px;accent-color:#25D366;flex:none;margin:0"><span>Stuur me ook een bevestiging via WhatsApp</span></label>
     <div><label>Waarover gaat het? (optioneel)</label><textarea id="msg" placeholder="bv. nieuwe website, webshop, IT-hulp…"></textarea></div>
     <input id="hp" class="hide" tabindex="-1" autocomplete="off">
     <button class="btn" id="go" type="submit">Afspraak aanvragen</button>
@@ -109,6 +110,7 @@ $('form').onsubmit=function(e){e.preventDefault();var er=$('err');er.classList.a
   .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})}).then(function(x){
     if(!x.ok||!x.j.ok){er.textContent=(MLANG==='nl'&&x.j.error)||MT('Er ging iets mis');er.classList.remove('hide');b.disabled=false;b.textContent=MT(S.cfg.auto?'Afspraak bevestigen':'Afspraak aanvragen');
       if(x.j&&/net niet meer/.test(x.j.error||'')){setTimeout(function(){location.reload()},2500)}return}
+    if($('waopt')&&$('waopt').checked&&$('tel').value.trim()){fetch('https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({optin:'boek',email:$('email').value.trim().toLowerCase(),d:x.j.d,t:x.j.t})}).catch(function(){})}
     var j=x.j,k=KINDS[j.kind]||KINDS.meet;$('flow').classList.add('hide');var dn=$('done');dn.classList.remove('hide');
     var conf=j.status==='bevestigd';
     dn.innerHTML='<div class="ic">'+(conf?'✅':'📩')+'</div><h2>'+MT(conf?'Afspraak bevestigd':'Aanvraag ontvangen')+'</h2><div class="when">'+esc(fmt(j.d))+' '+MT('om')+' '+esc(j.t)+'<br>'+k[0]+' '+k[1]+'</div><p>'+(conf?MT('Je krijgt een bevestiging per mail')+(j.kind==='meet'?' '+MT('met de Google Meet-link.'):'.'):MT('Ik bevestig je afspraak zo snel mogelijk per mail. Dit tijdstip is intussen voor jou gereserveerd.'))+'</p>'+(conf&&j.meetLink?'<a class="btn2" href="'+esc(j.meetLink)+'">📹 Google Meet</a>':'')+'<p style="margin-top:16px;font-size:.85rem">'+MT('Vragen?')+' <a href="mailto:info@marleo.tech" style="color:#FF8A2B">info@marleo.tech</a> · +32 456 92 00 25</p>';

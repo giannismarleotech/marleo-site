@@ -389,18 +389,23 @@ document.addEventListener('DOMContentLoaded', async function() {
   var MSG={nl:['Versturen…','Bedankt! We nemen snel contact op.','Er ging iets mis, probeer opnieuw of mail info@marleo.tech.'],
            en:['Sending…','Thank you! We will be in touch shortly.','Something went wrong, please try again or email info@marleo.tech.'],
            fr:['Envoi…','Merci ! Nous vous contactons rapidement.','Une erreur est survenue, réessayez ou écrivez à info@marleo.tech.']};
-  function lang(){var l=(document.documentElement.lang||'nl').slice(0,2);return MSG[l]?l:'nl'}
+  function lang(){var l='';try{l=localStorage.getItem('mlang')||window.__mlang||''}catch(e){}l=String(l||document.documentElement.lang||'nl').slice(0,2);return MSG[l]?l:'nl'}
+  var WAOPT={nl:'Stuur me ook een bevestiging via WhatsApp',en:'Also send me a confirmation on WhatsApp',fr:'Envoyez-moi aussi une confirmation sur WhatsApp'};
+  function waBox(){document.querySelectorAll('button').forEach(function(btn){var box=btn.parentElement;if(!box||!box.querySelector('textarea')||box.querySelectorAll('input:not([type=checkbox])').length<3)return;var ex=box.querySelector('.m-waopt');if(ex){var sp=ex.querySelector('span');if(sp.textContent!==WAOPT[lang()])sp.textContent=WAOPT[lang()];return}
+    var l=document.createElement('label');l.className='m-waopt';l.style.cssText='display:flex;gap:9px;align-items:center;font-size:14px;color:#cfc9d2;cursor:pointer;margin:2px 0';l.innerHTML='<input type="checkbox" style="width:18px;height:18px;accent-color:#25D366;flex:none;margin:0"><span></span>';l.querySelector('span').textContent=WAOPT[lang()];box.insertBefore(l,btn)})}
+  setInterval(waBox,700);
   document.addEventListener('click',async function(e){
     var btn=e.target.closest('button');if(!btn)return;
-    var box=btn.parentElement;if(!box||!box.querySelector('textarea')||box.querySelectorAll('input').length<3)return;
+    var box=btn.parentElement;if(!box||!box.querySelector('textarea')||box.querySelectorAll('input:not([type=checkbox])').length<3)return;
     e.preventDefault();
-    var ins=box.querySelectorAll('input'),ta=box.querySelector('textarea'),m=lang();
+    var ins=box.querySelectorAll('input:not([type=checkbox])'),wa=box.querySelector('.m-waopt input'),ta=box.querySelector('textarea'),m=lang();
     var data={naam:ins[0].value,bedrijf:(ins[1]||{}).value||'',email:(ins[2]||{}).value||'',telefoon:(ins[3]||{}).value||'',bericht:ta.value,bron:'marleo.tech'};
     if(!data.naam.trim()&&!data.email.trim()&&!data.telefoon.trim()){ins[0].focus();return}
     var orig=btn.textContent;btn.disabled=true;btn.textContent=MSG[m][0];
     var note=box.querySelector('.m-formmsg');if(!note){note=document.createElement('p');note.className='m-formmsg';note.style.cssText='margin:0;font-size:14px;color:#cfc9d2';box.appendChild(note)}
     try{var r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});var j=await r.json();
-      if(j.ok){note.textContent=MSG[m][1];ins.forEach(function(i){i.value=''});ta.value='';btn.textContent=orig;btn.disabled=false}
+      if(j.ok){if(wa&&wa.checked&&data.telefoon.trim()){fetch('https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({optin:'lead',email:data.email.trim().toLowerCase(),telefoon:data.telefoon})}).catch(function(){});wa.checked=false}
+        note.textContent=MSG[m][1];ins.forEach(function(i){i.value=''});ta.value='';btn.textContent=orig;btn.disabled=false}
       else throw new Error(j.error||'fout')}
     catch(x){note.textContent=MSG[m][2];btn.textContent=orig;btn.disabled=false}
   },true);
