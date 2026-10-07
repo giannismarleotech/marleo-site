@@ -11,7 +11,7 @@ var D={
 "← Terug naar marleo.tech":["← Back to marleo.tech","← Retour à marleo.tech"],
 "Privacy":["Privacy","Confidentialité"],"Algemene voorwaarden":["Terms and conditions","Conditions générales"],"NIS2 & AI Act":["NIS2 & AI Act","NIS2 & AI Act"],
 "E-mail:":["Email:","E-mail :"],"· Tel:":["· Phone:","· Tél. :"],"Graaf van Hoornestraat 2B, 9850 Nevele, België":["Graaf van Hoornestraat 2B, 9850 Nevele, Belgium","Graaf van Hoornestraat 2B, 9850 Nevele, Belgique"],
-"BTW BE 0751.641.419":["VAT BE 0751.641.419","TVA BE 0751.641.419"],
+"BTW BE 1041.196.713":["VAT BE 1041.196.713","TVA BE 1041.196.713"],
 /* afspraak */
 "Plan een":["Book a","Prenez"],"afspraak":["meeting","rendez-vous"],
 "Kies zelf een moment dat past. Vrijblijvend en zonder verplichting.":["Pick a time that suits you. Free and without obligation.","Choisissez le moment qui vous convient. Gratuit et sans engagement."],

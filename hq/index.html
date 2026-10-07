@@ -506,12 +506,12 @@ var ADMIN_HASH_DEFAULT="b846def1fc1f43648164cd84e24d5aea325c49643336258b6bd4f3d8
 var LS_KEY="marleo_hq_v1";var LS_OLD="marleo_crm_v2";
 var VAT_RATE=0.21;
 
-function coCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.company)DATA.settings.company={name:'Marleo',legal:'Marleo',vat:'BE 0751.641.419',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen.'};var co=DATA.settings.company;if(!co.pay)co.pay='overschrijving';if(!co.deflang)co.deflang='nl';return co}
+function coCfg(){DATA.settings=DATA.settings||{};if(!DATA.settings.company)DATA.settings.company={name:'Marleo',legal:'Marleo',vat:'BE 1041.196.713',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen.'};var co=DATA.settings.company;if(!co.pay)co.pay='overschrijving';if(!co.deflang)co.deflang='nl';return co}
 
 
 /* ============ SEED ============ */
 function seedData(){
-  return {customers:[],deals:[],invoices:[],expenses:[],tasks:[],notes:[],clients:[],appointments:[],products:[],timelogs:[],emailtemplates:[],activity:[{t:Date.now(),txt:'Welkom in Marleo HQ, koppel Airtable via Instellingen om je pipeline te laden'}],settings:{airtable:{token:'',base:'appqZHTc5zbx3hNSh',table:'tblU5dzzAenFL6qbp'},company:{name:'Marleo',legal:'Marleo',vat:'BE 0751.641.419',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen. Bij laattijdige betaling is van rechtswege en zonder ingebrekestelling een verwijlintrest verschuldigd.'}},seq:{invoice:2026001}};
+  return {customers:[],deals:[],invoices:[],expenses:[],tasks:[],notes:[],clients:[],appointments:[],products:[],timelogs:[],emailtemplates:[],activity:[{t:Date.now(),txt:'Welkom in Marleo HQ, koppel Airtable via Instellingen om je pipeline te laden'}],settings:{airtable:{token:'',base:'appqZHTc5zbx3hNSh',table:'tblU5dzzAenFL6qbp'},company:{name:'Marleo',legal:'Marleo',vat:'BE 1041.196.713',address:'',zip:'',city:'',email:'info@marleo.tech',phone:'',iban:'',bic:'',website:'marleo.tech',pay:'overschrijving',deflang:'nl',terms:'Betaling binnen 14 dagen. Bij laattijdige betaling is van rechtswege en zonder ingebrekestelling een verwijlintrest verschuldigd.'}},seq:{invoice:2026001}};
 }
 
 /* ============ STORAGE ============ */
@@ -5356,7 +5356,7 @@ function mxShell(o){var year=new Date().getFullYear();
   '<div style="font-size:15px;line-height:1.65;color:#3d3f52">'+o.intro+'</div>'+(o.card||'')+(o.after||'')+
   '</td></tr>'+
   '<tr><td style="padding:10px 32px 30px">'+(o.close===false?'':'<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#3d3f52;margin:6px 0 16px">Met vriendelijke groeten,</div>')+(typeof SIG_HTML!=='undefined'?'<div style="border-top:1px solid #ececf3;padding-top:22px;margin-top:8px">'+SIG_HTML+'</div>':'')+'</td></tr>'+
-  '<tr><td style="background:#f8f8fc;padding:16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#8a8ca0">Marleo · Graaf van Hoornestraat 2B, 9850 Nevele · BTW BE 0751.641.419<br>Je krijgt deze mail omdat je een afspraak boekte via marleo.tech. <a href="https://marleo.tech/privacy/" style="color:#8a8ca0">Privacy</a></td></tr>'+
+  '<tr><td style="background:#f8f8fc;padding:16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#8a8ca0">Marleo · Graaf van Hoornestraat 2B, 9850 Nevele · BTW BE 1041.196.713<br>Je krijgt deze mail omdat je een afspraak boekte via marleo.tech. <a href="https://marleo.tech/privacy/" style="color:#8a8ca0">Privacy</a></td></tr>'+
   '</table></td></tr></table></body></html>'}
 function mxCard(a){var wat=a.kind==='meet'?'📹 Videogesprek via Google Meet':a.kind==='tel'?'📞 Telefonisch gesprek':a.kind==='klant'?'📍 Ik kom bij je langs':'📍 Op afspraak';
   var extra=a.kind==='meet'?(a.meetLink?'<tr><td style="padding:6px 0 0;font-size:13px;color:#6a6a7e">Meet-link</td></tr><tr><td style="font-size:14px"><a href="'+mxEsc(a.meetLink)+'" style="color:#ef4056;font-weight:700;text-decoration:none">'+mxEsc(a.meetLink.replace('https://',''))+'</a></td></tr>':'<tr><td style="padding:6px 0 0;font-size:13px;color:#6a6a7e">De Meet-link stuur ik je bij de bevestiging.</td></tr>'):a.kind==='tel'?'<tr><td style="padding:6px 0 0;font-size:13px;color:#6a6a7e">Ik bel je op het nummer dat je opgaf.</td></tr>':(a.location?'<tr><td style="padding:6px 0 0;font-size:14px;color:#3d3f52">'+mxEsc(a.location)+'</td></tr>':'');
