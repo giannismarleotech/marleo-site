@@ -3,8 +3,8 @@
 @font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2);font-weight:500}
 @font-face{font-family:IN;src:url(node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2);font-weight:400}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:1080px;height:1350px;overflow:hidden;background:#1a0d14}
-.p{position:relative;width:1080px;height:1350px;overflow:hidden;color:#fff;font-family:IN;
+html,body{width:1080px;height:1920px;overflow:hidden;background:#1a0d14}
+.p{position:relative;width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:IN;
  background:radial-gradient(900px 700px at 0% 0%,rgba(120,60,15,.55),transparent 70%),radial-gradient(900px 800px at 100% 100%,rgba(140,20,80,.55),transparent 70%),linear-gradient(120deg,#2a1a10 0%,#221019 45%,#35102a 100%)}
 .gl{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:180px 180px;background-position:-30px -30px}
 .plus{position:absolute;color:rgba(255,138,43,.7);font-size:34px;font-weight:400;line-height:1}
@@ -38,7 +38,6 @@ h1{font-weight:700;font-size:84px;line-height:1.03;letter-spacing:-3px}
 const LOGO='<svg width="36" height="41" viewBox="0 0 28 32" fill="none"><defs><linearGradient id="mgx" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs><path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#mgx)" stroke-width="2"/><path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#mgx)" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const ARROW='<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 const HEX=(s)=>'<svg width="'+s+'" height="'+s+'" viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.8"><path d="M50 6 88 28v44L50 94 12 72V28z"/><path d="M50 50V6M50 50 88 72M50 50 12 72M50 50V94M50 50 12 28M50 50 88 28" stroke-opacity=".6"/></svg>';
-const CHK='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="url(#mgx)" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg>';
 const orb=(x,y,r)=>'<div class="ring" style="left:'+(x-r*1.32)+'px;top:'+(y-r*1.32)+'px;width:'+r*2.64+'px;height:'+r*2.64+'px"></div><div class="ring d" style="left:'+(x-r*1.18)+'px;top:'+(y-r*1.18)+'px;width:'+r*2.36+'px;height:'+r*2.36+'px"></div><div class="orb" style="left:'+(x-r)+'px;top:'+(y-r)+'px;width:'+r*2+'px;height:'+r*2+'px"></div><div class="abs" style="left:'+(x-r*.62)+'px;top:'+(y-r*.62)+'px">'+HEX(r*1.24)+'</div>';
 const laptop=(img,x,y,w)=>'<div class="abs laptop" style="left:'+x+'px;top:'+y+'px;width:'+w+'px"><div class="scr"><img src="shots/'+img+'"></div><div class="base"></div></div>';
 const phone=(img,x,y,w,rot)=>'<div class="abs phone" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;transform:rotate('+(rot||0)+'deg)"><img src="shots/'+img+'"></div>';
@@ -53,19 +52,17 @@ const P={
 6:()=>kase('TerraClean NB','Outdoor cleaning · Deinze · lead-generating site with quote requests','s_terraclean_d.png','s_terraclean_m.png'),
 7:()=>head('Automation','If you do it every week, <span class="g">a system should.</span>','Invoices, follow-ups, reminders, reports. We automate the repetitive work so you can focus on your clients.')+orb(540,1000,170),
 8:()=>kase('Rani Poetsservice','Cleaning service · Kortrijk region · modern site with WhatsApp contact','s_rani_d.png','s_rani_m.png'),
-15:()=>kase('Foamoré Detailing','Car detailing · Laarne · premium black &amp; gold site with before/after sliders','s_foam_d.png','s_foam_m.png'),
-12:()=>kase('Beauty Salon Elena','Hair, nails, massage &amp; yoga · Kortrijk · elegant site with online booking','s_elena_d.png','s_elena_m.png'),
-11:()=>kase('The Cleaning Company','Sofa &amp; carpet cleaning · Ghent region · site with live 3D price calculator','s_tcc_d.png','s_tcc_m.png'),
+11:()=>kase('The Cleaning Company','Sofa &amp; carpet cleaning · Ghent region · site with live 3D price calculator','s_elena_d.png','s_elena_m.png'),
 10:()=>kase('TrustTap','NFC review cards · trilingual brand site, webshop &amp; custom CRM','s_trusttap_d.png','s_trusttap_m.png'),
-13:()=>head('Google profile','Customers search. <span class="g">Does Google show you?</span>','Your free Google Business Profile is often the first thing people see, even before your website.')+'<div class="abs" style="left:110px;right:110px;top:760px;display:flex;flex-direction:column;gap:18px">'+[['Hours','always up to date'],['Photos','real and recent'],['Reviews','answered, every one']].map(r=>'<div class="chk">'+CHK+'<b>'+r[0]+'</b><span style="color:rgba(255,255,255,.75)">'+r[1]+'</span></div>').join('')+'</div>',
-14:()=>head('Backups','When did you last <span class="g">test your backup?</span>','A backup you have never restored is a hope, not a plan. Start with the 3-2-1 rule.')+'<div class="abs" style="left:110px;right:110px;top:680px;display:flex;flex-direction:column;gap:18px">'+[['3','copies of your data'],['2','different types of storage'],['1','copy off-site or in the cloud']].map(r=>'<div class="chk"><b class="g" style="font-family:IN;font-weight:700;font-size:52px;width:60px">'+r[0]+'</b><span style="color:rgba(255,255,255,.75)">'+r[1]+'</span></div>').join('')+'</div>',
 9:()=>head('Let’s talk','Have a project <span class="g">in mind?</span>','From a new website to a complete digital system. Tell us what you need, we tell you honestly how we’d approach it.')+orb(830,1000,120)+'<div class="abs" style="left:110px;width:560px;top:930px"><div class="cta"><span>Start your<br>project</span><i>'+ARROW+'</i></div></div>'
 };
-const n=+location.hash.slice(1)||1;
+
 let h='<div class="gl"></div>';
-[[50,470],[1010,560],[50,1110],[1010,1180]].forEach(([x,y])=>h+='<div class="plus" style="left:'+x+'px;top:'+y+'px">+</div>');
-h+='<div class="top"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">'+String(n).padStart(2,'0')+'</div></div>';
-h+=P[n]();
-h+='<div class="foot"><span>marleo.tech</span><span>Belgium → worldwide</span></div>';
+[[50,520],[1010,700],[50,1500],[1010,1640]].forEach(([x,y])=>h+='<div class="plus" style="left:'+x+'px;top:'+y+'px">+</div>');
+h+='<div class="top" style="top:170px"><div class="logo">'+LOGO+'<span>marleo<span class="g">.tech</span></span></div><div class="tag">NEW</div></div>';
+h+='<div class="abs" style="left:110px;right:110px;top:330px"><div class="lab">Now live · new website</div><h1 style="margin-top:22px;font-size:96px"><span class="g">Foamoré Detailing</span></h1><div class="sub" style="margin-top:26px">Car detailing, paint correction &amp; ceramic coatings in Laarne. A premium black &amp; gold website with prices, before/after sliders and quote requests.</div></div>';
+h+=laptop('s_foam_d.png',90,930,700)+phone('s_foam_m.png',640,820,330,4);
+h+='<div class="abs" style="left:110px;right:110px;top:1560px"><div class="cta" style="justify-content:center;gap:24px"><span style="letter-spacing:1px;text-transform:none;font-size:34px">foamoredetailing.be</span><i style="width:70px;height:70px">'+ARROW+'</i></div></div>';
+h+='<div class="foot" style="bottom:120px"><span>marleo.tech</span><span>Website by Marleo</span></div>';
 document.getElementById('p').innerHTML=h;
 </script></body></html>
