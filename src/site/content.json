@@ -1,0 +1,3424 @@
+{
+ "SERVICE_KEYS": [
+  "managed-it",
+  "cloud",
+  "security",
+  "ai-infrastructuur",
+  "development",
+  "webshop",
+  "websites",
+  "games",
+  "branding"
+ ],
+ "COPY": {
+  "nl": {
+   "navCta": "Afspraak maken",
+   "home": "Home",
+   "more": "Bekijk dienst",
+   "kicker": "AI-INFRASTRUCTUUR",
+   "kickerMeta": "BEHEERDE OMGEVINGEN: 2026",
+   "leftBody": "Wij bouwen de volledige AI-laag in je bedrijf: compute, data, private modellen en governance. Bovenop IT die gewoon werkt.",
+   "leftLink": "Naar AI-infrastructuur",
+   "claimA": "De gouden standaard",
+   "claimB": "voor bedrijfs-IT",
+   "claimBody": "Managed IT, cloud, security en AI-infrastructuur bij één partij. Nederlandstalige servicedesk, vaste responstijden.",
+   "offerCta": "Vraag een AI-readiness scan",
+   "servicesTitle": "IT die werkt, en alles wat er online op bouwt",
+   "servicesIntro": "De basis is IT: managed werkplekken, cloud, security en AI-infrastructuur. Daarbovenop bouwen we wat je online nodig hebt: maatwerksoftware, webshops, websites, spellen en huisstijl. Eén partij, één aanspreekpunt.",
+   "domainTeaser": "Is jouw domeinnaam nog vrij?",
+   "domainTeaserCta": "Check een domeinnaam",
+   "metrics": [
+    {
+     "value": "99,9%",
+     "label": "Uptime SLA"
+    },
+    {
+     "value": "14min",
+     "label": "Gem. responstijd"
+    },
+    {
+     "value": "1",
+     "label": "Vast aanspreekpunt"
+    },
+    {
+     "value": "3",
+     "label": "Talen: NL · EN · FR"
+    }
+   ],
+   "ctaBand": "Klaar om je IT en AI uit handen te geven?",
+   "ctaBandBody": "Een intake van 30 minuten. Geen verkooppraatje, een doorlichting van je huidige omgeving.",
+   "ctaContact": "Plan een afspraak",
+   "ctaPricing": "Bekijk prijzen",
+   "claim": "IT that just works. Van werkplek tot AI-infrastructuur.",
+   "legal": "© 2026 marleo.tech · Nevele, België · Alle rechten voorbehouden",
+   "allServices": "Alle diensten",
+   "viewSite": "Bekijk live site",
+   "navGroups": [
+    {
+     "label": "IT-beheer",
+     "keys": [
+      "managed-it",
+      "cloud",
+      "security"
+     ]
+    },
+    {
+     "label": "AI & software",
+     "keys": [
+      "ai-infrastructuur",
+      "development",
+      "games"
+     ]
+    },
+    {
+     "label": "Web & merk",
+     "keys": [
+      "websites",
+      "webshop",
+      "domeincheck",
+      "branding"
+     ]
+    },
+    {
+     "key": "prijzen",
+     "label": "Prijzen"
+    },
+    {
+     "key": "over-ons",
+     "label": "Over ons"
+    }
+   ],
+   "navDesc": {
+    "managed-it": "Werkplekken, servers en netwerk in beheer",
+    "cloud": "Microsoft 365 en Azure, migratie en beheer",
+    "security": "MFA, endpoint-detectie en NIS2",
+    "ai-infrastructuur": "Compute, data, private modellen, governance",
+    "development": "Integraties en interne tooling op maat",
+    "games": "Browser, mobiel, pc en serious games",
+    "websites": "Ontwerp, bouw, hosting en onderhoud",
+    "webshop": "Verkoop, betalingen en koppelingen",
+    "domeincheck": "Check of je domeinnaam nog vrij is",
+    "branding": "Logo, huisstijl en nieuwe merken"
+   },
+   "footer": [
+    {
+     "head": "Online & merk",
+     "keys": [
+      "websites",
+      "webshop",
+      "branding",
+      "games",
+      "development"
+     ]
+    },
+    {
+     "head": "IT & AI",
+     "keys": [
+      "ai-infrastructuur",
+      "managed-it",
+      "cloud",
+      "security"
+     ]
+    },
+    {
+     "head": "Bedrijf",
+     "keys": [
+      "diensten",
+      "projecten",
+      "over-ons",
+      "prijzen",
+      "contact"
+     ]
+    },
+    {
+     "head": "Support",
+     "keys": [
+      "support",
+      "status",
+      "sla"
+     ]
+    },
+    {
+     "head": "Juridisch",
+     "keys": [
+      "privacy",
+      "voorwaarden",
+      "nis2"
+     ]
+    }
+   ],
+   "labels": {
+    "managed-it": "Managed IT",
+    "ai-infrastructuur": "AI-infrastructuur",
+    "cloud": "Cloud",
+    "security": "Security",
+    "development": "Development",
+    "prijzen": "Prijzen",
+    "diensten": "Alle diensten",
+    "websites": "Websites",
+    "webshop": "Webshops",
+    "branding": "Huisstijl & branding",
+    "games": "Games",
+    "domeincheck": "Domeincheck",
+    "projecten": "Projecten",
+    "over-ons": "Over ons",
+    "contact": "Contact",
+    "support": "Servicedesk",
+    "status": "Statuspagina",
+    "sla": "SLA",
+    "privacy": "Privacy",
+    "voorwaarden": "Voorwaarden",
+    "nis2": "NIS2 & AI Act"
+   },
+   "pages": {
+    "diensten": {
+     "crumb": "Alle diensten",
+     "title": "Alles voor je online wereld, onder één dak",
+     "lead": "Wij beheren én bouwen je volledige digitale omgeving. De kern is IT: werkplekken, servers, cloud, security en AI-infrastructuur in beheer, met een servicedesk die opneemt. Daarbovenop maatwerksoftware, webshops, websites, spellen en huisstijl. Eén aanspreekpunt, één factuur, één partij die verantwoordelijkheid neemt.",
+     "showServiceGrid": true,
+     "serviceGridTitle": "IT eerst, daarna alles wat erop bouwt",
+     "stepsTitle": "Hoe je met ons start",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Gesprek",
+       "body": "30 minuten: wat wil je bereiken, wat staat er al, wat kan weg."
+      },
+      {
+       "n": "02",
+       "title": "Voorstel",
+       "body": "Eén document: aanpak, planning en vaste prijs per onderdeel."
+      },
+      {
+       "n": "03",
+       "title": "Bouwen",
+       "body": "Iteraties met demo's, zodat je het ziet groeien."
+      },
+      {
+       "n": "04",
+       "title": "Beheer",
+       "body": "Hosting, updates en support, of overdracht als je het zelf wil doen."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Doen jullie ook kleine opdrachten?",
+       "a": "Ja. Een nieuwe website, een logo of een domeinnaam die verhuisd moet worden, geen enkel project is te klein."
+      },
+      {
+       "q": "Kunnen jullie alles combineren?",
+       "a": "Dat is juist de bedoeling: merk, website, webshop en de IT eronder in één samenhangend geheel."
+      },
+      {
+       "q": "Werken jullie ook voor particulieren?",
+       "a": "Voor branding, websites en games wel. Managed IT en AI-infrastructuur zijn voor organisaties."
+      }
+     ]
+    },
+    "projecten": {
+     "crumb": "Projecten",
+     "title": "Werk uit eigen huis",
+     "lead": "Websites, merken en tooling die we voor echte ondernemers bouwden: van NFC-producten tot tuinaanneming en holistische praktijk. Elk project is live en in beheer.",
+     "hasProjects": true,
+     "projectsTitle": "Live projecten",
+     "credLabel": "Ook ervaring bij",
+     "credValue": "Procter & Gamble",
+     "credNote": "IT support (2024): enterprise-omgeving, servicedesk en werkplekbeheer op grote schaal.",
+     "projects": [
+      {
+       "tag": "Webshop · NFC · Drietalig",
+       "title": "TrustTap",
+       "body": "Merk en webshop voor NFC-reviewkaarten voor lokale ondernemers. Drietalig (NL · EN · FR), met productpagina's, uitlegvideo, bestelaanvraag, aparte kaart-instelpagina en juridische voorwaarden.",
+       "items": [
+        "Merk & webshop",
+        "NL/EN/FR",
+        "NFC-configuratie"
+       ],
+       "href": "https://trusttap.be"
+      },
+      {
+       "tag": "Website · Tuinaanneming",
+       "title": "Tuinen Lieven Cornelis",
+       "body": "Site voor een tuinaannemer uit Aalter: tuinontwerp, aanleg en onderhoud, met realisatiegalerij en een aanvraagformulier dat het projecttype meteen uitvraagt.",
+       "items": [
+        "Ontwerp & bouw",
+        "Realisatiegalerij",
+        "Aanvraagformulier"
+       ],
+       "href": "https://tuinenlievencornelis.be"
+      },
+      {
+       "tag": "Website · Holistische praktijk",
+       "title": "Nemetona",
+       "body": "Sfeerrijke site voor een holistische praktijk in Aalter: sessie-aanbod met duur en prijs, uitleg over de werkwijze, een volledig opleidingsoverzicht en contactformulier.",
+       "items": [
+        "Ontwerp & bouw",
+        "Aanbodstructuur",
+        "SEO & meta"
+       ],
+       "href": "https://nemetona.be"
+      },
+      {
+       "tag": "CRM · Maatwerk",
+       "title": "TrustTap CRM",
+       "body": "Eigen CRM voor TrustTap: klanten, bestellingen en de NFC-configuratie per kaart op één plek, zodat een order van aanvraag tot verzending opvolgbaar blijft.",
+       "items": [
+        "Maatwerk CRM",
+        "Orderopvolging",
+        "NFC-koppeling"
+       ],
+       "href": "https://trusttap.be"
+      },
+      {
+       "tag": "Game · Browser",
+       "title": "Fluppy Bird",
+       "body": "Eigen browsergame, volledig zelf gebouwd: physics, botsingsdetectie, score en highscores, direct speelbaar, zonder installatie.",
+       "items": [
+        "Game-logica",
+        "Physics",
+        "Highscores"
+       ],
+       "href": "https://fluppybirdburger.netlify.app/"
+      },
+      {
+       "tag": "Website · Bedrijf",
+       "title": "Terraclean",
+       "body": "Bedrijfswebsite met dienstenoverzicht en contactaanvraag, inclusief domein-, mail- en hostingconfiguratie.",
+       "items": [
+        "Website",
+        "Domein & mail",
+        "Hosting"
+       ],
+       "href": "https://terraclean.be"
+      },
+      {
+       "tag": "Website · Bedrijf",
+       "title": "Jematech",
+       "body": "Bedrijfswebsite met dienstenoverzicht en contactaanvraag, inclusief domein-, mail- en hostingconfiguratie.",
+       "items": [
+        "Website",
+        "Domein & mail",
+        "Hosting"
+       ],
+       "href": "https://jematech.be"
+      }
+     ],
+     "faqTitle": "Over dit werk",
+     "faq": [
+      {
+       "q": "Mag ik met een klant spreken?",
+       "a": "Graag. Na een intake koppelen we je aan een klant uit een vergelijkbare sector."
+      },
+      {
+       "q": "Wat doen jullie na de oplevering?",
+       "a": "Hosting, domein, mail, updates en support blijven bij ons. Of we dragen alles netjes over."
+      },
+      {
+       "q": "Kunnen jullie ook enterprise-omgevingen aan?",
+       "a": "Ja. In 2024 deed Giannis IT support bij Procter & Gamble: dezelfde discipline, alleen op grotere schaal."
+      }
+     ]
+    },
+    "websites": {
+     "crumb": "Websites",
+     "title": "Websites die snel, vindbaar en van jou zijn",
+     "hasPreview": true,
+     "previewTitle": "Zo kan jouw site eruitzien",
+     "previewNote": "Elk ontwerp wordt getekend voor desktop én telefoon, en getest op echte toestellen. Wat je hier ziet is een indicatieve weergave, jouw ontwerp volgt je eigen huisstijl.",
+     "previewLabels": [
+      "Desktop",
+      "Telefoon"
+     ],
+     "lead": "Van eenvoudige onepager tot meertalig platform. Wij ontwerpen, bouwen, hosten en onderhouden, met een beheeromgeving waarin je zelf teksten en beelden aanpast.",
+     "blocksTitle": "Wat je krijgt",
+     "blocks": [
+      {
+       "abbr": "DES",
+       "title": "Ontwerp op maat",
+       "body": "Geen template-look: het ontwerp volgt jouw huisstijl en publiek."
+      },
+      {
+       "abbr": "CMS",
+       "title": "Zelf aanpasbaar",
+       "body": "Teksten, beelden en pagina's beheer je zelf, zonder technische kennis."
+      },
+      {
+       "abbr": "SEO",
+       "title": "Vindbaar & snel",
+       "body": "Technische SEO, sitemaps, meta-data en laadtijden onder een seconde."
+      },
+      {
+       "abbr": "HST",
+       "title": "Hosting & onderhoud",
+       "body": "Hosting, SSL, back-ups en updates. Of we zetten het op jouw eigen omgeving."
+      }
+     ],
+     "stepsTitle": "Van idee naar live",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Structuur",
+       "body": "Sitemap, doelen en teksten in kaart."
+      },
+      {
+       "n": "02",
+       "title": "Ontwerp",
+       "body": "Twee richtingen in beeld, jij kiest."
+      },
+      {
+       "n": "03",
+       "title": "Bouw",
+       "body": "Responsive, meertalig en getest op echte toestellen."
+      },
+      {
+       "n": "04",
+       "title": "Live & meten",
+       "body": "Domein, analytics en een maand nazorg."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Kan de site meertalig?",
+       "a": "Ja, NL, EN en FR zijn onze standaard, andere talen zijn mogelijk."
+      },
+      {
+       "q": "Mag ik later zelf verder?",
+       "a": "Altijd. Code en toegangen zijn van jou; we documenteren de overdracht."
+      },
+      {
+       "q": "Regelen jullie de domeinnaam?",
+       "a": "Ja. Check hier eerst of je naam nog vrij is en wij doen de rest."
+      }
+     ]
+    },
+    "webshop": {
+     "crumb": "Webshops",
+     "title": "Webshops die verkopen en niet omvallen",
+     "lead": "Een webshop is geen website met een knop erbij: voorraad, betalingen, verzending en boekhouding moeten kloppen. Wij bouwen de winkel én de koppelingen eronder.",
+     "blocksTitle": "Waar het echt om gaat",
+     "blocks": [
+      {
+       "abbr": "PAY",
+       "title": "Betalingen",
+       "body": "Bancontact, kaarten, Apple Pay en facturatie, veilig en getest."
+      },
+      {
+       "abbr": "STK",
+       "title": "Voorraad & orders",
+       "body": "Koppeling met je kassa, ERP of boekhouding; geen dubbel werk."
+      },
+      {
+       "abbr": "SHP",
+       "title": "Verzending",
+       "body": "Labels, tracking en tarieven per zone automatisch berekend."
+      },
+      {
+       "abbr": "CRO",
+       "title": "Conversie",
+       "body": "Snelle checkout, duidelijke productpagina's, meetbaar verbeterd."
+      }
+     ],
+     "stepsTitle": "Aanpak",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Assortiment",
+       "body": "Producten, varianten en prijsregels in kaart."
+      },
+      {
+       "n": "02",
+       "title": "Bouw",
+       "body": "Shop, checkout en koppelingen op een testomgeving."
+      },
+      {
+       "n": "03",
+       "title": "Testorders",
+       "body": "Volledige keten getest tot in de boekhouding."
+      },
+      {
+       "n": "04",
+       "title": "Groeien",
+       "body": "Maandelijkse review op conversie en verlaten winkelwagens."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Welk platform gebruiken jullie?",
+       "a": "Shopify, WooCommerce of maatwerk, we kiezen op basis van je assortiment en koppelingen, niet op basis van gewoonte."
+      },
+      {
+       "q": "Kunnen jullie een bestaande shop overnemen?",
+       "a": "Ja, inclusief migratie van producten, klanten en SEO-redirects."
+      }
+     ]
+    },
+    "branding": {
+     "crumb": "Huisstijl & branding",
+     "title": "Een merk dat blijft hangen",
+     "lead": "Logo, kleuren, typografie en toon: vastgelegd in een huisstijlgids die je team en je leveranciers echt kunnen gebruiken. We bouwen ook complete nieuwe merken van naam tot website.",
+     "blocksTitle": "Wat we leveren",
+     "blocks": [
+      {
+       "abbr": "LOG",
+       "title": "Logo & merkteken",
+       "body": "Meerdere richtingen, uitgewerkt in alle formaten en varianten."
+      },
+      {
+       "abbr": "STL",
+       "title": "Huisstijlgids",
+       "body": "Kleuren, typografie, spacing en do's & don'ts, zwart op wit."
+      },
+      {
+       "abbr": "PRT",
+       "title": "Drukwerk",
+       "body": "Visitekaartjes, briefpapier, signage en social templates."
+      },
+      {
+       "abbr": "NAM",
+       "title": "Nieuwe merken",
+       "body": "Van naamgeving en domeincheck tot logo, website en launch."
+      }
+     ],
+     "stepsTitle": "Het traject",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Positionering",
+       "body": "Wie ben je, voor wie, en waarin verschil je."
+      },
+      {
+       "n": "02",
+       "title": "Richtingen",
+       "body": "Drie visuele richtingen, eerlijk toegelicht."
+      },
+      {
+       "n": "03",
+       "title": "Uitwerking",
+       "body": "Gekozen richting doorgetrokken naar alle dragers."
+      },
+      {
+       "n": "04",
+       "title": "Overdracht",
+       "body": "Bestanden, gids en templates in jouw beheer."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Krijgen we de bronbestanden?",
+       "a": "Ja, alle bronbestanden en volledige rechten."
+      },
+      {
+       "q": "Doen jullie ook merknaamonderzoek?",
+       "a": "We checken domeinnamen en doen een eerste screening; een merkdepot verloopt via een merkgemachtigde."
+      }
+     ]
+    },
+    "games": {
+     "crumb": "Games",
+     "title": "Spellen die mensen echt willen spelen",
+     "lead": "Van browsergame voor een campagne tot een volwaardige game op pc of mobiel. Ook serious games: opleiding, veiligheid of onboarding in spelvorm.",
+     "blocksTitle": "Wat we maken",
+     "blocks": [
+      {
+       "abbr": "WEB",
+       "title": "Browsergames",
+       "body": "Direct speelbaar op elk toestel, ideaal voor campagnes en events."
+      },
+      {
+       "abbr": "APP",
+       "title": "Mobiel & pc",
+       "body": "Native builds voor iOS, Android, Windows en Steam."
+      },
+      {
+       "abbr": "SER",
+       "title": "Serious games",
+       "body": "Opleiding, veiligheid en onboarding met meetbare resultaten."
+      },
+      {
+       "abbr": "ART",
+       "title": "Art & audio",
+       "body": "Visuele stijl, UI en geluid in lijn met je merk."
+      }
+     ],
+     "stepsTitle": "Van concept naar release",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Concept",
+       "body": "Doel, publiek en kernmechaniek op één pagina."
+      },
+      {
+       "n": "02",
+       "title": "Prototype",
+       "body": "Speelbaar binnen enkele weken, leuk of niet leuk blijkt snel."
+      },
+      {
+       "n": "03",
+       "title": "Productie",
+       "body": "Content, art en polish in korte iteraties."
+      },
+      {
+       "n": "04",
+       "title": "Release",
+       "body": "Publicatie, analytics en updates na launch."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Welke engine gebruiken jullie?",
+       "a": "Unity of web-technologie, afhankelijk van platform en budget."
+      },
+      {
+       "q": "Kan een game onze opleiding vervangen?",
+       "a": "Aanvullen vaak wel; we meten of de kennis effectief blijft hangen."
+      }
+     ]
+    },
+    "domeincheck": {
+     "crumb": "Domeincheck",
+     "title": "Check of je domeinnaam nog vrij is",
+     "lead": "Typ een naam en we kijken live of de domeinnaam al in gebruik is. Is hij vrij? Dan registreren en configureren wij hem voor je, inclusief mail, SSL en DNS.",
+     "hasDomainTool": true,
+     "blocksTitle": "En daarna",
+     "blocks": [
+      {
+       "abbr": "REG",
+       "title": "Registratie",
+       "body": "Wij registreren de naam op jouw bedrijfsnaam; jij blijft eigenaar."
+      },
+      {
+       "abbr": "DNS",
+       "title": "DNS & mail",
+       "body": "Records, mailbeveiliging (SPF, DKIM, DMARC) en SSL correct ingericht."
+      },
+      {
+       "abbr": "MOV",
+       "title": "Verhuizen",
+       "body": "Bestaande naam overzetten zonder downtime op mail of website."
+      },
+      {
+       "abbr": "BRD",
+       "title": "Merknaam",
+       "body": "Twijfel over de naam? Wij helpen kiezen en checken varianten mee."
+      }
+     ],
+     "faqTitle": "Over deze check",
+     "faq": [
+      {
+       "q": "Hoe betrouwbaar is de check?",
+       "a": "We kijken live naar de DNS-gegevens van de naam. Staat er niets, dan is de kans groot dat hij vrij is. Een geregistreerde maar ongebruikte naam kan echter ook leeg lijken. Wij bevestigen het definitief bij de registrar."
+      },
+      {
+       "q": "Welke extensies checken jullie?",
+       "a": "Typ een volledige naam met extensie, of alleen de naam; dan checken we .be, .nl, .com en .eu tegelijk."
+      },
+      {
+       "q": "Wat kost een domeinnaam?",
+       "a": "Afhankelijk van de extensie, doorgaans €15–€45 per jaar (excl. btw). We rekenen geen marge op registratie."
+      }
+     ]
+    },
+    "managed-it": {
+     "crumb": "Managed IT",
+     "title": "Managed IT die je niet meer voelt",
+     "lead": "Wij nemen het volledige beheer van werkplekken, servers en netwerk over. Monitoring, patching, licenties en een servicedesk die opneemt, voor een vaste prijs per werkplek.",
+     "blocksTitle": "Wat het beheer omvat",
+     "blocks": [
+      {
+       "abbr": "MON",
+       "title": "Monitoring 24×7",
+       "body": "Alerts op schijven, back-ups, certificaten en netwerk, voordat je gebruikers het merken."
+      },
+      {
+       "abbr": "PAT",
+       "title": "Patchbeheer",
+       "body": "Windows, macOS en third-party updates in een getest venster, met rapportage per maand."
+      },
+      {
+       "abbr": "DSK",
+       "title": "Servicedesk",
+       "body": "Eén nummer, één mailbox. NL, EN en FR, remote en on-site."
+      },
+      {
+       "abbr": "LIC",
+       "title": "Licenties & assets",
+       "body": "Actueel overzicht van hardware, licenties en garanties. Geen verrassingen bij audits."
+      }
+     ],
+     "stepsTitle": "Zo verloopt de overname",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Doorlichting",
+       "body": "Twee weken meekijken: inventaris, risico's en quick wins."
+      },
+      {
+       "n": "02",
+       "title": "Overdracht",
+       "body": "Kennisoverdracht met je huidige leverancier, toegang en documentatie."
+      },
+      {
+       "n": "03",
+       "title": "Stabilisatie",
+       "body": "Eerste 60 dagen: back-ups, patchniveau en security-baseline op orde."
+      },
+      {
+       "n": "04",
+       "title": "Beheer",
+       "body": "Vaste service-manager, kwartaalrapportage en roadmap."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Nemen jullie ook bestaande hardware over?",
+       "a": "Ja. We inventariseren wat er staat en beheren het verder; vervanging plannen we in de kwartaalroadmap."
+      },
+      {
+       "q": "Wat is de opzegtermijn?",
+       "a": "Eén maand na het eerste jaar. We willen dat je blijft omdat het werkt, niet omdat het contract je vasthoudt."
+      },
+      {
+       "q": "Werken jullie met een ticketportaal?",
+       "a": "Ja, met statuspagina en SLA-rapportage per maand."
+      }
+     ]
+    },
+    "ai-infrastructuur": {
+     "crumb": "AI-infrastructuur",
+     "title": "AI-infrastructuur: van GPU tot governance",
+     "lead": "We bouwen en beheren de volledige AI-laag binnen je bedrijf: rekencapaciteit, datapijplijnen, private modellen en de toegangscontrole eromheen. On-premise, in Azure of hybride, je data blijft binnen je eigen grenzen.",
+     "blocksTitle": "De vier lagen",
+     "blocks": [
+      {
+       "abbr": "GPU",
+       "title": "Compute & hosting",
+       "body": "GPU-servers on-premise of in Azure, capaciteitsplanning en kostenmonitoring."
+      },
+      {
+       "abbr": "DAT",
+       "title": "Data & RAG",
+       "body": "Datapijplijnen, vectoropslag en documentontsluiting op je bestaande bronnen."
+      },
+      {
+       "abbr": "MOD",
+       "title": "Private modellen",
+       "body": "Open-source of Azure OpenAI, gehost in je eigen omgeving met eigen logging."
+      },
+      {
+       "abbr": "GOV",
+       "title": "Governance & AI Act",
+       "body": "Toegangsbeleid, audittrail en documentatie richting NIS2 en de EU AI Act."
+      }
+     ],
+     "stepsTitle": "Van scan naar productie",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Readiness scan",
+       "body": "Waar zit waarde, welke data is bruikbaar, wat mag wettelijk niet."
+      },
+      {
+       "n": "02",
+       "title": "Pilot",
+       "body": "Één use case, meetbaar, binnen zes weken live voor een testgroep."
+      },
+      {
+       "n": "03",
+       "title": "Uitrol",
+       "body": "Infrastructuur, toegangsbeleid en training voor de hele organisatie."
+      },
+      {
+       "n": "04",
+       "title": "Beheer",
+       "body": "Monitoring op kosten, kwaliteit en modelversies."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Verlaat onze data het bedrijf?",
+       "a": "Niet als je dat niet wil. We hosten modellen on-premise of in je eigen Azure-tenant, met logging die jij beheert."
+      },
+      {
+       "q": "Hebben we per se GPU's nodig?",
+       "a": "Nee. Voor de meeste use cases starten we in Azure en verhuizen we pas naar eigen hardware als het volume dat rechtvaardigt."
+      },
+      {
+       "q": "Hoe zit het met de EU AI Act?",
+       "a": "We documenteren doel, data en risico per toepassing, zodat je bij een audit een dossier hebt."
+      }
+     ]
+    },
+    "cloud": {
+     "crumb": "Cloud",
+     "title": "Cloud zonder verrassingen op de factuur",
+     "lead": "Migratie naar en beheer van Microsoft 365 en Azure. Identity, back-up en kostenbeheersing in één hand, met een architectuur die je over drie jaar nog kunt uitleggen.",
+     "blocksTitle": "Waar we op letten",
+     "blocks": [
+      {
+       "abbr": "IAM",
+       "title": "Identity",
+       "body": "Entra ID, conditional access en rolgebaseerde toegang als fundament."
+      },
+      {
+       "abbr": "M365",
+       "title": "Microsoft 365",
+       "body": "Migratie van mail, bestanden en Teams, zonder downtime voor gebruikers."
+      },
+      {
+       "abbr": "BAK",
+       "title": "Back-up & recovery",
+       "body": "Getest herstel van data én configuratie, niet alleen een groene vink."
+      },
+      {
+       "abbr": "FIN",
+       "title": "Kostenbeheersing",
+       "body": "Maandelijkse review op verbruik, reservaties en ongebruikte resources."
+      }
+     ],
+     "stepsTitle": "Migratieaanpak",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Assessment",
+       "body": "Inventaris van workloads, afhankelijkheden en licenties."
+      },
+      {
+       "n": "02",
+       "title": "Landing zone",
+       "body": "Netwerk, identity en beleid vooraf ingericht."
+      },
+      {
+       "n": "03",
+       "title": "Migratie",
+       "body": "In golven per afdeling, met terugvalscenario."
+      },
+      {
+       "n": "04",
+       "title": "Optimalisatie",
+       "body": "Rightsizing en kostenreview na 30 en 90 dagen."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Moet alles naar de cloud?",
+       "a": "Nee. Hybride is vaak goedkoper en sneller; we kiezen per workload."
+      },
+      {
+       "q": "Wat met bestaande licenties?",
+       "a": "Die nemen we mee in de assessment; dubbele licenties zijn de meest voorkomende verspilling."
+      }
+     ]
+    },
+    "security": {
+     "crumb": "Security",
+     "title": "Security die je audit doorstaat",
+     "lead": "MFA, endpoint-detectie, e-mailbeveiliging en awareness-training. Ingericht volgens NIS2-verwachtingen, met documentatie die je aan een auditor of verzekeraar kunt geven.",
+     "blocksTitle": "De baseline",
+     "blocks": [
+      {
+       "abbr": "MFA",
+       "title": "Identity & MFA",
+       "body": "Sterke authenticatie, conditional access en beheer van bevoegdheden."
+      },
+      {
+       "abbr": "EDR",
+       "title": "Endpoint detectie",
+       "body": "EDR op elk toestel, met opvolging door onze servicedesk."
+      },
+      {
+       "abbr": "MAI",
+       "title": "E-mailbeveiliging",
+       "body": "SPF, DKIM, DMARC-enforcement en filtering op phishing."
+      },
+      {
+       "abbr": "AWR",
+       "title": "Awareness",
+       "body": "Phishing-simulaties en korte trainingen per kwartaal."
+      }
+     ],
+     "stepsTitle": "Van nulmeting naar aantoonbaar",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Nulmeting",
+       "body": "Technische scan plus interviews; risico's geprioriteerd op impact."
+      },
+      {
+       "n": "02",
+       "title": "Baseline",
+       "body": "Quick wins binnen 30 dagen doorgevoerd."
+      },
+      {
+       "n": "03",
+       "title": "Aantoonbaar",
+       "body": "Beleid, logging en documentatie richting NIS2."
+      },
+      {
+       "n": "04",
+       "title": "Oefenen",
+       "body": "Jaarlijkse hersteltest en incidentoefening."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Vallen wij onder NIS2?",
+       "a": "Vaak indirect, via je klanten in de keten. De nulmeting geeft daar duidelijkheid over."
+      },
+      {
+       "q": "Doen jullie ook incidentrespons?",
+       "a": "Ja, met vaste escalatiepaden en een externe forensische partner waar nodig."
+      }
+     ]
+    },
+    "development": {
+     "crumb": "Development",
+     "title": "Maatwerk dat je systemen verbindt",
+     "lead": "Integraties en interne tooling die je bestaande software aan elkaar knopen, vaak goedkoper dan een nieuw pakket, en altijd overdraagbaar gedocumenteerd.",
+     "blocksTitle": "Wat we bouwen",
+     "blocks": [
+      {
+       "abbr": "API",
+       "title": "Integraties",
+       "body": "Koppelingen tussen ERP, CRM, boekhouding en je eigen data."
+      },
+      {
+       "abbr": "APP",
+       "title": "Interne tooling",
+       "body": "Web-apps voor processen die nu in Excel leven."
+      },
+      {
+       "abbr": "AUT",
+       "title": "Automatisering",
+       "body": "Terugkerend werk weg met scripts, flows en agents."
+      },
+      {
+       "abbr": "DOC",
+       "title": "Overdraagbaar",
+       "body": "Code in jouw repo, met documentatie en tests. Geen vendor lock-in."
+      }
+     ],
+     "stepsTitle": "Werkwijze",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Sessie",
+       "body": "Halve dag proces doorlopen en vastleggen."
+      },
+      {
+       "n": "02",
+       "title": "Prototype",
+       "body": "Werkend prototype binnen twee weken."
+      },
+      {
+       "n": "03",
+       "title": "Bouw",
+       "body": "Iteraties van twee weken met demo."
+      },
+      {
+       "n": "04",
+       "title": "Overdracht",
+       "body": "Code, documentatie en beheerafspraken."
+      }
+     ],
+     "faqTitle": "Veelgestelde vragen",
+     "faq": [
+      {
+       "q": "Van wie is de code?",
+       "a": "Van jou. Wij werken in jouw repository."
+      },
+      {
+       "q": "Werken jullie op uurbasis?",
+       "a": "Op vaste sprintprijs, zodat de scope de discussie is en niet de urenstaat."
+      }
+     ]
+    },
+    "prijzen": {
+     "crumb": "Prijzen",
+     "title": "Vaste prijs per werkplek, geen verrassingen",
+     "lead": "Drie pakketten voor managed IT. AI-infrastructuur en development rekenen we per traject, de intake vertelt je binnen een week wat het kost.",
+     "priceUnit": "/ werkplek / mnd · excl. btw",
+     "planCta": "Vraag dit pakket aan",
+     "plans": [
+      {
+       "name": "Essential",
+       "for": "Tot 25 werkplekken",
+       "price": "€ 29",
+       "items": [
+        "Monitoring & patching",
+        "Servicedesk 8×5",
+        "Backup werkplekken",
+        "Maandrapportage"
+       ]
+      },
+      {
+       "name": "Managed",
+       "for": "25–150 werkplekken",
+       "price": "€ 49",
+       "featured": true,
+       "items": [
+        "Alles uit Essential",
+        "Security-baseline & MFA",
+        "Vaste service-manager",
+        "Responstijd 30 min"
+       ]
+      },
+      {
+       "name": "Managed+ AI",
+       "for": "150+ werkplekken",
+       "price": "€ 79",
+       "items": [
+        "Alles uit Managed",
+        "24×7 monitoring",
+        "AI-infra & private modellen",
+        "Kwartaalroadmap"
+       ]
+      }
+     ],
+     "faqTitle": "Over de prijzen",
+     "faq": [
+      {
+       "q": "Zit hardware in de prijs?",
+       "a": "Nee, hardware factureren we apart of via lease. De pakketprijs is beheer."
+      },
+      {
+       "q": "Wat kost een AI-traject?",
+       "a": "Een readiness scan is een vast bedrag; een pilot start doorgaans rond een maandsalaris aan interne tijd; de scan geeft de raming."
+      },
+      {
+       "q": "Zijn er opstartkosten?",
+       "a": "Eenmalige onboarding op basis van het aantal werkplekken, altijd vooraf begroot."
+      }
+     ]
+    },
+    "over-ons": {
+     "crumb": "Over ons",
+     "title": "IT die gewoon werkt, met één aanspreekpunt",
+     "lead": "Marleo.tech is een managed service provider in de Benelux. We werken voor organisaties van 20 tot 500 medewerkers die IT willen uitbesteden zonder de controle te verliezen.",
+     "blocksTitle": "Waar we voor staan",
+     "blocks": [
+      {
+       "abbr": "GB",
+       "title": "Giannis Baert, oprichter",
+       "body": "Eigenaar en oprichter van marleo.tech. Rechtstreeks bereikbaar op giannis@marleo.tech of 0456 92 00 25."
+      },
+      {
+       "abbr": "P&G",
+       "title": "Enterprise-ervaring",
+       "body": "IT support bij Procter & Gamble (2024): servicedesk en werkplekbeheer in een internationale omgeving."
+      },
+      {
+       "abbr": "01",
+       "title": "Vaste gezichten",
+       "body": "Je service-manager kent je omgeving; geen ticketloterij."
+      },
+      {
+       "abbr": "02",
+       "title": "Uitlegbaar",
+       "body": "Elke keuze is te verantwoorden aan een directie én aan een auditor."
+      },
+      {
+       "abbr": "03",
+       "title": "Geen lock-in",
+       "body": "Documentatie en code zijn van jou. Weggaan moet kunnen."
+      },
+      {
+       "abbr": "04",
+       "title": "Drietalig",
+       "body": "Servicedesk in NL, EN en FR, handig in de Benelux."
+      }
+     ],
+     "stepsTitle": "Cijfers",
+     "steps": [
+      {
+       "n": "1",
+       "title": "Vast aanspreekpunt",
+       "body": "Eén partij voor IT, cloud en web."
+      },
+      {
+       "n": "99,9%",
+       "title": "Uptime SLA",
+       "body": "Gemeten over 2025."
+      },
+      {
+       "n": "14min",
+       "title": "Responstijd",
+       "body": "Gemiddeld over alle prioriteiten."
+      },
+      {
+       "n": "3",
+       "title": "Talen",
+       "body": "NL · EN · FR."
+      }
+     ],
+     "faqTitle": "Werken bij Marleo",
+     "faq": [
+      {
+       "q": "Zoeken jullie mensen?",
+       "a": "We hebben doorlopend plek voor engineers met affiniteit voor cloud en AI-infrastructuur. Stuur een mail."
+      }
+     ]
+    },
+    "contact": {
+     "crumb": "Contact",
+     "title": "Plan een intake van 30 minuten",
+     "lead": "Geen verkooppraatje, een doorlichting van je huidige omgeving en een eerlijk advies over de eerste drie stappen.",
+     "formTitle": "Vertel wat er speelt",
+     "fields": [
+      "Naam",
+      "Bedrijf",
+      "E-mail",
+      "Telefoon"
+     ],
+     "messageLabel": "Je vraag",
+     "submit": "Verstuur aanvraag",
+     "contactRows": [
+      {
+       "label": "Telefoon",
+       "value": "0456 92 00 25",
+       "note": "Ma–vr 08:00–18:00",
+       "href": "tel:+32456920025"
+      },
+      {
+       "label": "Afspraak boeken",
+       "value": "marleo.tech/afspraak",
+       "note": "Kies zelf een moment",
+       "href": "/afspraak/"
+      },
+      {
+       "label": "E-mail",
+       "value": "info@marleo.tech",
+       "note": "Reactie binnen één werkdag",
+       "href": "mailto:info@marleo.tech"
+      },
+      {
+       "label": "Giannis Baert, oprichter",
+       "value": "giannis@marleo.tech",
+       "note": "Rechtstreeks, voor strategische vragen",
+       "href": "mailto:giannis@marleo.tech"
+      },
+      {
+       "label": "Instagram",
+       "value": "@marleo.tech",
+       "note": "instagram.com/marleo.tech",
+       "href": "https://instagram.com/marleo.tech"
+      },
+      {
+       "label": "Bedrijfsgegevens",
+       "value": "BTW BE 1041.196.713",
+       "note": "Marleo · Graaf van Hoornestraat 2B, 9850 Nevele",
+       "href": "/voorwaarden/"
+      }
+     ],
+     "faqTitle": "Wat gebeurt er na je aanvraag?",
+     "faq": [
+      {
+       "q": "Binnen één werkdag",
+       "a": "Een korte mail met twee voorstellen voor een moment."
+      },
+      {
+       "q": "Tijdens de intake",
+       "a": "30 minuten: huidige situatie, knelpunten, prioriteiten."
+      },
+      {
+       "q": "Daarna",
+       "a": "Een doorlichting op papier met drie concrete stappen. Of niets, als we geen match zijn."
+      }
+     ]
+    }
+   }
+  },
+  "en": {
+   "navCta": "Book a meeting",
+   "home": "Home",
+   "more": "View service",
+   "kicker": "AI INFRASTRUCTURE",
+   "kickerMeta": "MANAGED ENVIRONMENTS: 2026",
+   "leftBody": "We build the full AI layer inside your company: compute, data, private models and governance. On top of IT that simply works.",
+   "leftLink": "Go to AI infrastructure",
+   "claimA": "The gold standard",
+   "claimB": "for business IT",
+   "claimBody": "Managed IT, cloud, security and AI infrastructure from one partner. Local service desk, fixed response times.",
+   "offerCta": "Request an AI readiness scan",
+   "servicesTitle": "IT that works, and everything built on top of it",
+   "servicesIntro": "IT is the foundation: managed endpoints, cloud, security and AI infrastructure. On top of that we build what you need online: custom software, webshops, websites, games and brand identity. One partner, one point of contact.",
+   "domainTeaser": "Is your domain name still free?",
+   "domainTeaserCta": "Check a domain name",
+   "metrics": [
+    {
+     "value": "99.9%",
+     "label": "Uptime SLA"
+    },
+    {
+     "value": "14min",
+     "label": "Avg. response time"
+    },
+    {
+     "value": "1",
+     "label": "One point of contact"
+    },
+    {
+     "value": "3",
+     "label": "Languages: NL · EN · FR"
+    }
+   ],
+   "ctaBand": "Ready to hand over your IT and AI?",
+   "ctaBandBody": "A 30-minute intake. No sales pitch, a review of your current environment.",
+   "ctaContact": "Book a meeting",
+   "ctaPricing": "See pricing",
+   "claim": "IT that just works. From endpoint to AI infrastructure.",
+   "legal": "© 2026 marleo.tech · Nevele, Belgium · All rights reserved",
+   "allServices": "All services",
+   "viewSite": "View live site",
+   "navGroups": [
+    {
+     "label": "IT management",
+     "keys": [
+      "managed-it",
+      "cloud",
+      "security"
+     ]
+    },
+    {
+     "label": "AI & software",
+     "keys": [
+      "ai-infrastructuur",
+      "development",
+      "games"
+     ]
+    },
+    {
+     "label": "Web & brand",
+     "keys": [
+      "websites",
+      "webshop",
+      "domeincheck",
+      "branding"
+     ]
+    },
+    {
+     "key": "prijzen",
+     "label": "Pricing"
+    },
+    {
+     "key": "over-ons",
+     "label": "About"
+    }
+   ],
+   "navDesc": {
+    "managed-it": "Endpoints, servers and network managed",
+    "cloud": "Microsoft 365 and Azure, migration and management",
+    "security": "MFA, endpoint detection and NIS2",
+    "ai-infrastructuur": "Compute, data, private models, governance",
+    "development": "Custom integrations and internal tooling",
+    "games": "Browser, mobile, PC and serious games",
+    "websites": "Design, build, hosting and maintenance",
+    "webshop": "Selling, payments and integrations",
+    "domeincheck": "Check whether your domain is free",
+    "branding": "Logo, identity and new brands"
+   },
+   "footer": [
+    {
+     "head": "Online & brand",
+     "keys": [
+      "websites",
+      "webshop",
+      "branding",
+      "games",
+      "development"
+     ]
+    },
+    {
+     "head": "IT & AI",
+     "keys": [
+      "ai-infrastructuur",
+      "managed-it",
+      "cloud",
+      "security"
+     ]
+    },
+    {
+     "head": "Company",
+     "keys": [
+      "diensten",
+      "projecten",
+      "over-ons",
+      "prijzen",
+      "contact"
+     ]
+    },
+    {
+     "head": "Support",
+     "keys": [
+      "support",
+      "status",
+      "sla"
+     ]
+    },
+    {
+     "head": "Legal",
+     "keys": [
+      "privacy",
+      "voorwaarden",
+      "nis2"
+     ]
+    }
+   ],
+   "labels": {
+    "managed-it": "Managed IT",
+    "ai-infrastructuur": "AI infrastructure",
+    "cloud": "Cloud",
+    "security": "Security",
+    "development": "Development",
+    "prijzen": "Pricing",
+    "diensten": "All services",
+    "websites": "Websites",
+    "webshop": "Webshops",
+    "branding": "Branding & identity",
+    "games": "Games",
+    "domeincheck": "Domain check",
+    "projecten": "Selected work",
+    "over-ons": "About us",
+    "contact": "Contact",
+    "support": "Service desk",
+    "status": "Status page",
+    "sla": "SLA",
+    "privacy": "Privacy",
+    "voorwaarden": "Terms",
+    "nis2": "NIS2 & AI Act"
+   },
+   "pages": {
+    "diensten": {
+     "crumb": "All services",
+     "title": "Everything for your online world, under one roof",
+     "lead": "We run and build your entire digital environment. IT is the core: endpoints, servers, cloud, security and AI infrastructure under management, with a service desk that picks up. On top of that: custom software, webshops, websites, games and brand identity. One point of contact, one invoice, one party taking responsibility.",
+     "showServiceGrid": true,
+     "serviceGridTitle": "IT first, then everything built on it",
+     "stepsTitle": "How you start with us",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Conversation",
+       "body": "30 minutes: what you want to achieve, what exists, what can go."
+      },
+      {
+       "n": "02",
+       "title": "Proposal",
+       "body": "One document: approach, timeline and fixed price per part."
+      },
+      {
+       "n": "03",
+       "title": "Build",
+       "body": "Iterations with demos, so you watch it grow."
+      },
+      {
+       "n": "04",
+       "title": "Operate",
+       "body": "Hosting, updates and support, or handover if you want to run it."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Do you take small jobs?",
+       "a": "Yes. A new website, a logo or a domain that needs moving, no project is too small."
+      },
+      {
+       "q": "Can you combine everything?",
+       "a": "That is the point: brand, website, webshop and the IT underneath as one coherent whole."
+      },
+      {
+       "q": "Do you work for individuals?",
+       "a": "For branding, websites and games, yes. Managed IT and AI infrastructure are for organisations."
+      }
+     ]
+    },
+    "projecten": {
+     "crumb": "Selected work",
+     "title": "Work from our own house",
+     "lead": "Websites, brands and tooling built for real entrepreneurs: from NFC products to landscaping and a holistic practice. Every project is live and under management.",
+     "hasProjects": true,
+     "projectsTitle": "Live projects",
+     "credLabel": "Also experienced at",
+     "credValue": "Procter & Gamble",
+     "credNote": "IT support (2024): enterprise environment, service desk and endpoint management at scale.",
+     "projects": [
+      {
+       "tag": "Webshop · NFC · Trilingual",
+       "title": "TrustTap",
+       "body": "Brand and webshop for NFC review cards aimed at local businesses. Trilingual (NL · EN · FR), with product pages, an explainer video, order requests, a separate card-setup page and legal terms.",
+       "items": [
+        "Brand & webshop",
+        "NL/EN/FR",
+        "NFC configuration"
+       ],
+       "href": "https://trusttap.be"
+      },
+      {
+       "tag": "Website · Landscaping",
+       "title": "Tuinen Lieven Cornelis",
+       "body": "Site for a landscaper in Aalter: garden design, construction and maintenance, with a project gallery and a request form that asks for the project type up front.",
+       "items": [
+        "Design & build",
+        "Project gallery",
+        "Request form"
+       ],
+       "href": "https://tuinenlievencornelis.be"
+      },
+      {
+       "tag": "Website · Holistic practice",
+       "title": "Nemetona",
+       "body": "Atmospheric site for a holistic practice in Aalter: session offering with duration and price, an explanation of the approach, a full training record and a contact form.",
+       "items": [
+        "Design & build",
+        "Offer structure",
+        "SEO & meta"
+       ],
+       "href": "https://nemetona.be"
+      },
+      {
+       "tag": "CRM · Custom",
+       "title": "TrustTap CRM",
+       "body": "A custom CRM for TrustTap: customers, orders and the per-card NFC configuration in one place, so an order stays traceable from request to shipment.",
+       "items": [
+        "Custom CRM",
+        "Order tracking",
+        "NFC linking"
+       ],
+       "href": "https://trusttap.be"
+      },
+      {
+       "tag": "Game · Browser",
+       "title": "Fluppy Bird",
+       "body": "Our own browser game, built from scratch: physics, collision detection, scoring and high scores, playable instantly, no install.",
+       "items": [
+        "Game logic",
+        "Physics",
+        "High scores"
+       ],
+       "href": "https://fluppybirdburger.netlify.app/"
+      },
+      {
+       "tag": "Website · Business",
+       "title": "Terraclean",
+       "body": "Company website with a service overview and contact requests, including domain, mail and hosting configuration.",
+       "items": [
+        "Website",
+        "Domain & mail",
+        "Hosting"
+       ],
+       "href": "https://terraclean.be"
+      },
+      {
+       "tag": "Website · Business",
+       "title": "Jematech",
+       "body": "Company website with a service overview and contact requests, including domain, mail and hosting configuration.",
+       "items": [
+        "Website",
+        "Domain & mail",
+        "Hosting"
+       ],
+       "href": "https://jematech.be"
+      }
+     ],
+     "faqTitle": "About this work",
+     "faq": [
+      {
+       "q": "May I speak to a client?",
+       "a": "Gladly. After an intake we connect you with a client from a comparable sector."
+      },
+      {
+       "q": "What happens after launch?",
+       "a": "Hosting, domain, mail, updates and support stay with us. Of course we can also hand everything over cleanly."
+      },
+      {
+       "q": "Can you handle enterprise environments?",
+       "a": "Yes. In 2024 Giannis did IT support at Procter & Gamble: the same discipline, at larger scale."
+      }
+     ]
+    },
+    "websites": {
+     "crumb": "Websites",
+     "title": "Websites that are fast, findable and yours",
+     "hasPreview": true,
+     "previewTitle": "This is how your site could look",
+     "previewNote": "Every design is drawn for desktop and phone, and tested on real devices. What you see here is indicative, your design follows your own identity.",
+     "previewLabels": [
+      "Desktop",
+      "Phone"
+     ],
+     "lead": "From a simple one-pager to a multilingual platform. We design, build, host and maintain, with an admin area where you edit text and images yourself.",
+     "blocksTitle": "What you get",
+     "blocks": [
+      {
+       "abbr": "DES",
+       "title": "Custom design",
+       "body": "No template look: the design follows your identity and audience."
+      },
+      {
+       "abbr": "CMS",
+       "title": "Self-editable",
+       "body": "You manage text, images and pages without technical knowledge."
+      },
+      {
+       "abbr": "SEO",
+       "title": "Findable & fast",
+       "body": "Technical SEO, sitemaps, meta data and sub-second load times."
+      },
+      {
+       "abbr": "HST",
+       "title": "Hosting & maintenance",
+       "body": "Hosting, SSL, backups and updates. Or we deploy to your own environment."
+      }
+     ],
+     "stepsTitle": "From idea to live",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Structure",
+       "body": "Sitemap, goals and copy mapped out."
+      },
+      {
+       "n": "02",
+       "title": "Design",
+       "body": "Two directions visualised, you choose."
+      },
+      {
+       "n": "03",
+       "title": "Build",
+       "body": "Responsive, multilingual and tested on real devices."
+      },
+      {
+       "n": "04",
+       "title": "Live & measure",
+       "body": "Domain, analytics and a month of aftercare."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Can the site be multilingual?",
+       "a": "Yes, NL, EN and FR are our standard, other languages are possible."
+      },
+      {
+       "q": "Can I take over later?",
+       "a": "Always. Code and access are yours; we document the handover."
+      },
+      {
+       "q": "Do you arrange the domain?",
+       "a": "Yes. Check here whether your name is still free and we do the rest."
+      }
+     ]
+    },
+    "webshop": {
+     "crumb": "Webshops",
+     "title": "Webshops that sell and stay standing",
+     "lead": "A webshop is not a website with a button: stock, payments, shipping and accounting all have to line up. We build the store and the integrations underneath.",
+     "blocksTitle": "What really matters",
+     "blocks": [
+      {
+       "abbr": "PAY",
+       "title": "Payments",
+       "body": "Cards, Apple Pay, local methods and invoicing, secure and tested."
+      },
+      {
+       "abbr": "STK",
+       "title": "Stock & orders",
+       "body": "Integration with your POS, ERP or accounting; no double work."
+      },
+      {
+       "abbr": "SHP",
+       "title": "Shipping",
+       "body": "Labels, tracking and zone-based rates calculated automatically."
+      },
+      {
+       "abbr": "CRO",
+       "title": "Conversion",
+       "body": "Fast checkout, clear product pages, measurably improved."
+      }
+     ],
+     "stepsTitle": "Approach",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Catalogue",
+       "body": "Products, variants and pricing rules mapped."
+      },
+      {
+       "n": "02",
+       "title": "Build",
+       "body": "Shop, checkout and integrations on a staging environment."
+      },
+      {
+       "n": "03",
+       "title": "Test orders",
+       "body": "The full chain tested through to accounting."
+      },
+      {
+       "n": "04",
+       "title": "Grow",
+       "body": "Monthly review of conversion and abandoned carts."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Which platform do you use?",
+       "a": "Shopify, WooCommerce or custom, chosen on your catalogue and integrations, not on habit."
+      },
+      {
+       "q": "Can you take over an existing shop?",
+       "a": "Yes, including migration of products, customers and SEO redirects."
+      }
+     ]
+    },
+    "branding": {
+     "crumb": "Branding & identity",
+     "title": "A brand that sticks",
+     "lead": "Logo, colours, typography and tone: captured in a brand guide your team and suppliers can actually use. We also build entirely new brands, from name to website.",
+     "blocksTitle": "What we deliver",
+     "blocks": [
+      {
+       "abbr": "LOG",
+       "title": "Logo & mark",
+       "body": "Several directions, worked out in every format and variant."
+      },
+      {
+       "abbr": "STL",
+       "title": "Brand guide",
+       "body": "Colours, typography, spacing and do's & don'ts, in writing."
+      },
+      {
+       "abbr": "PRT",
+       "title": "Print",
+       "body": "Business cards, stationery, signage and social templates."
+      },
+      {
+       "abbr": "NAM",
+       "title": "New brands",
+       "body": "From naming and domain check to logo, website and launch."
+      }
+     ],
+     "stepsTitle": "The process",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Positioning",
+       "body": "Who you are, for whom, and how you differ."
+      },
+      {
+       "n": "02",
+       "title": "Directions",
+       "body": "Three visual directions, honestly explained."
+      },
+      {
+       "n": "03",
+       "title": "Execution",
+       "body": "Chosen direction applied across every carrier."
+      },
+      {
+       "n": "04",
+       "title": "Handover",
+       "body": "Files, guide and templates under your control."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Do we get the source files?",
+       "a": "Yes, all source files and full rights."
+      },
+      {
+       "q": "Do you research brand names?",
+       "a": "We check domains and do a first screening; trademark filing goes through a trademark attorney."
+      }
+     ]
+    },
+    "games": {
+     "crumb": "Games",
+     "title": "Games people actually want to play",
+     "lead": "From a browser game for a campaign to a full title on PC or mobile. Also serious games: training, safety or onboarding in game form.",
+     "blocksTitle": "What we make",
+     "blocks": [
+      {
+       "abbr": "WEB",
+       "title": "Browser games",
+       "body": "Playable instantly on any device, ideal for campaigns and events."
+      },
+      {
+       "abbr": "APP",
+       "title": "Mobile & PC",
+       "body": "Native builds for iOS, Android, Windows and Steam."
+      },
+      {
+       "abbr": "SER",
+       "title": "Serious games",
+       "body": "Training, safety and onboarding with measurable results."
+      },
+      {
+       "abbr": "ART",
+       "title": "Art & audio",
+       "body": "Visual style, UI and sound in line with your brand."
+      }
+     ],
+     "stepsTitle": "From concept to release",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Concept",
+       "body": "Goal, audience and core mechanic on one page."
+      },
+      {
+       "n": "02",
+       "title": "Prototype",
+       "body": "Playable within weeks, fun or not fun shows fast."
+      },
+      {
+       "n": "03",
+       "title": "Production",
+       "body": "Content, art and polish in short iterations."
+      },
+      {
+       "n": "04",
+       "title": "Release",
+       "body": "Publishing, analytics and post-launch updates."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Which engine do you use?",
+       "a": "Unity or web technology, depending on platform and budget."
+      },
+      {
+       "q": "Can a game replace our training?",
+       "a": "Often complement it; we measure whether the knowledge sticks."
+      }
+     ]
+    },
+    "domeincheck": {
+     "crumb": "Domain check",
+     "title": "Check whether your domain name is free",
+     "lead": "Type a name and we check live whether the domain is already in use. Free? Then we register and configure it for you, including mail, SSL and DNS.",
+     "hasDomainTool": true,
+     "blocksTitle": "And after that",
+     "blocks": [
+      {
+       "abbr": "REG",
+       "title": "Registration",
+       "body": "We register the name in your company's name; you stay the owner."
+      },
+      {
+       "abbr": "DNS",
+       "title": "DNS & mail",
+       "body": "Records, mail security (SPF, DKIM, DMARC) and SSL set up correctly."
+      },
+      {
+       "abbr": "MOV",
+       "title": "Transfer",
+       "body": "Move an existing name without downtime on mail or website."
+      },
+      {
+       "abbr": "BRD",
+       "title": "Brand name",
+       "body": "Unsure about the name? We help choose and check variants with you."
+      }
+     ],
+     "faqTitle": "About this check",
+     "faq": [
+      {
+       "q": "How reliable is the check?",
+       "a": "We look live at the domain's DNS records. If nothing is there, it is likely free. A registered but unused name can, however, also look empty. We confirm definitively with the registrar."
+      },
+      {
+       "q": "Which extensions do you check?",
+       "a": "Type a full name with extension, or just the name; then we check .be, .nl, .com and .eu at once."
+      },
+      {
+       "q": "What does a domain cost?",
+       "a": "Depending on the extension, usually €15–€45 per year (excl. VAT). We add no margin on registration."
+      }
+     ]
+    },
+    "managed-it": {
+     "crumb": "Managed IT",
+     "title": "Managed IT you stop noticing",
+     "lead": "We take over full management of endpoints, servers and network. Monitoring, patching, licences and a service desk that picks up, for a fixed price per endpoint.",
+     "blocksTitle": "What management covers",
+     "blocks": [
+      {
+       "abbr": "MON",
+       "title": "Monitoring 24×7",
+       "body": "Alerts on disks, backups, certificates and network, before your users notice."
+      },
+      {
+       "abbr": "PAT",
+       "title": "Patch management",
+       "body": "Windows, macOS and third-party updates in a tested window, reported monthly."
+      },
+      {
+       "abbr": "DSK",
+       "title": "Service desk",
+       "body": "One number, one mailbox. Dutch, English and French, remote and on-site."
+      },
+      {
+       "abbr": "LIC",
+       "title": "Licences & assets",
+       "body": "Current view of hardware, licences and warranties. No audit surprises."
+      }
+     ],
+     "stepsTitle": "How the handover works",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Review",
+       "body": "Two weeks of observation: inventory, risks and quick wins."
+      },
+      {
+       "n": "02",
+       "title": "Handover",
+       "body": "Knowledge transfer with your current provider, access and documentation."
+      },
+      {
+       "n": "03",
+       "title": "Stabilise",
+       "body": "First 60 days: backups, patch level and security baseline in order."
+      },
+      {
+       "n": "04",
+       "title": "Manage",
+       "body": "Dedicated service manager, quarterly reporting and roadmap."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Do you take over existing hardware?",
+       "a": "Yes. We inventory what is there and manage it; replacement goes into the quarterly roadmap."
+      },
+      {
+       "q": "What is the notice period?",
+       "a": "One month after the first year. We want you to stay because it works."
+      },
+      {
+       "q": "Is there a ticket portal?",
+       "a": "Yes, with a status page and monthly SLA reporting."
+      }
+     ]
+    },
+    "ai-infrastructuur": {
+     "crumb": "AI infrastructure",
+     "title": "AI infrastructure: from GPU to governance",
+     "lead": "We build and run the full AI layer inside your company: compute, data pipelines, private models and the access control around them. On-premise, in Azure or hybrid, your data stays within your own boundaries.",
+     "blocksTitle": "The four layers",
+     "blocks": [
+      {
+       "abbr": "GPU",
+       "title": "Compute & hosting",
+       "body": "GPU servers on-premise or in Azure, capacity planning and cost monitoring."
+      },
+      {
+       "abbr": "DAT",
+       "title": "Data & RAG",
+       "body": "Data pipelines, vector storage and document retrieval on your existing sources."
+      },
+      {
+       "abbr": "MOD",
+       "title": "Private models",
+       "body": "Open-source or Azure OpenAI, hosted in your own environment with your own logging."
+      },
+      {
+       "abbr": "GOV",
+       "title": "Governance & AI Act",
+       "body": "Access policy, audit trail and documentation toward NIS2 and the EU AI Act."
+      }
+     ],
+     "stepsTitle": "From scan to production",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Readiness scan",
+       "body": "Where the value sits, which data is usable, what the law forbids."
+      },
+      {
+       "n": "02",
+       "title": "Pilot",
+       "body": "One measurable use case, live for a test group within six weeks."
+      },
+      {
+       "n": "03",
+       "title": "Rollout",
+       "body": "Infrastructure, access policy and training for the whole organisation."
+      },
+      {
+       "n": "04",
+       "title": "Operate",
+       "body": "Monitoring on cost, quality and model versions."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Does our data leave the company?",
+       "a": "Not unless you want it to. We host models on-premise or in your own Azure tenant, with logging you control."
+      },
+      {
+       "q": "Do we need GPUs?",
+       "a": "No. Most use cases start in Azure; own hardware follows only when volume justifies it."
+      },
+      {
+       "q": "What about the EU AI Act?",
+       "a": "We document purpose, data and risk per application so you have a file at audit time."
+      }
+     ]
+    },
+    "cloud": {
+     "crumb": "Cloud",
+     "title": "Cloud without invoice surprises",
+     "lead": "Migration to and management of Microsoft 365 and Azure. Identity, backup and cost control in one hand, with an architecture you can still explain in three years.",
+     "blocksTitle": "What we watch",
+     "blocks": [
+      {
+       "abbr": "IAM",
+       "title": "Identity",
+       "body": "Entra ID, conditional access and role-based access as the foundation."
+      },
+      {
+       "abbr": "M365",
+       "title": "Microsoft 365",
+       "body": "Migration of mail, files and Teams, without user downtime."
+      },
+      {
+       "abbr": "BAK",
+       "title": "Backup & recovery",
+       "body": "Tested restore of data and configuration, not just a green tick."
+      },
+      {
+       "abbr": "FIN",
+       "title": "Cost control",
+       "body": "Monthly review of consumption, reservations and unused resources."
+      }
+     ],
+     "stepsTitle": "Migration approach",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Assessment",
+       "body": "Inventory of workloads, dependencies and licences."
+      },
+      {
+       "n": "02",
+       "title": "Landing zone",
+       "body": "Network, identity and policy set up first."
+      },
+      {
+       "n": "03",
+       "title": "Migration",
+       "body": "In waves per department, with a fallback plan."
+      },
+      {
+       "n": "04",
+       "title": "Optimise",
+       "body": "Rightsizing and cost review after 30 and 90 days."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Does everything move to cloud?",
+       "a": "No. Hybrid is often cheaper and faster; we choose per workload."
+      },
+      {
+       "q": "What about existing licences?",
+       "a": "They go into the assessment; duplicate licences are the most common waste."
+      }
+     ]
+    },
+    "security": {
+     "crumb": "Security",
+     "title": "Security that survives your audit",
+     "lead": "MFA, endpoint detection, email security and awareness training. Set up to NIS2 expectations, with documentation you can hand to an auditor or insurer.",
+     "blocksTitle": "The baseline",
+     "blocks": [
+      {
+       "abbr": "MFA",
+       "title": "Identity & MFA",
+       "body": "Strong authentication, conditional access and privilege management."
+      },
+      {
+       "abbr": "EDR",
+       "title": "Endpoint detection",
+       "body": "EDR on every device, followed up by our service desk."
+      },
+      {
+       "abbr": "MAI",
+       "title": "Email security",
+       "body": "SPF, DKIM, DMARC enforcement and phishing filtering."
+      },
+      {
+       "abbr": "AWR",
+       "title": "Awareness",
+       "body": "Phishing simulations and short quarterly trainings."
+      }
+     ],
+     "stepsTitle": "From baseline to provable",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Baseline scan",
+       "body": "Technical scan plus interviews; risks prioritised by impact."
+      },
+      {
+       "n": "02",
+       "title": "Quick wins",
+       "body": "Implemented within 30 days."
+      },
+      {
+       "n": "03",
+       "title": "Provable",
+       "body": "Policy, logging and documentation toward NIS2."
+      },
+      {
+       "n": "04",
+       "title": "Practise",
+       "body": "Annual restore test and incident exercise."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Are we in scope for NIS2?",
+       "a": "Often indirectly, through clients in your chain. The baseline scan clarifies it."
+      },
+      {
+       "q": "Do you do incident response?",
+       "a": "Yes, with fixed escalation paths and an external forensic partner where needed."
+      }
+     ]
+    },
+    "development": {
+     "crumb": "Development",
+     "title": "Custom work that connects your systems",
+     "lead": "Integrations and internal tooling that tie your existing software together, often cheaper than a new package, and always documented for handover.",
+     "blocksTitle": "What we build",
+     "blocks": [
+      {
+       "abbr": "API",
+       "title": "Integrations",
+       "body": "Links between ERP, CRM, accounting and your own data."
+      },
+      {
+       "abbr": "APP",
+       "title": "Internal tooling",
+       "body": "Web apps for processes that now live in Excel."
+      },
+      {
+       "abbr": "AUT",
+       "title": "Automation",
+       "body": "Repetitive work removed with scripts, flows and agents."
+      },
+      {
+       "abbr": "DOC",
+       "title": "Transferable",
+       "body": "Code in your repo, with documentation and tests. No vendor lock-in."
+      }
+     ],
+     "stepsTitle": "How we work",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Session",
+       "body": "Half a day walking through and recording the process."
+      },
+      {
+       "n": "02",
+       "title": "Prototype",
+       "body": "Working prototype within two weeks."
+      },
+      {
+       "n": "03",
+       "title": "Build",
+       "body": "Two-week iterations with a demo."
+      },
+      {
+       "n": "04",
+       "title": "Handover",
+       "body": "Code, documentation and support agreements."
+      }
+     ],
+     "faqTitle": "Frequently asked",
+     "faq": [
+      {
+       "q": "Who owns the code?",
+       "a": "You do. We work in your repository."
+      },
+      {
+       "q": "Do you bill hourly?",
+       "a": "Fixed sprint price, so scope is the discussion instead of timesheets."
+      }
+     ]
+    },
+    "prijzen": {
+     "crumb": "Pricing",
+     "title": "Fixed price per endpoint, no surprises",
+     "lead": "Three managed IT plans. AI infrastructure and development are quoted per project, the intake tells you the cost within a week.",
+     "priceUnit": "/ endpoint / month · excl. VAT",
+     "planCta": "Request this plan",
+     "plans": [
+      {
+       "name": "Essential",
+       "for": "Up to 25 endpoints",
+       "price": "€ 29",
+       "items": [
+        "Monitoring & patching",
+        "Service desk 8×5",
+        "Endpoint backup",
+        "Monthly reporting"
+       ]
+      },
+      {
+       "name": "Managed",
+       "for": "25–150 endpoints",
+       "price": "€ 49",
+       "featured": true,
+       "items": [
+        "Everything in Essential",
+        "Security baseline & MFA",
+        "Dedicated service manager",
+        "30 min response"
+       ]
+      },
+      {
+       "name": "Managed+ AI",
+       "for": "150+ endpoints",
+       "price": "€ 79",
+       "items": [
+        "Everything in Managed",
+        "24×7 monitoring",
+        "AI infra & private models",
+        "Quarterly roadmap"
+       ]
+      }
+     ],
+     "faqTitle": "About pricing",
+     "faq": [
+      {
+       "q": "Is hardware included?",
+       "a": "No, hardware is billed separately or leased. The plan price is management."
+      },
+      {
+       "q": "What does an AI project cost?",
+       "a": "A readiness scan is a fixed fee; a pilot typically starts around one month of internal time; the scan gives the estimate."
+      },
+      {
+       "q": "Are there setup costs?",
+       "a": "A one-off onboarding fee based on endpoint count, always quoted up front."
+      }
+     ]
+    },
+    "over-ons": {
+     "crumb": "About us",
+     "title": "IT that just works, with one point of contact",
+     "lead": "Marleo.tech is a managed service provider in the Benelux. We work for organisations of 20 to 500 people that want to outsource IT without losing control.",
+     "blocksTitle": "What we stand for",
+     "blocks": [
+      {
+       "abbr": "GB",
+       "title": "Giannis Baert, founder",
+       "body": "Owner and founder of marleo.tech. Reachable directly at giannis@marleo.tech or 0456 92 00 25."
+      },
+      {
+       "abbr": "P&G",
+       "title": "Enterprise experience",
+       "body": "IT support at Procter & Gamble (2024): service desk and endpoint management in an international environment."
+      },
+      {
+       "abbr": "01",
+       "title": "Familiar faces",
+       "body": "Your service manager knows your environment; no ticket lottery."
+      },
+      {
+       "abbr": "02",
+       "title": "Explainable",
+       "body": "Every choice can be justified to a board and to an auditor."
+      },
+      {
+       "abbr": "03",
+       "title": "No lock-in",
+       "body": "Documentation and code are yours. Leaving must be possible."
+      },
+      {
+       "abbr": "04",
+       "title": "Trilingual",
+       "body": "Service desk in NL, EN and FR, useful in the Benelux."
+      }
+     ],
+     "stepsTitle": "Numbers",
+     "steps": [
+      {
+       "n": "1",
+       "title": "One point of contact",
+       "body": "One partner for IT, cloud and web."
+      },
+      {
+       "n": "99.9%",
+       "title": "Uptime SLA",
+       "body": "Measured over 2025."
+      },
+      {
+       "n": "14min",
+       "title": "Response time",
+       "body": "Average across all priorities."
+      },
+      {
+       "n": "3",
+       "title": "Languages",
+       "body": "NL · EN · FR."
+      }
+     ],
+     "faqTitle": "Working at Marleo",
+     "faq": [
+      {
+       "q": "Are you hiring?",
+       "a": "We always have room for engineers with an affinity for cloud and AI infrastructure. Send us a mail."
+      }
+     ]
+    },
+    "contact": {
+     "crumb": "Contact",
+     "title": "Book a 30-minute intake",
+     "lead": "No sales pitch, a review of your current environment and honest advice on the first three steps.",
+     "formTitle": "Tell us what is going on",
+     "fields": [
+      "Name",
+      "Company",
+      "Email",
+      "Phone"
+     ],
+     "messageLabel": "Your question",
+     "submit": "Send request",
+     "contactRows": [
+      {
+       "label": "Phone",
+       "value": "0456 92 00 25",
+       "note": "Mon–Fri 08:00–18:00",
+       "href": "tel:+32456920025"
+      },
+      {
+       "label": "Book a meeting",
+       "value": "marleo.tech/afspraak",
+       "note": "Pick a time yourself",
+       "href": "/afspraak/"
+      },
+      {
+       "label": "Email",
+       "value": "info@marleo.tech",
+       "note": "Response within one working day",
+       "href": "mailto:info@marleo.tech"
+      },
+      {
+       "label": "Giannis Baert, founder",
+       "value": "giannis@marleo.tech",
+       "note": "Direct line for strategic questions",
+       "href": "mailto:giannis@marleo.tech"
+      },
+      {
+       "label": "Instagram",
+       "value": "@marleo.tech",
+       "note": "instagram.com/marleo.tech",
+       "href": "https://instagram.com/marleo.tech"
+      },
+      {
+       "label": "Company details",
+       "value": "VAT BE 1041.196.713",
+       "note": "Marleo · Graaf van Hoornestraat 2B, 9850 Nevele, Belgium",
+       "href": "/voorwaarden/"
+      }
+     ],
+     "faqTitle": "What happens after your request?",
+     "faq": [
+      {
+       "q": "Within one working day",
+       "a": "A short mail with two proposed time slots."
+      },
+      {
+       "q": "During the intake",
+       "a": "30 minutes: current situation, bottlenecks, priorities."
+      },
+      {
+       "q": "After that",
+       "a": "A written review with three concrete steps. Or nothing, if we are not a match."
+      }
+     ]
+    }
+   }
+  },
+  "fr": {
+   "navCta": "Prendre rendez-vous",
+   "home": "Accueil",
+   "more": "Voir le service",
+   "kicker": "INFRASTRUCTURE IA",
+   "kickerMeta": "ENVIRONNEMENTS GÉRÉS : 2026",
+   "leftBody": "Nous construisons toute la couche IA de votre entreprise : calcul, données, modèles privés et gouvernance. Sur une IT qui fonctionne.",
+   "leftLink": "Vers l'infrastructure IA",
+   "claimA": "La référence",
+   "claimB": "pour l'IT d'entreprise",
+   "claimBody": "IT gérée, cloud, sécurité et infrastructure IA chez un seul partenaire. Service desk local, temps de réponse fixes.",
+   "offerCta": "Demander un scan de maturité IA",
+   "servicesTitle": "Une IT qui fonctionne, et tout ce qui se construit dessus",
+   "servicesIntro": "L'IT est la base : postes gérés, cloud, sécurité et infrastructure IA. Par-dessus, nous construisons ce dont vous avez besoin en ligne : logiciels sur mesure, boutiques, sites web, jeux et identité visuelle. Un partenaire, un interlocuteur.",
+   "domainTeaser": "Votre nom de domaine est-il encore libre ?",
+   "domainTeaserCta": "Vérifier un nom de domaine",
+   "metrics": [
+    {
+     "value": "99,9 %",
+     "label": "SLA de disponibilité"
+    },
+    {
+     "value": "14min",
+     "label": "Temps de réponse moyen"
+    },
+    {
+     "value": "1",
+     "label": "Un seul interlocuteur"
+    },
+    {
+     "value": "3",
+     "label": "Langues : NL · EN · FR"
+    }
+   ],
+   "ctaBand": "Prêt à confier votre IT et votre IA ?",
+   "ctaBandBody": "Un entretien de 30 minutes. Sans argumentaire, un état des lieux de votre environnement.",
+   "ctaContact": "Prendre rendez-vous",
+   "ctaPricing": "Voir les tarifs",
+   "claim": "L'IT qui fonctionne. Du poste de travail à l'infrastructure IA.",
+   "legal": "© 2026 marleo.tech · Nevele, Belgique · Tous droits réservés",
+   "allServices": "Tous les services",
+   "viewSite": "Voir le site",
+   "navGroups": [
+    {
+     "label": "Gestion IT",
+     "keys": [
+      "managed-it",
+      "cloud",
+      "security"
+     ]
+    },
+    {
+     "label": "IA & logiciels",
+     "keys": [
+      "ai-infrastructuur",
+      "development",
+      "games"
+     ]
+    },
+    {
+     "label": "Web & marque",
+     "keys": [
+      "websites",
+      "webshop",
+      "domeincheck",
+      "branding"
+     ]
+    },
+    {
+     "key": "prijzen",
+     "label": "Tarifs"
+    },
+    {
+     "key": "over-ons",
+     "label": "À propos"
+    }
+   ],
+   "navDesc": {
+    "managed-it": "Postes, serveurs et réseau gérés",
+    "cloud": "Microsoft 365 et Azure, migration et gestion",
+    "security": "MFA, détection endpoint et NIS2",
+    "ai-infrastructuur": "Calcul, données, modèles privés, gouvernance",
+    "development": "Intégrations et outils internes sur mesure",
+    "games": "Navigateur, mobile, PC et serious games",
+    "websites": "Design, développement, hébergement et entretien",
+    "webshop": "Vente, paiements et intégrations",
+    "domeincheck": "Vérifiez si votre domaine est libre",
+    "branding": "Logo, identité et nouvelles marques"
+   },
+   "footer": [
+    {
+     "head": "En ligne & marque",
+     "keys": [
+      "websites",
+      "webshop",
+      "branding",
+      "games",
+      "development"
+     ]
+    },
+    {
+     "head": "IT & IA",
+     "keys": [
+      "ai-infrastructuur",
+      "managed-it",
+      "cloud",
+      "security"
+     ]
+    },
+    {
+     "head": "Entreprise",
+     "keys": [
+      "diensten",
+      "projecten",
+      "over-ons",
+      "prijzen",
+      "contact"
+     ]
+    },
+    {
+     "head": "Support",
+     "keys": [
+      "support",
+      "status",
+      "sla"
+     ]
+    },
+    {
+     "head": "Juridique",
+     "keys": [
+      "privacy",
+      "voorwaarden",
+      "nis2"
+     ]
+    }
+   ],
+   "labels": {
+    "managed-it": "IT gérée",
+    "ai-infrastructuur": "Infrastructure IA",
+    "cloud": "Cloud",
+    "security": "Sécurité",
+    "development": "Développement",
+    "prijzen": "Tarifs",
+    "diensten": "Tous les services",
+    "websites": "Sites web",
+    "webshop": "Boutiques en ligne",
+    "branding": "Identité visuelle",
+    "games": "Jeux",
+    "domeincheck": "Nom de domaine",
+    "projecten": "Projets",
+    "over-ons": "À propos",
+    "contact": "Contact",
+    "support": "Service desk",
+    "status": "Page de statut",
+    "sla": "SLA",
+    "privacy": "Confidentialité",
+    "voorwaarden": "Conditions",
+    "nis2": "NIS2 & AI Act"
+   },
+   "pages": {
+    "diensten": {
+     "crumb": "Tous les services",
+     "title": "Tout votre univers en ligne, sous un même toit",
+     "lead": "Nous gérons et construisons tout votre environnement numérique. L'IT est le cœur : postes, serveurs, cloud, sécurité et infrastructure IA sous gestion, avec un service desk qui répond. Par-dessus : logiciels sur mesure, boutiques, sites web, jeux et identité visuelle. Un interlocuteur, une facture, un partenaire responsable.",
+     "showServiceGrid": true,
+     "serviceGridTitle": "L'IT d'abord, puis tout ce qui s'y construit",
+     "stepsTitle": "Comment démarrer",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Entretien",
+       "body": "30 minutes : vos objectifs, l'existant, ce qui peut disparaître."
+      },
+      {
+       "n": "02",
+       "title": "Proposition",
+       "body": "Un document : approche, planning et prix fixe par volet."
+      },
+      {
+       "n": "03",
+       "title": "Réalisation",
+       "body": "Des itérations avec démos, pour voir le projet grandir."
+      },
+      {
+       "n": "04",
+       "title": "Gestion",
+       "body": "Hébergement, mises à jour et support, ou reprise si vous préférez."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Acceptez-vous les petits projets ?",
+       "a": "Oui. Un nouveau site, un logo ou un domaine à transférer, aucun projet n'est trop petit."
+      },
+      {
+       "q": "Pouvez-vous tout combiner ?",
+       "a": "C'est justement l'idée : marque, site, boutique et l'IT en dessous, en un ensemble cohérent."
+      },
+      {
+       "q": "Travaillez-vous pour les particuliers ?",
+       "a": "Pour l'identité, les sites et les jeux, oui. L'IT gérée et l'infra IA sont pour les organisations."
+      }
+     ]
+    },
+    "projecten": {
+     "crumb": "Projets",
+     "title": "Des réalisations maison",
+     "lead": "Des sites, des marques et des outils réalisés pour de véritables entrepreneurs : des produits NFC à l'aménagement de jardins et à une pratique holistique. Chaque projet est en ligne et sous gestion.",
+     "hasProjects": true,
+     "projectsTitle": "Projets en ligne",
+     "credLabel": "Également expérimenté chez",
+     "credValue": "Procter & Gamble",
+     "credNote": "Support IT (2024) : environnement d'entreprise, service desk et gestion des postes à grande échelle.",
+     "projects": [
+      {
+       "tag": "Boutique · NFC · Trilingue",
+       "title": "TrustTap",
+       "body": "Marque et boutique en ligne de cartes d'avis NFC pour commerces locaux. Trilingue (NL · EN · FR), avec fiches produits, vidéo explicative, demandes de commande, page de configuration et conditions générales.",
+       "items": [
+        "Marque & boutique",
+        "NL/EN/FR",
+        "Configuration NFC"
+       ],
+       "href": "https://trusttap.be"
+      },
+      {
+       "tag": "Site web · Jardins",
+       "title": "Tuinen Lieven Cornelis",
+       "body": "Site pour un entrepreneur de jardins à Aalter : conception, aménagement et entretien, avec galerie de réalisations et formulaire qui demande d'emblée le type de projet.",
+       "items": [
+        "Design & développement",
+        "Galerie",
+        "Formulaire"
+       ],
+       "href": "https://tuinenlievencornelis.be"
+      },
+      {
+       "tag": "Site web · Pratique holistique",
+       "title": "Nemetona",
+       "body": "Site d'atmosphère pour une pratique holistique à Aalter : offre de séances avec durée et prix, explication de la méthode, parcours de formation complet et formulaire de contact.",
+       "items": [
+        "Design & développement",
+        "Structure de l'offre",
+        "SEO & méta"
+       ],
+       "href": "https://nemetona.be"
+      },
+      {
+       "tag": "CRM · Sur mesure",
+       "title": "CRM TrustTap",
+       "body": "Un CRM sur mesure pour TrustTap : clients, commandes et configuration NFC par carte au même endroit, pour suivre une commande de la demande à l'expédition.",
+       "items": [
+        "CRM sur mesure",
+        "Suivi des commandes",
+        "Liaison NFC"
+       ],
+       "href": "https://trusttap.be"
+      },
+      {
+       "tag": "Jeu · Navigateur",
+       "title": "Fluppy Bird",
+       "body": "Notre propre jeu navigateur, développé de zéro : physique, détection de collisions, score et meilleurs scores, jouable sans installation.",
+       "items": [
+        "Logique de jeu",
+        "Physique",
+        "Meilleurs scores"
+       ],
+       "href": "https://fluppybirdburger.netlify.app/"
+      },
+      {
+       "tag": "Site web · Entreprise",
+       "title": "Terraclean",
+       "body": "Site d'entreprise avec aperçu des services et demandes de contact, y compris la configuration du domaine, du mail et de l'hébergement.",
+       "items": [
+        "Site web",
+        "Domaine & mail",
+        "Hébergement"
+       ],
+       "href": "https://terraclean.be"
+      },
+      {
+       "tag": "Site web · Entreprise",
+       "title": "Jematech",
+       "body": "Site d'entreprise avec aperçu des services et demandes de contact, y compris la configuration du domaine, du mail et de l'hébergement.",
+       "items": [
+        "Site web",
+        "Domaine & mail",
+        "Hébergement"
+       ],
+       "href": "https://jematech.be"
+      }
+     ],
+     "faqTitle": "À propos de ces réalisations",
+     "faq": [
+      {
+       "q": "Puis-je parler à un client ?",
+       "a": "Volontiers. Après un entretien, nous vous mettons en contact avec un client d'un secteur comparable."
+      },
+      {
+       "q": "Que se passe-t-il après la mise en ligne ?",
+       "a": "Hébergement, domaine, mail, mises à jour et support restent chez nous. Ou nous transférons tout proprement."
+      },
+      {
+       "q": "Gérez-vous des environnements d'entreprise ?",
+       "a": "Oui. En 2024, Giannis a assuré le support IT chez Procter & Gamble : la même rigueur, à plus grande échelle."
+      }
+     ]
+    },
+    "websites": {
+     "crumb": "Sites web",
+     "title": "Des sites rapides, visibles et qui vous appartiennent",
+     "hasPreview": true,
+     "previewTitle": "Voilà à quoi votre site peut ressembler",
+     "previewNote": "Chaque design est pensé pour le desktop et le mobile, et testé sur de vrais appareils. Cet aperçu est indicatif, votre design suivra votre identité.",
+     "previewLabels": [
+      "Desktop",
+      "Mobile"
+     ],
+     "lead": "De la page unique à la plateforme multilingue. Nous concevons, développons, hébergeons et entretenons, avec une interface où vous modifiez vous-même textes et images.",
+     "blocksTitle": "Ce que vous obtenez",
+     "blocks": [
+      {
+       "abbr": "DES",
+       "title": "Design sur mesure",
+       "body": "Pas d'allure de template : le design suit votre identité et votre public."
+      },
+      {
+       "abbr": "CMS",
+       "title": "Modifiable par vous",
+       "body": "Textes, images et pages gérés sans connaissances techniques."
+      },
+      {
+       "abbr": "SEO",
+       "title": "Visible & rapide",
+       "body": "SEO technique, sitemaps, métadonnées et chargement sous la seconde."
+      },
+      {
+       "abbr": "HST",
+       "title": "Hébergement & entretien",
+       "body": "Hébergement, SSL, sauvegardes et mises à jour, ou déploiement chez vous."
+      }
+     ],
+     "stepsTitle": "De l'idée à la mise en ligne",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Structure",
+       "body": "Arborescence, objectifs et contenus cartographiés."
+      },
+      {
+       "n": "02",
+       "title": "Design",
+       "body": "Deux directions visualisées, vous choisissez."
+      },
+      {
+       "n": "03",
+       "title": "Développement",
+       "body": "Responsive, multilingue et testé sur de vrais appareils."
+      },
+      {
+       "n": "04",
+       "title": "En ligne & mesures",
+       "body": "Domaine, analytics et un mois de suivi."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Le site peut-il être multilingue ?",
+       "a": "Oui, NL, EN et FR sont notre standard, d'autres langues sont possibles."
+      },
+      {
+       "q": "Puis-je reprendre la main plus tard ?",
+       "a": "Toujours. Le code et les accès vous appartiennent ; la reprise est documentée."
+      },
+      {
+       "q": "Gérez-vous le nom de domaine ?",
+       "a": "Oui. Vérifiez ici s'il est libre et nous faisons le reste."
+      }
+     ]
+    },
+    "webshop": {
+     "crumb": "Boutiques en ligne",
+     "title": "Des boutiques qui vendent et qui tiennent",
+     "lead": "Une boutique n'est pas un site avec un bouton : stock, paiements, expédition et comptabilité doivent s'aligner. Nous construisons la boutique et les intégrations en dessous.",
+     "blocksTitle": "L'essentiel",
+     "blocks": [
+      {
+       "abbr": "PAY",
+       "title": "Paiements",
+       "body": "Bancontact, cartes, Apple Pay et facturation, sécurisés et testés."
+      },
+      {
+       "abbr": "STK",
+       "title": "Stock & commandes",
+       "body": "Intégration avec votre caisse, ERP ou comptabilité ; pas de double saisie."
+      },
+      {
+       "abbr": "SHP",
+       "title": "Expédition",
+       "body": "Étiquettes, suivi et tarifs par zone calculés automatiquement."
+      },
+      {
+       "abbr": "CRO",
+       "title": "Conversion",
+       "body": "Checkout rapide, fiches produits claires, amélioration mesurable."
+      }
+     ],
+     "stepsTitle": "Approche",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Catalogue",
+       "body": "Produits, variantes et règles de prix cartographiés."
+      },
+      {
+       "n": "02",
+       "title": "Développement",
+       "body": "Boutique, checkout et intégrations sur un environnement de test."
+      },
+      {
+       "n": "03",
+       "title": "Commandes test",
+       "body": "Toute la chaîne testée jusqu'à la comptabilité."
+      },
+      {
+       "n": "04",
+       "title": "Croissance",
+       "body": "Revue mensuelle de la conversion et des paniers abandonnés."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Quelle plateforme utilisez-vous ?",
+       "a": "Shopify, WooCommerce ou du sur-mesure, choisi selon votre catalogue, pas par habitude."
+      },
+      {
+       "q": "Pouvez-vous reprendre une boutique existante ?",
+       "a": "Oui, migration des produits, clients et redirections SEO incluse."
+      }
+     ]
+    },
+    "branding": {
+     "crumb": "Identité visuelle",
+     "title": "Une marque qui marque",
+     "lead": "Logo, couleurs, typographie et ton : réunis dans une charte que votre équipe et vos fournisseurs peuvent vraiment utiliser. Nous créons aussi des marques entières, du nom au site.",
+     "blocksTitle": "Ce que nous livrons",
+     "blocks": [
+      {
+       "abbr": "LOG",
+       "title": "Logo & symbole",
+       "body": "Plusieurs directions, déclinées dans tous les formats."
+      },
+      {
+       "abbr": "STL",
+       "title": "Charte graphique",
+       "body": "Couleurs, typographie, espacements et à faire / à éviter."
+      },
+      {
+       "abbr": "PRT",
+       "title": "Imprimés",
+       "body": "Cartes de visite, papeterie, signalétique et gabarits sociaux."
+      },
+      {
+       "abbr": "NAM",
+       "title": "Nouvelles marques",
+       "body": "Du nom et de la vérification de domaine au logo, au site et au lancement."
+      }
+     ],
+     "stepsTitle": "Le parcours",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Positionnement",
+       "body": "Qui vous êtes, pour qui, et ce qui vous distingue."
+      },
+      {
+       "n": "02",
+       "title": "Directions",
+       "body": "Trois directions visuelles, expliquées honnêtement."
+      },
+      {
+       "n": "03",
+       "title": "Déclinaison",
+       "body": "La direction retenue appliquée à tous les supports."
+      },
+      {
+       "n": "04",
+       "title": "Reprise",
+       "body": "Fichiers, charte et gabarits sous votre contrôle."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Recevons-nous les fichiers sources ?",
+       "a": "Oui, tous les fichiers sources et les droits complets."
+      },
+      {
+       "q": "Faites-vous la recherche de nom ?",
+       "a": "Nous vérifions les domaines et faisons un premier filtrage ; le dépôt de marque passe par un mandataire."
+      }
+     ]
+    },
+    "games": {
+     "crumb": "Jeux",
+     "title": "Des jeux auxquels on veut vraiment jouer",
+     "lead": "Du jeu navigateur pour une campagne au titre complet sur PC ou mobile. Aussi des serious games : formation, sécurité ou intégration sous forme de jeu.",
+     "blocksTitle": "Ce que nous créons",
+     "blocks": [
+      {
+       "abbr": "WEB",
+       "title": "Jeux navigateur",
+       "body": "Jouables immédiatement sur tout appareil, idéal pour campagnes et événements."
+      },
+      {
+       "abbr": "APP",
+       "title": "Mobile & PC",
+       "body": "Builds natifs pour iOS, Android, Windows et Steam."
+      },
+      {
+       "abbr": "SER",
+       "title": "Serious games",
+       "body": "Formation, sécurité et intégration avec des résultats mesurables."
+      },
+      {
+       "abbr": "ART",
+       "title": "Art & audio",
+       "body": "Style visuel, UI et son alignés sur votre marque."
+      }
+     ],
+     "stepsTitle": "Du concept à la sortie",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Concept",
+       "body": "Objectif, public et mécanique principale sur une page."
+      },
+      {
+       "n": "02",
+       "title": "Prototype",
+       "body": "Jouable en quelques semaines, l'amusement se voit vite."
+      },
+      {
+       "n": "03",
+       "title": "Production",
+       "body": "Contenu, art et finition en itérations courtes."
+      },
+      {
+       "n": "04",
+       "title": "Sortie",
+       "body": "Publication, analytics et mises à jour post-lancement."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Quel moteur utilisez-vous ?",
+       "a": "Unity ou technologies web, selon la plateforme et le budget."
+      },
+      {
+       "q": "Un jeu peut-il remplacer notre formation ?",
+       "a": "Souvent la compléter ; nous mesurons si les connaissances restent."
+      }
+     ]
+    },
+    "domeincheck": {
+     "crumb": "Nom de domaine",
+     "title": "Vérifiez si votre nom de domaine est libre",
+     "lead": "Tapez un nom et nous vérifions en direct si le domaine est déjà utilisé. Libre ? Nous l'enregistrons et le configurons pour vous, mail, SSL et DNS inclus.",
+     "hasDomainTool": true,
+     "blocksTitle": "Et ensuite",
+     "blocks": [
+      {
+       "abbr": "REG",
+       "title": "Enregistrement",
+       "body": "Nous enregistrons le nom au nom de votre société ; vous restez propriétaire."
+      },
+      {
+       "abbr": "DNS",
+       "title": "DNS & mail",
+       "body": "Enregistrements, sécurité mail (SPF, DKIM, DMARC) et SSL correctement configurés."
+      },
+      {
+       "abbr": "MOV",
+       "title": "Transfert",
+       "body": "Transférer un nom existant sans interruption du mail ou du site."
+      },
+      {
+       "abbr": "BRD",
+       "title": "Nom de marque",
+       "body": "Un doute sur le nom ? Nous aidons à choisir et vérifions les variantes."
+      }
+     ],
+     "faqTitle": "À propos de cette vérification",
+     "faq": [
+      {
+       "q": "Cette vérification est-elle fiable ?",
+       "a": "Nous consultons en direct les enregistrements DNS. S'il n'y a rien, le nom est probablement libre. Un nom enregistré et inutilisé peut toutefois paraître vide. Nous confirmons définitivement auprès du registrar."
+      },
+      {
+       "q": "Quelles extensions vérifiez-vous ?",
+       "a": "Tapez un nom complet avec extension, ou seulement le nom ; nous vérifions alors .be, .nl, .com et .eu ensemble."
+      },
+      {
+       "q": "Combien coûte un domaine ?",
+       "a": "Selon l'extension, généralement 15 à 45 € par an (HTVA). Nous ne prenons pas de marge sur l'enregistrement."
+      }
+     ]
+    },
+    "managed-it": {
+     "crumb": "IT gérée",
+     "title": "Une IT gérée que vous ne sentez plus",
+     "lead": "Nous prenons en charge la gestion complète des postes, serveurs et réseau. Surveillance, correctifs, licences et un service desk qui répond, à prix fixe par poste.",
+     "blocksTitle": "Ce que la gestion couvre",
+     "blocks": [
+      {
+       "abbr": "MON",
+       "title": "Surveillance 24×7",
+       "body": "Alertes sur disques, sauvegardes, certificats et réseau, avant vos utilisateurs."
+      },
+      {
+       "abbr": "PAT",
+       "title": "Gestion des correctifs",
+       "body": "Windows, macOS et tiers dans une fenêtre testée, avec rapport mensuel."
+      },
+      {
+       "abbr": "DSK",
+       "title": "Service desk",
+       "body": "Un numéro, une boîte. NL, EN et FR, à distance et sur site."
+      },
+      {
+       "abbr": "LIC",
+       "title": "Licences & actifs",
+       "body": "Vue à jour du matériel, des licences et des garanties. Aucune surprise en audit."
+      }
+     ],
+     "stepsTitle": "Le déroulé de la reprise",
+     "steps": [
+      {
+       "n": "01",
+       "title": "État des lieux",
+       "body": "Deux semaines d'observation : inventaire, risques et gains rapides."
+      },
+      {
+       "n": "02",
+       "title": "Transfert",
+       "body": "Transfert de connaissances avec votre prestataire actuel, accès et documentation."
+      },
+      {
+       "n": "03",
+       "title": "Stabilisation",
+       "body": "Premiers 60 jours : sauvegardes, correctifs et base de sécurité en ordre."
+      },
+      {
+       "n": "04",
+       "title": "Gestion",
+       "body": "Service manager dédié, rapport et feuille de route trimestriels."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Reprenez-vous le matériel existant ?",
+       "a": "Oui. Nous l'inventorions et le gérons ; le remplacement passe dans la feuille de route."
+      },
+      {
+       "q": "Quel est le préavis ?",
+       "a": "Un mois après la première année. Nous voulons que vous restiez parce que ça fonctionne."
+      },
+      {
+       "q": "Y a-t-il un portail de tickets ?",
+       "a": "Oui, avec page de statut et rapport SLA mensuel."
+      }
+     ]
+    },
+    "ai-infrastructuur": {
+     "crumb": "Infrastructure IA",
+     "title": "Infrastructure IA : du GPU à la gouvernance",
+     "lead": "Nous construisons et gérons toute la couche IA de votre entreprise : calcul, pipelines de données, modèles privés et contrôle d'accès. On-premise, dans Azure ou en hybride, vos données restent dans vos limites.",
+     "blocksTitle": "Les quatre couches",
+     "blocks": [
+      {
+       "abbr": "GPU",
+       "title": "Calcul & hébergement",
+       "body": "Serveurs GPU on-premise ou dans Azure, planification de capacité et suivi des coûts."
+      },
+      {
+       "abbr": "DAT",
+       "title": "Données & RAG",
+       "body": "Pipelines, stockage vectoriel et recherche documentaire sur vos sources existantes."
+      },
+      {
+       "abbr": "MOD",
+       "title": "Modèles privés",
+       "body": "Open source ou Azure OpenAI, hébergés chez vous avec vos propres journaux."
+      },
+      {
+       "abbr": "GOV",
+       "title": "Gouvernance & AI Act",
+       "body": "Politique d'accès, piste d'audit et documentation vers NIS2 et l'AI Act."
+      }
+     ],
+     "stepsTitle": "Du scan à la production",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Scan de maturité",
+       "body": "Où est la valeur, quelles données sont exploitables, ce que la loi interdit."
+      },
+      {
+       "n": "02",
+       "title": "Pilote",
+       "body": "Un cas d'usage mesurable, en ligne pour un groupe test en six semaines."
+      },
+      {
+       "n": "03",
+       "title": "Déploiement",
+       "body": "Infrastructure, politique d'accès et formation pour toute l'organisation."
+      },
+      {
+       "n": "04",
+       "title": "Exploitation",
+       "body": "Suivi des coûts, de la qualité et des versions de modèles."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Nos données quittent-elles l'entreprise ?",
+       "a": "Non, sauf si vous le souhaitez. Nous hébergeons les modèles chez vous ou dans votre tenant Azure."
+      },
+      {
+       "q": "Faut-il des GPU ?",
+       "a": "Non. La plupart des cas démarrent dans Azure ; le matériel propre suit si le volume le justifie."
+      },
+      {
+       "q": "Et l'AI Act européen ?",
+       "a": "Nous documentons finalité, données et risque par application pour constituer un dossier d'audit."
+      }
+     ]
+    },
+    "cloud": {
+     "crumb": "Cloud",
+     "title": "Le cloud sans surprise sur la facture",
+     "lead": "Migration et gestion de Microsoft 365 et Azure. Identité, sauvegarde et maîtrise des coûts au même endroit, avec une architecture encore explicable dans trois ans.",
+     "blocksTitle": "Nos points d'attention",
+     "blocks": [
+      {
+       "abbr": "IAM",
+       "title": "Identité",
+       "body": "Entra ID, accès conditionnel et droits par rôle comme fondation."
+      },
+      {
+       "abbr": "M365",
+       "title": "Microsoft 365",
+       "body": "Migration du mail, des fichiers et de Teams, sans interruption."
+      },
+      {
+       "abbr": "BAK",
+       "title": "Sauvegarde & restauration",
+       "body": "Restauration testée des données et de la configuration."
+      },
+      {
+       "abbr": "FIN",
+       "title": "Maîtrise des coûts",
+       "body": "Revue mensuelle de la consommation et des ressources inutilisées."
+      }
+     ],
+     "stepsTitle": "Approche de migration",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Évaluation",
+       "body": "Inventaire des charges, dépendances et licences."
+      },
+      {
+       "n": "02",
+       "title": "Landing zone",
+       "body": "Réseau, identité et politiques préparés en amont."
+      },
+      {
+       "n": "03",
+       "title": "Migration",
+       "body": "Par vagues et par service, avec plan de repli."
+      },
+      {
+       "n": "04",
+       "title": "Optimisation",
+       "body": "Redimensionnement et revue des coûts à 30 et 90 jours."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Tout doit-il aller dans le cloud ?",
+       "a": "Non. L'hybride est souvent moins cher et plus rapide ; nous choisissons par charge."
+      },
+      {
+       "q": "Et les licences existantes ?",
+       "a": "Elles entrent dans l'évaluation ; les doublons sont le gaspillage le plus fréquent."
+      }
+     ]
+    },
+    "security": {
+     "crumb": "Sécurité",
+     "title": "Une sécurité qui passe l'audit",
+     "lead": "MFA, détection sur les endpoints, sécurité e-mail et sensibilisation. Aligné sur NIS2, avec une documentation présentable à un auditeur ou un assureur.",
+     "blocksTitle": "La base",
+     "blocks": [
+      {
+       "abbr": "MFA",
+       "title": "Identité & MFA",
+       "body": "Authentification forte, accès conditionnel et gestion des privilèges."
+      },
+      {
+       "abbr": "EDR",
+       "title": "Détection endpoint",
+       "body": "EDR sur chaque appareil, suivi par notre service desk."
+      },
+      {
+       "abbr": "MAI",
+       "title": "Sécurité e-mail",
+       "body": "SPF, DKIM, application DMARC et filtrage du phishing."
+      },
+      {
+       "abbr": "AWR",
+       "title": "Sensibilisation",
+       "body": "Simulations de phishing et formations courtes chaque trimestre."
+      }
+     ],
+     "stepsTitle": "De la base au démontrable",
+     "steps": [
+      {
+       "n": "01",
+       "title": "État initial",
+       "body": "Scan technique et entretiens ; risques priorisés par impact."
+      },
+      {
+       "n": "02",
+       "title": "Gains rapides",
+       "body": "Mis en œuvre en 30 jours."
+      },
+      {
+       "n": "03",
+       "title": "Démontrable",
+       "body": "Politiques, journalisation et documentation vers NIS2."
+      },
+      {
+       "n": "04",
+       "title": "Exercices",
+       "body": "Test de restauration et exercice d'incident annuels."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "Sommes-nous concernés par NIS2 ?",
+       "a": "Souvent indirectement, via vos clients. L'état initial le clarifie."
+      },
+      {
+       "q": "Faites-vous la réponse à incident ?",
+       "a": "Oui, avec des escalades fixes et un partenaire forensique externe si besoin."
+      }
+     ]
+    },
+    "development": {
+     "crumb": "Développement",
+     "title": "Du sur-mesure qui relie vos systèmes",
+     "lead": "Intégrations et outils internes qui relient vos logiciels existants, souvent moins cher qu'un nouveau progiciel, et toujours documenté pour la reprise.",
+     "blocksTitle": "Ce que nous construisons",
+     "blocks": [
+      {
+       "abbr": "API",
+       "title": "Intégrations",
+       "body": "Connexions entre ERP, CRM, comptabilité et vos données."
+      },
+      {
+       "abbr": "APP",
+       "title": "Outils internes",
+       "body": "Applications web pour les processus qui vivent dans Excel."
+      },
+      {
+       "abbr": "AUT",
+       "title": "Automatisation",
+       "body": "Tâches répétitives supprimées via scripts, flux et agents."
+      },
+      {
+       "abbr": "DOC",
+       "title": "Reprenable",
+       "body": "Code dans votre dépôt, documenté et testé. Sans dépendance."
+      }
+     ],
+     "stepsTitle": "Méthode",
+     "steps": [
+      {
+       "n": "01",
+       "title": "Atelier",
+       "body": "Une demi-journée pour parcourir et fixer le processus."
+      },
+      {
+       "n": "02",
+       "title": "Prototype",
+       "body": "Prototype fonctionnel en deux semaines."
+      },
+      {
+       "n": "03",
+       "title": "Construction",
+       "body": "Itérations de deux semaines avec démo."
+      },
+      {
+       "n": "04",
+       "title": "Reprise",
+       "body": "Code, documentation et accords de support."
+      }
+     ],
+     "faqTitle": "Questions fréquentes",
+     "faq": [
+      {
+       "q": "À qui appartient le code ?",
+       "a": "À vous. Nous travaillons dans votre dépôt."
+      },
+      {
+       "q": "Facturez-vous à l'heure ?",
+       "a": "Au sprint à prix fixe, pour discuter du périmètre plutôt que des heures."
+      }
+     ]
+    },
+    "prijzen": {
+     "crumb": "Tarifs",
+     "title": "Prix fixe par poste, sans surprise",
+     "lead": "Trois formules d'IT gérée. L'infrastructure IA et le développement sont chiffrés par projet, l'entretien vous donne le coût en une semaine.",
+     "priceUnit": "/ poste / mois · HTVA",
+     "planCta": "Demander cette formule",
+     "plans": [
+      {
+       "name": "Essential",
+       "for": "Jusqu'à 25 postes",
+       "price": "29 €",
+       "items": [
+        "Surveillance & correctifs",
+        "Service desk 8×5",
+        "Sauvegarde des postes",
+        "Rapport mensuel"
+       ]
+      },
+      {
+       "name": "Managed",
+       "for": "25–150 postes",
+       "price": "49 €",
+       "featured": true,
+       "items": [
+        "Tout Essential",
+        "Base de sécurité & MFA",
+        "Service manager dédié",
+        "Réponse en 30 min"
+       ]
+      },
+      {
+       "name": "Managed+ IA",
+       "for": "150+ postes",
+       "price": "79 €",
+       "items": [
+        "Tout Managed",
+        "Surveillance 24×7",
+        "Infra IA & modèles privés",
+        "Feuille de route trimestrielle"
+       ]
+      }
+     ],
+     "faqTitle": "À propos des tarifs",
+     "faq": [
+      {
+       "q": "Le matériel est-il inclus ?",
+       "a": "Non, il est facturé séparément ou en leasing. Le prix couvre la gestion."
+      },
+      {
+       "q": "Combien coûte un projet IA ?",
+       "a": "Le scan est à prix fixe ; un pilote démarre souvent autour d'un mois de temps interne ; le scan donne l'estimation."
+      },
+      {
+       "q": "Y a-t-il des frais de mise en route ?",
+       "a": "Un onboarding unique selon le nombre de postes, toujours chiffré à l'avance."
+      }
+     ]
+    },
+    "over-ons": {
+     "crumb": "À propos",
+     "title": "Une IT qui fonctionne, avec un seul interlocuteur",
+     "lead": "Marleo.tech est un prestataire de services gérés au Benelux. Nous travaillons pour des organisations de 20 à 500 personnes qui veulent externaliser l'IT sans perdre le contrôle.",
+     "blocksTitle": "Ce que nous défendons",
+     "blocks": [
+      {
+       "abbr": "GB",
+       "title": "Giannis Baert, fondateur",
+       "body": "Propriétaire et fondateur de marleo.tech. Joignable directement à giannis@marleo.tech ou 0456 92 00 25."
+      },
+      {
+       "abbr": "P&G",
+       "title": "Expérience entreprise",
+       "body": "Support IT chez Procter & Gamble (2024) : service desk et gestion des postes dans un environnement international."
+      },
+      {
+       "abbr": "01",
+       "title": "Des visages connus",
+       "body": "Votre service manager connaît votre environnement ; pas de loterie de tickets."
+      },
+      {
+       "abbr": "02",
+       "title": "Explicable",
+       "body": "Chaque choix se justifie devant une direction et un auditeur."
+      },
+      {
+       "abbr": "03",
+       "title": "Sans dépendance",
+       "body": "Documentation et code vous appartiennent. Partir doit être possible."
+      },
+      {
+       "abbr": "04",
+       "title": "Trilingue",
+       "body": "Service desk en NL, EN et FR, utile au Benelux."
+      }
+     ],
+     "stepsTitle": "Chiffres",
+     "steps": [
+      {
+       "n": "1",
+       "title": "Un seul interlocuteur",
+       "body": "Un seul partenaire pour l'IT, le cloud et le web."
+      },
+      {
+       "n": "99,9 %",
+       "title": "SLA de disponibilité",
+       "body": "Mesuré sur 2025."
+      },
+      {
+       "n": "14min",
+       "title": "Temps de réponse",
+       "body": "Moyenne toutes priorités."
+      },
+      {
+       "n": "3",
+       "title": "Langues",
+       "body": "NL · EN · FR."
+      }
+     ],
+     "faqTitle": "Travailler chez Marleo",
+     "faq": [
+      {
+       "q": "Recrutez-vous ?",
+       "a": "Nous avons toujours de la place pour des ingénieurs orientés cloud et infrastructure IA. Écrivez-nous."
+      }
+     ]
+    },
+    "contact": {
+     "crumb": "Contact",
+     "title": "Planifiez un entretien de 30 minutes",
+     "lead": "Sans argumentaire, un état des lieux de votre environnement et un avis honnête sur les trois premières étapes.",
+     "formTitle": "Dites-nous ce qui se passe",
+     "fields": [
+      "Nom",
+      "Entreprise",
+      "E-mail",
+      "Téléphone"
+     ],
+     "messageLabel": "Votre question",
+     "submit": "Envoyer la demande",
+     "contactRows": [
+      {
+       "label": "Téléphone",
+       "value": "0456 92 00 25",
+       "note": "Lun–ven 08:00–18:00",
+       "href": "tel:+32456920025"
+      },
+      {
+       "label": "Prendre rendez-vous",
+       "value": "marleo.tech/afspraak",
+       "note": "Choisissez vous-même un moment",
+       "href": "/afspraak/"
+      },
+      {
+       "label": "E-mail",
+       "value": "info@marleo.tech",
+       "note": "Réponse en un jour ouvré",
+       "href": "mailto:info@marleo.tech"
+      },
+      {
+       "label": "Giannis Baert, fondateur",
+       "value": "giannis@marleo.tech",
+       "note": "Ligne directe pour les questions stratégiques",
+       "href": "mailto:giannis@marleo.tech"
+      },
+      {
+       "label": "Instagram",
+       "value": "@marleo.tech",
+       "note": "instagram.com/marleo.tech",
+       "href": "https://instagram.com/marleo.tech"
+      },
+      {
+       "label": "Données de l'entreprise",
+       "value": "TVA BE 1041.196.713",
+       "note": "Marleo · Graaf van Hoornestraat 2B, 9850 Nevele, Belgique",
+       "href": "/voorwaarden/"
+      }
+     ],
+     "faqTitle": "Que se passe-t-il après votre demande ?",
+     "faq": [
+      {
+       "q": "En un jour ouvré",
+       "a": "Un court e-mail avec deux propositions de créneau."
+      },
+      {
+       "q": "Pendant l'entretien",
+       "a": "30 minutes : situation actuelle, points de blocage, priorités."
+      },
+      {
+       "q": "Ensuite",
+       "a": "Un état des lieux écrit avec trois étapes concrètes. Ou rien, si nous ne sommes pas le bon partenaire."
+      }
+     ]
+    }
+   }
+  }
+ },
+ "CROSS_POS": [
+  [
+   14,
+   12
+  ],
+  [
+   30,
+   34
+  ],
+  [
+   46,
+   8
+  ],
+  [
+   62,
+   40
+  ],
+  [
+   78,
+   16
+  ],
+  [
+   90,
+   30
+  ],
+  [
+   22,
+   52
+  ],
+  [
+   68,
+   22
+  ]
+ ]
+}

@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /hq/
+Disallow: /intake/
+Disallow: /offerte/
+Disallow: /src/
+Disallow: /social/
+Sitemap: https://marleo.tech/sitemap.xml
