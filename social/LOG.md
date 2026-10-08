@@ -23,3 +23,4 @@ Afbeeldingen publiek via https://raw.githubusercontent.com/giannismarleotech/mar
 - 2026-10-08 case Hair Creations by Abdo (post 16 + story, direct)
 - 2026-10-08 cases Nemetona (17), Tuinen Lieven Cornelis (18), Jematech (19), direct
 - 2026-10-08 story MONGA Automotive (direct)
+- 2026-10-08 story MONGA v2 (zonder link, 'Recent work')
