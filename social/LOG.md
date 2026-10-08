@@ -21,3 +21,4 @@ Afbeeldingen publiek via https://raw.githubusercontent.com/giannismarleotech/mar
 - 2026-10-02 case Beauty Salon Elena (post 12 + story)
 - 2026-10-07 case Foamoré Detailing (post 15 + story, direct)
 - 2026-10-08 case Hair Creations by Abdo (post 16 + story, direct)
+- 2026-10-08 cases Nemetona (17), Tuinen Lieven Cornelis (18), Jematech (19), direct
