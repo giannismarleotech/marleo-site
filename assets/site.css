@@ -300,3 +300,9 @@ a.card:hover{border-color:rgba(255,42,134,.55);transform:translateY(-4px);box-sh
 .case-nav a span{display:block;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.case-nav a b{font-size:1.1rem}.case-nav a:hover b{color:#ff6aa8}
 .case-nav a:nth-child(2){text-align:center}
 @media(max-width:700px){.case-nav{grid-template-columns:1fr 1fr}.case-nav a:nth-child(2){display:none}}
+/* kennisbank */
+.prose{max-width:760px;font-size:1.06rem;line-height:1.75;color:var(--body)}
+.prose h2{color:#fff;font-size:clamp(1.3rem,2.4vw,1.7rem);margin:42px 0 12px;letter-spacing:-.02em}
+.prose p{margin:0 0 16px}.prose b{color:#fff}
+.prose ul,.prose ol{margin:0 0 18px;padding-left:22px}.prose li{margin:8px 0}.prose li::marker{color:#ff6aa8}
+.kbcard{display:flex!important;flex-direction:column}.kbcard .more{margin-top:auto}

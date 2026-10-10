@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from extra import UI, DEEP, PORTFOLIO
 from audit_txt import CHK as AUD_CHK, P as AUD_P
 PORTFOLIO = [p for p in PORTFOLIO if p['img'] != 'rani']  # ranipoetsservice.be is tijdelijk offline
+from kb import ART as KB
 from cases import F as CASE_F, C as CASE_C, T as CASE_T
 import re, unicodedata
 def slugify(n):
@@ -80,6 +81,7 @@ LDJSON = '<script type="application/ld+json">' + json.dumps({
 def head(lang, slug, title, desc):
     alts = ''.join('<link rel="alternate" hreflang="%s" href="%s%s">' % (l, SITE, url(l, slug)) for l in LANGS)
     alts += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, url('nl', slug))
+    if slug.startswith('kennisbank'): alts = ''
     ui = dict(UI[lang]); ui['dom'] = dict(DOM_UI[lang]); ui['dom']['ctaHref'] = url(lang, 'contact')
     keep = {k: ui[k] for k in ('sent', 'sending', 'err', 'required', 'dom')}
     return ('<!DOCTYPE html><html lang="%s"><head><meta charset="utf-8">'
@@ -146,6 +148,9 @@ def footer(lang):
                 continue
             href = SUB.get(k) or url(lang, 'contact' if k == 'support' else k)
             links.append('<li><a href="%s">%s</a></li>' % (href, E(t['labels'].get(k, k))))
+        if 'support' in col['keys']:
+            links.append('<li><a href="%s">%s</a></li>' % (url(lang, 'website-audit'), E(AUD_P[lang]['title'])))
+            if lang == 'nl': links.append('<li><a href="/kennisbank/">Kennisbank</a></li>')
         cols += '<div><h4>%s</h4><ul>%s</ul></div>' % (E(col['head']), ''.join(links))
     soc = ''.join('<a href="%s" aria-label="%s">%s</a>' % (h, n, s) for n, (h, s) in SOC.items())
     return ('<footer class="ftr"><div class="wrap"><div class="top"><div><a class="logo" href="%s">%s<span>marleo<span class="gt">.tech</span></span></a>'
@@ -366,6 +371,25 @@ def case_page(lang, i):
             url(lang, 'projecten/' + slugify(prv['name'])), E(ct['prev']), E(prv['name']), url(lang, 'projecten'), E(ct['more']), E(u['allWork']), url(lang, 'projecten/' + slugify(nxt['name'])), E(ct['next']), E(nxt['name']))
     return page(lang, slug, '%s – %s · Marleo' % (p['name'], ct['case']), body[:158], hero + shot + detail + nav + band(lang))
 
+def kb_index():
+    lang = 'nl'
+    cards = ''.join('<a class="card rv d%d kbcard" href="/kennisbank/%s/"><span class="ab">%s · %d min</span><h3>%s</h3><p>%s</p><span class="more">Lees het artikel →</span></a>' % (
+        i % 3, a['slug'], E(a['cat']), a['mins'], E(a['title']), E(a['desc'])) for i, a in enumerate(KB))
+    body = phero(lang, 'kennisbank', 'Kennisbank', 'Kennisbank', 'Praktische inzichten over IT, beveiliging en online zichtbaarheid. Helder uitgelegd, zonder vakjargon.', acts=False)
+    body += '<section class="sec" style="padding-top:0"><div class="wrap"><div class="grid g3">%s</div></div></section>' % cards
+    return page(lang, 'kennisbank', 'Kennisbank · Marleo', 'Praktische inzichten over IT, cyberbeveiliging, back-ups en online zichtbaarheid voor bedrijven.', body + band(lang))
+
+def kb_article(a):
+    lang = 'nl'
+    ld = '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "Article", "headline": a['title'], "description": a['desc'], "datePublished": a['date'], "author": {"@type": "Organization", "name": "Marleo"}, "publisher": {"@type": "Organization", "name": "Marleo", "url": SITE}}, ensure_ascii=False) + '</script>'
+    others = [x for x in KB if x['slug'] != a['slug']]
+    hero = ('<section class="phero"><div class="grid-bg"></div><div class="wrap"><nav class="crumb rise" aria-label="breadcrumb"><a href="/">Home</a><i></i><a href="/kennisbank/">Kennisbank</a><i></i><span>%s</span></nav>'
+            '<span class="eyebrow rise">%s · %d min leestijd</span><h1 class="rise d1" style="max-width:900px">%s</h1><p class="lead rise d2">%s</p></div></section>') % (E(a['title'][:48] + ('…' if len(a['title']) > 48 else '')), E(a['cat']), a['mins'], E(a['title']), E(a['desc']))
+    art = '<section class="sec" style="padding-top:0"><div class="wrap"><article class="prose rv">%s</article></div></section>' % a['body']
+    more = '<section class="sec" style="padding-top:0"><div class="wrap">%s<div class="grid g3">%s</div></div></section>' % (sec_head(None, 'Lees ook'), ''.join(
+        '<a class="card rv kbcard" href="/kennisbank/%s/"><span class="ab">%s</span><h3>%s</h3><span class="more">Lees →</span></a>' % (x['slug'], E(x['cat']), E(x['title'])) for x in others))
+    return page(lang, 'kennisbank/' + a['slug'], '%s · Marleo' % a['title'], a['desc'], hero + art + more + band(lang) + ld)
+
 def write(path, s):
     full = os.path.join(ROOT, path.lstrip('/'), 'index.html')
     os.makedirs(os.path.dirname(full), exist_ok=True)
@@ -387,6 +411,9 @@ def main():
             write(url(lang, k), s); urls.append(url(lang, k))
         for i, pp in enumerate(PORTFOLIO):
             sl = 'projecten/' + slugify(pp['name']); write(url(lang, sl), case_page(lang, i)); urls.append(url(lang, sl))
+    write('/kennisbank/', kb_index()); urls.append('/kennisbank/')
+    for a in KB:
+        write('/kennisbank/%s/' % a['slug'], kb_article(a)); urls.append('/kennisbank/%s/' % a['slug'])
     today = datetime.date.today().isoformat()
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         '<url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (SITE, u, today) for u in urls + ['/afspraak/', '/privacy/', '/voorwaarden/', '/nis2/']) + '</urlset>\n'
