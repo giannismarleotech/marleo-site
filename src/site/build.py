@@ -5,6 +5,12 @@ import json, os, html, sys, datetime
 sys.path.insert(0, os.path.dirname(__file__))
 from extra import UI, DEEP, PORTFOLIO
 from audit_txt import CHK as AUD_CHK, P as AUD_P
+PORTFOLIO = [p for p in PORTFOLIO if p['img'] != 'rani']  # ranipoetsservice.be is tijdelijk offline
+from cases import F as CASE_F, C as CASE_C, T as CASE_T
+import re, unicodedata
+def slugify(n):
+    n = unicodedata.normalize('NFKD', n).encode('ascii', 'ignore').decode().lower()
+    return re.sub(r'[^a-z0-9]+', '-', n).strip('-')
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 C = json.load(open(os.path.join(os.path.dirname(__file__), 'content.json'), encoding='utf-8'))
@@ -177,11 +183,11 @@ def work_cards(lang, items, eager=0):
         sub, body = p[lang]
         ld = 'eager' if i < eager else 'lazy'
         out.append(
-            '<a class="wk rv d%d" href="%s" target="_blank" rel="noopener">'
+            '<a class="wk rv d%d" href="%s">'
             '<div class="shot"><img src="/assets/work/%s-720.webp" srcset="/assets/work/%s-720.webp 720w, /assets/work/%s-1440.webp 1440w" sizes="(max-width:700px) 92vw, 46vw" width="1440" height="900" alt="%s" loading="%s" decoding="async">'
             '<div class="ph"><img src="/assets/work/%s-m.webp" width="390" height="800" alt="" loading="lazy" decoding="async"></div></div>'
             '<div class="meta"><div><div class="sub">%s</div><h3>%s</h3><p>%s</p></div><span class="go">%s %s</span></div></a>' % (
-                i % 2, E(p['url']), p['img'], p['img'], p['img'], E(p['name'] + ' website'), ld, p['img'], E(sub), E(p['name']), E(body), E(UI[lang]['visit']), EXT))
+                i % 2, url(lang, 'projecten/' + slugify(p['name'])), p['img'], p['img'], p['img'], E(p['name'] + ' website'), ld, p['img'], E(sub), E(p['name']), E(body), E(CASE_T[lang]['view']), ARROW))
     return '<div class="work">%s</div>' % ''.join(out)
 
 def band(lang, title=None, body=None):
@@ -338,6 +344,28 @@ def audit_page(lang):
     body += '<script>window.__AUD=%s</script><script defer src="/assets/audit.js?v=%s"></script>' % (json.dumps(data, ensure_ascii=False), V)
     return page(lang, 'website-audit', a['metaT'], a['metaD'], body)
 
+def case_page(lang, i):
+    p = PORTFOLIO[i]; ct = CASE_T[lang]; li = LANGS.index(lang); sub, body = p[lang]
+    sector, _, loc = sub.partition(' · ')
+    slug = 'projecten/' + slugify(p['name'])
+    feats = [CASE_F[k][li] for k in CASE_C.get(p['img'], [])] + [CASE_F[k][li] for k in ('mobile', 'seo', 'ssl')]
+    host = p['url'].replace('https://', '').replace('http://', '').rstrip('/')
+    prv, nxt = PORTFOLIO[(i - 1) % len(PORTFOLIO)], PORTFOLIO[(i + 1) % len(PORTFOLIO)]
+    u = UI[lang]
+    hero = ('<section class="phero case-hero"><div class="grid-bg"></div><div class="wrap"><nav class="crumb rise" aria-label="breadcrumb"><a href="%s">%s</a><i></i><a href="%s">%s</a><i></i><span>%s</span></nav>'
+            '<span class="eyebrow rise">%s · %s</span><h1 class="rise d1">%s</h1><p class="lead rise d2">%s</p>'
+            '<div class="acts rise d3"><a class="btn btn-p" href="%s" target="_blank" rel="noopener">%s %s</a></div></div></section>') % (
+            url(lang), E(u['home']), url(lang, 'projecten'), E(COPY[lang]['labels'].get('projecten', u['work'])), E(p['name']), E(ct['case']), E(sector), E(p['name']), E(body), E(p['url']), E(ct['live']), EXT)
+    shot = ('<section class="sec" style="padding-top:0"><div class="wrap"><div class="case-shot rv"><img src="/assets/work/%s-1440.webp" srcset="/assets/work/%s-720.webp 720w, /assets/work/%s-1440.webp 1440w" sizes="(max-width:700px) 92vw, 80vw" width="1440" height="900" alt="%s" fetchpriority="high">'
+            '<div class="case-ph"><img src="/assets/work/%s-m.webp" width="390" height="800" alt="%s" loading="lazy"></div></div></div></section>') % (p['img'], p['img'], p['img'], E(p['name'] + ' – desktop'), p['img'], E(p['name'] + ' – gsm'))
+    facts = ''.join('<div><span>%s</span><b>%s</b></div>' % (E(k), E(v)) for k, v in ((ct['client'], p['name']), (ct['sector'], sector), (ct['loc'], loc or '–'), (ct['site'], host)))
+    detail = ('<section class="sec" style="padding-top:0"><div class="wrap split"><div class="rv"><div class="case-facts">%s</div><h2 style="margin-top:28px">%s</h2><ul class="checks">%s</ul></div>'
+              '<div class="rv"><p class="lead" style="margin-bottom:22px">%s</p><h2>%s</h2><ul class="checks">%s</ul></div></div></section>') % (
+              facts, E(ct['scope']), ''.join('<li>%s</li>' % E(x) for x in ct['scopeV']), E(ct['intro'] % p['name']), E(ct['built']), ''.join('<li>%s</li>' % E(x) for x in feats))
+    nav = ('<section class="sec" style="padding-top:0"><div class="wrap"><div class="case-nav rv"><a href="%s"><span>← %s</span><b>%s</b></a><a href="%s"><span>%s</span><b>%s</b></a><a href="%s" style="text-align:right"><span>%s →</span><b>%s</b></a></div></div></section>') % (
+            url(lang, 'projecten/' + slugify(prv['name'])), E(ct['prev']), E(prv['name']), url(lang, 'projecten'), E(ct['more']), E(u['allWork']), url(lang, 'projecten/' + slugify(nxt['name'])), E(ct['next']), E(nxt['name']))
+    return page(lang, slug, '%s – %s · Marleo' % (p['name'], ct['case']), body[:158], hero + shot + detail + nav + band(lang))
+
 def write(path, s):
     full = os.path.join(ROOT, path.lstrip('/'), 'index.html')
     os.makedirs(os.path.dirname(full), exist_ok=True)
@@ -357,6 +385,8 @@ def main():
             elif k == 'website-audit': s = audit_page(lang)
             else: s = service(lang, k)
             write(url(lang, k), s); urls.append(url(lang, k))
+        for i, pp in enumerate(PORTFOLIO):
+            sl = 'projecten/' + slugify(pp['name']); write(url(lang, sl), case_page(lang, i)); urls.append(url(lang, sl))
     today = datetime.date.today().isoformat()
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         '<url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (SITE, u, today) for u in urls + ['/afspraak/', '/privacy/', '/voorwaarden/', '/nis2/']) + '</urlset>\n'

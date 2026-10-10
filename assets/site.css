@@ -288,3 +288,15 @@ a.card:hover{border-color:rgba(255,42,134,.55);transform:translateY(-4px);box-sh
 .audcta{margin-top:22px}.audmail{display:block!important;margin-top:16px;padding:22px}.audmail .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.audmail input{flex:1;min-width:180px;height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:#fff;font:inherit}
 .audmail .ok{color:#22c27a;font-weight:600}
 .audnote{margin-top:16px;color:var(--muted);font-size:.85rem;max-width:760px}
+/* case studies */
+.case-hero .eyebrow{display:inline-block;margin-bottom:10px}
+.case-shot{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#0f0b0f;aspect-ratio:16/10;box-shadow:0 40px 100px -40px rgba(0,0,0,.8)}
+.case-shot>img{width:100%;height:100%;object-fit:cover;object-position:top}
+.case-ph{position:absolute;right:4%;bottom:-4%;width:20%;aspect-ratio:390/800;border-radius:22px;overflow:hidden;border:4px solid #1c151d;box-shadow:0 30px 60px rgba(0,0,0,.6)}.case-ph img{width:100%;height:100%;object-fit:cover;object-position:top}
+@media(max-width:700px){.case-ph{width:30%;border-radius:14px;border-width:3px}.case-shot{border-radius:16px}}
+.case-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.case-facts div{background:var(--bg);padding:16px 18px}.case-facts span{display:block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--o);margin-bottom:4px}.case-facts b{font-weight:600;word-break:break-word}
+.case-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0}
+.case-nav a span{display:block;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.case-nav a b{font-size:1.1rem}.case-nav a:hover b{color:#ff6aa8}
+.case-nav a:nth-child(2){text-align:center}
+@media(max-width:700px){.case-nav{grid-template-columns:1fr 1fr}.case-nav a:nth-child(2){display:none}}
