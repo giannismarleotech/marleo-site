@@ -321,7 +321,7 @@ def main():
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         '<url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (SITE, u, today) for u in urls + ['/afspraak/', '/privacy/', '/voorwaarden/', '/nis2/']) + '</urlset>\n'
     open(os.path.join(ROOT, 'sitemap.xml'), 'w').write(sm)
-    open(os.path.join(ROOT, 'robots.txt'), 'w').write('User-agent: *\nDisallow: /hq/\nDisallow: /intake/\nDisallow: /offerte/\nDisallow: /src/\nDisallow: /social/\nSitemap: %s/sitemap.xml\n' % SITE)
+    open(os.path.join(ROOT, 'robots.txt'), 'w').write('User-agent: *\nDisallow: /hq/\nDisallow: /intake/\nDisallow: /uitschrijven/\nDisallow: /offerte/\nDisallow: /src/\nDisallow: /social/\nSitemap: %s/sitemap.xml\n' % SITE)
     print('pagina\'s:', len(urls))
 
 if __name__ == '__main__':

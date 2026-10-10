@@ -844,6 +844,7 @@ var MENU_ADMIN=[
   ['aanvragen','Aanvragen',IC.pipe],
   ['leads','Leadfinder',IC.pipe],
   ['outreach','Outreach',IC.chat],
+  ['mailreeks','Mailreeks',IC.chat],
   ['SEC','Planning'],
   ['agenda','Agenda',IC.cal],
   ['board','Takenbord',IC.kanban],
@@ -6318,6 +6319,84 @@ function mAgents(){openM('🤖 Agent-meldingen',(AGI.length?AGI.map(agRow).join(
   var cnt={};AGI.forEach(function(x){cnt[x.kind]=(cnt[x.kind]||0)+1});
   s.insertAdjacentHTML('afterend','<div class="panelbox" id="agDash" style="border-color:rgba(255,42,134,.45)"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">🤖 Agents <span class="hint">'+Object.keys(cnt).map(function(k){return (AGICON[k]||'')+' '+cnt[k]}).join(' · ')+'</span></h3><button class="btn sm subtle" onclick="mAgents()">Alles ('+AGI.length+')</button></div>'+AGI.slice(0,6).map(agRow).join('')+'</div>')}})();
 setTimeout(agFetch,4000);setInterval(agFetch,5*60*1000);
+
+/* ===== MAILREEKS: automatische koude mails (Supabase + Resend) ===== */
+var MR={cfg:null,leads:[],sends:[],tab:'actief',defaults:null};
+var MR_API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/outreach';
+var MR_GEN=['info','contact','hallo','hello','hi','admin','office','mail','post','sales','verkoop','reservaties','reservatie','reservations','reserveren','booking','bookings','boekingen','bestellingen','orders','welkom','team','service','klantendienst','support','receptie','secretariaat','kantoor','algemeen','administratie','boekhouding','offerte','offertes','vragen','afspraak','afspraken','shop','winkel','webshop','events','zaal','salon','studio','praktijk','garage','atelier'];
+var MR_FREE=/@(gmail|hotmail|outlook|live|yahoo|icloud|me|telenet|skynet|proximus|msn|scarlet)\./i;
+function mrGeneric(e){e=String(e||'').trim().toLowerCase();var m=e.match(/^([^@]+)@([^@]+\.[a-z]{2,})$/);if(!m)return false;if(MR_FREE.test(e))return false;return MR_GEN.indexOf(m[1].replace(/[.\-_0-9]/g,''))>=0||MR_GEN.indexOf(m[1])>=0}
+var MR_ST={wachtrij:['Wachtrij','#94A3B8'],actief:['Actief','#38BDF8'],beantwoord:['Beantwoord','#4ADE80'],uitgeschreven:['Uitgeschreven','#F87171'],bounce:['Bounce','#F87171'],klaar:['Reeks klaar','#A78BFA'],gepauzeerd:['Gepauzeerd','#FBBF24']};
+async function mrLoad(){if(!sb||!CLOUD.uid)return;var a=await Promise.all([sb.from('outreach_cfg').select('*').eq('user_id',CLOUD.uid).maybeSingle(),sb.from('outreach_leads').select('*').eq('user_id',CLOUD.uid).order('created_at',{ascending:false}).limit(2000),sb.from('outreach_sends').select('*').eq('user_id',CLOUD.uid).order('sent_at',{ascending:false}).limit(500)]);
+  MR.cfg=a[0].data;MR.leads=a[1].data||[];MR.sends=a[2].data||[];
+  if(!MR.defaults){try{var s=await sb.auth.getSession();var r=await fetch(MR_API,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+s.data.session.access_token},body:JSON.stringify({action:'defaults'})});MR.defaults=(await r.json()).templates}catch(e){MR.defaults=[]}}}
+function mrTpl(){return (MR.cfg&&MR.cfg.templates&&MR.cfg.templates.length)?MR.cfg.templates:(MR.defaults||[])}
+async function rMailreeks(){main().innerHTML='<div class="topbar"><div><h2>📨 Mailreeks</h2><div class="sub">Laden…</div></div></div>';await mrLoad();if(VIEW!=='mailreeks')return;mrRender()}
+function mrRender(){
+  var c=MR.cfg||{},L=MR.leads,cnt=function(s){return L.filter(function(l){return l.status===s}).length};
+  var t0=new Date();t0.setHours(0,0,0,0);var today=MR.sends.filter(function(s){return !s.test&&!s.error&&new Date(s.sent_at)>=t0}).length;
+  var mainDom=/@marleo\.tech$/i.test(c.from_email||'');
+  var live=c.enabled&&!c.test_mode&&!mainDom;
+  var st=live?'<span style="color:#4ADE80">● Live: verstuurt automatisch op werkdagen '+(c.hour_from||9)+'u–'+(c.hour_to||17)+'u, max '+(c.daily_limit||20)+'/dag</span>':(c.enabled&&mainDom&&!c.test_mode?'<span style="color:#FBBF24">● Wacht op verzenddomein (hallo.marleo.tech): er gaat niets weg vanaf marleo.tech zelf</span>':'<span style="color:#FBBF24">● '+(c.test_mode!==false?'Testmodus: er gaat niets naar leads':'Uitgeschakeld')+'</span>');
+  var rate=function(a,b){return b?Math.round(a/b*100)+'%':'–'};
+  var contacted=L.filter(function(l){return l.step>0}).length;
+  var tabs=[['actief','Actief + wachtrij'],['beantwoord','Beantwoord'],['klaar','Klaar'],['stop','Gestopt'],['alle','Alle']];
+  var list=L.filter(function(l){return MR.tab==='alle'||(MR.tab==='actief'?['actief','wachtrij','gepauzeerd'].indexOf(l.status)>=0:MR.tab==='stop'?['uitgeschreven','bounce'].indexOf(l.status)>=0:l.status===MR.tab)});
+  var tpl=mrTpl(),sd=c.step_days||[0,4,10];
+  main().innerHTML='<div class="topbar"><div><h2>📨 Mailreeks</h2><div class="sub">'+st+'</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="mrAddManual()">+ Handmatig</button><button class="btn" onclick="mrFromPipeline()">+ Uit pipeline</button></div></div>'+
+  '<div class="stats">'+[['In wachtrij',cnt('wachtrij')],['Lopend',cnt('actief')],['Vandaag verstuurd',today],['Beantwoord',cnt('beantwoord')+' <span class="hint">('+rate(cnt('beantwoord'),contacted)+')</span>'],['Uitgeschreven',cnt('uitgeschreven')],['Bounces',cnt('bounce')]].map(function(s){return '<div class="stat"><div class="label">'+s[0]+'</div><div class="val">'+s[1]+'</div></div>'}).join('')+'</div>'+
+  '<div class="panelbox"><h3>⚙️ Instellingen</h3><div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">'+
+   '<div class="fgroup"><label>Status</label><select id="mr_on"><option value="0"'+(!c.enabled?' selected':'')+'>Uit</option><option value="1"'+(c.enabled?' selected':'')+'>Aan</option></select></div>'+
+   '<div class="fgroup"><label>Modus</label><select id="mr_test"><option value="1"'+(c.test_mode!==false?' selected':'')+'>Test (enkel naar mij)</option><option value="0"'+(c.test_mode===false?' selected':'')+'>Live (naar leads)</option></select></div>'+
+   '<div class="fgroup"><label>Max per dag</label><input id="mr_lim" type="number" min="1" max="150" value="'+(c.daily_limit||20)+'"></div>'+
+   '<div class="fgroup"><label>Testadres</label><input id="mr_testto" value="'+esc(c.test_to||'giannis@marleo.tech')+'"></div>'+
+   '<div class="fgroup"><label>Afzendernaam</label><input id="mr_fn" value="'+esc(c.from_name||'Giannis | Marleo')+'"></div>'+
+   '<div class="fgroup"><label>Afzender-adres</label><input id="mr_fe" value="'+esc(c.from_email||'giannis@marleo.tech')+'"></div>'+
+   '<div class="fgroup"><label>Antwoorden naar</label><input id="mr_rt" value="'+esc(c.reply_to||'giannis@marleo.tech')+'"></div>'+
+   '<div class="fgroup"><label>Uren (van–tot)</label><div style="display:flex;gap:6px"><input id="mr_hf" type="number" min="6" max="20" value="'+(c.hour_from||9)+'"><input id="mr_ht" type="number" min="7" max="22" value="'+(c.hour_to||17)+'"></div></div>'+
+   '<div class="fgroup"><label>Dagen tussen mails</label><input id="mr_sd" value="'+sd.join(', ')+'"></div>'+
+  '</div><div class="hint" style="margin-top:8px">Live versturen kan pas vanaf een apart verzendadres (bv. giannis@hallo.marleo.tech), nooit vanaf @marleo.tech zelf. Antwoorden komen binnen op je gewone mailbox. Elke mail heeft een uitschrijflink; afgemelde adressen krijgen nooit nog iets.</div>'+
+  '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn" onclick="mrSave()">Bewaren</button><button class="btn subtle" onclick="mrTest()">✉️ Stuur 3 testmails naar mij</button></div></div>'+
+  '<div class="panelbox"><h3>✍️ Mails in de reeks</h3><div class="hint" style="margin-bottom:8px">Variabelen: {bedrijf} {plaats} {cat} {opener} (persoonlijke zin van de Leads-agent; valt weg als die leeg is). Uitschrijflink en bedrijfsgegevens worden automatisch onderaan gezet.</div>'+
+   tpl.map(function(t,i){return '<div style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><b>Mail '+(i+1)+'</b> <span class="hint">· dag '+(sd[i]!=null?sd[i]:'?')+'</span><input id="mr_s'+i+'" value="'+esc(t.subject)+'" style="width:100%;margin:6px 0"><textarea id="mr_b'+i+'" rows="8" style="width:100%">'+esc(t.body)+'</textarea></div>'}).join('')+
+   '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="mrSave()">Bewaren</button><button class="btn subtle" onclick="mrResetTpl()">Standaardteksten terugzetten</button></div></div>'+
+  '<div class="tabs">'+tabs.map(function(t){var n=L.filter(function(l){return t[0]==='alle'||(t[0]==='actief'?['actief','wachtrij','gepauzeerd'].indexOf(l.status)>=0:t[0]==='stop'?['uitgeschreven','bounce'].indexOf(l.status)>=0:l.status===t[0])}).length;return '<button class="tab'+(MR.tab===t[0]?' active':'')+'" onclick="MR.tab=\''+t[0]+'\';mrRender()">'+t[1]+' ('+n+')</button>'}).join('')+'</div>'+
+  (list.length?'<div class="panelbox" style="padding:0;overflow:auto"><table class="tbl"><thead><tr><th>Bedrijf</th><th>E-mail</th><th>Stap</th><th>Volgende</th><th>Status</th><th></th></tr></thead><tbody>'+list.slice(0,400).map(function(l){var s=MR_ST[l.status]||[l.status,'#999'];
+   return '<tr><td><b>'+esc(l.naam)+'</b><div class="hint" style="margin:0">'+esc([l.cat,l.plaats].filter(Boolean).join(' · '))+'</div></td><td>'+esc(l.email)+'</td><td>'+l.step+'/'+tpl.length+'</td><td>'+(['actief','wachtrij'].indexOf(l.status)>=0&&l.next_at?new Date(l.next_at).toLocaleDateString('nl-BE'):'–')+'</td><td><span class="pill" style="background:'+s[1]+'22;color:'+s[1]+'">'+s[0]+'</span></td><td style="white-space:nowrap">'+
+   (['actief','wachtrij','gepauzeerd','klaar'].indexOf(l.status)>=0?'<button class="btn sm" onclick="mrReplied(\''+l.id+'\')" title="Deze lead heeft geantwoord">✓ Antwoord</button> ':'')+
+   (['actief','wachtrij'].indexOf(l.status)>=0?'<button class="btn sm subtle" onclick="mrSet(\''+l.id+'\',\'gepauzeerd\')">Pauze</button>':l.status==='gepauzeerd'?'<button class="btn sm subtle" onclick="mrSet(\''+l.id+'\',\''+(l.step?'actief':'wachtrij')+'\')">Hervat</button>':'')+'</td></tr>'}).join('')+'</tbody></table></div>':'<div class="panelbox"><div class="empty"><span class="big">📨</span>Nog niets hier. De Leads-agent vult de wachtrij elke werkdag, of voeg zelf toe vanuit je pipeline.</div></div>');
+}
+function mrVal(id){return (document.getElementById(id)||{}).value}
+async function mrSave(){var tpl=mrTpl().map(function(t,i){return {subject:(mrVal('mr_s'+i)||t.subject).trim(),body:(mrVal('mr_b'+i)||t.body).trim()}});
+  var sd=String(mrVal('mr_sd')||'0,4,10').split(/[,; ]+/).map(Number).filter(function(x){return !isNaN(x)});
+  var p={user_id:CLOUD.uid,enabled:mrVal('mr_on')==='1',test_mode:mrVal('mr_test')!=='0',daily_limit:Math.max(1,Math.min(150,parseInt(mrVal('mr_lim'))||20)),test_to:mrVal('mr_testto').trim(),from_name:mrVal('mr_fn').trim(),from_email:mrVal('mr_fe').trim().toLowerCase(),reply_to:mrVal('mr_rt').trim(),hour_from:parseInt(mrVal('mr_hf'))||9,hour_to:parseInt(mrVal('mr_ht'))||17,step_days:sd.length?sd:[0,4,10],templates:tpl,updated_at:new Date().toISOString()};
+  if(!p.test_mode&&/@marleo\.tech$/i.test(p.from_email))toast('Opgeslagen. Live versturen start pas met een adres op hallo.marleo.tech',true);
+  var r=await sb.from('outreach_cfg').upsert(p,{onConflict:'user_id'});if(r.error){toast(r.error.message,true);return}MR.cfg=Object.assign(MR.cfg||{},p);if(!(!p.test_mode&&/@marleo\.tech$/i.test(p.from_email)))toast('Mailreeks opgeslagen');mrRender()}
+async function mrResetTpl(){if(!confirm('Standaardteksten terugzetten? Je eigen aanpassingen gaan verloren.'))return;await sb.from('outreach_cfg').update({templates:[]}).eq('user_id',CLOUD.uid);MR.cfg.templates=[];mrRender()}
+async function mrTest(){await mrSave();try{var s=await sb.auth.getSession();var r=await fetch(MR_API,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+s.data.session.access_token},body:JSON.stringify({action:'test'})});var j=await r.json();if(j.error)throw new Error(j.error);toast('✉️ '+j.sent.length+' testmails verstuurd naar '+(MR.cfg.test_to||'jou'))}catch(e){toast(e.message,true)}}
+async function mrSet(id,st){var r=await sb.from('outreach_leads').update({status:st,next_at:new Date().toISOString()}).eq('id',id);if(r.error){toast(r.error.message,true);return}var l=MR.leads.find(function(x){return x.id===id});if(l)l.status=st;mrRender()}
+async function mrReplied(id){var l=MR.leads.find(function(x){return x.id===id});if(!l)return;await sb.from('outreach_leads').update({status:'beantwoord',next_at:null}).eq('id',id);l.status='beantwoord';
+  var d=l.deal_id&&DATA.deals.find(function(x){return x.id===l.deal_id});if(!d)d=DATA.deals.find(function(x){return (x.email||'').toLowerCase()===l.email.toLowerCase()});
+  if(d){d.stage='gesprek';d.follow=today();(d.log=d.log||[]).push({t:Date.now(),txt:'📨 Antwoordde op de mailreeks'})}
+  else{d={id:nid('deal'),naam:l.naam,email:l.email,tel:l.tel||'',plaats:l.plaats||'',cat:l.cat||'',website:l.web||'',kanaal:'Mailreeks',stage:'gesprek',value:0,prio:'Hoog',note:'Antwoordde op de automatische mailreeks',follow:today(),laatstContact:today(),log:[{t:Date.now(),txt:'📨 Antwoordde op de mailreeks'}],created:Date.now()};DATA.deals.unshift(d)}
+  logAct('📨 Antwoord op mailreeks: '+l.naam);saveData();toast('In pipeline als gesprek: '+l.naam);mrRender()}
+async function mrInsert(rows){var ex={};MR.leads.forEach(function(l){ex[l.email.toLowerCase()]=1});rows=rows.filter(function(r){var k=r.email.toLowerCase();if(ex[k])return false;ex[k]=1;return true});
+  if(!rows.length){toast('Niets nieuws om toe te voegen',true);return 0}
+  var r=await sb.from('outreach_leads').insert(rows.map(function(x){return Object.assign({user_id:CLOUD.uid,status:'wachtrij',next_at:new Date().toISOString()},x)}));if(r.error){toast(r.error.message,true);return 0}return rows.length}
+function mrFromPipeline(){var inMr={};MR.leads.forEach(function(l){inMr[l.email.toLowerCase()]=1});
+  var c=DATA.deals.filter(function(d){return d.email&&['nieuw','gecontacteerd'].indexOf(d.stage)>=0&&!inMr[d.email.toLowerCase()]&&!d.waOptOut});
+  var ok=c.filter(function(d){return mrGeneric(d.email)}),no=c.length-ok.length;
+  openM('📨 Leads uit je pipeline toevoegen','<p class="hint">Enkel algemene bedrijfsadressen (info@, contact@, …) mogen zonder toestemming gemaild worden. '+no+' leads met een persoonlijk of gratis adres (gmail, hotmail, voornaam@) worden overgeslagen.</p>'+
+   (ok.length?'<label style="display:flex;gap:8px;margin:8px 0"><input type="checkbox" checked onchange="document.querySelectorAll(\'.mrpk\').forEach(function(x){x.checked=this.checked}.bind(this))"> Alles</label><div style="max-height:50vh;overflow:auto">'+ok.map(function(d){return '<label style="display:flex;gap:8px;padding:6px 0;border-top:1px solid var(--line)"><input type="checkbox" class="mrpk" value="'+d.id+'" checked><span><b>'+esc(d.naam)+'</b> <span class="hint">'+esc(d.email)+' · '+esc(d.plaats||'')+'</span></span></label>'}).join('')+'</div>':'<p>Geen geschikte leads gevonden.</p>'),
+   (ok.length?'<button class="btn" onclick="mrPickSave()">Toevoegen aan reeks</button>':'')+'<button class="btn subtle" onclick="closeM()">Annuleren</button>',true)}
+async function mrPickSave(){var ids=[].slice.call(document.querySelectorAll('.mrpk:checked')).map(function(x){return x.value});
+  var rows=ids.map(function(id){var d=DATA.deals.find(function(x){return x.id===id});return {naam:d.naam,email:d.email.trim().toLowerCase(),tel:d.tel||'',plaats:d.plaats||'',cat:d.cat||'',web:d.website||'',deal_id:d.id,bron:'pipeline',opener:''}});
+  var n=await mrInsert(rows);closeM();if(n){toast(n+' leads in de wachtrij');rMailreeks()}}
+function mrAddManual(){openM('📨 Lead toevoegen','<div class="fgroup"><label>Bedrijfsnaam</label><input id="mm_n"></div><div class="fgroup"><label>E-mail (algemeen adres)</label><input id="mm_e" placeholder="info@zaak.be"></div><div class="fgroup"><label>Gemeente</label><input id="mm_p"></div><div class="fgroup"><label>Sector</label><input id="mm_c"></div><div class="fgroup"><label>Persoonlijke openingszin (optioneel)</label><textarea id="mm_o" rows="3" placeholder="Ik zag jullie zaak op Google: mooie reviews, maar nog geen eigen website."></textarea></div>','<button class="btn" onclick="mrManSave()">Toevoegen</button><button class="btn subtle" onclick="closeM()">Annuleren</button>')}
+async function mrManSave(){var e=mrVal('mm_e').trim().toLowerCase(),n=mrVal('mm_n').trim();if(!n||!e){toast('Naam en e-mail zijn verplicht',true);return}
+  if(!mrGeneric(e)&&!confirm(e+' lijkt een persoonlijk adres. Koude mails naar persoonlijke adressen mogen enkel met toestemming. Toch toevoegen?'))return;
+  var c=await mrInsert([{naam:n,email:e,plaats:mrVal('mm_p').trim(),cat:mrVal('mm_c').trim(),opener:mrVal('mm_o').trim(),bron:'handmatig'}]);closeM();if(c){toast('Toegevoegd');rMailreeks()}}
+(function(){var _go=go;go=function(v){if(v==='mailreeks'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rMailreeks();window.scrollTo(0,0);return}_go.apply(this,arguments)}})();
 </script>
 </body>
 </html>

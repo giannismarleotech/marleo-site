@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /hq/
 Disallow: /intake/
+Disallow: /uitschrijven/
 Disallow: /offerte/
 Disallow: /src/
 Disallow: /social/
