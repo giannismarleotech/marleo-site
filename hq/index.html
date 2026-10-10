@@ -15,7 +15,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#151722;--bg2:#1B1E2B;--panel:#212433;--panel2:#2A2E40;
@@ -436,6 +436,56 @@ body{-webkit-text-size-adjust:100%}
  table{font-size:.85rem}
  h2{font-size:1.5rem}
 }
+/* ===== MARLEO BRANDING (zelfde stijl als marleo.tech) ===== */
+:root:not([data-theme="light"]){
+  --bg:#120d12;--bg2:#150f15;--panel:rgba(28,20,28,.72);--panel2:#211821;
+  --line:rgba(255,255,255,.08);--text:#f6f2f5;--muted:#a79ca6;--track:rgba(255,255,255,.06);
+  --orange:#ff8a2b;--red:#ff4f5e;--pink:#ff2a86;
+  --grad:linear-gradient(100deg,#ff8a2b,#ff2a86);
+}
+:root{--disp:'Inter',system-ui,sans-serif;--mono:'Inter',system-ui,sans-serif}
+:root:not([data-theme="light"]) body{background:
+  radial-gradient(900px 520px at 0% -10%,rgba(255,138,43,.10),transparent 60%),
+  radial-gradient(900px 560px at 100% 0%,rgba(255,42,134,.10),transparent 60%),
+  linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px) 0 0/72px 72px,
+  linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px) 0 0/72px 72px,
+  #120d12;background-attachment:fixed}
+body{letter-spacing:-.005em}
+h1,h2,h3,.topbar h2,.panelbox h3,.modal-head h3,.stat .val{font-weight:700;letter-spacing:-.025em}
+.topbar h2{font-size:1.75rem}
+.navsec,.stat .label,th,.detail-grid .lbl{font-family:var(--body)!important;font-weight:700;letter-spacing:.16em!important;text-transform:uppercase}
+:root:not([data-theme="light"]) .navsec,:root:not([data-theme="light"]) .stat .label,:root:not([data-theme="light"]) th{color:#ff9a52}
+.navsec{font-size:.6rem}
+:root:not([data-theme="light"]) aside{background:rgba(15,10,15,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-right:1px solid rgba(255,255,255,.06)}
+aside .brand b{font-weight:700;letter-spacing:-.02em}
+.navmenu button{border-radius:12px;transition:background .2s,color .2s}
+:root:not([data-theme="light"]) .navmenu button.active{background:linear-gradient(100deg,rgba(255,138,43,.16),rgba(255,42,134,.16));box-shadow:inset 0 0 0 1px rgba(255,42,134,.28)}
+.navmenu button.active svg{color:#ff6aa8}
+:root:not([data-theme="light"]) .panelbox,:root:not([data-theme="light"]) .stat{background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,.7)}
+.panelbox{transition:border-color .25s}
+:root:not([data-theme="light"]) .panelbox:hover{border-color:rgba(255,42,134,.22)}
+.stat::before{height:2px;background:var(--grad)!important;opacity:.9}
+.stat:hover{border-color:rgba(255,42,134,.4)!important}
+:root:not([data-theme="light"]) .stat .val{background:linear-gradient(100deg,#ff8a2b,#ff2a86);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{border-radius:12px;font-weight:700;letter-spacing:.02em;box-shadow:0 10px 30px -10px rgba(255,42,134,.6)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 14px 36px -10px rgba(255,42,134,.75)}
+:root:not([data-theme="light"]) .btn.subtle{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);color:#e9e1e8;box-shadow:none}
+:root:not([data-theme="light"]) .btn.subtle:hover{border-color:#ff2a86;color:#fff}
+.tab{font-weight:700}
+:root:not([data-theme="light"]) .tab{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1)}
+.tab.active{box-shadow:0 8px 24px -10px rgba(255,42,134,.7)}
+:root:not([data-theme="light"]) input,:root:not([data-theme="light"]) select,:root:not([data-theme="light"]) textarea{background:#0e0a0e;border:1px solid rgba(255,255,255,.1);border-radius:12px}
+input:focus,select:focus,textarea:focus{border-color:#ff2a86!important;box-shadow:0 0 0 3px rgba(255,42,134,.18)!important}
+:root:not([data-theme="light"]) .modal{background:#1a121a;border:1px solid rgba(255,255,255,.1);border-radius:20px;box-shadow:0 40px 120px -20px rgba(0,0,0,.85)}
+:root:not([data-theme="light"]) .modal-backdrop{background:rgba(10,6,10,.72)}
+:root:not([data-theme="light"]) td{border-color:rgba(255,255,255,.06)}
+:root:not([data-theme="light"]) tbody tr:hover{background:rgba(255,42,134,.05)}
+:root:not([data-theme="light"]) .login-card{background:rgba(24,17,24,.85);backdrop-filter:blur(16px);border-color:rgba(255,255,255,.1)}
+::selection{background:rgba(255,42,134,.35);color:#fff}
+:root:not([data-theme="light"]) ::-webkit-scrollbar{width:10px;height:10px}
+:root:not([data-theme="light"]) ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:10px;border:2px solid #120d12}
+:root:not([data-theme="light"]) ::-webkit-scrollbar-thumb:hover{background:rgba(255,42,134,.5)}
+:root:not([data-theme="light"]) ::-webkit-scrollbar-track{background:transparent}
 </style>
 </head>
 <body>
