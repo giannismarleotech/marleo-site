@@ -6291,6 +6291,33 @@ async function waAutoSave(){var g=function(id){return document.getElementById(id
     if(waCfgd()&&typeof waTemplates==='function')waTemplates().then(function(ts){var dl=document.getElementById('waa_tpls');if(dl)dl.innerHTML=(ts||[]).map(function(t){return '<option value="'+esc(t.name)+'">'+esc(t.language+' · '+t.category)+'</option>'}).join('')}).catch(function(){})}
   if(INT.loaded)put();else intLoad().then(put)}})();
 
+
+/* ===== AGENTS: meldingen van de dagelijkse Marleo-agents (leads, opvolging, site-bewaker) ===== */
+var AGI=[],AGSEEN={};
+async function agFetch(){if(!sb||!CLOUD.uid)return;try{var r=await sb.from('agent_inbox').select('*').eq('user_id',CLOUD.uid).eq('status','nieuw').order('created_at',{ascending:false}).limit(200);if(r.error)return;
+  var fresh=(r.data||[]).filter(function(x){return !AGSEEN[x.id]});var first=!Object.keys(AGSEEN).length;(r.data||[]).forEach(function(x){AGSEEN[x.id]=1});AGI=r.data||[];
+  if(!first&&fresh.length)notifShow('🤖 '+fresh.length+' nieuwe agent-melding'+(fresh.length>1?'en':''),fresh[0].title,'ag'+fresh[0].id);
+  if(typeof VIEW!=='undefined'&&VIEW==='dashboard'&&(fresh.length||first))go('dashboard')}catch(e){}}
+var AGICON={lead:'🎯',opvolg:'🔁',site:'🛰️',info:'💡'},AGNAME={leads:'Leads-agent',opvolg:'Opvolg-agent',site:'Site-bewaker',social:'Social-agent'};
+async function agSet(id,st){var x=AGI.find(function(a){return a.id===id});await sb.from('agent_inbox').update({status:st,done_at:new Date().toISOString()}).eq('id',id);AGI=AGI.filter(function(a){return a.id!==id});var el=document.getElementById('ag_'+id);if(el)el.remove();if(!AGI.length){var p=document.getElementById('agDash');if(p)p.remove()}}
+function agLead(id){var x=AGI.find(function(a){return a.id===id});if(!x)return;var g=x.data||{};
+  var low=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'')},tn=function(s){return String(s||'').replace(/\D/g,'').slice(-9)};
+  var dup=DATA.deals.find(function(d){return (g.naam&&low(d.naam)===low(g.naam))||(g.tel&&tn(d.tel)&&tn(d.tel)===tn(g.tel))});
+  if(dup){toast('Staat al in je pipeline: '+dup.naam,true);agSet(id,'dubbel');return}
+  var d={id:nid('deal'),agentId:x.id,naam:g.naam||x.title,tel:g.tel||'',email:g.email||'',plaats:g.plaats||'',cat:g.cat||'',kanaal:'Agent',stage:'nieuw',value:0,prio:'Normaal',
+    note:[g.web?'Website: '+g.web:'Geen website gevonden',g.waarom||'',g.bron?'Bron: '+g.bron:''].filter(Boolean).join('\n'),waVoorstel:g.bericht||'',follow:today(),laatstContact:'',
+    log:[{t:Date.now(),txt:'🤖 Voorgesteld door Leads-agent'}],created:Date.now()};
+  DATA.deals.unshift(d);logAct('🤖 Lead uit agent: '+d.naam);saveData();agSet(id,'gedaan');toast('In pipeline gezet: '+d.naam)}
+function agRow(x){var g=x.data||{},b='';
+  if(x.kind==='lead'){b='<button class="btn sm" onclick="agLead(\''+x.id+'\')">→ Pipeline</button>'+(g.web?'<a class="btn sm subtle" target="_blank" href="'+esc(/^https?:/.test(g.web)?g.web:'https://'+g.web)+'">Site</a>':'')}
+  else if(g.url)b='<a class="btn sm" target="_blank" href="'+esc(g.url)+'">Open</a>';
+  b+='<button class="btn sm subtle" onclick="agSet(\''+x.id+'\',\''+(x.kind==='lead'?'genegeerd':'gedaan')+'\')">'+(x.kind==='lead'?'Negeer':'✓ Gedaan')+'</button>';
+  return '<div id="ag_'+x.id+'" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid var(--line)"><div style="min-width:0"><b>'+(AGICON[x.kind]||'💡')+' '+esc(x.title)+'</b><div class="hint" style="margin:2px 0 0;white-space:pre-line">'+esc((x.body||'').slice(0,260))+'</div>'+(x.kind==='lead'&&g.bericht?'<details style="margin-top:4px"><summary class="hint" style="cursor:pointer;margin:0">Voorgesteld bericht</summary><div class="hint" style="white-space:pre-line;margin:4px 0">'+esc(g.bericht)+'</div></details>':'')+'<div class="hint" style="margin:2px 0 0;opacity:.7">'+(AGNAME[x.agent]||x.agent)+' · '+new Date(x.created_at).toLocaleString('nl-BE')+'</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:none">'+b+'</div></div>'}
+function mAgents(){openM('🤖 Agent-meldingen',(AGI.length?AGI.map(agRow).join(''):'<p class="hint">Niets open. De agents draaien elke werkdag en zetten hier wat je moet bekijken.</p>'),'<button class="btn" onclick="closeM()">Sluiten</button>',true)}
+(function(){var _rd=rDash;rDash=function(){_rd.apply(this,arguments);var s=main().querySelector('.stats');if(!AGI.length||!s||document.getElementById('agDash'))return;
+  var cnt={};AGI.forEach(function(x){cnt[x.kind]=(cnt[x.kind]||0)+1});
+  s.insertAdjacentHTML('afterend','<div class="panelbox" id="agDash" style="border-color:rgba(255,42,134,.45)"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">🤖 Agents <span class="hint">'+Object.keys(cnt).map(function(k){return (AGICON[k]||'')+' '+cnt[k]}).join(' · ')+'</span></h3><button class="btn sm subtle" onclick="mAgents()">Alles ('+AGI.length+')</button></div>'+AGI.slice(0,6).map(agRow).join('')+'</div>')}})();
+setTimeout(agFetch,4000);setInterval(agFetch,5*60*1000);
 </script>
 </body>
 </html>
