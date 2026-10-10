@@ -4,6 +4,7 @@ Gebruik: python3 src/site/build.py   (vanuit de repo-root)"""
 import json, os, html, sys, datetime
 sys.path.insert(0, os.path.dirname(__file__))
 from extra import UI, DEEP, PORTFOLIO
+from audit_txt import CHK as AUD_CHK, P as AUD_P
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 C = json.load(open(os.path.join(os.path.dirname(__file__), 'content.json'), encoding='utf-8'))
@@ -14,7 +15,16 @@ V = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
 E = lambda s: html.escape(str(s), quote=True)
 
 PAGES = ['diensten', 'managed-it', 'cloud', 'security', 'ai-infrastructuur', 'development', 'games',
-         'websites', 'webshop', 'branding', 'domeincheck', 'projecten', 'prijzen', 'over-ons', 'contact']
+         'websites', 'webshop', 'branding', 'domeincheck', 'website-audit', 'projecten', 'prijzen', 'over-ons', 'contact']
+
+def _audit_nav():
+    for l in LANGS:
+        t = COPY[l]; a = AUD_P[l]
+        t['labels']['website-audit'] = a['crumb']
+        t['navDesc']['website-audit'] = {'nl': 'Gratis scan van je website', 'en': 'Free scan of your website', 'fr': 'Analyse gratuite de votre site'}[l]
+        for g in t['navGroups']:
+            if 'keys' in g and 'websites' in g['keys'] and 'website-audit' not in g['keys']:
+                g['keys'].append('website-audit')
 
 def url(lang, slug=''):
     p = '/' if lang == 'nl' else '/%s/' % lang
@@ -37,6 +47,7 @@ ICONS = {  # simpele lijn-iconen per dienst
  'websites': '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/>',
  'games': '<rect x="2.5" y="7" width="19" height="10" rx="5"/><path d="M7 12h4M9 10v4M15.5 11h.01M17.5 13h.01"/>',
  'branding': '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17"/><circle cx="12" cy="12" r="3"/>',
+ 'website-audit': '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
  'domeincheck': '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
 }
 def icon(k):
@@ -52,6 +63,14 @@ DOM_UI = {
 SUB = {'privacy': '/privacy/', 'voorwaarden': '/voorwaarden/', 'nis2': '/nis2/'}
 
 # ---------------------------------------------------------------- layout
+LDJSON = '<script type="application/ld+json">' + json.dumps({
+    "@context": "https://schema.org", "@type": "ProfessionalService", "name": "Marleo", "url": "https://marleo.tech/",
+    "logo": "https://marleo.tech/assets/og.jpg", "image": "https://marleo.tech/assets/og.jpg",
+    "description": "Managed IT, cloud, security, AI-infrastructuur en websites op maat voor organisaties.",
+    "telephone": "+32456920025", "email": "info@marleo.tech", "vatID": "BE1041196713",
+    "address": {"@type": "PostalAddress", "streetAddress": "Graaf van Hoornestraat 2B", "postalCode": "9850", "addressLocality": "Nevele", "addressCountry": "BE"},
+    "areaServed": ["BE", "NL"], "sameAs": ["https://instagram.com/marleo.tech"]}, ensure_ascii=False) + '</script>'
+
 def head(lang, slug, title, desc):
     alts = ''.join('<link rel="alternate" hreflang="%s" href="%s%s">' % (l, SITE, url(l, slug)) for l in LANGS)
     alts += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, url('nl', slug))
@@ -68,8 +87,8 @@ def head(lang, slug, title, desc):
             '<link rel="stylesheet" href="/assets/site.css?v=%s">'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
             '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'
-            '</head><body>') % (lang, E(title), E(desc), SITE, url(lang, slug), alts, E(title), E(desc), SITE, url(lang, slug), SITE, FAV, V,
-                                 json.dumps(keep, ensure_ascii=False), V)
+            '%s</head><body>') % (lang, E(title), E(desc), SITE, url(lang, slug), alts, E(title), E(desc), SITE, url(lang, slug), SITE, FAV, V,
+                                 json.dumps(keep, ensure_ascii=False), V, LDJSON if slug == '' else '')
 
 def header(lang, slug):
     t = COPY[lang]; u = UI[lang]
@@ -205,8 +224,12 @@ def home(lang):
     dom = ('<section class="sec" style="padding-top:0"><div class="wrap"><a class="card rv" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
            '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
         url(lang, 'domeincheck'), icon('domeincheck'), E(t['domainTeaser']), E(t['domainTeaserCta']))
+    aa = AUD_P[lang]
+    aud = ('<section class="sec" style="padding-top:0;padding-bottom:18px"><div class="wrap"><a class="card rv audteaser" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
+           '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
+        url(lang, 'website-audit'), icon('website-audit'), E(aa['teaser']), E(aa['teaserCta']))
     title = 'Marleo · ' + {'nl': 'Managed IT, cloud, security, AI & websites', 'en': 'Managed IT, cloud, security, AI & websites', 'fr': 'IT managé, cloud, sécurité, IA & sites web'}[lang]
-    return page(lang, '', title, UI[lang]['metaHome'], hero + metrics + svc + work + dom + band(lang))
+    return page(lang, '', title, UI[lang]['metaHome'], hero + metrics + svc + aud + work + dom + band(lang))
 
 def service(lang, k):
     t = COPY[lang]; u = UI[lang]; p = t['pages'][k]; dp = DEEP.get(k, {}); dl = dp.get(lang, {})
@@ -300,12 +323,28 @@ def contact(lang):
     return page(lang, 'contact', '%s · Marleo' % p['title'], p['lead'][:158], out)
 
 # ---------------------------------------------------------------- schrijven
+
+def audit_page(lang):
+    a = AUD_P[lang]; li = LANGS.index(lang)
+    data = {k: a[k] for k in ('btn','busy','steps','cats','total','good','warn','bad','issues','passed','none','ctaT','ctaB','ctaBtn','ctaMail','mailT','mailName','mailEmail','mailSend','mailOk','errUrl','errReach','errLimit','note')}
+    data['chk'] = {k: list(v[li]) for k, v in AUD_CHK.items()}; data['book'] = '/afspraak/?lang=' + lang; data['lang'] = lang
+    form = ('<section class="sec" style="padding-top:0"><div class="wrap"><form id="audform" class="audform rv" novalidate>'
+            '<div class="audin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
+            '<input name="url" inputmode="url" autocomplete="url" placeholder="%s" aria-label="URL" required></div>'
+            '<button class="btn btn-p" type="submit">%s %s</button></form><p class="audmsg" id="audmsg" aria-live="polite"></p>'
+            '<div id="audres" class="audres"></div></div></section>') % (E(a['ph']), E(a['btn']), ARROW)
+    how = '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(None, a['how']), blocks([{'abbr': '%02d' % (i+1), 'title': t, 'body': b} for i, (t, b) in enumerate(a['howItems'])]))
+    body = phero(lang, 'website-audit', a['crumb'], a['title'], a['lead'], acts=False) + form + how + band(lang)
+    body += '<script>window.__AUD=%s</script><script defer src="/assets/audit.js?v=%s"></script>' % (json.dumps(data, ensure_ascii=False), V)
+    return page(lang, 'website-audit', a['metaT'], a['metaD'], body)
+
 def write(path, s):
     full = os.path.join(ROOT, path.lstrip('/'), 'index.html')
     os.makedirs(os.path.dirname(full), exist_ok=True)
     open(full, 'w', encoding='utf-8').write(s)
 
 def main():
+    _audit_nav()
     urls = []
     for lang in LANGS:
         write(url(lang), home(lang)); urls.append(url(lang))
@@ -315,6 +354,7 @@ def main():
             elif k == 'prijzen': s = prijzen(lang)
             elif k == 'over-ons': s = overons(lang)
             elif k == 'contact': s = contact(lang)
+            elif k == 'website-audit': s = audit_page(lang)
             else: s = service(lang, k)
             write(url(lang, k), s); urls.append(url(lang, k))
     today = datetime.date.today().isoformat()
