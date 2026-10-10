@@ -6304,7 +6304,7 @@ function agLead(id){var x=AGI.find(function(a){return a.id===id});if(!x)return;v
   var low=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'')},tn=function(s){return String(s||'').replace(/\D/g,'').slice(-9)};
   var dup=DATA.deals.find(function(d){return (g.naam&&low(d.naam)===low(g.naam))||(g.tel&&tn(d.tel)&&tn(d.tel)===tn(g.tel))});
   if(dup){toast('Staat al in je pipeline: '+dup.naam,true);agSet(id,'dubbel');return}
-  var d={id:nid('deal'),agentId:x.id,naam:g.naam||x.title,tel:g.tel||'',email:g.email||'',plaats:g.plaats||'',cat:g.cat||'',kanaal:'Agent',stage:'nieuw',value:0,prio:'Normaal',
+  var d={id:nid('deal'),agentId:x.id,naam:g.naam||x.title,tel:g.tel||'',email:g.email||'',plaats:g.plaats||'',cat:g.cat||'',website:g.web||'',kanaal:'Agent',stage:'nieuw',value:0,prio:'Normaal',
     note:[g.web?'Website: '+g.web:'Geen website gevonden',g.waarom||'',g.bron?'Bron: '+g.bron:''].filter(Boolean).join('\n'),waVoorstel:g.bericht||'',follow:today(),laatstContact:'',
     log:[{t:Date.now(),txt:'🤖 Voorgesteld door Leads-agent'}],created:Date.now()};
   DATA.deals.unshift(d);logAct('🤖 Lead uit agent: '+d.naam);saveData();agSet(id,'gedaan');toast('In pipeline gezet: '+d.naam)}
