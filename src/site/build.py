@@ -198,8 +198,10 @@ def home(lang):
         '<div class="metric"><b class="gt">%s</b><span>%s</span></div>' % (E(m['value']), E(m['label'])) for m in t['metrics'])
     svc = ('<section class="sec"><div class="wrap">%s%s<div style="margin-top:28px" class="rv"><a class="btn btn-g" href="%s">%s %s</a></div></div></section>') % (
         sec_head(t['labels']['diensten'], t['servicesTitle'], t['servicesIntro']), svc_cards(lang, KEYS), url(lang, 'diensten'), E(t['allServices']), ARROW)
-    work = ('<section class="sec" style="padding-top:0"><div class="wrap">%s%s<div style="margin-top:32px" class="rv"><a class="btn btn-p" href="%s">%s %s</a></div></div></section>') % (
-        sec_head(u['work'], u['homeWorkTitle'], u['homeWorkLead']), work_cards(lang, PORTFOLIO[:6]), url(lang, 'websites') + '#werk', E(u['workCta']), ARROW)
+    wt = {'nl': 'Bekijk de websites die we bouwden', 'en': 'See the websites we built', 'fr': 'Voir les sites que nous avons créés'}[lang]
+    work = ('<section class="sec" style="padding-top:0;padding-bottom:18px"><div class="wrap"><a class="card rv" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
+            '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
+        url(lang, 'websites') + '#werk', icon('websites'), E(wt), E(u['workCta']))
     dom = ('<section class="sec" style="padding-top:0"><div class="wrap"><a class="card rv" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
            '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
         url(lang, 'domeincheck'), icon('domeincheck'), E(t['domainTeaser']), E(t['domainTeaserCta']))
