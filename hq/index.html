@@ -486,6 +486,35 @@ input:focus,select:focus,textarea:focus{border-color:#ff2a86!important;box-shado
 :root:not([data-theme="light"]) ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:10px;border:2px solid #120d12}
 :root:not([data-theme="light"]) ::-webkit-scrollbar-thumb:hover{background:rgba(255,42,134,.5)}
 :root:not([data-theme="light"]) ::-webkit-scrollbar-track{background:transparent}
+.panelbox h3{justify-content:flex-start}.panelbox h3>:last-child:not(.icw){margin-left:auto}
+.stat .val{white-space:nowrap}@media(max-width:700px){.stat .val{font-size:clamp(1.15rem,5.6vw,1.5rem)!important}.stat .label{letter-spacing:.08em!important;font-size:.64rem}.stat{padding:16px!important}}
+/* ===== POLISH ===== */
+.icw{display:inline-flex;align-items:center;vertical-align:-.16em;margin-right:.42em}
+.icw .ico{width:1.08em;height:1.08em;flex:none}
+.panelbox h3 .icw,.modal-head h3 .icw,.topbar h2 .icw{color:#ff6a8a}
+.btn .icw{margin-right:.35em}.btn .icw .ico{width:1em;height:1em}
+.pill .icw{margin-right:.3em}.pill .icw .ico{width:.95em;height:.95em}
+#toast .icw{margin-right:.5em}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+#mainArea.viewin>.topbar{animation:viewIn .45s cubic-bezier(.2,.7,.2,1) both}
+#mainArea.viewin .stats>.stat,#mainArea.viewin>.panelbox,#mainArea.viewin>.tabs,#mainArea.viewin>div>.panelbox{animation:riseIn .55s cubic-bezier(.2,.7,.2,1) both}
+#mainArea.viewin .stats>.stat:nth-child(2){animation-delay:.05s}#mainArea.viewin .stats>.stat:nth-child(3){animation-delay:.1s}#mainArea.viewin .stats>.stat:nth-child(4){animation-delay:.15s}#mainArea.viewin .stats>.stat:nth-child(n+5){animation-delay:.2s}
+#mainArea.viewin>.panelbox:nth-of-type(2){animation-delay:.08s}#mainArea.viewin>.panelbox:nth-of-type(3){animation-delay:.14s}#mainArea.viewin>.panelbox:nth-of-type(n+4){animation-delay:.2s}
+.tabs.has-ind{position:relative;isolation:isolate}
+.tabs.has-ind .tab.active{background:transparent!important;box-shadow:none!important}
+.tabs.has-ind .tab{position:relative;z-index:1;transition:color .25s}
+.tabind{position:absolute;left:0;top:0;border-radius:999px;background:var(--grad);box-shadow:0 8px 24px -10px rgba(255,42,134,.7);z-index:0;transition:transform .42s cubic-bezier(.3,.8,.2,1),width .42s cubic-bezier(.3,.8,.2,1),height .3s;pointer-events:none}
+.navmenu button{position:relative;overflow:hidden}
+.navmenu button:hover{transform:translateX(2px)}
+.navmenu button{transition:background .2s,color .2s,transform .2s}
+.btn{position:relative;overflow:hidden}
+.btn:not(.subtle)::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s}
+.btn:not(.subtle):hover::after{transform:translateX(120%)}
+.stat{transition:transform .25s cubic-bezier(.2,.7,.2,1),border-color .25s,box-shadow .25s}
+.stat:hover{box-shadow:0 18px 40px -20px rgba(255,42,134,.45)}
+#toast{border-radius:14px;backdrop-filter:blur(10px)}
+@media (prefers-reduced-motion:reduce){#mainArea.viewin *,#mainArea.viewin>*{animation:none!important}.tabind{transition:none}}
 </style>
 </head>
 <body>
@@ -1441,7 +1470,7 @@ function rCustomers(){
      var invs=DATA.invoices.filter(function(i){return i.customerId===c.id});
      var om=invs.reduce(function(s,i){return s+invSub(i)},0);
      var op=invs.filter(function(i){return invStatus(i)!=='betaald'&&i.status!=='concept'}).reduce(function(s,i){return s+invTot(i)},0);
-     return '<tr onclick="vCustomer(\''+c.id+'\')"><td><b>'+esc(c.name)+'</b></td><td>'+esc(c.address||', ')+'</td>'+
+     return '<tr onclick="vCustomer(\''+c.id+'\')"><td><b>'+esc(c.name)+'</b></td><td>'+(c.address?esc(c.address):'<span class="hint">–</span>')+'</td>'+
      '<td>'+(c.vat?esc(c.vat):'<span style="color:var(--muted)">, </span>')+'</td>'+
      '<td style="font-size:.82rem">'+esc(c.phone||'')+(c.email?'<br>'+esc(c.email):'')+'</td>'+
      '<td class="num">'+eur(om)+'</td><td class="num">'+(op?'<b style="color:#FBBF24">'+eur(op)+'</b>':', ')+'</td>'+
@@ -1484,7 +1513,7 @@ function rCustPage(){
   '<div class="custcols">'+
     '<div class="panelbox"><h3>Contactgegevens</h3>'+
       '<div class="detail-grid" style="margin-top:6px">'+
-      '<div><div class="lbl">Adres</div>'+esc(c.address||', ')+'</div>'+
+      '<div><div class="lbl">Adres</div>'+(c.address?esc(c.address):'<span class="hint">–</span>')+'</div>'+
       '<div><div class="lbl">BTW-nummer</div>'+(c.vat?esc(c.vat):'<span style="color:#FBBF24">nog in te vullen</span>')+'</div>'+
       '<div><div class="lbl">Telefoon</div>'+esc(c.phone||', ')+'</div>'+
       '<div><div class="lbl">E-mail</div>'+esc(c.email||', ')+'</div>'+
@@ -3330,7 +3359,7 @@ function intPanel(){var g=gCfg();var row=INT.row||{};var ep='https://ufzwdhbrmyc
   '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">🔗 LinkedIn</summary><div class="hint" style="margin:8px 0">LinkedIn heeft geen open API voor zoeken; bij elke klant en lead staat een knop die de contactpersoon of het bedrijf meteen opzoekt op LinkedIn. Bij grotere bedrijven (IT/cybersecurity) handig om de beslisser te vinden.</div></details>'+
   '</div>'}
 var _rSettings0=rSettings;rSettings=function(){_rSettings0();var el=main();var tmp=document.createElement('div');tmp.innerHTML=intPanel();el.insertBefore(tmp.firstChild,el.firstChild);gStatus();
-  if(!INT.loaded)intLoad().then(function(){var t=document.getElementById('ws_token');if(t&&!t.value)t.value=INT.row.wise_token||'';var w=document.getElementById('wa_token');if(w&&!w.value)w.value=INT.row.wa_token||'';var p=document.getElementById('wa_phone');if(p&&!p.value)p.value=INT.row.wa_phone_id||'';var v=document.getElementById('wa_verify');if(v&&INT.row.wa_verify_token)v.value=INT.row.wa_verify_token;var s=document.getElementById('wa_status');if(s&&waCfgd())s.textContent='ingesteld'})};
+  if(!INT.loaded)intLoad().then(function(){var t=document.getElementById('ws_token');if(t&&!t.value)t.value=(INT.row||{}).wise_token||'';var w=document.getElementById('wa_token');if(w&&!w.value)w.value=(INT.row||{}).wa_token||'';var p=document.getElementById('wa_phone');if(p&&!p.value)p.value=(INT.row||{}).wa_phone_id||'';var v=document.getElementById('wa_verify');if(v&&(INT.row||{}).wa_verify_token)v.value=(INT.row||{}).wa_verify_token;var s=document.getElementById('wa_status');if(s&&waCfgd())s.textContent='ingesteld'})};
 
 /* injecties in bestaande schermen: communicatie-blok, LinkedIn-knoppen, mail-via-CRM */
 var _rCustPage0=rCustPage;rCustPage=function(){_rCustPage0();var c=customer(CUSTVIEW);if(!c)return;
@@ -6447,6 +6476,135 @@ async function mrManSave(){var e=mrVal('mm_e').trim().toLowerCase(),n=mrVal('mm_
   if(!mrGeneric(e)&&!confirm(e+' lijkt een persoonlijk adres. Koude mails naar persoonlijke adressen mogen enkel met toestemming. Toch toevoegen?'))return;
   var c=await mrInsert([{naam:n,email:e,plaats:mrVal('mm_p').trim(),cat:mrVal('mm_c').trim(),opener:mrVal('mm_o').trim(),bron:'handmatig'}]);closeM();if(c){toast('Toegevoegd');rMailreeks()}}
 (function(){var _go=go;go=function(v){if(v==='mailreeks'){VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});rMailreeks();window.scrollTo(0,0);return}_go.apply(this,arguments)}})();
+
+/* ===== POLISH: lijn-iconen i.p.v. emoji, overgangen, schuivende tabs, tellende cijfers ===== */
+(function(){
+var P={
+check:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+clip:'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
+cal:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+eyeoff:'<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20"/>',
+search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+bank:'<path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2l8 5H4z"/>',
+pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/>',
+video:'<path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/>',
+alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+bot:'<rect width="18" height="12" x="3" y="8" rx="2"/><path d="M12 8V4H8M2 14h2M20 14h2M15 13v2M9 13v2"/>',
+palette:'<circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/>',
+building:'<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',
+ban:'<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+spark:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+cog:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+unlock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+down:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+xc:'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>',
+folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+activity:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+square:'<rect width="14" height="14" x="5" y="5" rx="2"/>',
+pause:'<path d="M8 5v14M16 5v14"/>',
+skip:'<path d="m5 4 10 8-10 8V4zM19 5v14"/>',
+heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+monitor:'<rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>',
+paperclip:'<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+bulb:'<path d="M9 18h6M10 22h4M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
+repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+refresh:'<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/>',
+plug:'<path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
+key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+map:'<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>',
+rocket:'<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>',
+car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
+box:'<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
+receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8H8M16 12H8M13 16H8"/>',
+card:'<rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/>',
+euro:'<path d="M4 10h12M4 14h9M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>',
+brief:'<rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+chart:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+book:'<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>',
+phone2:'<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
+smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>',
+scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/>',
+utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+arrowr:'<path d="M5 12h14M12 5l7 7-7 7"/>',
+arrowu:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+arrowd:'<path d="M12 5v14M19 12l-7 7-7-7"/>'
+};
+var E={'✅':'check','👍':'check','✉':'mail','📧':'mail','📨':'send','📤':'up','📥':'inbox','📩':'inbox','💬':'msg','📋':'clip','📅':'cal','🗓':'cal','🌐':'globe','🌍':'globe','📞':'phone','📱':'phone2','👁':'eye','👀':'eye','🙈':'eyeoff','🔍':'search','🔎':'search','🏦':'bank','✍':'pen','✎':'pen','📝':'file','📄':'file','📘':'book','📹':'video','⚠':'alert','🚨':'alert','⏰':'clock','⏳':'clock','⏱':'clock','🕔':'clock','🤖':'bot','🎨':'palette','🏢':'building','🚫':'ban','⛔':'ban','🗑':'trash','🔗':'link','📍':'pin','📌':'pin','☁':'cloud','🎉':'spark','✨':'spark','🆕':'spark','🎯':'target','⚙':'cog','🔒':'lock','🔐':'lock','🔑':'key','🔓':'unlock','🔥':'flame','⬇':'arrowd','⬆':'arrowu','➤':'arrowr','🛡':'shield','👤':'user','🚶':'user','💇':'scissors','🤝':'users','❌':'xc','📁':'folder','🛰':'activity','☀':'sun','🌙':'moon','⏹':'square','⏸':'pause','⏭':'skip','❤':'heart','🖥':'monitor','💻':'monitor','📎':'paperclip','💡':'bulb','🔁':'repeat','🔄':'refresh','🔌':'plug','🔔':'bell','🔨':'wrench','🛠':'wrench','⚒':'wrench','🗺':'map','🚀':'rocket','🚗':'car','🚛':'car','📦':'box','🧩':'box','🥫':'box','🧾':'receipt','🎫':'receipt','💳':'card','💶':'euro','💼':'brief','📊':'chart','🙂':'smile','🍽':'utensils','⚡':'zap'};
+var RX=/(?:[\u{1F1E6}-\u{1F1FF}]{2})|(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{2712}\u{2714}\u{2716}-\u{2716}\u{2728}-\u{27BF}\u{2B00}-\u{2BFF}\u{23E9}-\u{23FA}\u{231A}\u{231B}\u{2328}\u{23CF}])\u{FE0F}?(?:\u{200D}[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]\u{FE0F}?)*/gu;
+var SKIP={TEXTAREA:1,INPUT:1,SCRIPT:1,STYLE:1,SVG:1,svg:1,TITLE:1,NOSCRIPT:1};
+function svg(n){return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+P[n]+'</svg>'}
+window.icoSvg=svg;window.ICONS=P;
+function strip(s){return s.replace(RX,'').replace(/️/g,'')}
+window.noEmoji=strip;
+function fix(t){var v=t.nodeValue;if(!v||!RX.test(v)){RX.lastIndex=0;return}RX.lastIndex=0;var par=t.parentNode;if(!par)return;
+  for(var a=par;a;a=a.parentNode){if(a.nodeType===1&&(SKIP[a.nodeName]||a.isContentEditable))return}
+  if(par.nodeName==='OPTION'||par.nodeName==='OPTGROUP'){t.nodeValue=strip(v).replace(/^\s+/,'');return}
+  var frag=document.createDocumentFragment(),last=0,m,any=false;
+  v.replace(RX,function(match,off){var before=v.slice(last,off);if(before)frag.appendChild(document.createTextNode(before));var key=match.replace(/️/g,'').replace(/‍.*$/,'');var n=E[key];
+    if(n){var w=document.createElement('span');w.className='icw';w.innerHTML=svg(n);frag.appendChild(w);any=true}
+    last=off+match.length;if(v.charAt(last)===' '&&n)last++;return match});
+  var rest=v.slice(last);if(rest)frag.appendChild(document.createTextNode(rest));
+  par.replaceChild(frag,t)}
+function walk(root){if(!root)return;if(root.nodeType===3){fix(root);return}if(root.nodeType!==1||SKIP[root.nodeName])return;
+  var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),list=[],n;while(n=w.nextNode())list.push(n);list.forEach(fix)}
+window.icoWalk=walk;
+var mo=new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')fix(m.target);else m.addedNodes.forEach(walk)})});
+function start(){walk(document.body);mo.observe(document.body,{childList:true,subtree:true,characterData:true});document.title=strip(document.title)}
+if(document.body)start();else document.addEventListener('DOMContentLoaded',start);
+/* systeemmeldingen ook zonder emoji */
+if(typeof notifShow==='function'){var _n=notifShow;window.notifShow=notifShow=function(t,b,g){return _n.call(this,strip(String(t||'')).trim(),strip(String(b||'')).trim(),g)}}
+
+/* tellende cijfers in de statistiekkaarten */
+function countUp(el){if(el.__cu)return;el.__cu=1;var txt=el.textContent;var m=txt.match(/-?\d{1,3}(?:\.\d{3})*(?:,\d+)?|-?\d+(?:,\d+)?/);if(!m)return;
+  var raw=m[0],dec=(raw.split(',')[1]||'').length,num=parseFloat(raw.replace(/\./g,'').replace(',','.'));if(!isFinite(num)||Math.abs(num)<2&&!dec)return;
+  var pre=txt.slice(0,m.index),post=txt.slice(m.index+raw.length),t0=performance.now(),dur=750;
+  var fmt=function(x){return x.toLocaleString('nl-BE',{minimumFractionDigits:dec,maximumFractionDigits:dec})};
+  var node=null;for(var c=el.firstChild;c;c=c.nextSibling)if(c.nodeType===3&&c.nodeValue.indexOf(raw)>=0){node=c;break}
+  if(!node||el.children.length>2)return;var npre=node.nodeValue.slice(0,node.nodeValue.indexOf(raw)),npost=node.nodeValue.slice(node.nodeValue.indexOf(raw)+raw.length);
+  (function step(now){var k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);node.nodeValue=npre+fmt(num*e)+npost;if(k<1)requestAnimationFrame(step);else node.nodeValue=npre+raw+npost})(t0)}
+/* schuivende indicator onder de actieve tab */
+var TABPOS={};
+function tabSlider(){document.querySelectorAll('#mainArea .tabs').forEach(function(tb,i){var a=tb.querySelector('.tab.active');if(!a)return;tb.classList.add('has-ind');
+  var ind=tb.querySelector('.tabind');if(!ind){ind=document.createElement('span');ind.className='tabind';tb.insertBefore(ind,tb.firstChild)}
+  var key=(window.VIEW||'')+':'+i,to={l:a.offsetLeft,t:a.offsetTop,w:a.offsetWidth,h:a.offsetHeight},from=TABPOS[key]||to;
+  ind.style.transition='none';ind.style.transform='translate('+from.l+'px,'+from.t+'px)';ind.style.width=from.w+'px';ind.style.height=from.h+'px';ind.offsetWidth;
+  ind.style.transition='';ind.style.transform='translate('+to.l+'px,'+to.t+'px)';ind.style.width=to.w+'px';ind.style.height=to.h+'px';TABPOS[key]=to})}
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function after(v,same){var m=document.getElementById('mainArea');if(!m)return;
+  if(!reduce&&!same){m.classList.remove('viewin');void m.offsetWidth;m.classList.add('viewin')}
+  if(!reduce&&!same)m.querySelectorAll('.stat .val').forEach(countUp);
+  tabSlider()}
+var LASTV=null;
+if(typeof go==='function'){var _go=go;window.go=go=function(v){var same=(v===LASTV);_go.apply(this,arguments);LASTV=v;requestAnimationFrame(function(){after(v,same)})}}
+window.addEventListener('resize',function(){TABPOS={};tabSlider()});
+/* tabs die enkel de inhoud hertekenen (zonder go) ook laten schuiven */
+document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.tab'))setTimeout(tabSlider,0)},true);
+})();
 </script>
 </body>
 </html>
