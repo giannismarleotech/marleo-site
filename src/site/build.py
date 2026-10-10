@@ -112,7 +112,7 @@ def header(lang, slug):
             k = g['key']
             items.append('<div class="it"><a class="lk%s%s" href="%s" data-slug="%s">%s</a></div>' % (' on' if k == slug else '', ' opt' if k == 'over-ons' else '', url(lang, k), k, E(g['label'])))
     items.append('<div class="it"><a class="lk%s" href="%s" data-slug="projecten">%s</a></div>' % (' on' if slug == 'projecten' else '', url(lang, 'projecten'), E(u['work'])))
-    langs = '<div class="langs">' + ''.join('<a href="%s" hreflang="%s"%s>%s</a>' % (url(l, slug), l, ' class="on" aria-current="true"' if l == lang else '', l.upper()) for l in LANGS) + '</div>'
+    langs = '<div class="langs">' + ''.join('<a href="%s" hreflang="%s"%s>%s</a>' % (url(l, '' if slug.startswith('kennisbank') and l != 'nl' else slug), l, ' class="on" aria-current="true"' if l == lang else '', l.upper()) for l in LANGS) + '</div>'
     book = '/afspraak/'
     # mobiel menu
     sheet = ''
