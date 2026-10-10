@@ -533,6 +533,28 @@ input:focus,select:focus,textarea:focus{border-color:#ff2a86!important;box-shado
 .navmenu{gap:0!important}
 .navmenu .navsec-btn,.navmenu .navsec-btn:hover{padding:16px 12px 6px;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#c98a63;background:none!important;transform:none!important;border-radius:0;box-shadow:none!important}
 .navgrp:first-of-type .navsec-btn{padding-top:6px}
+/* ===== STATISTIEKEN ===== */
+.a2bar0{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}.a2bar0 select{width:auto;min-width:220px}
+.a2stats{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.a2stats{grid-template-columns:repeat(2,1fr)}}
+.a2k .hint span{color:var(--muted)}
+.a2d{font-weight:700;font-size:.78rem;color:var(--muted)}.a2d.up{color:#4ade80}.a2d.down{color:#f87171}
+.a2live{display:inline-flex;align-items:center;gap:6px;color:#4ade80;font-weight:600}.a2live i{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:a2pulse 1.8s infinite}
+@keyframes a2pulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}70%{box-shadow:0 0 0 9px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.a2chart{position:relative;height:240px}.a2chart svg{width:100%;height:220px;display:block}
+.a2g{stroke:rgba(255,255,255,.07)}.a2ax{fill:var(--muted);font-size:11px;font-family:Inter,system-ui,sans-serif}
+.a2cur{stroke:rgba(255,255,255,.35);stroke-dasharray:3 3}
+.a2tip{position:absolute;pointer-events:none;background:#1f161f;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 12px;font-size:.8rem;box-shadow:0 12px 30px rgba(0,0,0,.5);white-space:nowrap}
+.a2leg{display:flex;gap:18px;font-size:.78rem;color:var(--muted);margin-top:2px}.a2leg i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}.a2leg i.dash{background:repeating-linear-gradient(90deg,#f6f2f5 0 4px,transparent 4px 8px);opacity:.6}
+.a2grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.a2grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:1000px){.a2grid,.a2grid3{grid-template-columns:1fr;gap:0}}
+.a2bar{margin:10px 0}.a2bl{display:flex;justify-content:space-between;gap:10px;font-size:.86rem}.a2bl span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.a2bl b{white-space:nowrap}.a2bl i{font-style:normal;color:var(--muted);font-weight:500;margin-left:4px}
+.a2bt{height:6px;background:rgba(255,255,255,.06);border-radius:4px;margin-top:5px;overflow:hidden}.a2bt div{height:100%;border-radius:4px;background:linear-gradient(90deg,#ff8a2b,#ff2a86);transition:width .8s cubic-bezier(.2,.7,.2,1)}
+.a2tw{overflow-x:auto}.a2t td,.a2t th{padding:10px}.a2t .r{text-align:right;white-space:nowrap}.a2path{font-weight:600;word-break:break-all}
+.a2click{cursor:pointer}
+.a2heat{display:grid;gap:4px}.a2hr{display:grid;grid-template-columns:28px repeat(24,1fr);gap:3px;align-items:center}.a2hr span{font-size:.72rem;color:var(--muted)}.a2hr i{display:block;height:18px;border-radius:4px;background:linear-gradient(135deg,#ff8a2b,#ff2a86)}.a2hx em{font-style:normal;font-size:.68rem;color:var(--muted)}
+.a2skel{height:220px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.08),rgba(255,255,255,.03));background-size:200% 100%;animation:a2sk 1.2s infinite}
+@keyframes a2sk{to{background-position:-200% 0}}
 </style>
 </head>
 <body>
@@ -6635,7 +6657,7 @@ var GROUPS=[
  ['Contacteren',[['outreach','Contactlijst','send','Leads één voor één contacteren'],['whatsapp','WhatsApp','msg','Berichten en WhatsApp-ronde'],['mailreeks','Automatische mails','mail','Mailreeks die zelf verstuurt'],['campagnes','Campagnes','mega','Mailcampagnes'],['social','Social media','insta','Posts en stories']]],
  ['Klanten',[['customers','Klanten','users','Klantenfiches en dossiers'],['agenda','Agenda','cal','Afspraken en boekingen'],['board','Takenbord','kanban','Taken per kolom'],['tasks','Takenlijst','checksq','Alle taken als lijst'],['quotes','Offertes','file','Offertes maken en opvolgen']]],
  ['Geld',[['invoices','Facturen','receipt','Facturen, voorschotten en eindfacturen'],['bank','Bank','bank','Betalingen afpunten'],['expenses','Uitgaven','card','Kosten en aankopen'],['vat','Btw-overzicht','euro','Btw per kwartaal'],['catalog','Producten & prijzen','box','Je vaste diensten en prijzen']]],
- ['Cijfers',[['stats','Statistieken','chart','Omzet en groei'],['reports','Rapporten','file','Jaaroverzicht'],['analytics','Bezoekers','activity','Bezoekers op je site'],['monitor','Websites','monitor','Staan de klantsites online']]],
+ ['Cijfers',[['analytics','Websitestatistieken','activity','Bezoekers, bronnen, pagina’s en acties'],['stats','Statistieken','chart','Omzet en groei'],['reports','Rapporten','file','Jaaroverzicht'],['monitor','Websites','monitor','Staan de klantsites online']]],
  ['Meer',[['notes','Notities','pen',''],['documents','Documenten','folder',''],['emails','Mailsjablonen','layout',''],['timetrack','Tijdregistratie','clock',''],['settings','Instellingen','cog','Koppelingen en bedrijfsgegevens']]]
 ];
 function avail(){var s={};(window.MENU_ADMIN||[]).forEach(function(m){if(m[0]!=='SEC')s[m[0]]=m});return s}
@@ -6674,6 +6696,93 @@ document.addEventListener('keydown',function(e){if(e.key==='/'&&!/INPUT|TEXTAREA
 setInterval(function(){try{updateNavBadges()}catch(e){}},60000);
 if(window.SESSION&&document.getElementById('navmenu')&&document.getElementById('navmenu').children.length)buildMenu();
 })();
+
+/* ===== WEBSITESTATISTIEKEN v2: gedetailleerd, cookieloos ===== */
+var A2={rows:null,host:'marleo.tech',days:30,loadedAt:0,tab:'pages'};
+async function a2Load(force){if(A2.rows&&!force&&Date.now()-A2.loadedAt<120000)return A2.rows;if(!sb||!CLOUD.uid)return A2.rows=[];
+  var since=new Date(Date.now()-185*864e5).toISOString(),all=[],from=0,step=1000;
+  for(var guard=0;guard<80;guard++){var r=await sb.from('analytics_hits').select('host,path,ref,vid,device,country,ts,type,ev,label,title,browser,os,lang,sw,utm_source,utm_medium,utm_campaign,dur,scroll,pid').gte('ts',since).order('ts',{ascending:false}).range(from,from+step-1);
+    if(r.error||!r.data)break;all=all.concat(r.data);if(r.data.length<step)break;from+=step}
+  A2.rows=all.filter(function(x){return x.host&&!/invalid$|^localhost|^127\./.test(x.host)});A2.loadedAt=Date.now();return A2.rows}
+function a2Src(x){var u=(x.utm_source||'').toLowerCase(),r=(x.ref||'').toLowerCase();var s=u||r;
+  if(!s)return 'Rechtstreeks';if(/google/.test(s))return /ads/.test(s)?'Google Ads':'Google';if(/bing/.test(s))return 'Bing';if(/instagram|^ig$/.test(s))return 'Instagram';if(/facebook|fb\.|^fb$|m\.facebook|l\.facebook/.test(s))return 'Facebook';
+  if(/linkedin|lnkd/.test(s))return 'LinkedIn';if(/tiktok/.test(s))return 'TikTok';if(/whatsapp|wa\.me/.test(s))return 'WhatsApp';if(/duckduckgo/.test(s))return 'DuckDuckGo';if(/chatgpt|openai|perplexity|claude/.test(s))return 'AI-assistent';if(/mail|outlook|gmail/.test(s))return 'E-mail';return s}
+function a2Win(days,offset){var now=new Date(),end,start;if(days===1){start=new Date(now);start.setHours(0,0,0,0);start=new Date(start.getTime()-offset*864e5);end=new Date(start.getTime()+864e5)}else{end=new Date(now.getTime()-offset*days*864e5);start=new Date(end.getTime()-days*864e5)}return [start.getTime(),end.getTime()]}
+function a2Filter(rows,host,win){return rows.filter(function(x){var t=new Date(x.ts).getTime();return (host==='*'||x.host===host)&&t>=win[0]&&t<win[1]})}
+var A2CONV={bellen:'Bellen',mail:'Mailen',whatsapp:'WhatsApp',afspraak:'Afspraak',formulier:'Formulier',knop:'Knop'};
+function a2Agg(rows){var pv=[],ev=[],lv=[];rows.forEach(function(x){var t=x.type||'pageview';if(t==='pageview')pv.push(x);else if(t==='event')ev.push(x);else if(t==='leave')lv.push(x)});
+  var visits={},byPid={};pv.forEach(function(x){var k=x.vid+'|'+String(x.ts).slice(0,10);(visits[k]=visits[k]||[]).push(x);if(x.pid)byPid[x.pid]=x});
+  var vkeys=Object.keys(visits),nVisits=vkeys.length,bounce=vkeys.filter(function(k){return visits[k].length===1}).length;
+  var durs=lv.filter(function(x){return x.dur>0}),tot=durs.reduce(function(s,x){return s+x.dur},0),scr=lv.filter(function(x){return x.scroll!=null});
+  var conv=ev.filter(function(x){return A2CONV[x.ev]}),convV={};conv.forEach(function(x){convV[x.vid+'|'+String(x.ts).slice(0,10)]=1});
+  return {pv:pv,ev:ev,lv:lv,visits:visits,byPid:byPid,nPv:pv.length,nVisitors:Object.keys(pv.reduce(function(o,x){o[x.vid]=1;return o},{})).length,nVisits:nVisits,
+    bounce:nVisits?bounce/nVisits:0,avgDur:durs.length?tot/durs.length:0,visitDur:nVisits?tot/nVisits:0,avgScroll:scr.length?scr.reduce(function(s,x){return s+x.scroll},0)/scr.length:0,
+    nConv:conv.length,convRate:nVisits?Object.keys(convV).length/nVisits:0,conv:conv}}
+function a2Count(list,fn){var o={};list.forEach(function(x){var k=fn(x);if(k==null||k==='')return;o[k]=(o[k]||0)+1});return Object.keys(o).map(function(k){return [k,o[k]]}).sort(function(a,b){return b[1]-a[1]})}
+function a2Fmt(n){return Math.round(n).toLocaleString('nl-BE')}
+function a2Dur(s){s=Math.round(s);if(!s)return '0s';var m=Math.floor(s/60),r=s%60;return m?m+'m '+(r<10?'0':'')+r+'s':r+'s'}
+function a2Delta(a,b,inv){if(!b&&!a)return '';if(!b)return '<span class="a2d up">nieuw</span>';var p=(a-b)/b*100;var good=inv?p<0:p>0;return '<span class="a2d '+(Math.abs(p)<1?'':good?'up':'down')+'">'+(p>0?'+':'')+Math.round(p)+'%</span>'}
+function a2Kpi(label,val,delta,hint){return '<div class="stat a2k"><div class="label">'+label+'</div><div class="val">'+val+'</div><div class="hint">'+(delta||'')+(hint?' <span>'+hint+'</span>':'')+'</div></div>'}
+function a2Table(title,head,rows,empty){return '<div class="panelbox a2p"><h3>'+title+'</h3>'+(rows.length?'<div class="a2tw"><table class="a2t"><thead><tr>'+head.map(function(h,i){return '<th'+(i?' class="r"':'')+'>'+h+'</th>'}).join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>':'<div class="hint">'+(empty||'Nog geen gegevens in deze periode.')+'</div>')+'</div>'}
+function a2Bars(title,list,total,max){max=max||8;total=total||list.reduce(function(s,x){return s+x[1]},0)||1;var top=list.slice(0,max),mx=top.length?top[0][1]:1;
+  return '<div class="panelbox a2p"><h3>'+title+'</h3>'+(top.length?top.map(function(x){return '<div class="a2bar"><div class="a2bl"><span>'+esc(x[0])+'</span><b>'+a2Fmt(x[1])+' <i>'+Math.round(x[1]/total*100)+'%</i></b></div><div class="a2bt"><div style="width:'+Math.max(2,x[1]/mx*100)+'%"></div></div></div>'}).join(''):'<div class="hint">Nog geen gegevens.</div>')+'</div>'}
+function a2Chart(cur,days,win){var buckets=[],hourly=days===1,n=hourly?24:days,step=hourly?3600e3:864e5;
+  for(var i=0;i<n;i++)buckets.push({t:win[0]+i*step,pv:0,v:{}});
+  cur.pv.forEach(function(x){var i=Math.floor((new Date(x.ts).getTime()-win[0])/step);if(buckets[i]){buckets[i].pv++;buckets[i].v[x.vid]=1}});
+  var W=1000,H=220,P=28,mx=Math.max(4,Math.max.apply(null,buckets.map(function(b){return b.pv})));mx=Math.ceil(mx/4)*4;
+  var X=function(i){return P+(W-2*P)*(n===1?0.5:i/(n-1))},Y=function(v){return H-P-(H-2*P)*v/mx};
+  var line=function(f){return buckets.map(function(b,i){return (i?'L':'M')+X(i).toFixed(1)+' '+Y(f(b)).toFixed(1)}).join(' ')};
+  var lp=line(function(b){return b.pv}),lv=line(function(b){return Object.keys(b.v).length});
+  var area=lp+' L'+X(n-1).toFixed(1)+' '+(H-P)+' L'+X(0).toFixed(1)+' '+(H-P)+' Z';
+  var grid='';for(var g=0;g<=4;g++){var y=Y(mx*g/4);grid+='<line x1="'+P+'" x2="'+(W-P)+'" y1="'+y+'" y2="'+y+'" class="a2g"/><text x="'+(P-6)+'" y="'+(y+4)+'" class="a2ax" text-anchor="end">'+Math.round(mx*g/4)+'</text>'}
+  var lab='',every=Math.max(1,Math.ceil(n/8));buckets.forEach(function(b,i){if(i%every===0||i===n-1){var d=new Date(b.t);lab+='<text x="'+X(i)+'" y="'+(H-6)+'" class="a2ax" text-anchor="middle">'+(hourly?d.getHours()+'u':d.getDate()+'/'+(d.getMonth()+1))+'</text>'}});
+  var hits=buckets.map(function(b,i){var d=new Date(b.t);var lbl=hourly?d.getHours()+':00':d.toLocaleDateString('nl-BE',{weekday:'short',day:'numeric',month:'short'});return '<rect x="'+(X(i)-(W-2*P)/n/2)+'" y="'+P+'" width="'+((W-2*P)/n)+'" height="'+(H-2*P)+'" fill="transparent" data-t="'+lbl+'" data-pv="'+b.pv+'" data-v="'+Object.keys(b.v).length+'" data-x="'+X(i)+'"/>'}).join('');
+  return '<div class="a2chart" onmousemove="a2Tip(event)" onmouseleave="a2Tip()"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><defs><linearGradient id="a2gr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff2a86" stop-opacity=".35"/><stop offset="1" stop-color="#ff2a86" stop-opacity="0"/></linearGradient><linearGradient id="a2ln" x1="0" x2="1"><stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs>'+grid+'<path d="'+area+'" fill="url(#a2gr)"/><path d="'+lp+'" fill="none" stroke="url(#a2ln)" stroke-width="2.5" vector-effect="non-scaling-stroke"/><path d="'+lv+'" fill="none" stroke="#f6f2f5" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>'+lab+'<line class="a2cur" x1="0" x2="0" y1="'+P+'" y2="'+(H-P)+'" style="display:none"/>'+hits+'</svg><div class="a2tip" style="display:none"></div><div class="a2leg"><span><i style="background:linear-gradient(90deg,#ff8a2b,#ff2a86)"></i>Paginaweergaven</span><span><i class="dash"></i>Bezoekers</span></div></div>'}
+function a2Tip(e){var box=document.querySelector('.a2chart');if(!box)return;var tip=box.querySelector('.a2tip'),cur=box.querySelector('.a2cur');if(!e||!e.target||!e.target.dataset||e.target.dataset.t==null){tip.style.display='none';cur.style.display='none';return}
+  var d=e.target.dataset;tip.innerHTML='<b>'+d.t+'</b><br>'+d.pv+' weergaven · '+d.v+' bezoekers';tip.style.display='block';var r=box.getBoundingClientRect();var x=e.clientX-r.left;tip.style.left=Math.min(r.width-170,Math.max(0,x+12))+'px';tip.style.top='8px';cur.setAttribute('x1',d.x);cur.setAttribute('x2',d.x);cur.style.display=''}
+function a2Heat(cur){var g=[];for(var d=0;d<7;d++){g.push([]);for(var h=0;h<24;h++)g[d].push(0)}cur.pv.forEach(function(x){var t=new Date(x.ts);g[(t.getDay()+6)%7][t.getHours()]++});var mx=Math.max.apply(null,g.map(function(r){return Math.max.apply(null,r)}).concat([1]));
+  var dn=['ma','di','wo','do','vr','za','zo'];return '<div class="panelbox a2p"><h3>Wanneer bezoeken ze je site</h3><div class="a2heat">'+g.map(function(r,d){return '<div class="a2hr"><span>'+dn[d]+'</span>'+r.map(function(v,h){return '<i title="'+dn[d]+' '+h+'u: '+v+' weergaven" style="opacity:'+(v?0.15+0.85*v/mx:0.06)+'"></i>'}).join('')+'</div>'}).join('')+'<div class="a2hr a2hx"><span></span>'+[0,3,6,9,12,15,18,21].map(function(h){return '<em style="grid-column:span 3">'+h+'u</em>'}).join('')+'</div></div></div>'}
+function a2Csv(){var rows=A2.rows||[];var h=['ts','host','type','path','title','ref','utm_source','utm_campaign','device','browser','os','lang','sw','ev','label','dur','scroll'];var esc2=function(v){v=v==null?'':String(v);return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  var csv=h.join(';')+'\n'+rows.filter(function(x){return A2.host==='*'||x.host===A2.host}).map(function(x){return h.map(function(k){return esc2(x[k])}).join(';')}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download='statistieken-'+(A2.host==='*'?'alle':A2.host)+'.csv';a.click()}
+async function rAnalytics(){
+  main().innerHTML='<div class="topbar"><div><h2>Websitestatistieken</h2><div class="sub">Laden…</div></div></div><div class="panelbox"><div class="a2skel"></div></div>';
+  await a2Load();if(VIEW!=='analytics')return;var rows=A2.rows||[];
+  var hosts=a2Count(rows.filter(function(x){return (x.type||'pageview')==='pageview'}),function(x){return x.host}).map(function(x){return x[0]});
+  if(hosts.indexOf('marleo.tech')<0)hosts.unshift('marleo.tech');if(A2.host!=='*'&&hosts.indexOf(A2.host)<0)A2.host=hosts[0];
+  var win=a2Win(A2.days,0),pw=a2Win(A2.days,1),cur=a2Agg(a2Filter(rows,A2.host,win)),prev=a2Agg(a2Filter(rows,A2.host,pw));
+  var live=a2Filter(rows,A2.host,[Date.now()-30*60e3,Date.now()+60e3]).filter(function(x){return (x.type||'pageview')==='pageview'});var liveN=Object.keys(live.reduce(function(o,x){o[x.vid]=1;return o},{})).length;
+  var per=[[1,'Vandaag'],[7,'7 dagen'],[30,'30 dagen'],[90,'90 dagen']];
+  var pages={};cur.pv.forEach(function(x){var p=pages[x.path]||(pages[x.path]={v:0,u:{},t:x.title||'',d:0,dn:0,s:0,sn:0,c:0});p.v++;p.u[x.vid]=1;if(!p.t&&x.title)p.t=x.title});
+  cur.lv.forEach(function(x){var p=pages[x.path];if(!p)return;if(x.dur>0){p.d+=x.dur;p.dn++}if(x.scroll!=null){p.s+=x.scroll;p.sn++}});cur.conv.forEach(function(x){if(pages[x.path])pages[x.path].c++});
+  var pageRows=Object.keys(pages).sort(function(a,b){return pages[b].v-pages[a].v}).slice(0,15).map(function(k){var p=pages[k];return '<tr><td><div class="a2path">'+esc(k)+'</div><div class="hint" style="margin:0">'+esc((p.t||'').slice(0,70))+'</div></td><td class="r">'+a2Fmt(p.v)+'</td><td class="r">'+Object.keys(p.u).length+'</td><td class="r">'+(p.dn?a2Dur(p.d/p.dn):'–')+'</td><td class="r">'+(p.sn?Math.round(p.s/p.sn)+'%':'–')+'</td><td class="r">'+(p.c||'–')+'</td></tr>'});
+  var entry={},exit={};Object.keys(cur.visits).forEach(function(k){var l=cur.visits[k].slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts)});entry[l[0].path]=(entry[l[0].path]||0)+1;exit[l[l.length-1].path]=(exit[l[l.length-1].path]||0)+1});
+  var toL=function(o){return Object.keys(o).map(function(k){return [k,o[k]]}).sort(function(a,b){return b[1]-a[1]})};
+  var visitSrc={};Object.keys(cur.visits).forEach(function(k){var f=cur.visits[k].slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts)})[0];var s=a2Src(f);visitSrc[s]=(visitSrc[s]||0)+1});
+  var convBy=a2Count(cur.conv,function(x){return A2CONV[x.ev]}),convLab=a2Count(cur.conv,function(x){return A2CONV[x.ev]+': '+(x.label||'').slice(0,40)});
+  var camps=a2Count(cur.pv.filter(function(x){return x.utm_campaign||x.utm_source}),function(x){return [x.utm_source||'?',x.utm_medium,x.utm_campaign].filter(Boolean).join(' / ')});
+  var sw=a2Count(cur.pv.filter(function(x){return x.sw}),function(x){return x.sw<480?'Gsm (<480px)':x.sw<1024?'Tablet (480–1023px)':x.sw<1600?'Laptop (1024–1599px)':x.sw<2560?'Groot scherm (1600–2559px)':'4K / ultrabreed (2560px+)'});
+  var langs=a2Count(cur.pv,function(x){return x.lang?x.lang.slice(0,2).toUpperCase():null});
+  var recent=cur.pv.slice(0,25).map(function(x){var m=Math.round((Date.now()-new Date(x.ts))/60000);var ago=m<1?'net nu':m<60?m+' min':m<1440?Math.round(m/60)+' u':Math.round(m/1440)+' d';return '<tr><td>'+ago+'</td><td><span class="a2path">'+esc(x.path)+'</span></td><td>'+esc(a2Src(x))+'</td><td>'+esc([x.device,x.browser,x.os].filter(Boolean).join(' · '))+'</td>'+(A2.host==='*'?'<td>'+esc(x.host)+'</td>':'')+'</tr>'});
+  var siteRows=hosts.map(function(h){var c=a2Agg(a2Filter(rows,h,win)),p=a2Agg(a2Filter(rows,h,pw));return '<tr class="a2click" onclick="A2.host=\''+esc(h)+'\';rAnalytics()"><td><b>'+esc(h)+'</b></td><td class="r">'+c.nVisitors+' '+a2Delta(c.nVisitors,p.nVisitors)+'</td><td class="r">'+a2Fmt(c.nPv)+'</td><td class="r">'+(c.nVisits?Math.round(c.bounce*100)+'%':'–')+'</td><td class="r">'+c.nConv+'</td></tr>'});
+  var empty=!cur.nPv;
+  main().innerHTML='<div class="topbar"><div><h2>Websitestatistieken</h2><div class="sub"><span class="a2live"><i></i>'+liveN+' nu op de site</span> · cookieloos, geen IP-adressen bewaard</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn subtle" onclick="a2Csv()">Exporteer CSV</button><button class="btn subtle" onclick="a2Load(true).then(rAnalytics)">Vernieuwen</button><button class="btn subtle" onclick="anSnippetShow()">Tracking-code</button></div></div>'+
+  '<div class="a2bar0"><select onchange="A2.host=this.value;rAnalytics()"><option value="*"'+(A2.host==='*'?' selected':'')+'>Alle websites</option>'+hosts.map(function(h){return '<option'+(h===A2.host?' selected':'')+'>'+esc(h)+'</option>'}).join('')+'</select><div class="tabs" style="margin:0">'+per.map(function(p){return '<button class="tab'+(A2.days===p[0]?' active':'')+'" onclick="A2.days='+p[0]+';rAnalytics()">'+p[1]+'</button>'}).join('')+'</div><span class="hint" style="margin:0">vergeleken met de vorige '+(A2.days===1?'dag':A2.days+' dagen')+'</span></div>'+
+  '<div class="stats a2stats">'+a2Kpi('Bezoekers',a2Fmt(cur.nVisitors),a2Delta(cur.nVisitors,prev.nVisitors))+a2Kpi('Paginaweergaven',a2Fmt(cur.nPv),a2Delta(cur.nPv,prev.nPv))+a2Kpi('Pagina’s per bezoek',cur.nVisits?(cur.nPv/cur.nVisits).toFixed(1).replace('.',','):'0',a2Delta(cur.nVisits?cur.nPv/cur.nVisits:0,prev.nVisits?prev.nPv/prev.nVisits:0))+a2Kpi('Gem. bezoekduur',a2Dur(cur.visitDur),a2Delta(cur.visitDur,prev.visitDur))+
+   a2Kpi('Bouncepercentage',cur.nVisits?Math.round(cur.bounce*100)+'%':'–',a2Delta(cur.bounce,prev.bounce,true),'1 pagina en weg')+a2Kpi('Scrolldiepte',cur.avgScroll?Math.round(cur.avgScroll)+'%':'–',a2Delta(cur.avgScroll,prev.avgScroll))+a2Kpi('Acties',a2Fmt(cur.nConv),a2Delta(cur.nConv,prev.nConv),'bellen, mail, WhatsApp, formulier')+a2Kpi('Conversie',cur.nVisits?(cur.convRate*100).toFixed(1).replace('.',',')+'%':'–',a2Delta(cur.convRate,prev.convRate),'bezoeken met een actie')+'</div>'+
+  (empty?'<div class="panelbox"><div class="empty">Nog geen bezoekers in deze periode voor '+esc(A2.host==='*'?'je websites':A2.host)+'. marleo.tech wordt vanaf nu gemeten; de eerste cijfers verschijnen binnen enkele minuten na een bezoek.</div></div>':'')+
+  '<div class="panelbox a2p"><h3>Verloop</h3>'+a2Chart(cur,A2.days,win)+'</div>'+
+  '<div class="a2grid">'+a2Bars('Waar komen bezoekers vandaan',toL(visitSrc),cur.nVisits)+a2Bars('Acties op de site',convBy,cur.nConv)+'</div>'+
+  a2Table('Pagina’s',['Pagina','Weergaven','Bezoekers','Gem. tijd','Scroll','Acties'],pageRows)+
+  '<div class="a2grid">'+a2Bars('Instappagina’s',toL(entry),cur.nVisits)+a2Bars('Uitstappagina’s',toL(exit),cur.nVisits)+'</div>'+
+  '<div class="a2grid3">'+a2Bars('Toestel',a2Count(cur.pv,function(x){return x.device?x.device.charAt(0).toUpperCase()+x.device.slice(1):null}),cur.nPv,4)+a2Bars('Browser',a2Count(cur.pv,function(x){return x.browser}),null,6)+a2Bars('Besturingssysteem',a2Count(cur.pv,function(x){return x.os}),null,6)+'</div>'+
+  (function(){var lands=a2Count(cur.pv,function(x){return x.country});return lands.length?'<div class="a2grid3">'+a2Bars('Schermgrootte',sw,null,5)+a2Bars('Taal van de browser',langs,null,6)+a2Bars('Land',lands,null,6)+'</div>':'<div class="a2grid">'+a2Bars('Schermgrootte',sw,null,5)+a2Bars('Taal van de browser',langs,null,6)+'</div>'})()+
+  a2Heat(cur)+
+  '<div class="a2grid">'+a2Bars('Campagnes (utm-links)',camps,null,8)+a2Bars('Op welke knoppen geklikt',convLab,null,8)+'</div>'+
+  a2Table('Laatste bezoeken',['Wanneer','Pagina','Bron','Toestel'].concat(A2.host==='*'?['Site']:[]),recent)+
+  (hosts.length>1?a2Table('Per website',['Website','Bezoekers','Weergaven','Bounce','Acties'],siteRows):'')+
+  '<div class="hint" style="margin-top:6px">Tip: gebruik in je Instagram-bio of mails links zoals <code>marleo.tech/?utm_source=instagram&amp;utm_campaign=bio</code>, dan zie je hier precies welke post of mail bezoekers oplevert.</div>';
+}
+(function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='analytics'});if(i>=0)MENU_ADMIN[i][1]='Websitestatistieken'})();
 </script>
 </body>
 </html>

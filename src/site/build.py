@@ -67,7 +67,7 @@ def head(lang, slug, title, desc):
             '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>'
             '<link rel="stylesheet" href="/assets/site.css?v=%s">'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
-            '<script defer src="/assets/site.js?v=%s"></script>'
+            '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'
             '</head><body>') % (lang, E(title), E(desc), SITE, url(lang, slug), alts, E(title), E(desc), SITE, url(lang, slug), SITE, FAV, V,
                                  json.dumps(keep, ensure_ascii=False), V)
 
