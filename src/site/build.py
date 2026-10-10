@@ -240,7 +240,24 @@ def home(lang):
            '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
         url(lang, 'website-audit'), icon('website-audit'), E(aa['teaser']), E(aa['teaserCta']))
     title = 'Marleo · ' + {'nl': 'Managed IT, cloud, security, AI & websites', 'en': 'Managed IT, cloud, security, AI & websites', 'fr': 'IT managé, cloud, sécurité, IA & sites web'}[lang]
-    return page(lang, '', title, UI[lang]['metaHome'], hero + metrics + svc + aud + work + dom + band(lang))
+    ob = t['pages']['over-ons']['blocks']; why_b = [dict(ob[i], abbr='%02d' % (n + 1)) for n, i in enumerate((1, 3, 4, 5)) if i < len(ob)]
+    why = '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (
+        sec_head({'nl': 'Waarom Marleo', 'en': 'Why Marleo', 'fr': 'Pourquoi Marleo'}[lang], t['pages']['over-ons']['blocksTitle']), blocks(why_b))
+    proc = '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (
+        sec_head({'nl': 'Werkwijze', 'en': 'How we work', 'fr': 'Méthode'}[lang], t['pages']['diensten']['stepsTitle']), steps(t['pages']['diensten']['steps']))
+    TL = {'nl': [('Gratis website-audit', 'Scores voor snelheid, SEO, beveiliging en gsm, met concrete verbeterpunten.', 'Start de audit'), ('Projecten', 'Websites en platformen die we ontwierpen en bouwden, met case per klant.', 'Bekijk het werk'), ('Domeincheck', 'Controleer meteen of jouw domeinnaam nog vrij is.', 'Check een domein')],
+          'en': [('Free website audit', 'Scores for speed, SEO, security and mobile, with concrete improvements.', 'Run the audit'), ('Projects', 'Websites and platforms we designed and built, with a case per client.', 'View the work'), ('Domain check', 'Instantly check whether your domain name is still available.', 'Check a domain')],
+          'fr': [('Audit de site gratuit', 'Scores de vitesse, SEO, sécurité et mobile, avec des améliorations concrètes.', 'Lancer l’audit'), ('Projets', 'Sites et plateformes que nous avons conçus et développés, avec une étude de cas par client.', 'Voir le travail'), ('Vérification de domaine', 'Vérifiez immédiatement si votre nom de domaine est disponible.', 'Vérifier un domaine')]}[lang]
+    tl_links = [(url(lang, 'website-audit'), 'website-audit'), (url(lang, 'projecten'), 'websites'), (url(lang, 'domeincheck'), 'domeincheck')]
+    tools = '<section class="sec" style="padding-top:0"><div class="wrap">%s<div class="grid g3">%s</div></div></section>' % (
+        sec_head({'nl': 'Tools & werk', 'en': 'Tools & work', 'fr': 'Outils & travaux'}[lang], {'nl': 'Ontdek wat we kunnen', 'en': 'See what we can do', 'fr': 'Découvrez ce que nous faisons'}[lang]),
+        ''.join('<a class="card rv d%d toolcard" href="%s"><span class="ic">%s</span><h3>%s</h3><p>%s</p><span class="more">%s →</span></a>' % (i, tl_links[i][0], icon(tl_links[i][1]), E(x[0]), E(x[1]), E(x[2])) for i, x in enumerate(TL)))
+    kbs = ''
+    if lang == 'nl':
+        kbs = '<section class="sec" style="padding-top:0"><div class="wrap">%s<div class="grid g3">%s</div><div class="rv" style="margin-top:22px"><a class="btn btn-g" href="/kennisbank/">Alle artikels %s</a></div></div></section>' % (
+            sec_head('Kennisbank', 'Inzichten voor ondernemers'), ''.join('<a class="card rv d%d kbcard" href="/kennisbank/%s/"><span class="ab">%s · %d min</span><h3>%s</h3><p>%s</p><span class="more">Lees het artikel →</span></a>' % (
+                i % 3, a['slug'], E(a['cat']), a['mins'], E(a['title']), E(a['desc'])) for i, a in enumerate(KB)), ARROW)
+    return page(lang, '', title, UI[lang]['metaHome'], hero + metrics + svc + why + proc + tools + kbs + band(lang))
 
 def service(lang, k):
     t = COPY[lang]; u = UI[lang]; p = t['pages'][k]; dp = DEEP.get(k, {}); dl = dp.get(lang, {})
