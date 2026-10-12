@@ -16,6 +16,9 @@ Afbeeldingen publiek via https://raw.githubusercontent.com/giannismarleotech/mar
 - 2026-10-19 CTA "Have a project in mind?"
 - 2026-10-21 tip: Google-bedrijfsprofiel (uren, foto's, reviews) – post 13
 - 2026-10-23 tip: backups, 3-2-1-regel – post 14
+- 2026-10-26 tip SEO: paginatitel, meta-omschrijving, één H1 – post 20
+- 2026-10-28 case MONGA Automotive (eerste feedpost, eerder enkel stories) – post 21
+- 2026-10-30 tip IT voor teams: MFA, wachtwoordmanager, offboarding – post 22
 - 2026-09-30 case TrustTap (post 10, direct gepost)
 - 2026-10-01 case The Cleaning Company (post 11 + story, direct)
 - 2026-10-02 case Beauty Salon Elena (post 12 + story)
