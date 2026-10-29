@@ -16,7 +16,13 @@ def slugify(n):
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 C = json.load(open(os.path.join(os.path.dirname(__file__), 'content.json'), encoding='utf-8'))
 COPY = C['COPY']; KEYS = C['SERVICE_KEYS']
-LANGS = ['nl', 'en', 'fr']
+LANGS = ['en', 'nl', 'fr']
+from positioning import TEXT as AI_TEXT, apply as apply_positioning, demo as ai_demo
+apply_positioning(COPY, UI, DEEP)
+from expansion import SLUGS as EXTRA_SLUGS, configure as configure_expansion, render as extra_page, home_resources, case_section
+configure_expansion(COPY)
+from operations import COPY as OPS_COPY, showcase as system_showcase, custom as custom_build
+KEYS = ['ai-infrastructuur', 'development', 'managed-it', 'cloud', 'security', 'websites', 'webshop', 'branding', 'games']
 SITE = 'https://marleo.tech'
 V = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
 E = lambda s: html.escape(str(s), quote=True)
@@ -34,8 +40,11 @@ def _audit_nav():
                 g['keys'].append('website-audit')
 
 def url(lang, slug=''):
-    p = '/' if lang == 'nl' else '/%s/' % lang
-    return p + (slug + '/' if slug else '')
+    # English homepage is canonical at /; preserve all existing service URLs.
+    if not slug:
+        return {'en':'/', 'nl':'/nl/', 'fr':'/fr/'}[lang]
+    return ('/' if lang == 'nl' else '/' + lang + '/') + slug + '/'
+
 
 LOGO = ('<svg viewBox="0 0 28 32" fill="none" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">'
         '<stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs>'
@@ -73,14 +82,14 @@ SUB = {'privacy': '/privacy/', 'voorwaarden': '/voorwaarden/', 'nis2': '/nis2/'}
 LDJSON = '<script type="application/ld+json">' + json.dumps({
     "@context": "https://schema.org", "@type": "ProfessionalService", "name": "Marleo", "url": "https://marleo.tech/",
     "logo": "https://marleo.tech/assets/og.jpg", "image": "https://marleo.tech/assets/og.jpg",
-    "description": "Managed IT, cloud, security, AI-infrastructuur en websites op maat voor organisaties.",
+    "description": "Custom AI systems, automation, software, managed IT and digital platforms for business.",
     "telephone": "+32456920025", "email": "info@marleo.tech", "vatID": "BE1041196713",
     "address": {"@type": "PostalAddress", "streetAddress": "Graaf van Hoornestraat 2B", "postalCode": "9850", "addressLocality": "Nevele", "addressCountry": "BE"},
     "areaServed": ["BE", "NL"], "sameAs": ["https://instagram.com/marleo.tech"]}, ensure_ascii=False) + '</script>'
 
 def head(lang, slug, title, desc):
     alts = ''.join('<link rel="alternate" hreflang="%s" href="%s%s">' % (l, SITE, url(l, slug)) for l in LANGS)
-    alts += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, url('nl', slug))
+    alts += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, url('en', slug))
     if slug.startswith('kennisbank'): alts = ''
     ui = dict(UI[lang]); ui['dom'] = dict(DOM_UI[lang]); ui['dom']['ctaHref'] = url(lang, 'contact')
     keep = {k: ui[k] for k in ('sent', 'sending', 'err', 'required', 'dom')}
@@ -92,7 +101,8 @@ def head(lang, slug, title, desc):
             '<meta property="og:url" content="%s%s"><meta property="og:image" content="%s/assets/og.jpg"><meta name="twitter:card" content="summary_large_image">'
             '<meta name="theme-color" content="#120d12"><link rel="icon" href="%s">'
             '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>'
-            '<link rel="stylesheet" href="/assets/site.css?v=%s">'
+            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css">'
+            '<script defer src="/assets/ai-demo.js"></script><script defer src="/assets/brand-header.js"></script><script defer src="/assets/project-tools.js"></script><script defer src="/assets/systems.js"></script>'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
             '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'
             '%s</head><body>') % (lang, E(title), E(desc), SITE, url(lang, slug), alts, E(title), E(desc), SITE, url(lang, slug), SITE, FAV, V,
@@ -113,7 +123,7 @@ def header(lang, slug):
             items.append('<div class="it"><a class="lk%s%s" href="%s" data-slug="%s">%s</a></div>' % (' on' if k == slug else '', ' opt' if k == 'over-ons' else '', url(lang, k), k, E(g['label'])))
     items.append('<div class="it"><a class="lk%s" href="%s" data-slug="projecten">%s</a></div>' % (' on' if slug == 'projecten' else '', url(lang, 'projecten'), E(u['work'])))
     langs = '<div class="langs">' + ''.join('<a href="%s" hreflang="%s"%s>%s</a>' % (url(l, '' if slug.startswith('kennisbank') and l != 'nl' else slug), l, ' class="on" aria-current="true"' if l == lang else '', l.upper()) for l in LANGS) + '</div>'
-    book = '/afspraak/'
+    book = '/afspraak/?lang=' + lang
     # mobiel menu
     sheet = ''
     for g in t['navGroups']:
@@ -125,7 +135,7 @@ def header(lang, slug):
     sheet += '<a class="sl" href="%s">%s</a><a class="sl" href="%s">%s</a>' % (url(lang, 'projecten'), E(u['work']), url(lang, 'contact'), E(t['labels']['contact']))
     return ('<a class="skip" href="#main">%s</a><div class="prog" aria-hidden="true"></div>'
             '<header class="hdr"><div class="wrap"><a class="logo" href="%s" aria-label="marleo.tech home">%s<span>marleo<span class="gt">.tech</span></span></a>'
-            '<nav class="nav" aria-label="Hoofdmenu">%s</nav>'
+            '<nav class="nav" aria-label="Navigation">%s</nav>'
             '<div style="display:flex;align-items:center;gap:14px">%s<a class="btn btn-p" href="%s">%s</a>'
             '<button class="burger" type="button" aria-label="%s"><i></i></button></div></div></header>'
             '<div class="sheet" aria-hidden="true"><div class="sheet-top"><a class="logo" href="%s">%s<span>marleo<span class="gt">.tech</span></span></a><button class="x" type="button" aria-label="%s">×</button></div>'
@@ -198,70 +208,47 @@ def work_cards(lang, items, eager=0):
 def band(lang, title=None, body=None):
     t = COPY[lang]; u = UI[lang]
     return ('<section class="sec" style="padding-top:0"><div class="wrap"><div class="band rv"><div><h2>%s</h2><p>%s</p></div>'
-            '<div class="acts"><a class="btn btn-p" href="/afspraak/">%s %s</a><a class="btn btn-g" href="%s">%s</a></div></div></div></section>') % (
-            E(title or t['ctaBand']), E(body or t['ctaBandBody']), E(u['book']), ARROW, url(lang, 'contact'), E(t['labels']['contact']))
+            '<div class="acts"><a class="btn btn-p" href="/afspraak/?lang=%s">%s %s</a><a class="btn btn-g" href="%s">%s</a></div></div></div></section>') % (
+            E(title or t['ctaBand']), E(body or t['ctaBandBody']), lang, E(u['book']), ARROW, url(lang, 'contact'), E(t['labels']['contact']))
 
 def phero(lang, slug, crumb, title, lead, acts=True):
     t = COPY[lang]; u = UI[lang]
-    a = ('<div class="acts rise d3"><a class="btn btn-p" href="/afspraak/">%s %s</a><a class="btn btn-g" href="%s">%s</a></div>' % (
-        E(u['book']), ARROW, url(lang, 'contact'), E(t['labels']['contact']))) if acts else ''
+    a = ('<div class="acts rise d3"><a class="btn btn-p" href="/afspraak/?lang=%s">%s %s</a><a class="btn btn-g" href="%s">%s</a></div>' % (
+        lang, E(u['book']), ARROW, url(lang, 'contact'), E(t['labels']['contact']))) if acts else ''
     return ('<section class="phero"><div class="grid-bg"></div><div class="wrap"><nav class="crumb rise" aria-label="breadcrumb"><a href="%s">%s</a><i></i><span>%s</span></nav>'
             '<h1 class="rise d1">%s</h1><p class="lead rise d2">%s</p>%s</div></section>') % (url(lang), E(u['home']), E(crumb), E(title), E(lead), a)
 
 # ---------------------------------------------------------------- pagina's
 def home(lang):
-    t = COPY[lang]; u = UI[lang]
-    plus = ''.join('<span class="plus" style="left:%s%%;top:%s%%" data-depth="%d">+</span>' % (x, y, 8 + i * 3) for i, (x, y) in enumerate(C['CROSS_POS'][:6]))
-    orb = ('<div class="orb rise d2" aria-hidden="true"><div class="glow"></div><div class="ring"></div><div class="ring r2"></div><div class="ball"></div>'
-           '<div class="hex"><svg viewBox="0 0 100 100" fill="none"><path d="M50 6 88 28v44L50 94 12 72V28z" stroke="rgba(255,255,255,.75)" stroke-width="1"/>'
-           '<path d="M50 6v88M12 28l76 44M88 28 12 72" stroke="rgba(255,255,255,.3)" stroke-width=".7"/></svg></div>'
-           '<span class="dot" style="--rr:calc(min(42vw,210px))"></span></div>')
-    hero = ('<section class="hero"><div class="grid-bg"></div>%s<div class="wrap">'
-            '<div class="word rise" aria-hidden="true">MARLEO</div><p class="tag rise d1">IT · CLOUD · SECURITY · AI</p>'
-            '<div class="hero-row"><div class="hero-l rise d2" data-depth="10"><h2>%s</h2><span class="eyebrow">%s</span><p>%s</p><a class="textlink" href="%s">%s →</a></div>'
-            '%s'
-            '<div class="hero-r rise d3" data-depth="14"><h1><span class="gt">%s</span><br>%s</h1><p>%s</p>'
-            '<a class="cta-card" href="%s"><span>%s</span><i>%s</i></a></div></div></div></section>') % (
-            plus, E(t['kicker']), E(t['kickerMeta']), E(t['leftBody']), url(lang, 'ai-infrastructuur'), E(t['leftLink']),
-            orb, E(t['claimA']), E(t['claimB']), E(t['claimBody']), url(lang, 'contact'), E(t['offerCta']), ARROW)
-    metrics = '<section><div class="wrap"><div class="metrics rv">%s</div></div></section>' % ''.join(
-        '<div class="metric"><b class="gt">%s</b><span>%s</span></div>' % (E(m['value']), E(m['label'])) for m in t['metrics'])
-    svc = ('<section class="sec"><div class="wrap">%s%s<div style="margin-top:28px" class="rv"><a class="btn btn-g" href="%s">%s %s</a></div></div></section>') % (
-        sec_head(t['labels']['diensten'], t['servicesTitle'], t['servicesIntro']), svc_cards(lang, KEYS), url(lang, 'diensten'), E(t['allServices']), ARROW)
-    wt = {'nl': 'Bekijk de websites die we bouwden', 'en': 'See the websites we built', 'fr': 'Voir les sites que nous avons créés'}[lang]
-    work = ('<section class="sec" style="padding-top:0;padding-bottom:18px"><div class="wrap"><a class="card rv" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
-            '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
-        url(lang, 'websites') + '#werk', icon('websites'), E(wt), E(u['workCta']))
-    dom = ('<section class="sec" style="padding-top:0"><div class="wrap"><a class="card rv" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
-           '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
-        url(lang, 'domeincheck'), icon('domeincheck'), E(t['domainTeaser']), E(t['domainTeaserCta']))
-    aa = AUD_P[lang]
-    aud = ('<section class="sec" style="padding-top:0;padding-bottom:18px"><div class="wrap"><a class="card rv audteaser" href="%s" style="grid-template-columns:auto 1fr auto;align-items:center;gap:20px">%s'
-           '<h3 style="font-size:clamp(1.1rem,2vw,1.5rem)">%s</h3><span class="more" style="margin:0;padding:0">%s →</span></a></div></section>') % (
-        url(lang, 'website-audit'), icon('website-audit'), E(aa['teaser']), E(aa['teaserCta']))
-    title = 'Marleo · ' + {'nl': 'Managed IT, cloud, security, AI & websites', 'en': 'Managed IT, cloud, security, AI & websites', 'fr': 'IT managé, cloud, sécurité, IA & sites web'}[lang]
-    ob = t['pages']['over-ons']['blocks']; why_b = [dict(ob[i], abbr='%02d' % (n + 1)) for n, i in enumerate((1, 3, 4, 5)) if i < len(ob)]
-    why = '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (
-        sec_head({'nl': 'Waarom Marleo', 'en': 'Why Marleo', 'fr': 'Pourquoi Marleo'}[lang], t['pages']['over-ons']['blocksTitle']), blocks(why_b))
-    proc = '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (
-        sec_head({'nl': 'Werkwijze', 'en': 'How we work', 'fr': 'Méthode'}[lang], t['pages']['diensten']['stepsTitle']), steps(t['pages']['diensten']['steps']))
-    TL = {'nl': [('Gratis website-audit', 'Scores voor snelheid, SEO, beveiliging en gsm, met concrete verbeterpunten.', 'Start de audit'), ('Projecten', 'Websites en platformen die we ontwierpen en bouwden, met case per klant.', 'Bekijk het werk'), ('Domeincheck', 'Controleer meteen of jouw domeinnaam nog vrij is.', 'Check een domein')],
-          'en': [('Free website audit', 'Scores for speed, SEO, security and mobile, with concrete improvements.', 'Run the audit'), ('Projects', 'Websites and platforms we designed and built, with a case per client.', 'View the work'), ('Domain check', 'Instantly check whether your domain name is still available.', 'Check a domain')],
-          'fr': [('Audit de site gratuit', 'Scores de vitesse, SEO, sécurité et mobile, avec des améliorations concrètes.', 'Lancer l’audit'), ('Projets', 'Sites et plateformes que nous avons conçus et développés, avec une étude de cas par client.', 'Voir le travail'), ('Vérification de domaine', 'Vérifiez immédiatement si votre nom de domaine est disponible.', 'Vérifier un domaine')]}[lang]
-    tl_links = [(url(lang, 'website-audit'), 'website-audit'), (url(lang, 'projecten'), 'websites'), (url(lang, 'domeincheck'), 'domeincheck')]
-    tools = '<section class="sec" style="padding-top:0"><div class="wrap">%s<div class="grid g3">%s</div></div></section>' % (
-        sec_head({'nl': 'Tools & werk', 'en': 'Tools & work', 'fr': 'Outils & travaux'}[lang], {'nl': 'Ontdek wat we kunnen', 'en': 'See what we can do', 'fr': 'Découvrez ce que nous faisons'}[lang]),
-        ''.join('<a class="card rv d%d toolcard" href="%s"><span class="ic">%s</span><h3>%s</h3><p>%s</p><span class="more">%s →</span></a>' % (i, tl_links[i][0], icon(tl_links[i][1]), E(x[0]), E(x[1]), E(x[2])) for i, x in enumerate(TL)))
-    kbs = ''
-    if lang == 'nl':
-        kbs = '<section class="sec" style="padding-top:0"><div class="wrap">%s<div class="grid g3">%s</div><div class="rv" style="margin-top:22px"><a class="btn btn-g" href="/kennisbank/">Alle artikels %s</a></div></div></section>' % (
-            sec_head('Kennisbank', 'Inzichten voor ondernemers'), ''.join('<a class="card rv d%d kbcard" href="/kennisbank/%s/"><span class="ab">%s · %d min</span><h3>%s</h3><p>%s</p><span class="more">Lees het artikel →</span></a>' % (
-                i % 3, a['slug'], E(a['cat']), a['mins'], E(a['title']), E(a['desc'])) for i, a in enumerate(KB)), ARROW)
-    return page(lang, '', title, UI[lang]['metaHome'], hero + metrics + svc + why + proc + tools + kbs + band(lang))
+    t=COPY[lang];x=AI_TEXT[lang];ops=OPS_COPY[lang]
+    orb=('<div class="orb ai-brand-orb" aria-hidden="true"><div class="glow"></div><div class="ring"></div><div class="ring r2"></div><div class="ball"></div>'
+         '<div class="hex"><svg viewBox="0 0 100 100" fill="none"><path d="M50 6 88 28v44L50 94 12 72V28z" stroke="rgba(255,255,255,.65)" stroke-width="1"/>'
+         '<path d="M50 6v88M12 28l76 44M88 28 12 72" stroke="rgba(255,255,255,.25)" stroke-width=".7"/></svg></div>'
+         '<span class="dot" style="--rr:135px"></span></div>')
+    hero=('<section class="ai-hero ai-brand-hero"><div class="brand-atmosphere" aria-hidden="true"></div><div class="wrap">'
+          '<div class="word" aria-hidden="true">MARLEO</div>'
+          '<div class="ai-brand-content"><div class="ai-hero-copy"><span class="eyebrow">%s</span><h1>%s<br><span class="gt">%s</span></h1><p class="lead">%s</p>'
+          '<div class="acts"><a class="btn btn-p" href="%s">%s %s</a><a class="btn btn-g" href="#systems">%s</a></div></div>%s</div></div></section>') % (
+            E(x['kickerMeta']),E(ops['heroA']),E(ops['heroB']),E(ops['heroBody']),url(lang,'project-intake'),E(ops['heroCta']),ARROW,
+            E(ops['heroSecondary']),orb)
+    groups=[('ai-infrastructuur','development'),('managed-it','cloud','security'),('websites','webshop','branding','games')]
+    group_names={'nl':['AI & software','IT, cloud & security','Web & merk'],'en':['AI & software','IT, cloud & security','Web & brand'],'fr':['IA & logiciels','IT, cloud & sécurité','Web & identité']}[lang]
+    cards=''.join('<div class="ai-service-group"><span class="ai-group-number">%02d</span><h3>%s</h3><ul>%s</ul></div>' % (
+        i+1,E(group_names[i]),''.join('<li><a href="%s">%s <span aria-hidden="true">↗</span></a></li>' % (url(lang,k),E(t['labels'][k])) for k in group)) for i,group in enumerate(groups))
+    services='<section class="sec ai-brand-section" id="diensten"><div class="wrap">%s<div class="ai-service-groups">%s</div></div></section>' % (
+        sec_head(t['allServices'],t['servicesTitle'],t['servicesIntro']),cards)
+    process='<section class="sec ai-brand-section ai-process-section"><div class="wrap">%s%s</div></section>' % (
+        sec_head(None,x['stepsTitle']),steps(t['pages']['ai-infrastructuur']['steps']))
+    proof=('<section class="sec ai-brand-section"><div class="wrap">%s%s'
+        '<a class="btn btn-g" style="margin-top:28px" href="%s">%s %s</a></div></section>') % (
+        sec_head(None,x['proofTitle'],x['proofBody']),work_cards(lang,PORTFOLIO[:2]),url(lang,'projecten'),E(x['proofCta']),ARROW)
+    title='Marleo · '+{'nl':'AI-systemen, automatisering & digitale oplossingen','en':'AI systems, automation & digital solutions','fr':'Systèmes IA, automatisation & solutions numériques'}[lang]
+    return page(lang,'',title,UI[lang]['metaHome'],hero+system_showcase(lang,url)+custom_build(lang,url)+services+process+proof+home_resources(lang,globals())+band(lang))
 
 def service(lang, k):
     t = COPY[lang]; u = UI[lang]; p = t['pages'][k]; dp = DEEP.get(k, {}); dl = dp.get(lang, {})
     out = phero(lang, k, p['crumb'], p['title'], p['lead'])
+    if k == 'ai-infrastructuur': out += ai_demo(lang)
     if dl:
         out += ('<section class="sec"><div class="wrap split"><div>%s</div><ul class="who rv">%s</ul></div></section>') % (
             sec_head(None, u['forWho']), ''.join('<li>%s</li>' % E(x) for x in dl['forWho']))
@@ -303,6 +290,7 @@ def diensten(lang):
 def projecten(lang):
     t = COPY[lang]; u = UI[lang]; p = t['pages']['projecten']
     out = phero(lang, 'projecten', p['crumb'], p['title'], p['lead'])
+    out += case_section(lang,globals())
     out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, PORTFOLIO, eager=2))
     names = {x['name'].lower() for x in PORTFOLIO}
     other = [x for x in p['projects'] if x['title'].lower() not in names and not x['title'].lower().startswith('terraclean')]
@@ -319,6 +307,10 @@ def projecten(lang):
 def prijzen(lang):
     t = COPY[lang]; p = t['pages']['prijzen']
     out = phero(lang, 'prijzen', p['crumb'], p['title'], p['lead'], acts=False)
+    x=AI_TEXT[lang]
+    out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (
+        sec_head(None,x['pricingHeading'],x['pricingIntro']),blocks([dict(abbr=f'{i+1:02d}',title=a,body=b) for i,(a,b) in enumerate(x['pricingStages'])], 'g3'))
+    out += '<section class="sec" style="padding-top:0;padding-bottom:24px"><div class="wrap">%s</div></section>' % sec_head(None,x['managedHeading'],x['managedIntro'])
     out += '<section class="sec" style="padding-top:0"><div class="wrap"><div class="plans">%s</div></div></section>' % ''.join(
         '<div class="plan%s rv d%d"><div><h3>%s</h3><span class="muted">%s</span></div><div class="pr">%s<small>%s</small></div><ul>%s</ul><a class="btn %s" href="%s">%s</a></div>' % (
             ' ft' if pl.get('featured') else '', i, E(pl['name']), E(pl['for']), E(pl['price']), E(p['priceUnit']), ''.join('<li>%s</li>' % E(x) for x in pl['items']),
@@ -353,7 +345,7 @@ def contact(lang):
 # ---------------------------------------------------------------- schrijven
 
 def audit_page(lang):
-    a = AUD_P[lang]; li = LANGS.index(lang)
+    a = AUD_P[lang]; li = ['nl', 'en', 'fr'].index(lang)
     data = {k: a[k] for k in ('btn','busy','steps','cats','total','good','warn','bad','issues','passed','none','ctaT','ctaB','ctaBtn','ctaMail','mailT','mailName','mailEmail','mailSend','mailOk','errUrl','errReach','errLimit','note')}
     data['chk'] = {k: list(v[li]) for k, v in AUD_CHK.items()}; data['book'] = '/afspraak/?lang=' + lang; data['lang'] = lang
     form = ('<section class="sec" style="padding-top:0"><div class="wrap"><form id="audform" class="audform rv" novalidate>'
@@ -367,7 +359,7 @@ def audit_page(lang):
     return page(lang, 'website-audit', a['metaT'], a['metaD'], body)
 
 def case_page(lang, i):
-    p = PORTFOLIO[i]; ct = CASE_T[lang]; li = LANGS.index(lang); sub, body = p[lang]
+    p = PORTFOLIO[i]; ct = CASE_T[lang]; li = ['nl', 'en', 'fr'].index(lang); sub, body = p[lang]
     sector, _, loc = sub.partition(' · ')
     slug = 'projecten/' + slugify(p['name'])
     feats = [CASE_F[k][li] for k in CASE_C.get(p['img'], [])] + [CASE_F[k][li] for k in ('mobile', 'seo', 'ssl')]
@@ -426,11 +418,14 @@ def main():
             elif k == 'website-audit': s = audit_page(lang)
             else: s = service(lang, k)
             write(url(lang, k), s); urls.append(url(lang, k))
+        for slug in EXTRA_SLUGS:
+            write(url(lang,slug),extra_page(lang,slug,globals())); urls.append(url(lang,slug))
         for i, pp in enumerate(PORTFOLIO):
             sl = 'projecten/' + slugify(pp['name']); write(url(lang, sl), case_page(lang, i)); urls.append(url(lang, sl))
     write('/kennisbank/', kb_index()); urls.append('/kennisbank/')
     for a in KB:
         write('/kennisbank/%s/' % a['slug'], kb_article(a)); urls.append('/kennisbank/%s/' % a['slug'])
+    write('/en/', home('en'))
     today = datetime.date.today().isoformat()
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         '<url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (SITE, u, today) for u in urls + ['/afspraak/', '/privacy/', '/voorwaarden/', '/nis2/']) + '</urlset>\n'

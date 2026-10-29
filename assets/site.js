@@ -16,17 +16,26 @@ var hdr=$('.hdr'),pg=$('.prog'),tick=false;
 function onScroll(){tick=false;var y=window.scrollY||0;if(hdr)hdr.classList.toggle('sc',y>8);if(pg){var m=h.scrollHeight-innerHeight;pg.style.transform='scaleX('+(m>0?Math.min(1,y/m):0)+')'}}
 addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(onScroll)}},{passive:true});onScroll();
 
-/* dropdowns (klik/touch) */
-$$('.dd>button').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var p=b.parentNode,o=!p.classList.contains('open');$$('.dd.open').forEach(function(x){x.classList.remove('open')});p.classList.toggle('open',o);b.setAttribute('aria-expanded',o)})});
-d.addEventListener('click',function(){$$('.dd.open').forEach(function(x){x.classList.remove('open')})});
-d.addEventListener('keydown',function(e){if(e.key==='Escape'){$$('.dd.open').forEach(function(x){x.classList.remove('open')});closeSheet()}});
-
-/* mobiel menu */
-var sh=$('.sheet');
-function openSheet(){if(!sh)return;sh.classList.add('open');sh.setAttribute('aria-hidden','false');h.style.overflow='hidden';var x=$('.x',sh);x&&x.focus()}
-function closeSheet(){if(!sh||!sh.classList.contains('open'))return;sh.classList.remove('open');sh.setAttribute('aria-hidden','true');h.style.overflow=''}
+/* Dropdown and mobile navigation: consistent state, keyboard and focus. */
+function closeDropdowns(){ $$('.dd.open').forEach(function(x){x.classList.remove('open');var b=$('button',x);if(b)b.setAttribute('aria-expanded','false')}) }
+$$('.dd>button').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var p=b.parentNode,o=!p.classList.contains('open');closeDropdowns();p.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o))})});
+d.addEventListener('click',closeDropdowns);
+var sh=$('.sheet'),sheetOpener=null;
+if(sh){sh.inert=true;sh.setAttribute('role','dialog');sh.setAttribute('aria-label',L==='fr'?'Navigation':L==='en'?'Navigation':'Navigatie')}
+function sheetBackground(disabled){[$('main'),$('.hdr'),$('.ftr')].forEach(function(el){if(el)el.inert=disabled})}
+function openSheet(e){if(!sh)return;sheetOpener=e&&e.currentTarget||d.activeElement;sh.inert=false;sh.classList.add('open');sh.setAttribute('aria-hidden','false');sh.setAttribute('aria-modal','true');h.style.overflow='hidden';sheetBackground(true);var x=$('.x',sh);if(x)x.focus()}
+function closeSheet(){if(!sh||!sh.classList.contains('open'))return;sh.classList.remove('open');sh.setAttribute('aria-hidden','true');sh.removeAttribute('aria-modal');sh.inert=true;h.style.overflow='';sheetBackground(false);if(sheetOpener)sheetOpener.focus()}
 $$('.burger').forEach(function(b){b.addEventListener('click',openSheet)});
 $$('.sheet .x, .sheet a').forEach(function(b){b.addEventListener('click',closeSheet)});
+d.addEventListener('keydown',function(e){
+ if(e.key==='Escape'){closeDropdowns();closeSheet()}
+ if(e.key==='Tab'&&sh&&sh.classList.contains('open')){
+  var focusable=$$('a,button,summary,input,select,textarea,[tabindex="0"]',sh).filter(function(el){return !el.disabled&&el.getClientRects().length});
+  var first=focusable[0],last=focusable[focusable.length-1];
+  if(e.shiftKey&&d.activeElement===first){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&d.activeElement===last){e.preventDefault();first.focus()}
+ }
+});
 
 /* reveal bij scrollen */
 if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -34,22 +43,17 @@ if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduc
  $$('.rv').forEach(function(el){io.observe(el)});
 }else $$('.rv').forEach(function(el){el.classList.add('in')});
 
-/* parallax in de hero (alleen muis) */
-var orb=$('.orb');
-if(orb&&matchMedia('(pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
- var tx=0,ty=0,cx=0,cy=0,run=false;
- addEventListener('pointermove',function(e){tx=(e.clientX/innerWidth-.5);ty=(e.clientY/innerHeight-.5);if(!run){run=true;requestAnimationFrame(loop)}},{passive:true});
- function loop(){cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;orb.style.transform='rotateY('+(cx*14)+'deg) rotateX('+(-cy*10)+'deg)';$$('[data-depth]').forEach(function(el){var k=+el.getAttribute('data-depth');el.style.transform='translate3d('+(-cx*k)+'px,'+(-cy*k*.6)+'px,0)'});if(Math.abs(tx-cx)>.001||Math.abs(ty-cy)>.001)requestAnimationFrame(loop);else run=false}
-}
+/* Hero movement lives in brand-header.js and stays scoped to the header. */
 
 /* contactformulier -> aanvraag (+ WhatsApp-bevestiging na opt-in) */
 var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/';
 var f=$('#cform');
 if(f)f.addEventListener('submit',async function(e){e.preventDefault();var m=$('.fmsg',f),b=$('button[type=submit]',f),g=function(n){return (f.elements[n]||{}).value||''};
  var data={naam:g('naam'),bedrijf:g('bedrijf'),email:g('email').trim().toLowerCase(),telefoon:g('telefoon'),bericht:g('bericht'),bron:'marleo.tech',website_url:g('website_url')};
+ if(data.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)){m.textContent=UI.required;return}
  if(!data.naam.trim()||(!data.email&&!data.telefoon.trim())){m.textContent=UI.required;return}
  var o=b.textContent;b.disabled=true;b.textContent=UI.sending;
- try{var r=await fetch(API+'aanvraag',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});var j=await r.json();if(!j.ok)throw 0;
+ try{var r=await fetch(API+'aanvraag',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});var j=await r.json();if(!r.ok||!j.ok)throw Error('Request failed');
   var wa=f.elements.waopt;if(wa&&wa.checked&&data.telefoon.trim())fetch(API+'whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({optin:'lead',email:data.email,telefoon:data.telefoon})}).catch(function(){});
   f.reset();m.textContent=UI.sent}catch(x){m.textContent=UI.err}
  b.disabled=false;b.textContent=o});

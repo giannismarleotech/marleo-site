@@ -3,7 +3,7 @@
 var L=['nl','en','fr'];
 function pick(){var q=(location.search.match(/[?&]lang=(nl|en|fr)/)||[])[1];if(q){try{localStorage.setItem('mlang',q)}catch(e){}return q}
  try{var s=localStorage.getItem('mlang');if(L.indexOf(s)>=0)return s}catch(e){}
- var n=(navigator.language||'nl').slice(0,2);return L.indexOf(n)>=0?n:'nl'}
+ return 'en'}
 var lang=pick();window.MLANG=lang;document.documentElement.lang=lang;
 var D={
 /* gedeeld */
