@@ -49,8 +49,8 @@ for p,lang in [('index.html','en'),('nl/index.html','nl'),('fr/index.html','fr')
 for source in ('hq/index.html','hq/sw.js','hq/manifest.json'):
     old=subprocess.check_output(['git','show','main:'+source],cwd=ROOT)
     current=(ROOT/source).read_bytes()
-    if source=='hq/index.html':current=current.replace(b'<link rel="stylesheet" href="enterprise.css">\n',b'').replace(b'<script src="enterprise.js"></script>\n',b'')
-    if source=='hq/sw.js':current=current.replace(b'marleo-hq-enterprise-v1',b'marleo-hq-v3')
+    if source=='hq/index.html':current=current.replace(b'<link rel="stylesheet" href="enterprise.css">\n',b'').replace(b'<script src="enterprise.js"></script>\n',b'').replace(b'<script src="bank-manual.js"></script>\n',b'')
+    if source=='hq/sw.js':current=current.replace(b'marleo-hq-wise-manual-v1',b'marleo-hq-v3')
     assert current==old,source+' has changes outside the isolated enterprise extension'
 for p in ROOT.glob('assets/*.js'):subprocess.run(['node','--check',str(p)],check=True,capture_output=True)
 with tempfile.TemporaryDirectory() as tmp:
