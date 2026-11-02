@@ -1,0 +1,3 @@
+[functions.seo-intake]
+# Handler authenticates each request with a random 256-bit per-questionnaire token.
+verify_jwt = false
