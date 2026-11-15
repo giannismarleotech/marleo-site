@@ -21,6 +21,7 @@ from positioning import TEXT as AI_TEXT, apply as apply_positioning, demo as ai_
 apply_positioning(COPY, UI, DEEP)
 from expansion import SLUGS as EXTRA_SLUGS, configure as configure_expansion, render as extra_page, home_resources, case_section
 configure_expansion(COPY)
+from recent_work import PROJECTS as RECENT, listing as recent_listing, detail as recent_detail
 from operations import COPY as OPS_COPY, showcase as system_showcase, custom as custom_build
 KEYS = ['ai-infrastructuur', 'development', 'managed-it', 'cloud', 'security', 'websites', 'webshop', 'branding', 'games']
 SITE = 'https://marleo.tech'
@@ -290,6 +291,7 @@ def diensten(lang):
 def projecten(lang):
     t = COPY[lang]; u = UI[lang]; p = t['pages']['projecten']
     out = phero(lang, 'projecten', p['crumb'], p['title'], p['lead'])
+    out += recent_listing(lang,globals())
     out += case_section(lang,globals())
     out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, PORTFOLIO, eager=2))
     names = {x['name'].lower() for x in PORTFOLIO}
@@ -420,6 +422,8 @@ def main():
             write(url(lang, k), s); urls.append(url(lang, k))
         for slug in EXTRA_SLUGS:
             write(url(lang,slug),extra_page(lang,slug,globals())); urls.append(url(lang,slug))
+        for pp in RECENT:
+            sl = 'projecten/' + pp['slug']; write(url(lang,sl), recent_detail(lang,pp,globals())); urls.append(url(lang,sl))
         for i, pp in enumerate(PORTFOLIO):
             sl = 'projecten/' + slugify(pp['name']); write(url(lang, sl), case_page(lang, i)); urls.append(url(lang, sl))
     write('/kennisbank/', kb_index()); urls.append('/kennisbank/')
