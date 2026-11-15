@@ -244,7 +244,7 @@ def home(lang):
         '<a class="btn btn-g" style="margin-top:28px" href="%s">%s %s</a></div></section>') % (
         sec_head(None,x['proofTitle'],x['proofBody']),work_cards(lang,PORTFOLIO[:2]),url(lang,'projecten'),E(x['proofCta']),ARROW)
     title='Marleo · '+{'nl':'AI-systemen, automatisering & digitale oplossingen','en':'AI systems, automation & digital solutions','fr':'Systèmes IA, automatisation & solutions numériques'}[lang]
-    return page(lang,'',title,UI[lang]['metaHome'],hero+system_showcase(lang,url)+custom_build(lang,url)+services+process+proof+home_resources(lang,globals())+band(lang))
+    return page(lang,'',title,UI[lang]['metaHome'],hero+system_showcase(lang,url)+custom_build(lang,url)+services+process+recent_listing(lang,globals())+proof+home_resources(lang,globals())+band(lang))
 
 def service(lang, k):
     t = COPY[lang]; u = UI[lang]; p = t['pages'][k]; dp = DEEP.get(k, {}); dl = dp.get(lang, {})

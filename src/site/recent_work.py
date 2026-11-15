@@ -47,7 +47,7 @@ SCOPE['en'][-1] = ('Integration & AI scope','Peppol and banking integrations, pl
 
 def listing(lang,g):
     E=g['E']; u=g['url']; labels=LABELS[lang]
-    cards=''.join('<a class="card rv" href="%s"><span class="ab">%s</span><h3>%s</h3><p>%s</p><span class="more">%s</span></a>'%(u(lang,'projecten/'+p['slug']),E(p['tag']),E(p['name']),E(p[lang]),E(labels[2])) for p in PROJECTS)
+    cards=''.join('<a class="card" href="%s"><span class="ab">%s</span><h3>%s</h3><p>%s</p><span class="more">%s</span></a>'%(u(lang,'projecten/'+p['slug']),E(p['tag']),E(p['name']),E(p[lang]),E(labels[2])) for p in PROJECTS)
     return '<section class="sec" style="padding-top:0"><div class="wrap">'+g['sec_head'](labels[0],labels[1])+'<div class="grid g3">'+cards+'</div></div></section>'
 
 def detail(lang,p,g):
