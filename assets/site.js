@@ -2,6 +2,42 @@
 var d=document,h=d.documentElement,L=h.lang||'nl',UI=window.__UI||{};
 function $(s,r){return (r||d).querySelector(s)}function $$(s,r){return [].slice.call((r||d).querySelectorAll(s))}
 
+/* Replace decorative marks in the shared public UI without touching copy or icons with other meanings. */
+var markDirections={'→':'next','➜':'next','←':'back','↗':'external','↓':'down','↑':'up','×':'close'};
+function mark(direction){
+ var el=d.createElement('span');
+ el.className='marleo-mark marleo-mark--'+direction;
+ el.setAttribute('aria-hidden','true');
+ return el;
+}
+function applyMarks(){
+ $$('a svg,button svg').forEach(function(svg){
+  var path=svg.querySelector(':scope > path:only-child');
+  if(!path)return;
+  var shape=path.getAttribute('d');
+  if(shape==='M2 8h11M9 4l4 4-4 4')svg.replaceWith(mark('next'));
+  if(shape==='M5 11 11 5M6 5h5v5')svg.replaceWith(mark('external'));
+ });
+ var walker=d.createTreeWalker(d.body,NodeFilter.SHOW_TEXT);
+ var nodes=[],node;
+ while((node=walker.nextNode())){
+  var parent=node.parentElement;
+  if(/[→➜←↗↑↓×]/.test(node.data)&&parent.closest('a,button,summary')&&!parent.closest('script,style,svg,pre,code'))nodes.push(node);
+ }
+ nodes.forEach(function(text){
+  var parent=text.parentElement;
+  var close=parent.closest('button[aria-label]');
+  var fragment=d.createDocumentFragment();
+  text.data.split(/([→➜←↗↑↓×])/).forEach(function(part){
+   if(!part)return;
+   if(markDirections[part]&&(part!=='×'||(close&&close.textContent.trim()==='×')))fragment.appendChild(mark(markDirections[part]));
+   else fragment.appendChild(d.createTextNode(part));
+  });
+  text.replaceWith(fragment);
+ });
+}
+applyMarks();
+
 /* oude #/pagina-links doorsturen */
 var hs=location.hash.replace(/^#\/?/,'');if(hs&&/^[a-z0-9-]+$/.test(hs)&&$('a[data-slug="'+hs+'"]')){location.replace($('a[data-slug="'+hs+'"]').getAttribute('href'));return}
 

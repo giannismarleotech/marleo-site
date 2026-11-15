@@ -61,8 +61,6 @@ section{position:relative}
 .sheet details{border-bottom:1px solid var(--line)}
 .sheet summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:18px 2px;font-size:1.25rem;font-weight:600;cursor:pointer}
 .sheet summary::-webkit-details-marker{display:none}
-.sheet summary:after{content:"+";color:var(--p);font-size:1.5rem;transition:transform .2s}
-.sheet details[open] summary:after{transform:rotate(45deg)}
 .sheet details a{display:block;padding:12px 2px 12px 14px;color:#d9d4dc;font-size:1.05rem}
 .sheet details a small{display:block;color:var(--muted);font-size:.82rem}
 .sheet .sl{display:block;padding:18px 2px;font-size:1.25rem;font-weight:600;border-bottom:1px solid var(--line)}
@@ -172,8 +170,6 @@ a.card:hover{border-color:rgba(255,42,134,.55);transform:translateY(-4px);box-sh
 .faq details{border-bottom:1px solid var(--line)}
 .faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;padding:22px 0;font-size:1.08rem;font-weight:600}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary:after{content:"+";color:var(--p);font-size:1.4rem;line-height:1;transition:transform .2s}
-.faq details[open] summary:after{transform:rotate(45deg)}
 .faq details p{color:var(--body);padding:0 0 22px;max-width:70ch}
 
 /* band */
@@ -310,3 +306,86 @@ a.card:hover{border-color:rgba(255,42,134,.55);transform:translateY(-4px);box-sh
 .ftr .top{grid-template-columns:1.2fr repeat(5,1fr)}
 @media (max-width:1180px){.ftr .top{grid-template-columns:1fr 1fr 1fr}}
 @media (max-width:700px){.ftr .top{grid-template-columns:1fr 1fr}}
+
+/* Marleo navigation and disclosure marks */
+:root {
+  --mark-flow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h6l8 8-8 8H3l8-8zM14 4h3l5 5v6l-5 5h-3l8-8z'/%3E%3C/svg%3E");
+  --mark-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4h11v11l-4 4v-8L7 20l-3-3 9-9H5z'/%3E%3C/svg%3E");
+  --mark-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m4 7 3-3 5 5 5-5 3 3-5 5 5 5-3 3-5-5-5 5-3-3 5-5z'/%3E%3C/svg%3E");
+  --mark-menu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 5h18l-4 4H2zm0 7h14l-4 4H2zm0 7h9l-3 3H2z'/%3E%3C/svg%3E");
+  --mark-gradient: linear-gradient(135deg,#ff8a2b,#ff516b 52%,#ff2a86);
+}
+
+.marleo-mark,
+main summary::after,
+.sheet summary::after,
+.nav .dd > button::after,
+.burger i {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  vertical-align: -.14em;
+  background: var(--mark-gradient);
+  mask: var(--mark-shape, var(--mark-flow)) center / contain no-repeat;
+  transition: transform .2s ease;
+}
+
+.marleo-mark { margin-inline: .18em; }
+.marleo-mark--back { transform: rotate(180deg); }
+.marleo-mark--external { --mark-shape: var(--mark-external); }
+.marleo-mark--down { transform: rotate(90deg); }
+.marleo-mark--up { transform: rotate(-90deg); }
+.marleo-mark--close { --mark-shape: var(--mark-close); }
+
+main summary,
+.sheet summary {
+  list-style: none;
+  position: relative;
+  padding-inline-end: 2.2em;
+}
+main summary::-webkit-details-marker,
+.sheet summary::-webkit-details-marker { display: none; }
+main summary::after,
+.sheet summary::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: .2em;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+}
+main details[open] > summary::after,
+.sheet details[open] > summary::after {
+  transform: translateY(-50%) rotate(-90deg);
+}
+
+.nav .dd > button::after {
+  border-radius: 0;
+  opacity: 1;
+  transform: rotate(90deg);
+}
+.nav .dd > button[aria-expanded="true"]::after { transform: rotate(-90deg); }
+
+.burger i {
+  --mark-shape: var(--mark-menu);
+  width: 20px;
+  height: 20px;
+  border-radius: 0;
+}
+.burger i::before,
+.burger i::after { content: none; }
+
+a:hover .marleo-mark--next,
+a:focus-visible .marleo-mark--next { transform: translateX(3px); }
+a:hover .marleo-mark--back,
+a:focus-visible .marleo-mark--back { transform: translateX(-3px) rotate(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .marleo-mark, main summary::after, .sheet summary::after, .nav .dd > button::after { transition: none; }
+}
+@media (forced-colors: active) {
+  .marleo-mark, main summary::after, .sheet summary::after, .nav .dd > button::after, .burger i {
+    forced-color-adjust: none;
+    background: ButtonText;
+  }
+}
