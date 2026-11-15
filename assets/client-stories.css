@@ -1,0 +1,10 @@
+.case-story h2 { font-size: clamp(1.6rem, 3.4vw, 2.8rem); line-height: 1.13; margin: 0 0 22px; max-width: 27ch; }
+.case-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 46px; }
+.case-columns article, .case-reference { border: 1px solid #ffffff23; background: #141219; border-radius: 14px; }
+.case-columns article, .case-reference div { padding: clamp(16px, 2.6vw, 27px); }
+.case-story h3 { margin: 0 0 6px; font-size: 1.15rem; }
+.case-story p { color: #c5beca; line-height: 1.65; margin: 0; }
+.case-gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.case-reference { overflow: hidden; }
+.case-reference img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+@media (max-width: 720px) { .case-gallery, .case-columns { grid-template-columns: 1fr; } }

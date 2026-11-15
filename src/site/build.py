@@ -21,7 +21,7 @@ from positioning import TEXT as AI_TEXT, apply as apply_positioning, demo as ai_
 apply_positioning(COPY, UI, DEEP)
 from expansion import SLUGS as EXTRA_SLUGS, configure as configure_expansion, render as extra_page, home_resources, case_section
 configure_expansion(COPY)
-from recent_work import PROJECTS as RECENT, listing as recent_listing, detail as recent_detail
+from recent_work import PROJECTS as RECENT, listing as recent_listing, detail as recent_detail, WEBSITE_CARDS, website_case_content
 from operations import COPY as OPS_COPY, showcase as system_showcase, custom as custom_build
 KEYS = ['ai-infrastructuur', 'development', 'managed-it', 'cloud', 'security', 'websites', 'webshop', 'branding', 'games']
 SITE = 'https://marleo.tech'
@@ -203,7 +203,7 @@ def work_cards(lang, items, eager=0):
             '<div class="shot"><img src="/assets/work/%s-720.webp" srcset="/assets/work/%s-720.webp 720w, /assets/work/%s-1440.webp 1440w" sizes="(max-width:700px) 92vw, 46vw" width="1440" height="900" alt="%s" loading="%s" decoding="async">'
             '<div class="ph"><img src="/assets/work/%s-m.webp" width="390" height="800" alt="" loading="lazy" decoding="async"></div></div>'
             '<div class="meta"><div><div class="sub">%s</div><h3>%s</h3><p>%s</p></div><span class="go">%s %s</span></div></a>' % (
-                i % 2, url(lang, 'projecten/' + slugify(p['name'])), p['img'], p['img'], p['img'], E(p['name'] + ' website'), ld, p['img'], E(sub), E(p['name']), E(body), E(CASE_T[lang]['view']), ARROW))
+                i % 2, url(lang, 'projecten/' + p.get('slug', slugify(p['name']))), p['img'], p['img'], p['img'], E(p['name'] + ' website'), ld, p['img'], E(sub), E(p['name']), E(body), E(CASE_T[lang]['view']), ARROW))
     return '<div class="work">%s</div>' % ''.join(out)
 
 def band(lang, title=None, body=None):
@@ -291,9 +291,9 @@ def diensten(lang):
 def projecten(lang):
     t = COPY[lang]; u = UI[lang]; p = t['pages']['projecten']
     out = phero(lang, 'projecten', p['crumb'], p['title'], p['lead'])
-    out += recent_listing(lang,globals())
     out += case_section(lang,globals())
-    out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, PORTFOLIO, eager=2))
+    out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, WEBSITE_CARDS + PORTFOLIO, eager=2))
+    out += recent_listing(lang, globals(), include_websites=False)
     names = {x['name'].lower() for x in PORTFOLIO}
     other = [x for x in p['projects'] if x['title'].lower() not in names and not x['title'].lower().startswith('terraclean')]
     if other:
@@ -360,27 +360,31 @@ def audit_page(lang):
     body += '<script>window.__AUD=%s</script><script defer src="/assets/audit.js?v=%s"></script>' % (json.dumps(data, ensure_ascii=False), V)
     return page(lang, 'website-audit', a['metaT'], a['metaD'], body)
 
+def case_website_shot(p):
+    return ('<section class="sec" style="padding-top:0"><div class="wrap"><div class="case-shot rv"><img src="/assets/work/%s-1440.webp" srcset="/assets/work/%s-720.webp 720w, /assets/work/%s-1440.webp 1440w" sizes="(max-width:700px) 92vw, 80vw" width="1440" height="900" alt="%s" fetchpriority="high">'
+            '<div class="case-ph"><img src="/assets/work/%s-m.webp" width="390" height="800" alt="%s" loading="lazy"></div></div></div></section>') % (p['img'], p['img'], p['img'], E(p['name'] + ' – desktop'), p['img'], E(p['name'] + ' – gsm'))
+
 def case_page(lang, i):
-    p = PORTFOLIO[i]; ct = CASE_T[lang]; li = ['nl', 'en', 'fr'].index(lang); sub, body = p[lang]
+    portfolio = WEBSITE_CARDS + PORTFOLIO
+    p = portfolio[i]; ct = CASE_T[lang]; li = ['nl', 'en', 'fr'].index(lang); sub, body = p[lang]
     sector, _, loc = sub.partition(' · ')
-    slug = 'projecten/' + slugify(p['name'])
+    slug = 'projecten/' + p.get('slug', slugify(p['name']))
     feats = [CASE_F[k][li] for k in CASE_C.get(p['img'], [])] + [CASE_F[k][li] for k in ('mobile', 'seo', 'ssl')]
     host = p['url'].replace('https://', '').replace('http://', '').rstrip('/')
-    prv, nxt = PORTFOLIO[(i - 1) % len(PORTFOLIO)], PORTFOLIO[(i + 1) % len(PORTFOLIO)]
+    prv, nxt = portfolio[(i - 1) % len(portfolio)], portfolio[(i + 1) % len(portfolio)]
     u = UI[lang]
     hero = ('<section class="phero case-hero"><div class="grid-bg"></div><div class="wrap"><nav class="crumb rise" aria-label="breadcrumb"><a href="%s">%s</a><i></i><a href="%s">%s</a><i></i><span>%s</span></nav>'
             '<span class="eyebrow rise">%s · %s</span><h1 class="rise d1">%s</h1><p class="lead rise d2">%s</p>'
             '<div class="acts rise d3"><a class="btn btn-p" href="%s" target="_blank" rel="noopener">%s %s</a></div></div></section>') % (
             url(lang), E(u['home']), url(lang, 'projecten'), E(COPY[lang]['labels'].get('projecten', u['work'])), E(p['name']), E(ct['case']), E(sector), E(p['name']), E(body), E(p['url']), E(ct['live']), EXT)
-    shot = ('<section class="sec" style="padding-top:0"><div class="wrap"><div class="case-shot rv"><img src="/assets/work/%s-1440.webp" srcset="/assets/work/%s-720.webp 720w, /assets/work/%s-1440.webp 1440w" sizes="(max-width:700px) 92vw, 80vw" width="1440" height="900" alt="%s" fetchpriority="high">'
-            '<div class="case-ph"><img src="/assets/work/%s-m.webp" width="390" height="800" alt="%s" loading="lazy"></div></div></div></section>') % (p['img'], p['img'], p['img'], E(p['name'] + ' – desktop'), p['img'], E(p['name'] + ' – gsm'))
+    shot = case_website_shot(p)
     facts = ''.join('<div><span>%s</span><b>%s</b></div>' % (E(k), E(v)) for k, v in ((ct['client'], p['name']), (ct['sector'], sector), (ct['loc'], loc or '–'), (ct['site'], host)))
     detail = ('<section class="sec" style="padding-top:0"><div class="wrap split"><div class="rv"><div class="case-facts">%s</div><h2 style="margin-top:28px">%s</h2><ul class="checks">%s</ul></div>'
               '<div class="rv"><p class="lead" style="margin-bottom:22px">%s</p><h2>%s</h2><ul class="checks">%s</ul></div></div></section>') % (
               facts, E(ct['scope']), ''.join('<li>%s</li>' % E(x) for x in ct['scopeV']), E(ct['intro'] % p['name']), E(ct['built']), ''.join('<li>%s</li>' % E(x) for x in feats))
     nav = ('<section class="sec" style="padding-top:0"><div class="wrap"><div class="case-nav rv"><a href="%s"><span>← %s</span><b>%s</b></a><a href="%s"><span>%s</span><b>%s</b></a><a href="%s" style="text-align:right"><span>%s →</span><b>%s</b></a></div></div></section>') % (
-            url(lang, 'projecten/' + slugify(prv['name'])), E(ct['prev']), E(prv['name']), url(lang, 'projecten'), E(ct['more']), E(u['allWork']), url(lang, 'projecten/' + slugify(nxt['name'])), E(ct['next']), E(nxt['name']))
-    return page(lang, slug, '%s – %s · Marleo' % (p['name'], ct['case']), body[:158], hero + shot + detail + nav + band(lang))
+            url(lang, 'projecten/' + prv.get('slug', slugify(prv['name']))), E(ct['prev']), E(prv['name']), url(lang, 'projecten'), E(ct['more']), E(u['allWork']), url(lang, 'projecten/' + nxt.get('slug', slugify(nxt['name']))), E(ct['next']), E(nxt['name']))
+    return page(lang, slug, '%s – %s · Marleo' % (p['name'], ct['case']), body[:158], hero + shot + detail + website_case_content(lang, p, globals()) + nav + band(lang))
 
 def kb_index():
     lang = 'nl'
@@ -423,9 +427,10 @@ def main():
         for slug in EXTRA_SLUGS:
             write(url(lang,slug),extra_page(lang,slug,globals())); urls.append(url(lang,slug))
         for pp in RECENT:
-            sl = 'projecten/' + pp['slug']; write(url(lang,sl), recent_detail(lang,pp,globals())); urls.append(url(lang,sl))
-        for i, pp in enumerate(PORTFOLIO):
-            sl = 'projecten/' + slugify(pp['name']); write(url(lang, sl), case_page(lang, i)); urls.append(url(lang, sl))
+            if 'slug' in pp and pp['slug'] not in {p['slug'] for p in WEBSITE_CARDS}:
+                sl = 'projecten/' + pp['slug']; write(url(lang,sl), recent_detail(lang,pp,globals())); urls.append(url(lang,sl))
+        for i, pp in enumerate(WEBSITE_CARDS + PORTFOLIO):
+            sl = 'projecten/' + pp.get('slug', slugify(pp['name'])); write(url(lang, sl), case_page(lang, i)); urls.append(url(lang, sl))
     write('/kennisbank/', kb_index()); urls.append('/kennisbank/')
     for a in KB:
         write('/kennisbank/%s/' % a['slug'], kb_article(a)); urls.append('/kennisbank/%s/' % a['slug'])
