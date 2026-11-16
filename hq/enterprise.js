@@ -77,3 +77,6 @@ if(!MENU_ADMIN.some(function(m){return m[0]==='enterprise'}))MENU_ADMIN.push(['e
 var previousMenu=window.buildMenu;window.buildMenu=function(){var result=previousMenu.apply(this,arguments);if(!admin())return result;var nav=document.getElementById('navmenu'),button=nav&&nav.querySelector('[data-v="enterprise"]');if(button){var group=document.createElement('div');group.className='navgrp';group.dataset.g='Enterprise';var title=document.createElement('div');title.className='navsec';title.textContent='Enterprise';group.append(title,button);var search=nav.querySelector('.navsearch');if(search)search.after(group);else nav.prepend(group)}return result};
 if(admin()&&document.getElementById('navmenu').children.length)window.buildMenu();
 })();
+
+// Load shared workspace improvements for the existing HQ shell.
+import("./workspace.js");

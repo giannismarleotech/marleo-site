@@ -1,0 +1,68 @@
+/* Shared workspace layout, including the installed mobile app. */
+#appView.active { grid-template-columns: 250px minmax(0, 1fr); }
+#mainArea { min-width: 0; width: 100%; max-width: 1440px; margin-inline: auto; padding-inline: clamp(20px, 3.5vw, 54px); }
+#mainArea :is(.topbar,.panelbox,.stats,.two-col,.custcols,.docgrid) { min-width: 0; }
+#mainArea .topbar { gap: 14px 20px; align-items: center; flex-wrap: wrap; }
+#mainArea .topbar h2 { font-size: clamp(1.45rem, 2.6vw, 2.15rem); line-height: 1.18; letter-spacing: -.035em; overflow-wrap: anywhere; }
+#mainArea .topbar .sub { margin-top: 4px; line-height: 1.5; }
+#mainArea .panelbox { border-radius: 16px; }
+#mainArea .rowactions { flex-wrap: wrap; }
+#mainArea .stats > *, #mainArea .frow > *, #mBody .frow > * { min-width: 0; }
+#mainArea .stat .val { white-space: normal; overflow-wrap: anywhere; }
+#mainArea .hq-scroll-table { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+#mainArea .navhidden { display: none; }
+#hqMobileHeader { display: none; }
+#mnav[hidden] { display: none; }
+
+#mBox { max-height: min(88dvh, 900px); }
+#mBox .modal-head { gap: 12px; flex: 0 0 auto; }
+#mBox .modal-head h3 { overflow-wrap: anywhere; }
+#mBox .modal-close { flex: 0 0 44px; min-height: 44px; }
+#mBody { min-height: 0; overscroll-behavior: contain; }
+#mFoot { position: static; flex: 0 0 auto; flex-wrap: wrap; }
+#mFoot:empty { display: none; }
+body.hq-dialog-open { overflow: hidden; }
+
+@media (max-width: 860px) {
+  #appView.active { display: block; overflow: clip; }
+  #mainArea { padding: 16px max(14px, env(safe-area-inset-left)) calc(100px + env(safe-area-inset-bottom)) !important; }
+  #hqMobileHeader {
+    position: sticky; top: 0; z-index: 49; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: calc(8px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
+    min-height: 62px; border-bottom: 1px solid var(--line); background: var(--bg2);
+  }
+  #hqMobileHeader .btn { min-height: 44px; min-width: 44px; }
+  #hqMobileHeader .hq-wordmark { font: 700 1.16rem var(--disp); }
+  #mnav { background: var(--panel); padding-inline: max(6px, env(safe-area-inset-left)) max(6px, env(safe-area-inset-right)); }
+  #mnav button { min-height: 48px; font-size: .72rem; color: var(--muted); }
+  #mnav button.on { color: var(--text); }
+  #mnav button[hidden], #hqMobileHeader button[hidden] { display: none; }
+  #sidebar { padding-top: max(18px, env(safe-area-inset-top)); }
+  #mainArea .topbar > div { min-width: 0; }
+  #mainArea .topbar > div:first-child { flex: 1 1 100%; }
+  #mainArea .topbar .searchbox { flex: 1 1 100%; }
+  #mainArea .topbar .btn { white-space: normal; min-height: 44px; line-height: 1.3; }
+  #mainArea .tabs { scrollbar-width: thin; }
+  #mainArea .tab, #mainArea .iconbtn { min-height: 44px; }
+  #mBox.modal { width: 100% !important; margin: 0; max-height: calc(100dvh - max(16px, env(safe-area-inset-top))) !important; border-radius: 22px 22px 0 0; overflow: hidden; }
+  #mBox .modal-head, #mBody, #mFoot { padding-inline: 16px; }
+  #mFoot { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  #mBody input:not([type="checkbox"]):not([type="radio"]), #mBody select, #mBody textarea { min-width: 0; }
+  #mainArea .hq-invoice-table { display: block; min-width: 0; width: 100%; }
+  #mainArea .hq-invoice-table thead { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+  #mainArea .hq-invoice-table tbody { display: grid; gap: 12px; }
+  #mainArea .hq-invoice-table tr {
+    display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px 14px;
+    padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg2);
+  }
+  #mainArea .hq-invoice-table td { display: block; min-width: 0; border: 0; padding: 0 !important; text-align: start; overflow-wrap: anywhere; }
+  #mainArea .hq-invoice-table td[data-hq-column]::before { content: attr(data-hq-column); display: block; color: var(--muted); font-size: .72rem; }
+  #mainArea .hq-invoice-table td:last-child { grid-column: 1 / -1; padding-top: 8px !important; border-top: 1px solid var(--line); }
+  #mainArea .hq-invoice-table .rowactions { justify-content: flex-start; }
+}
+@media (max-width: 380px) {
+  #mainArea .stats, #mainArea .statgrid { grid-template-columns: minmax(0,1fr) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #mBox, #mBackdrop, #sidebar, #sbBack { animation: none; transition: none; }
+}

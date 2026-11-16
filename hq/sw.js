@@ -1,12 +1,31 @@
 /* Marleo HQ service worker: push-meldingen + offline cache */
-var CACHE='marleo-hq-seo-v1';
+var CACHE='marleo-hq-workspace-v2';
 self.addEventListener('install',function(e){self.skipWaiting()});
-self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==CACHE}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});
+self.addEventListener('activate',function(e){
+  e.waitUntil(caches.keys().then(function(keys){
+    return Promise.all(keys.filter(function(key){return key.startsWith('marleo-hq-')&&key!==CACHE}).map(function(key){return caches.delete(key)}));
+  }).then(function(){return self.clients.claim()}));
+});
 self.addEventListener('fetch',function(e){
-  if(e.request.method!=='GET')return;
-  var u=e.request.url;
-  if(u.indexOf('supabase.co')>=0||u.indexOf('googleapis')>=0)return;
-  e.respondWith(fetch(e.request).then(function(r){var c=r.clone();caches.open(CACHE).then(function(ca){ca.put(e.request,c).catch(function(){})});return r}).catch(function(){return caches.match(e.request).then(function(m){return m||caches.match('./')})}));
+  var request=e.request;
+  if(request.method!=='GET'||!request.url.startsWith(self.registration.scope))return;
+  e.respondWith(fetch(request).then(function(response){
+    if(response.ok){
+      var copy=response.clone();
+      e.waitUntil(caches.open(CACHE).then(function(cache){return cache.put(request,copy)}).catch(function(){}));
+    }
+    return response;
+  }).catch(function(){
+    return caches.open(CACHE).then(async function(cache){
+      var cached=await cache.match(request);
+      if(cached)return cached;
+      if(request.mode==='navigate'){
+        var home=await cache.match(self.registration.scope);
+        if(home)return home;
+      }
+      return Response.error();
+    });
+  }));
 });
 self.addEventListener('push',function(e){
   var d={title:'Marleo HQ',body:'Nieuwe melding',url:'./',tag:'marleo'};
