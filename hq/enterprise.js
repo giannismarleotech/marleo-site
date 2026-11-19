@@ -80,3 +80,5 @@ if(admin()&&document.getElementById('navmenu').children.length)window.buildMenu(
 
 // Load shared workspace improvements for the existing HQ shell.
 import("./workspace.js");
+
+import("./sync-dashboard.js");
