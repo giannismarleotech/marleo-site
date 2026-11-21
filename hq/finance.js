@@ -57,7 +57,7 @@ export function projectPlan(invoices) {
       review:!linked && advances.some(advance => advance.customerId === draft.customerId && !linkedFinal(advance, invoices)),
       ignored:!!draft.financePlanIgnored});
   }
-  return rows;
+  return rows.filter(row => !row.invoice.financePlanDismissed);
 }
 window.advFinal = advance => linkedFinal(advance, DATA.invoices);
 window.plannedFinals = () => projectPlan(DATA.invoices)
@@ -69,7 +69,8 @@ window.plannedSum = () => plannedFinals().reduce((sum,row)=>sum+row.saldo,0);
 
 window.plannedPanel = function () {
   const rows = projectPlan(DATA.invoices);
-  if (!rows.length) return '';
+  const dismissed = DATA.invoices.filter(invoice=>invoice.financePlanDismissed);
+  if (!rows.length && !dismissed.length) return '';
   const total = rows.filter(row=>!row.ignored && !row.review).reduce((sum,row)=>sum+row.balance,0);
   return '<section id="plannedBox" class="panelbox"><h3>Nog te factureren <span class="pill normaal">'+eur(total)+' verwacht</span></h3>'+
     '<p class="hint">Bedragen excl. btw. Vermoedelijke dubbels tellen pas mee nadat je de koppeling hebt gecontroleerd. Dit is verwachte facturatie.</p>'+
@@ -80,9 +81,12 @@ window.plannedPanel = function () {
         (row.ignored?'Uitgesloten':row.review?'Mogelijk dubbel · koppel controleren':row.estimated?'Projecttotaal controleren':'In planning')+
         '</td><td><div class="rowactions"><button class="btn sm subtle" data-plan-edit="'+esc(invoice.id)+'">Aanpassen</button>'+
         '<button class="btn sm subtle" data-invoice-edit="'+esc(invoice.id)+'">Factuur bewerken</button>'+
+        '<button class="btn sm subtle" data-plan-remove="'+esc(invoice.id)+'">Verwijderen uit planning</button>'+
         (invoice.type==='voorschot'&&!row.ignored&&!row.review?'<button class="btn sm" data-final-create="'+esc(invoice.id)+'">Eindfactuur maken</button>':'')+
         '</div></td></tr>';
-    }).join('')+'</tbody></table></div></section>';
+    }).join('')+'</tbody></table></div>'+
+    (dismissed.length?'<details style="margin-top:14px"><summary>Verwijderd uit planning ('+dismissed.length+')</summary>'+
+      dismissed.map(invoice=>'<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 0"><span>'+esc(custName(invoice.customerId))+' · '+esc(invoice.ref)+'</span><button class="btn sm subtle" data-plan-restore="'+esc(invoice.id)+'">Terugzetten</button></div>').join('')+'</details>':'')+'</section>';
 };
 
 function editPlan(id) {
@@ -132,6 +136,18 @@ function editPlan(id) {
   };
 }
 document.addEventListener('click',event=>{
+  const remove=event.target.closest('[data-plan-remove]');
+  const restore=event.target.closest('[data-plan-restore]');
+  if(remove||restore){
+    const invoice=DATA.invoices.find(item=>item.id===(remove?remove.dataset.planRemove:restore.dataset.planRestore));
+    if(!invoice)return;
+    if(remove&&!confirm('Deze post verwijderen uit Nog te factureren? Het factuurdocument blijft beschikbaar.'))return;
+    invoice.financePlanDismissed=!!remove;
+    saveData();go(VIEW);
+    toast(remove?'Post verwijderd uit de planning':'Post teruggezet in de planning');
+    return;
+  }
+
   const edit=event.target.closest('[data-plan-edit]');
   if(edit) editPlan(edit.dataset.planEdit);
   const original=event.target.closest('[data-invoice-edit]');
