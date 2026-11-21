@@ -53,7 +53,7 @@ export function projectPlan(invoices) {
   }
   for (const draft of drafts) {
     const linked = advances.find(advance => linkedFinal(advance, invoices)?.id === draft.id);
-    rows.push({invoice:draft, balance:round(invSub(draft)), estimated:false,
+    rows.push({invoice:draft, balance:round(draft.financePlanBalance ?? invSub(draft)), estimated:false,
       review:!linked && advances.some(advance => advance.customerId === draft.customerId && !linkedFinal(advance, invoices)),
       ignored:!!draft.financePlanIgnored});
   }
@@ -94,17 +94,18 @@ function editPlan(id) {
   const selected = advance ? advFinal(invoice)?.id : invoice.advanceId;
   openM('Facturatieplanning · '+invoice.ref,
     '<p class="hint">Koppel alleen documenten van dezelfde opdracht. Een klant kan meerdere opdrachten hebben.</p>'+
-    (advance?'<div class="fgroup"><label for="plan-total">Afgesproken projecttotaal excl. btw</label><input id="plan-total" type="number" min="0" step="0.01" value="'+advTotal(invoice)+'"><p class="hint">Voorschot excl. btw: '+eur(advPart(invoice))+'</p></div>':'')+
+    '<div class="fgroup"><label for="plan-balance">Nog te factureren excl. btw</label><input id="plan-balance" type="number" min="0" step="0.01" value="'+(advance?round(advTotal(invoice)-advPart(invoice)):round(invoice.financePlanBalance ?? invSub(invoice)))+'">'+
+    '<p class="hint">'+(advance?'Vul hier het juiste restbedrag in. Het projecttotaal wordt het voorschot plus dit saldo.':'Dit is het verwachte saldo in de planning. Gebruik Factuur bewerken om ook het conceptdocument aan te passen.')+'</p></div>'+
     '<div class="fgroup"><label for="plan-link">'+(advance?'Bijbehorende eindfactuur':'Bijbehorend voorschot')+'</label><select id="plan-link"><option value="">Geen koppeling</option>'+
     candidates.map(item=>'<option value="'+esc(item.id)+'"'+(item.id===selected?' selected':'')+'>'+esc(item.ref)+' · '+eur(invSub(item))+' · '+esc(item.status)+'</option>').join('')+'</select></div>'+
     '<label style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="plan-ignore" style="width:20px"'+(invoice.financePlanIgnored?' checked':'')+'> Uitsluiten uit verwachte facturatie</label>'+
     '<p class="hint">Deze instelling bepaalt of dit bedrag meetelt in de planning.</p>',
     '<button class="btn subtle" onclick="closeM()">Annuleren</button><button class="btn" id="plan-save">Opslaan</button>');
   document.getElementById('plan-save').onclick = () => {
-    const value = document.getElementById('plan-total')?.value;
-    const total = Number(value);
-    if (advance && (!value || !Number.isFinite(total) || total < advPart(invoice))) {
-      toast('Het projecttotaal moet minstens het voorschotbedrag zijn.',true);return;
+    const value = document.getElementById('plan-balance').value;
+    const balance = Number(value);
+    if (!value || !Number.isFinite(balance) || balance < 0) {
+      toast('Vul een geldig restbedrag van minstens 0 euro in.',true);return;
     }
     const linkId = document.getElementById('plan-link').value;
     const other = candidates.find(item=>item.id===linkId);
@@ -115,7 +116,8 @@ function editPlan(id) {
         toast('Dit document is al aan een andere opdracht gekoppeld. Maak eerst die koppeling los.',true);return;
       }
     }
-    if (advance) invoice.project={...invoice.project,total:round(total)};
+    if (advance) invoice.project={...invoice.project,total:round(advPart(invoice)+balance)};
+    else invoice.financePlanBalance=round(balance);
     for (const item of DATA.invoices) {
       if (advance && item.advanceId===id) delete item.advanceId;
       if (!advance && item.finalId===id) delete item.finalId;
