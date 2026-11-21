@@ -83,4 +83,4 @@ import("./workspace.js");
 
 import("./sync-dashboard.js?v=planning-remove-20261121");
 
-import("./campaign-audiences.js");
+import("./campaign-audiences.js?v=marketing-design-20261121");
