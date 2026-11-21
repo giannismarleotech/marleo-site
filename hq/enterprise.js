@@ -81,6 +81,6 @@ if(admin()&&document.getElementById('navmenu').children.length)window.buildMenu(
 // Load shared workspace improvements for the existing HQ shell.
 import("./workspace.js");
 
-import("./sync-dashboard.js");
+import("./sync-dashboard.js?v=planning-remove-20261121");
 
 import("./campaign-audiences.js");

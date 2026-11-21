@@ -81,7 +81,7 @@ window.plannedPanel = function () {
         (row.ignored?'Uitgesloten':row.review?'Mogelijk dubbel · koppel controleren':row.estimated?'Projecttotaal controleren':'In planning')+
         '</td><td><div class="rowactions"><button class="btn sm subtle" data-plan-edit="'+esc(invoice.id)+'">Aanpassen</button>'+
         '<button class="btn sm subtle" data-invoice-edit="'+esc(invoice.id)+'">Factuur bewerken</button>'+
-        '<button class="btn sm subtle" data-plan-remove="'+esc(invoice.id)+'">Verwijderen uit planning</button>'+
+        '<button type="button" class="btn sm danger" data-plan-remove="'+esc(invoice.id)+'">Verwijderen</button>'+
         (invoice.type==='voorschot'&&!row.ignored&&!row.review?'<button class="btn sm" data-final-create="'+esc(invoice.id)+'">Eindfactuur maken</button>':'')+
         '</div></td></tr>';
     }).join('')+'</tbody></table></div>'+
@@ -141,10 +141,19 @@ document.addEventListener('click',event=>{
   if(remove||restore){
     const invoice=DATA.invoices.find(item=>item.id===(remove?remove.dataset.planRemove:restore.dataset.planRestore));
     if(!invoice)return;
-    if(remove&&!confirm('Deze post verwijderen uit Nog te factureren? Het factuurdocument blijft beschikbaar.'))return;
-    invoice.financePlanDismissed=!!remove;
-    saveData();go(VIEW);
-    toast(remove?'Post verwijderd uit de planning':'Post teruggezet in de planning');
+    if(remove){
+      openM('Verwijderen uit Nog te factureren',
+        '<p>Wil je <b>'+esc(custName(invoice.customerId))+' · '+esc(invoice.ref)+'</b> uit de facturatieplanning verwijderen?</p><p class="hint">Het document blijft beschikbaar bij Facturen. Je kunt de post later terugzetten via Verwijderd uit planning.</p>',
+        '<button class="btn subtle" onclick="closeM()">Annuleren</button><button type="button" class="btn danger" id="plan-confirm-remove">Verwijderen uit planning</button>');
+      document.getElementById('plan-confirm-remove').onclick=()=>{
+        invoice.financePlanDismissed=true;
+        saveData();closeM();go(VIEW);
+        toast('Post verwijderd uit de planning');
+      };
+    }else{
+      invoice.financePlanDismissed=false;
+      saveData();go(VIEW);toast('Post teruggezet in de planning');
+    }
     return;
   }
 
@@ -218,3 +227,22 @@ window.renderFinance = function () {
 window.rReports=window.rStats=function(){
   main().innerHTML='<div class="topbar"><div><h2>Omzet & resultaat</h2><p class="sub">Facturen, uitgaven en planning</p></div></div>';
 };
+
+
+const planStyle=document.createElement('style');
+planStyle.textContent=`
+#plannedBox table { width:100%; min-width:0; }
+#plannedBox .rowactions { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start; }
+#plannedBox .rowactions .btn { min-height:42px; white-space:normal; }
+#plannedBox td { overflow-wrap:anywhere; }
+@media(max-width:1050px){
+  #plannedBox table,#plannedBox tbody { display:block; min-width:0; }
+  #plannedBox thead { display:none; }
+  #plannedBox tbody { display:grid; gap:12px; }
+  #plannedBox tr { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 12px;border:1px solid var(--line);border-radius:12px;padding:14px; }
+  #plannedBox td { display:block;min-width:0;border:0;padding:0!important; }
+  #plannedBox td:last-child { grid-column:1/-1;padding-top:8px!important; }
+  #plannedBox td:nth-child(3)::before { content:"Nog te factureren ";color:var(--muted);font-size:.75rem; }
+}
+`;
+document.head.append(planStyle);

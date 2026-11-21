@@ -1,5 +1,5 @@
 /* Marleo HQ service worker: push-meldingen + offline cache */
-var CACHE='marleo-hq-workspace-v2';
+var CACHE='marleo-hq-workspace-v3';
 self.addEventListener('install',function(e){self.skipWaiting()});
 self.addEventListener('activate',function(e){
   e.waitUntil(caches.keys().then(function(keys){
@@ -9,7 +9,7 @@ self.addEventListener('activate',function(e){
 self.addEventListener('fetch',function(e){
   var request=e.request;
   if(request.method!=='GET'||!request.url.startsWith(self.registration.scope))return;
-  e.respondWith(fetch(request).then(function(response){
+  e.respondWith(fetch(new Request(request,{cache:'no-cache'})).then(function(response){
     if(response.ok){
       var copy=response.clone();
       e.waitUntil(caches.open(CACHE).then(function(cache){return cache.put(request,copy)}).catch(function(){}));

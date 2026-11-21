@@ -1,4 +1,4 @@
-import './finance.js';
+import './finance.js?v=planning-remove-20261121';
 /* Cloud snapshots are authoritative on sign-in. Writes use optimistic locking. */
 const copy = value => JSON.parse(JSON.stringify(value));
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
