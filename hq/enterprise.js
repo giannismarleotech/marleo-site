@@ -82,3 +82,5 @@ if(admin()&&document.getElementById('navmenu').children.length)window.buildMenu(
 import("./workspace.js");
 
 import("./sync-dashboard.js");
+
+import("./campaign-audiences.js");
