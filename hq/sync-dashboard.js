@@ -1,3 +1,4 @@
+import './finance.js';
 /* Cloud snapshots are authoritative on sign-in. Writes use optimistic locking. */
 const copy = value => JSON.parse(JSON.stringify(value));
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -113,6 +114,7 @@ export function monthlyTotals(invoices, year) {
 }
 let selectedYear = new Date().getFullYear();
 function monthlyDashboard() {
+  if (window.renderFinance) { window.renderFinance(); return; }
   if (SESSION?.role !== 'admin' || !['dashboard','stats','reports'].includes(VIEW)) return;
   document.getElementById('monthlyInvoices')?.remove();
   const years = [...new Set([selectedYear, new Date().getFullYear(), ...DATA.invoices.map(invoice => Number(invoice.date?.slice(0,4))).filter(Boolean)])].sort((a,b)=>b-a);
