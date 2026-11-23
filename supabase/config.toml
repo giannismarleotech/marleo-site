@@ -5,3 +5,7 @@ verify_jwt = false
 [functions.hq-hosting]
 # Gateway JWT verification plus verified owner/live-session authorization in the handler.
 verify_jwt = true
+
+[functions.hq-portal]
+# Public login requests are scoped/rate-limited; all other actions verify Auth + live session and server-side permissions.
+verify_jwt = false
