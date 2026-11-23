@@ -81,7 +81,7 @@ if(admin()&&document.getElementById('navmenu').children.length)window.buildMenu(
 // Load shared workspace improvements for the existing HQ shell.
 import("./workspace.js");
 
-import("./sync-dashboard.js?v=planning-remove-20261121");
+import("./sync-dashboard.js?v=storage-quota-20261123");
 
 import("./campaign-audiences.js?v=marketing-design-20261121").then(()=>import("./campaign-tracking.js?v=20261123"));
 var campaignStyles=document.createElement("link");campaignStyles.rel="stylesheet";campaignStyles.href="campaign-tracking.css?v=20261123";document.head.append(campaignStyles);

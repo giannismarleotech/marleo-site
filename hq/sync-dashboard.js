@@ -25,7 +25,9 @@ function serial(task) {
   return result;
 }
 function persist() {
-  localStorage.setItem(LS_KEY, JSON.stringify(DATA));
+  // Browser-cache failures are reported separately and never turn cloud success into failure.
+  if (window.HQCache) return window.HQCache.save(DATA);
+  try { localStorage.setItem(LS_KEY, JSON.stringify(DATA)); } catch (_) {}
 }
 function redraw() {
   if (SESSION && VIEW && !document.querySelector('.modal-backdrop.open')) go(VIEW);
