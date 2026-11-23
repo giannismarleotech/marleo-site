@@ -91,5 +91,7 @@ import("./hosting.js?v=vimexx-20261123");
 import("./portal-admin.js?v=20261123-language1");
 
 // Cloud sales assistants; no local model or automatic outbound messages.
-import("./agents.js?v=20261123");
+import("./agents.js?v=20261123-control").then(()=>import("./control-center.js?v=20261123-control"));
 var agentsStyles=document.createElement("link");agentsStyles.rel="stylesheet";agentsStyles.href="agents.css?v=20261123";document.head.append(agentsStyles);
+
+var controlStyles=document.createElement("link");controlStyles.rel="stylesheet";controlStyles.href="control-center.css?v=20261123-control";document.head.append(controlStyles);

@@ -1,8 +1,7 @@
 import {OWNER,ROLES,buildMessages,normalizeSources} from './agents-core.mjs';
 import {AgentError} from './provider.mjs';
-const LABELS={new:'Nog te benaderen',emailed:'E-mail gestuurd',replied:'Reactie ontvangen',meeting:'Gesprek gepland',proposal:'Voorstel besproken',won:'Opdracht bevestigd',closed:'Afgesloten'};
-const bounded=(value,size)=>typeof value==='string'?value.slice(0,size):'';
-export function cleanRecord(input){if(!input||typeof input!=='object'||Array.isArray(input))throw new AgentError('Voeg een bedrijfsdossier toe.');const stage=Object.hasOwn(LABELS,input.stage)?input.stage:'new';const company=bounded(input.company,160).trim();if(!company)throw new AgentError('Vul de bedrijfsnaam in.');return {company,stage,contactStatus:LABELS[stage],relationship:input.relationship==='client'?'client':'prospect',language:input.language==='en'?'en':'nl',facts:bounded(input.facts,4000),notes:bounded(input.notes,4000),sources:normalizeSources(Array.isArray(input.sources)?input.sources:[]),outputs:{research:{text:bounded(input.outputs?.research?.text,2000)}}};}
+import {cleanRecord} from './record.mjs';
+export {cleanRecord} from './record.mjs';
 export function makeHandler({db,provider,clock=()=>Date.now()}){
  const hits=new Map();let busy=false;
  return async req=>{
@@ -15,6 +14,6 @@ export function makeHandler({db,provider,clock=()=>Date.now()}){
  const record=cleanRecord(body.record),messages=buildMessages(body.role,record,record.language);if(busy)throw new AgentError('Er loopt al een cloudverzoek. Wacht even voor je opnieuw start.',429,'BUSY');
  const minute=Math.floor(clock()/60000),count=hits.get(minute)||0;if(count>=8)throw new AgentError('Maximaal acht assistentuitvoeringen per minuut. Probeer straks opnieuw.',429,'RATE_LIMIT');hits.clear();hits.set(minute,count+1);busy=true;
  try{const result=await provider.generate(messages);return reply({ok:true,...result});}finally{busy=false;}
- }catch(error){return reply({ok:false,error:error instanceof AgentError?error.message:error instanceof SyntaxError?'Ongeldige aanvraag.':'De agent kon niet starten. Controleer de dossierinformatie en bron-URL’s.',code:error.code||'AGENT_ERROR'},error.status||400);}
+ }catch(error){if(error instanceof AgentError)console.warn(JSON.stringify({event:'hq-agent-request-error',code:error.code,status:error.status}));return reply({ok:false,error:error instanceof AgentError?error.message:error instanceof SyntaxError?'Ongeldige aanvraag.':'De agent kon niet starten. Controleer de dossierinformatie en bron-URL’s.',code:error.code||'AGENT_ERROR'},error.status||400);}
  };
 }

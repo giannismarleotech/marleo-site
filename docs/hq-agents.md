@@ -1,47 +1,54 @@
-# Marleo Cloud Agents & verkoop
+# Marleo HQ: Control Center and cloud sales agents
 
-Owner-only HQ workspace for larger AI/CRM sales preparation. Browser UI invokes Supabase Edge Functions; Gemini inference runs in the cloud. No local model, model download, WebGPU, ONNX runtime, paid model fallback or email sending is included.
+The owner now lands in Control Center: a central workspace with actual job status, step history, source results, completed drafts and next actions. The shared HQ navigation pins Control Center, Agents, Customers and Invoices; other existing modules remain in collapsible groups. Customer portals and financial calculations are not replaced.
 
 ## Workflow
 
-1. HQ → Agents & verkoop → Dossier toevoegen. Optionally copy an existing CRM fiche or pipeline record. Copying a customer fiche defaults to Prospect; it does not confirm a paying relationship. Set the actual status, e.g. E-mail gestuurd, separately from Reactie ontvangen.
-2. Add confirmed facts, contact notes, next action/date and public source text. Public HTTPS pages can be fetched through the owner-only source reader; manual pasting remains available if the source cannot be read.
-3. Click Cloudverbinding testen. The server verifies the signed-in owner, key configuration and Gemini model availability. This is not a guarantee that generation quota remains available. Requests are capped and provider quota errors are shown clearly.
-4. Run one assistant or all four sequentially: source-based company summary, possible AI/CRM use case, contact draft and next-step preparation. Review/edit outputs in HQ. Facts must be checked; model suggestions and interest/budget remain hypotheses unless explicitly confirmed.
-5. Explicitly create an HQ follow-up task or pipeline entry. Open tasks deduplicate by dossier/date; new deals use value zero. Nothing sends a message, creates a customer automatically or changes invoice/revenue figures.
+1. **Control Center → Zoekronde starten**: choose region, sector and optional search direction. The Lead Scout makes one bounded Tavily basic search. Results carry original URLs and snippets, are deduplicated per domain and remain unverified company sources, not confirmed leads, buying intent or customers.
+2. **Dossier voorbereiden**: review/correct the company name. A new dossier defaults to Prospect / Nog te benaderen. The search excerpt is stored as an unverified source; it is not promoted to confirmed facts. Existing domain/name matches open the existing dossier.
+3. **Agents & verkoop**: add confirmed facts, real contact notes, next action/date and public sources. An emailed company is distinct from a reply or a confirmed customer.
+4. **Execute one assistant or all four**: research, possible AI/CRM application, contact draft and follow-up preparation. These explicitly start an owner-authorized cloud job. Track its real steps in Control Center. The browser does not run a local model or orchestrate the four calls.
+5. **Review results**: completed outputs stay in the job. Explicitly import them into the original dossier. The source fingerprint must still match; changed dossiers are never silently overwritten. Individual results remain editable/reviewable in the dossier. Creating tasks or pipeline entries is also explicit; no messages are sent and new deals have value zero.
 
-There is no autonomous discovery of new companies, scheduled background campaign or guarantee of sales. Runs are requested from the open page; inference is server-side. Responses are saved through existing HQ cloud sync when returned. Closing the page before a response is saved may discard that result. The four roles use one cloud model, not four independent services.
+## Cloud execution and progress
 
-## Cloud configuration and costs
+`hq-agent-jobs` authenticates the owner, stores a job, then uses `EdgeRuntime.waitUntil` to execute it. Jobs persist in `public.hq_agent_jobs` under ownership RLS. The function's database client is scoped to the caller JWT, without service-role authority. Each completed step saves its output before the next step begins.
 
-- Project secret: GEMINI_API_KEY. It never appears in frontend code or responses.
-- Default model: gemini-3.1-flash-lite. Optional MARLEO_AGENT_MODEL accepts only this model or gemini-3.5-flash-lite. Both have documented free-tier text access at release time; actual eligibility/quotas are project-specific. There is no automatic model switch or quota retry.
-- The user requested no new spending. Use an eligible Free Tier project without an attached billing account. A key cannot prove its billing tier to this app; if its Google project is upgraded, Google can charge for requests. HQ does not activate billing or buy credits.
-- The user confirmed the currently configured key belongs to Tier 1. A live deployment smoke test of model availability returned HTTP 402 RESOURCE_EXHAUSTED. No successful generation is claimed. The user must replace it with a working Free Tier project key (or explicitly choose a different budget later). Do not add paid credit automatically.
-- 402, 429, missing key, inaccessible model, timeout, empty/blocked/truncated output are visible failures, never simulated success or paid fallback.
+The unique partial index permits one active job per user; client request UUIDs prevent duplicate dispatch. Workflows run four roles sequentially. Cancellation stops later calls and discards a late current response; a dispatched provider request may still count against quota. Errors preserve finished outputs. There is no automatic retry, scheduled run, startup inference or paid model fallback. The explicit retry button starts the failed step separately.
 
-Only the selected dossier's bounded facts, notes, sources and previous research draft are submitted to Google. Private contact fields, invoices and full CRM data are not automatically included. Avoid confidential or personal data in these fields; free-tier data terms apply. Data and drafts reuse the existing owner-scoped HQ collection sync/RLS. No schema changes or production CRM records were created during this work.
+A provider budget of 110 seconds and per-request timeout stay below the free Edge worker's 150-second limit. A worker/platform termination can still interrupt a job; after three minutes without an update the next HQ read marks it interrupted rather than leaving a fake active indicator. The UI polls changed jobs every five seconds while work is active and less often while idle. Results remain accessible after the browser is closed/reopened, subject to successful server completion.
 
-## Security and persistence
+`hq-agent-run` remains the metadata/legacy direct-call endpoint. The connection button checks key/model availability only; it does not prove generation capacity. The UI now says this explicitly. Google errors include safe actionable details and codes. The reported 503 was confirmed by the user as Google model high demand, not a disconnected HQ session. Default model changed from Gemini 3.1 Flash-Lite to Gemini 3.5 Flash-Lite, both documented with free-tier text access at implementation time. Successful generation with the new default is not claimed without a real authenticated run.
 
-Both endpoints retain gateway JWT verification and independently check the Marleo owner via Auth.getUser; frontend role checks are not the authorization boundary. The auth client uses the built-in anon key, not service-role database authority. Gemini model/endpoint/tools are fixed server-side. Source text is untrusted; no model execution tool, email action or database tool is exposed.
+## Configuration and spending
 
-Source reader validates public HTTPS names, resolved IPs and redirects, bounds size/time and strips markup. It cannot promise prevention of every DNS rebinding case; it forwards no credentials and has no private file access. Authenticated production fetch was not verified; unit tests cover safe success and failure paths. Manual source text is supported.
+- `GEMINI_API_KEY`: use an eligible Google Free Tier project without attached billing. The user supplied a screenshot confirming the replacement project is Free Tier.
+- Optional `MARLEO_AGENT_MODEL`: only `gemini-3.5-flash-lite` (default) or `gemini-3.1-flash-lite` are accepted.
+- `TAVILY_API_KEY`: use Tavily's free Researcher plan with pay-as-you-go disabled. Basic search is fixed, maximum ten returned sources, no generated answer, crawl, extract, image search or auto-parameters. Tavily documents 1,000 free monthly credits and one credit per basic search. Live search remains blocked until the key is configured.
+- Keys are read only in Supabase, never sent to HQ or saved in the repository. The app cannot infer account billing tier from the API key. Upgrading a provider project can make requests chargeable; HQ does not activate billing or buy credits.
+- No AI calls run at server startup. A prior startup smoke proposal was rejected by automatic review because cold starts could repeat calls. That approach is not used here.
 
-DATA.agentWorkspaces contains dossiers, source excerpts, output origin/model/time/fingerprint/review state and follow-up fields. Generation re-fetches the current record and rejects changed source fingerprints before saving. Logout/cancellation suppress late writes. Edits are disabled during a run. Cancellation stops subsequent roles and discards the current response; an already dispatched cloud request may finish and count against quota. Concurrent calls and bursts are guarded per function instance; this is not a global billing cap.
+Only selected public business sources, bounded facts and contact notes are submitted to Gemini. Invoices and private customer/contact collections are not automatically included. Avoid personal/confidential information in source/notes fields. The system does not independently verify every model claim and does not guarantee sales or company suitability.
 
-The browser and server grounding helpers are intentionally copied for the function deployment package; a test asserts byte-for-byte equality.
+## Persistence and access
 
-## Validation
+Job RLS permits authenticated users to read/create/update only rows with their own user ID. The Edge endpoint independently restricts execution to the Marleo owner; arbitrary inserted rows do not trigger an execution. Anonymous grants are revoked. There is no job delete endpoint or widened access to other CRM tables.
 
-- node --test tests/hq-agents.test.mjs tests/hq-agents-cloud.test.mjs: 17 cases for grounding, snapshots, contact status, output errors, task semantics, owner authorization, bounded request data, provider protocol, no tools/fallback, source URL/DNS/redirect/body guards.
-- HQ_JSDOM_MODULE=/path/to/jsdom node tests/hq-agents-ui.cjs: actual HQ module with a simulated server adapter; dossier/source saves, explicit prospect/contact state, four sequential calls, human review, linked task/pipeline deduplication, cancellation/logout and owner controls. No real provider call in this harness.
-- Deployment-only synthetic smoke code was used to check the live secret/provider from Supabase without reading private CRM data or exposing the key. It returned 402 before generation. Smoke code is removed from the production entrypoint.
-- The public function endpoint rejects an anon caller with 401. Gateway JWT verification remains enabled.
-- Browser QA of the updated feature was unavailable: another preview occupied the managed preview and the test path returned 404. No unrelated preview was stopped. The live HQ login page remains reachable. Authenticated end-to-end generation and cross-device saves are not claimed as verified.
+Dossiers and imported draft review states reuse the existing `DATA.agentWorkspaces` cloud collection and `crm_state` ownership RLS. `DATA.agentAppliedJobs` records explicit imports. The source reader retains JWT/owner checks, HTTPS/public DNS/redirect checks, bounded HTML/plain text extraction and a manual-paste fallback. Source text remains untrusted data, never instructions for extra tool access.
+
+## Validation and limits
+
+- 27 Node core/provider/job tests: grounding, actual contact state, source bounds, key handling, fixed provider protocol, quota failures, background progression, preserved partial results, cancellation, bounded search, domain deduplication, owner access, active-job locking and idempotency.
+- Dossier jsdom test: CRM copy stays Prospect, source capture, explicit workflow dispatch, task/pipeline deduplication, logout and owner gate.
+- Control Center jsdom test: default landing, grouped navigation, job rendering, explicit draft import, prospect-only source conversion and one search dispatch. Provider endpoints are simulated in these UI tests.
+- SQL transaction with a rolled-back synthetic row verified owner visibility and non-owner isolation. RLS and grants inspected; security advisor reported no new job-table finding. Pre-existing project advisories are outside this change.
+- Real browser desktop and 390px iframe QA used clearly labelled synthetic data and simulated endpoints; checked layout, search form, job timeline and importing results. No production job or customer data was seeded for the visual test.
+- Live function endpoint rejects an anon JWT with 401. Gateway JWT verification stays enabled. The new job endpoint is deployed without startup model calls.
+- Authenticated production generation and Tavily search require a real owner run; they are not represented by the synthetic preview. External capacity and free quotas remain provider limits.
 
 References:
-- https://ai.google.dev/api/generate-content
+- https://supabase.com/docs/guides/functions/background-tasks
+- https://supabase.com/docs/guides/functions/limits
 - https://ai.google.dev/gemini-api/docs/pricing
-- https://ai.google.dev/gemini-api/docs/billing
-- https://supabase.com/docs/guides/functions/auth
+- https://docs.tavily.com/documentation/api-credits
+- https://docs.tavily.com/documentation/api-reference/endpoint/search

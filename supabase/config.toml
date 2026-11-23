@@ -24,3 +24,6 @@ verify_jwt = true
 
 [functions.hq-agent-run]
 verify_jwt = true
+
+[functions.hq-agent-jobs]
+verify_jwt = true
