@@ -83,7 +83,8 @@ import("./workspace.js");
 
 import("./sync-dashboard.js?v=planning-remove-20261121");
 
-import("./campaign-audiences.js?v=marketing-design-20261121");
+import("./campaign-audiences.js?v=marketing-design-20261121").then(()=>import("./campaign-tracking.js?v=20261123"));
+var campaignStyles=document.createElement("link");campaignStyles.rel="stylesheet";campaignStyles.href="campaign-tracking.css?v=20261123";document.head.append(campaignStyles);
 
 import("./hosting.js?v=vimexx-20261123");
 

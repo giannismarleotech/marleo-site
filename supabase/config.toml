@@ -9,3 +9,11 @@ verify_jwt = true
 [functions.hq-portal]
 # Public login requests are scoped/rate-limited; all other actions verify Auth + live session and server-side permissions.
 verify_jwt = false
+
+[functions.mailhook]
+# Provider callbacks authenticate via Svix signatures, or the existing server-only hook token until a signing secret is installed.
+verify_jwt = false
+
+[functions.campaign-admin]
+# Owner JWT is verified in the handler; a fixed one-time setup job can only be requested in the server-only database config.
+verify_jwt = false
