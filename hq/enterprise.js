@@ -89,3 +89,7 @@ var campaignStyles=document.createElement("link");campaignStyles.rel="stylesheet
 import("./hosting.js?v=vimexx-20261123");
 
 import("./portal-admin.js?v=20261123-language1");
+
+// Cloud sales assistants; no local model or automatic outbound messages.
+import("./agents.js?v=20261123");
+var agentsStyles=document.createElement("link");agentsStyles.rel="stylesheet";agentsStyles.href="agents.css?v=20261123";document.head.append(agentsStyles);

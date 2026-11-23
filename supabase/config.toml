@@ -17,3 +17,10 @@ verify_jwt = false
 [functions.campaign-admin]
 # Owner JWT is verified in the handler; a fixed one-time setup job can only be requested in the server-only database config.
 verify_jwt = false
+
+[functions.hq-agent-source]
+# Gateway JWT and independently verified Marleo owner. Fetches bounded public source text only; no AI API or outbound mail.
+verify_jwt = true
+
+[functions.hq-agent-run]
+verify_jwt = true
