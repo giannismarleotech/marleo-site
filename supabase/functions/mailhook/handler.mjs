@@ -27,7 +27,7 @@ export function makeHandler({db,now=()=>Date.now()}){return async req=>{
   if(!TYPES.has(event.type))return new Response('ok');
   const id=String(event.data?.email_id||''),at=event.created_at;
   if(!id||id.length>120||!at||!Number.isFinite(Date.parse(at)))return new Response('Invalid event',{status:400});
-  let link=null;try{const u=new URL(event.data?.click?.link);if(['https:','http:'].includes(u.protocol))link=u.href;}catch{}
+  let link=null;try{const u=new URL(event.data?.click?.link);if(['https:','http:'].includes(u.protocol)){u.hash='';for(const key of [...u.searchParams.keys()])if(/token|password|secret|code|key|auth|^t$/i.test(key))u.searchParams.set(key,'[redacted]');link=u.href;}}catch{}
   const {error}=await db.rpc('hq_mail_event',{p_id:req.headers.get('svix-id'),p_provider:id,p_type:event.type,p_at:new Date(at).toISOString(),p_link:link});
   if(error)return new Response('Storage unavailable',{status:503});
   return new Response('ok');
