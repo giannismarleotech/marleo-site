@@ -10,10 +10,10 @@ export function makeHandler({db,provider,clock=()=>Date.now()}){
  try{const {data,error}=await db.auth.getUser((req.headers.get('authorization')||'').replace(/^Bearer /i,''));if(error||data?.user?.id!==OWNER)return reply({error:'Alleen de Marleo-beheerder kan de cloudagents gebruiken.'},401);
  const raw=await req.text();if(raw.length>80000)return reply({error:'Het dossier is te groot.'},413);let body;try{body=JSON.parse(raw);}catch{throw new AgentError('Ongeldige aanvraag.');}
  if(body.action==='status'){const status=await provider.inspect();return reply({ok:true,...status});}
- if(body.action!=='run'||!ROLES.some(r=>r.id===body.role))throw new AgentError('Kies een geldige assistent.');
- const record=cleanRecord(body.record),messages=buildMessages(body.role,record,record.language);if(busy)throw new AgentError('Er loopt al een cloudverzoek. Wacht even voor je opnieuw start.',429,'BUSY');
+ if(!['run','test'].includes(body.action)||(body.action==='run'&&!ROLES.some(r=>r.id===body.role)))throw new AgentError('Kies een geldige assistent.');
+ const isTest=body.action==='test';const record=isTest?null:cleanRecord(body.record),messages=isTest?[{role:'system',content:'This is a connection test. Reply with exactly MARLEO_OK, without explanation.'},{role:'user',content:'MARLEO_OK'}]:buildMessages(body.role,record,record.language);if(busy)throw new AgentError('Er loopt al een cloudverzoek. Wacht even voor je opnieuw start.',429,'BUSY');
  const minute=Math.floor(clock()/60000),count=hits.get(minute)||0;if(count>=8)throw new AgentError('Maximaal acht assistentuitvoeringen per minuut. Probeer straks opnieuw.',429,'RATE_LIMIT');hits.clear();hits.set(minute,count+1);busy=true;
- try{const result=await provider.generate(messages);return reply({ok:true,...result});}finally{busy=false;}
+ try{const result=await provider.generate(messages,isTest?{maxOutputTokens:1024}:{});if(isTest&&result.text.trim()!=='MARLEO_OK')throw new AgentError('Er kwam een antwoord, maar de AI-test werd niet correct afgerond.',502,'TEST_RESPONSE');return reply({ok:true,...result,generationTested:true,testedAt:new Date(clock()).toISOString()});}finally{busy=false;}
  }catch(error){if(error instanceof AgentError)console.warn(JSON.stringify({event:'hq-agent-request-error',code:error.code,status:error.status}));return reply({ok:false,error:error instanceof AgentError?error.message:error instanceof SyntaxError?'Ongeldige aanvraag.':'De agent kon niet starten. Controleer de dossierinformatie en bron-URL’s.',code:error.code||'AGENT_ERROR'},error.status||400);}
  };
 }
