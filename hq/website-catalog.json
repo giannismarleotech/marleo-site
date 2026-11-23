@@ -1,0 +1,347 @@
+{
+  "discoveredAt": "2026-11-23T21:39:46.029125+00:00",
+  "projects": [
+    {
+      "id": "foam",
+      "name": "Foamoré Detailing",
+      "url": "https://foamoredetailing.be",
+      "sector": "Auto detailing · Laarne",
+      "type": "Website",
+      "image": "/assets/work/foam-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:20.177802+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://foamoredetailing.be",
+        "pageTitle": "Foamoré Detailing | Auto detailing, lakcorrectie & coatings in Laarne"
+      }
+    },
+    {
+      "id": "abdo",
+      "name": "Hair Creations by Abdo",
+      "url": "https://hcbyabdo.be",
+      "sector": "Barbershop & kapsalon · Kortrijk",
+      "type": "Website",
+      "image": "/assets/work/abdo-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:20.178323+00:00",
+        "status": "check",
+        "httpStatus": 403,
+        "note": "HTTP 403 bij deze controle; dit bewijst niet dat de site voor iedereen offline is."
+      }
+    },
+    {
+      "id": "jema",
+      "name": "Jematech",
+      "url": "https://jematech.be",
+      "sector": "Slimme technieken · Knokke, Latem & Antwerpen",
+      "type": "Website",
+      "image": "/assets/work/jema-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:20.178812+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://jematech.be",
+        "pageTitle": "Jematech bv — Slimme technieken & integraties · Knokke, Latem & Antwerpen"
+      }
+    },
+    {
+      "id": "lieven",
+      "name": "Tuinen Lieven Cornelis",
+      "url": "https://tuinenlievencornelis.be",
+      "sector": "Tuinaannemer · Aalter",
+      "type": "Website",
+      "image": "/assets/work/lieven-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:20.179278+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://tuinenlievencornelis.be",
+        "pageTitle": ""
+      }
+    },
+    {
+      "id": "nemet",
+      "name": "Nemetona",
+      "url": "https://nemetona.be",
+      "sector": "Holistische praktijk · Aalter",
+      "type": "Website",
+      "image": "/assets/work/nemet-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:20.179946+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://nemetona.be",
+        "pageTitle": "Nemetona — Holistische praktijk in Aalter | Lichaamswerk, Energiewerk & Tantra"
+      }
+    },
+    {
+      "id": "monga",
+      "name": "MONGA Automotive",
+      "url": "https://monga-automotive.netlify.app",
+      "sector": "Bestelwagen inrichting & cardetailing · Eernegem",
+      "type": "Website",
+      "image": "/assets/work/monga-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:20.180969+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://monga-automotive.netlify.app",
+        "pageTitle": "Bestelwagen inrichting & cardetailing Eernegem | MONGA Automotive"
+      }
+    },
+    {
+      "id": "elena",
+      "name": "Beauty Salon Elena",
+      "url": "https://beautysalonelena.be",
+      "sector": "Kapsalon, nagels, massage & yoga · Kortrijk",
+      "type": "Website",
+      "image": "/assets/work/elena-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:30.290030+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://beautysalonelena.be",
+        "pageTitle": "Beauty Salon Elena · Kapsalon, nagels, massage & yoga in Kortrijk"
+      }
+    },
+    {
+      "id": "tcc",
+      "name": "The Cleaning Company",
+      "url": "https://thecleaningcompany-be.com",
+      "sector": "Zetel- en tapijtreiniging · regio Gent",
+      "type": "Website",
+      "image": "/assets/work/tcc-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:30.293443+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://thecleaningcompany-be.com",
+        "pageTitle": "The Cleaning Company — Professionele reiniging op maat | Est. by Hobi"
+      }
+    },
+    {
+      "id": "paindumie",
+      "name": "Pain du Mie",
+      "url": "https://paindumie.be",
+      "sector": "Bakkerij & tearoom · Bazel",
+      "type": "Website",
+      "image": "/assets/work/paindumie-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:30.378958+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://paindumie.be",
+        "pageTitle": "Pain du Mie · Bakkerij en tearoom in Bazel"
+      }
+    },
+    {
+      "id": "nava",
+      "name": "Café Restaurant Nava",
+      "url": "https://cafenava.be",
+      "sector": "Perzisch café · Gent",
+      "type": "Website",
+      "image": "/assets/work/nava-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:30.659284+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://cafenava.be",
+        "pageTitle": "Café Restaurant Nava — Perzisch café in Gent"
+      }
+    },
+    {
+      "id": "terraclean",
+      "name": "TerraClean NB",
+      "url": "https://terracleannb.be",
+      "sector": "Buitenreiniging · Deinze",
+      "type": "Website",
+      "image": "/assets/work/terraclean-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:30.673757+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://terracleannb.be",
+        "pageTitle": "TerraClean NB | Professionele reiniging van terrassen, opritten & buitenverhardingen in Deinze"
+      }
+    },
+    {
+      "id": "rani",
+      "name": "Rani Poetsservice",
+      "url": "https://ranipoetsservice.be",
+      "sector": "Poetsdienst · regio Kortrijk",
+      "type": "Website",
+      "image": "/assets/work/rani-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:31.449623+00:00",
+        "status": "check",
+        "httpStatus": 503,
+        "note": "HTTP 503 bij deze controle; dit bewijst niet dat de site voor iedereen offline is."
+      }
+    },
+    {
+      "id": "trusttap",
+      "name": "TrustTap",
+      "url": "https://trusttap.be",
+      "sector": "NFC-reviewkaarten · webshop",
+      "type": "Webshop",
+      "image": "/assets/work/trusttap-720.webp",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:35.595907+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://trusttap.be",
+        "pageTitle": "TrustTap — NFC-oplossingen voor ondernemers"
+      }
+    },
+    {
+      "id": "airmasters",
+      "name": "Air Masters",
+      "url": "https://airmasters.be",
+      "sector": "Ventilatie & HVAC",
+      "type": "Website",
+      "image": "/assets/work/airmasters-720.webp",
+      "provenance": "Marleo-projectdossier",
+      "sourceUrl": "https://marleo.tech/projecten/airmasters/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:35.704011+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://airmasters.be",
+        "pageTitle": "Ventilatie, airco & luchttechniek | Air Masters"
+      }
+    },
+    {
+      "id": "ab-firestop",
+      "name": "AB Firestop",
+      "url": "https://abfirestop.be",
+      "sector": "Brandbescherming",
+      "type": "Website",
+      "image": "/assets/work/ab-firestop-720.webp",
+      "provenance": "Marleo-projectdossier",
+      "sourceUrl": "https://marleo.tech/projecten/ab-firestop/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:35.993603+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://abfirestop.be",
+        "pageTitle": "Brandwerende dichtingen & compartimentering | AB Firestop"
+      }
+    },
+    {
+      "id": "ovh-construct",
+      "name": "OVH Construct",
+      "url": "https://ovhconstruct.be",
+      "sector": "Metaal & laswerken",
+      "type": "Website",
+      "image": "/assets/work/ovh-construct-project.webp",
+      "provenance": "Marleo-projectdossier",
+      "sourceUrl": "https://marleo.tech/projecten/ovh-construct/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:36.002566+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://ovhconstruct.be",
+        "pageTitle": "OVH Construct | Welding solutions"
+      }
+    },
+    {
+      "id": "frietkazerne",
+      "name": "De Frietkazerne",
+      "url": "https://frietkazerneonwheels.be/",
+      "alternateUrl": "https://frietkazerne.be/",
+      "sector": "Frietmobiel & traiteur",
+      "type": "Website",
+      "image": "",
+      "provenance": "Bestaand klantproject en GitHub",
+      "sourceUrl": "https://github.com/giannismarleotech/defrietkazerne",
+      "repository": "https://github.com/giannismarleotech/defrietkazerne",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:37.648572+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://frietkazerneonwheels.be/",
+        "pageTitle": "Traiteur & frietmobiel | De Frietkazerne"
+      }
+    },
+    {
+      "id": "fer-construction",
+      "name": "FER Construction",
+      "url": "https://ferconstruction.be/",
+      "alternateUrl": "https://ferconstruction.giannismarleotech.workers.dev/",
+      "sector": "Bouw & renovatie",
+      "type": "Website",
+      "image": "",
+      "provenance": "Door jou aangeleverd project",
+      "sourceUrl": "https://ferconstruction.giannismarleotech.workers.dev/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:38.836310+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://ferconstruction.be/",
+        "pageTitle": "FER Construction | Badkamerrenovatie & algemene renovatie in Deinze"
+      }
+    },
+    {
+      "id": "marleo",
+      "name": "Marleo",
+      "url": "https://marleo.tech/",
+      "sector": "IT, AI & software",
+      "type": "Eigen project",
+      "image": "",
+      "provenance": "Eigen website en GitHub",
+      "sourceUrl": "https://github.com/giannismarleotech/marleo-site",
+      "repository": "https://github.com/giannismarleotech/marleo-site",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:40.421642+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://marleo.tech/",
+        "pageTitle": "Marleo · AI systems, automation & digital solutions"
+      }
+    },
+    {
+      "id": "fluppy-bird",
+      "name": "Fluppy Bird",
+      "url": "https://fluppybirdburger.netlify.app/",
+      "sector": "Browsergame",
+      "type": "Eigen project",
+      "image": "",
+      "provenance": "Marleo-portfolio",
+      "sourceUrl": "https://marleo.tech/projecten/",
+      "verification": {
+        "checkedAt": "2026-11-23T21:39:40.623008+00:00",
+        "status": "reachable",
+        "httpStatus": 200,
+        "finalUrl": "https://fluppybirdburger.netlify.app/",
+        "pageTitle": "Fluppy Bird — De Legende van Fluppe uit Nevele"
+      }
+    }
+  ]
+}

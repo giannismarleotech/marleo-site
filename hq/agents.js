@@ -1,4 +1,4 @@
-import {OWNER,ROLES,sourceUrl,buildMessages,recordFingerprint,normalizeSources,dueRecords,newTask,parseCompletion} from './agents-core.js?v=20261123-control';
+import {OWNER,ROLES,sourceUrl,buildMessages,recordFingerprint,normalizeSources,dueRecords,newTask,parseCompletion} from './agents-core.js?v=20261123-selection';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LABELS={new:'Nog te benaderen',emailed:'E-mail gestuurd',replied:'Reactie ontvangen',meeting:'Gesprek gepland',proposal:'Voorstel besproken',won:'Opdracht bevestigd',closed:'Afgesloten'};
 let selected=null,search='',stage='all',ready=false,loading=false,status='Controleer de cloudverbinding om te starten.',running=false,runEpoch=0,activeRun=null;

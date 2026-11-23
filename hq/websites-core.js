@@ -1,0 +1,3 @@
+export function validSiteUrl(value,optional=false){if(!value&&optional)return '';const u=new URL(String(value||''));if(u.protocol!=='https:'||u.username||u.password)throw Error('Gebruik een volledige https://-link zonder inloggegevens.');return u.href;}
+export function websiteList(catalog,overrides=[],custom=[]){const map=new Map(overrides.map(x=>[x.id,x]));return [...catalog.map(x=>({...x,...map.get(x.id)})),...custom].filter(x=>x.id&&x.name&&x.url);}
+export function siteMatches(site,query,type,archived){return (!!site.archived===archived)&&(type==='all'||site.type===type)&&[site.name,site.sector,site.url].join(' ').toLowerCase().includes(query.toLowerCase());}

@@ -1,6 +1,8 @@
+> Latest workflow and UI changes: see [hq-websites-selection.md](hq-websites-selection.md).
+
 # Marleo HQ: Control Center and cloud sales agents
 
-The owner now lands in Control Center: a central workspace with actual job status, step history, source results, completed drafts and next actions. The shared HQ navigation pins Control Center, Agents, Customers and Invoices; other existing modules remain in collapsible groups. Customer portals and financial calculations are not replaced.
+The owner now lands in Control Center: a central workspace with actual job status, step history, source results, completed drafts and next actions. The shared HQ navigation pins Control Center, Agents, Customers and Invoices; other existing modules remain in visible groups. Customer portals and financial calculations are not replaced.
 
 ## Workflow
 
@@ -14,9 +16,9 @@ The owner now lands in Control Center: a central workspace with actual job statu
 
 `hq-agent-jobs` authenticates the owner, stores a job, then uses `EdgeRuntime.waitUntil` to execute it. Jobs persist in `public.hq_agent_jobs` under ownership RLS. The function's database client is scoped to the caller JWT, without service-role authority. Each completed step saves its output before the next step begins.
 
-The unique partial index permits one active job per user; client request UUIDs prevent duplicate dispatch. Workflows run four roles sequentially. Cancellation stops later calls and discards a late current response; a dispatched provider request may still count against quota. Errors preserve finished outputs. There is no automatic retry, scheduled run, startup inference or paid model fallback. The explicit retry button starts the failed step separately.
+The unique partial index permits one active job per user; client request UUIDs prevent duplicate dispatch. Workflows run four roles sequentially. Cancellation stops later calls and discards a late current response; a dispatched provider request may still count against quota. Errors preserve finished outputs. There is no scheduled run, startup inference or paid model fallback. A MODEL_BUSY response may receive one bounded retry within an explicitly started job. The explicit retry button starts the failed step separately.
 
-A provider budget of 110 seconds and per-request timeout stay below the free Edge worker's 150-second limit. A worker/platform termination can still interrupt a job; after three minutes without an update the next HQ read marks it interrupted rather than leaving a fake active indicator. The UI polls changed jobs every five seconds while work is active and less often while idle. Results remain accessible after the browser is closed/reopened, subject to successful server completion.
+A provider budget of 125 seconds and per-request timeout stay below the free Edge worker's 150-second limit. A worker/platform termination can still interrupt a job; after three minutes without an update the next HQ read marks it interrupted rather than leaving a fake active indicator. The UI polls changed jobs every five seconds while work is active and less often while idle. Results remain accessible after the browser is closed/reopened, subject to successful server completion.
 
 `hq-agent-run` remains the metadata/legacy direct-call endpoint. The connection button checks key/model availability only; it does not prove generation capacity. The UI now says this explicitly. Google errors include safe actionable details and codes. The reported 503 was confirmed by the user as Google model high demand, not a disconnected HQ session. Default model changed from Gemini 3.1 Flash-Lite to Gemini 3.5 Flash-Lite, both documented with free-tier text access at implementation time. Successful generation with the new default is not claimed without a real authenticated run.
 
