@@ -5,7 +5,7 @@ const main=document.getElementById('main'),nav=document.getElementById('nav'),lo
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const eur=v=>new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'}).format(Number(v)||0);
 const date=v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'')?v.split('-').reverse().join('/'):'—';
-let data=null,view='overview',busy=false;
+let data=null,view='overview',busy=false,generation=0;
 const icons={overview:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',invoices:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',services:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',support:'<path d="M5 16 3 21l6-2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10"/><path d="M7 8h10M7 12h7"/>'};
 const icon=type=>'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+icons[type]+'</svg>';
 const statuses={active:'Actief',in_progress:'In uitvoering',paused:'Gepauzeerd',ended:'Beëindigd',betaald:'Betaald',openstaand:'Openstaand',vervallen:'Vervallen',open:'Open',closed:'Afgehandeld'};
@@ -18,6 +18,7 @@ async function api(action,payload={}){
  const body=await r.json().catch(()=>({}));if(!r.ok||!body.ok)throw Object.assign(new Error(body.error||'Verbinding onderbroken. Probeer opnieuw.'),{status:r.status});return body;
 }
 function login(message=''){
+ generation++;busy=false;const dialog=document.getElementById('invoice-modal');if(dialog.open)dialog.close();document.getElementById('invoice-detail').textContent='';
  data=null;nav.hidden=true;logout.hidden=true;
  main.innerHTML='<section class="login"><p class="eyebrow">JOUW KLANTOMGEVING</p><h1>Welkom bij<br>Mijn Marleo.</h1><p>Je facturen, diensten en contact met Marleo. Allemaal op één plek.</p><form id="login-form"><label for="email">Je e-mailadres</label><input id="email" type="email" required autocomplete="email" placeholder="Het adres van je uitnodiging"><button class="button" type="submit">Stuur mij een inloglink</button><p id="login-result" role="status" class="success"></p></form><p class="muted line">Je ontvangt een persoonlijke, tijdelijke link. Je hoeft geen wachtwoord te onthouden.</p><p class="error" id="login-error" role="alert">'+esc(message)+'</p><a class="muted" href="mailto:info@marleo.tech">Hulp nodig? Contacteer Marleo.</a></section>';
  main.querySelector('form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('button'),err=document.getElementById('login-error');err.textContent='';button.disabled=true;try{const result=await api('login',{email:document.getElementById('email').value});document.getElementById('login-result').textContent=result.message;button.textContent='Nieuwe link aanvragen';}catch(error){err.textContent=error.message;}finally{button.disabled=false;}};
@@ -45,17 +46,18 @@ function render(){
 }
 function wireInvoices(){main.querySelectorAll('[data-invoice]').forEach(b=>b.onclick=()=>openInvoice(b.dataset.invoice));}
 async function openInvoice(id){
+ const started=generation;
  const dialog=document.getElementById('invoice-modal'),target=document.getElementById('invoice-detail');target.innerHTML='<p class="loading">Factuur ophalen…</p>';document.getElementById('print-invoice').disabled=true;dialog.showModal();
- try{const result=await api('invoice',{id}),iv=result.invoice,c=result.customer,co=result.company;const titles={creditnota:'Creditnota',voorschot:'Voorschotfactuur',eindfactuur:'Eindfactuur',factuur:'Factuur'};
+ try{const result=await api('invoice',{id});if(started!==generation)return;const iv=result.invoice,c=result.customer,co=result.company;const titles={creditnota:'Creditnota',voorschot:'Voorschotfactuur',eindfactuur:'Eindfactuur',factuur:'Factuur'};
   target.innerHTML='<article class="printsheet"><h1>'+esc(titles[iv.type])+'</h1><p><b>'+esc(iv.ref)+'</b> · '+esc(statuses[iv.status])+'</p><div class="parties"><section><h3>'+esc(co.legal||co.name||'Marleo')+'</h3><p>'+esc(co.address)+'<br>'+esc([co.zip,co.city].filter(Boolean).join(' '))+'<br>'+esc(co.vat)+'<br>'+esc(co.email)+'</p></section><section><h3>'+esc(c.name)+'</h3><p>'+esc(c.address)+'<br>'+esc(c.vat)+'</p></section></div><p>Factuurdatum: '+date(iv.date)+'<br>Vervaldatum: '+date(iv.due)+'</p><div class="table-scroll"><table><thead><tr><th>Omschrijving</th><th class="num">Aantal</th><th class="num">Prijs excl. btw</th><th class="num">Bedrag</th></tr></thead><tbody>'+iv.lines.map(l=>'<tr><td>'+esc(l.d)+'</td><td class="num">'+l.q+'</td><td class="num">'+eur(l.p)+'</td><td class="num">'+eur(l.q*l.p)+'</td></tr>').join('')+'</tbody></table></div><div class="totals"><div><span>Subtotaal excl. btw</span><b>'+eur(iv.subtotal)+'</b></div><div><span>Btw 21%</span><b>'+eur(iv.vat)+'</b></div><div><span>Totaal incl. btw</span><b>'+eur(iv.total)+'</b></div></div>'+(iv.type!=='creditnota'&&iv.status!=='betaald'?'<p><b>Betaalgegevens</b><br>Begunstigde: '+esc(co.legal||co.name||'Marleo')+'<br>IBAN: '+esc(co.iban||'Zie de ontvangen factuur')+'<br>Mededeling: '+esc(iv.ref)+'</p>':'')+'<p class="hint pre">'+esc(co.terms)+'</p></article>';
   document.getElementById('print-invoice').disabled=false;
- }catch(error){target.innerHTML='<p class="error">'+esc(error.message)+'</p>';}
+ }catch(error){if(started===generation)target.innerHTML='<p class="error">'+esc(error.message)+'</p>';}
 }
 document.getElementById('close-invoice').onclick=()=>document.getElementById('invoice-modal').close();document.getElementById('print-invoice').onclick=()=>window.print();
 async function refresh(showError=false){
- if(busy)return;busy=true;try{data=await api('summary');render();}catch(error){if(error.status===401||error.status===403){await sb.auth.signOut({scope:'local'});login(error.message);}else if(!data)login(error.message);else if(showError)notice(error.message);}finally{busy=false;}
+ if(busy)return;busy=true;const started=generation;try{const result=await api('summary');if(started!==generation)return;data=result;render();}catch(error){if(started!==generation)return;if(error.status===401||error.status===403){await sb.auth.signOut({scope:'local'});login(error.message);}else if(!data)login(error.message);else if(showError)notice(error.message);}finally{if(started===generation)busy=false;}
 }
-logout.onclick=async()=>{await sb.auth.signOut({scope:'local'});document.getElementById('invoice-modal').close();document.getElementById('invoice-detail').textContent='';login();};
+logout.onclick=async()=>{login();await sb.auth.signOut({scope:'local'});};
 const fragment=new URLSearchParams(location.hash.slice(1)),pending=fragment.get('token_hash');
 if(location.hash)history.replaceState({},'',location.pathname);
 if(pending){

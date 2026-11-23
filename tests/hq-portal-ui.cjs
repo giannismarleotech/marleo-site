@@ -2,17 +2,18 @@ const {JSDOM}=require(process.env.HQ_JSDOM_MODULE||'jsdom');const fs=require('no
 const root=path.join(__dirname,'..');const settle=async()=>{for(let i=0;i<35;i++)await Promise.resolve();};
 async function customerUI(){
  const doc=fs.readFileSync(path.join(root,'portaal/index.html'),'utf8').replace(/<script[^>]*>[\s\S]*?<\/script>/g,'');
- const dom=new JSDOM(doc,{url:'https://marleo.tech/portaal/',runScripts:'outside-only'}),w=dom.window,calls=[];let signedIn=true,submitted=false,printed=false;
+ const dom=new JSDOM(doc,{url:'https://marleo.tech/portaal/',runScripts:'outside-only'}),w=dom.window,calls=[];let signedIn=true,submitted=false,printed=false,pendingSummary=null,releaseSummary;
  w.scrollTo=()=>{};w.setInterval=()=>0;w.setTimeout=()=>0;w.print=()=>{printed=true;};w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};
  const data={ok:true,customer:{name:'Alpha'},company:{name:'Marleo',iban:'test-iban',terms:'Terms'},displayName:'Sarah',balance:121,permissions:{invoices:true,services:true},services:[{title:'Website',category:'website',status:'active',description:'Included features',amount:175,period:'year',visible:true}],tickets:[],invoices:[{id:'i1',ref:'2026-001',date:'2026-11-01',due:'2026-12-01',type:'factuur',status:'openstaand',total:121,subtotal:100,vat:21,lines:[{d:'Website work',p:100,q:1}]}]};
  w.createClient=(url,key,options)=>{assert.equal(options.auth.storageKey,'marleo-customer-portal-auth');return {auth:{getSession:async()=>({data:{session:signedIn?{access_token:'fixture'}:null}}),signOut:async()=>{signedIn=false;},verifyOtp:async()=>({})}};};
- w.fetch=async(url,init)=>{const b=JSON.parse(init.body);calls.push(b);let result=data;if(b.action==='invoice')result={ok:true,invoice:data.invoices[0],company:data.company,customer:data.customer};if(b.action==='ticket_create'){submitted=true;result={ok:true};}if(b.action==='login')result={ok:true,message:'Generic message'};return Response.json(result);};
+ w.fetch=async(url,init)=>{const b=JSON.parse(init.body);calls.push(b);if(b.action==='summary'&&pendingSummary)await pendingSummary;let result=data;if(b.action==='invoice')result={ok:true,invoice:data.invoices[0],company:data.company,customer:data.customer};if(b.action==='ticket_create'){submitted=true;result={ok:true};}if(b.action==='login')result={ok:true,message:'Generic message'};return Response.json(result);};
  let src=fs.readFileSync(path.join(root,'portaal/portal.js'),'utf8').replace(/^import .*;\n/,'');await vm.runInContext('(async()=>{'+src+'})()',dom.getInternalVMContext());await settle();
  assert.ok(w.document.getElementById('main').textContent.includes('Hallo, Sarah.'));
  w.document.querySelector('#nav [data-view=invoices]').click();assert.ok(w.document.getElementById('invoice-year'));w.document.querySelector('[data-invoice]').click();await settle();assert.ok(w.document.getElementById('invoice-detail').textContent.includes('Website work'));w.document.getElementById('print-invoice').click();assert.equal(printed,true);
  w.document.querySelector('#nav [data-view=services]').click();assert.ok(w.document.getElementById('main').textContent.includes('Included features'));
  w.document.querySelector('#nav [data-view=support]').click();w.document.getElementById('subject').value='Question';w.document.getElementById('message').value='Please help';w.document.getElementById('support-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await settle();assert.equal(submitted,true);
- w.document.getElementById('logout').click();await settle();assert.ok(w.document.getElementById('login-form'));assert.equal(w.document.getElementById('invoice-detail').textContent,'');assert.ok(w.document.getElementById('nav').hidden);
+ pendingSummary=new Promise(resolve=>releaseSummary=resolve);w.document.querySelector('[data-refresh]').click();await settle();
+ w.document.getElementById('logout').click();await settle();releaseSummary();await settle();assert.ok(w.document.getElementById('login-form'));assert.equal(w.document.getElementById('invoice-detail').textContent,'');assert.ok(w.document.getElementById('nav').hidden);
  console.log('Customer UI: separate auth storage, navigation, invoice details/printing, services, support and logout passed.');
 }
 async function adminUI(){
