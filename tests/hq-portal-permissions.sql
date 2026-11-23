@@ -12,6 +12,11 @@ begin
  insert into public.hq_portal_accounts(user_id,customer_id,email,display_name) values(test_user,cust,'portal-rollback-'||test_user::text||'@example.invalid','Rollback test');
  result:=public.hq_portal_gate(test_user,test_session,'scope','{"customer_id":"another-customer"}');
  if result->>'customer_id'<>cust then raise exception 'Client scope could be changed';end if;
+ perform public.hq_portal_gate(test_user,test_session,'set_language','{"language":"en","customer_id":"another-customer"}');
+ result:=public.hq_portal_gate(test_user,test_session,'scope');
+ if result->>'language'<>'en' or result->>'customer_id'<>cust then raise exception 'Language preference or scope incorrect';end if;
+ perform public.hq_portal_gate(owner_user,owner_session,'account_update',jsonb_build_object('id',(select id from public.hq_portal_accounts where user_id=test_user),'display_name','Rollback test','invoices',true,'services',true,'language','nl'));
+ if (public.hq_portal_gate(test_user,test_session,'scope')->>'language')<>'nl' then raise exception 'Owner language update failed';end if;
  begin
   perform public.hq_portal_gate(test_user,test_session,'admin_data');
   raise exception 'Client accessed admin data';

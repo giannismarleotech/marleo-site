@@ -41,3 +41,9 @@ Apply `supabase/hq-portal.sql` once. Deploy `supabase/functions/hq-portal` with 
 - `tests/hq-portal-permissions.sql`: transaction-only database permission checks with synthetic account/session records, fully rolled back.
 
 Test code mocks mail delivery. The real first invitation remains an explicit owner action, so real deliverability and the complete email-to-Auth flow are not claimed as tested with a customer address.
+
+## Dutch and English
+
+Apply `supabase/hq-portal-languages.sql` after the initial schema. The header selector translates navigation, actions, statuses, categories, validation feedback and invoice labels immediately; dates and currency use nl-BE/en-GB. Local storage remembers the guest preference. Authenticated selections are saved on the acting contact’s grant, so another device loads the same preference. The owner can set this language when inviting or editing an account. Invite previews, invitations, resends and requested login emails use that language; invitation URLs carry `?lang=nl` or `?lang=en` before the token fragment.
+
+Translation operates on authored UI literals, never the rendered DOM or customer data. Company names, invoice lines, terms, manually authored service content and support messages remain verbatim. Switching languages preserves a draft enquiry and the open invoice. No translation service receives customer data. Test cases cover both UI languages, invoice labels, draft preservation, preference payload scoping, English emails and rollback-only database preference updates.

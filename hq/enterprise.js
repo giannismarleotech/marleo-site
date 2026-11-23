@@ -87,4 +87,4 @@ import("./campaign-audiences.js?v=marketing-design-20261121");
 
 import("./hosting.js?v=vimexx-20261123");
 
-import("./portal-admin.js?v=customer-portal-20261123b");
+import("./portal-admin.js?v=20261123-language1");
