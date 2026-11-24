@@ -22,7 +22,8 @@ for(const [name,data,subtotal,vat,total] of cases){
  const iv={ref:'TEST-'+name,date:'2026-11-24',due:'2026-12-24',...data};
  const doc=pdf.invoice(iv,{company,customer,title:name.toUpperCase(),subtotal,vat,total,signed:name==='ondertekende-offerte'?{name:'Testondertekenaar',at:'24 nov 2026'}:null});
  assert.ok(doc.getNumberOfPages()>=1);
- if(name==='offerte'||name==='lange-factuur')assert.ok(doc.getNumberOfPages()>1);
+ if(name==='lange-factuur')assert.ok(doc.getNumberOfPages()>1);
+ else assert.equal(doc.getNumberOfPages(),1,name+' should fit on one A4');
  const buffer=Buffer.from(doc.output('arraybuffer'));assert.ok(buffer.length>20000);
  if(destination)fs.writeFileSync(path.join(destination,name+'.pdf'),buffer);
 }

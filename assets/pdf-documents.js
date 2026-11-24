@@ -7,17 +7,17 @@
  function color(doc,c){doc.setTextColor(...c);}
  function accent(doc,x,y,width){for(let i=0;i<100;i++){const t=i/99;doc.setFillColor(...orange.map((v,k)=>Math.round(v+(pink[k]-v)*t)));doc.rect(x+width*i/100,y,width/100+0.02,0.7,'F');}}
  function logo(doc,x,y,width=56){doc.addImage(wordmark,'PNG',x,y,width,width*ratio,'marleo-wordmark','FAST');}
- function header(doc,{title='',ref='',subtitle='',margin=17,compact=false}={}){
-  const height=compact?29:47;doc.setFillColor(...dark);doc.rect(0,0,210,height,'F');logo(doc,margin,compact?8:9,compact?47:56);
-  doc.setFont('helvetica','bold');doc.setFontSize(compact?10:18);color(doc,[255,255,255]);doc.text(title,210-margin,compact?13:19,{align:'right'});
-  doc.setFontSize(9);doc.text(ref,210-margin,compact?19:26,{align:'right'});
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);color(doc,[193,188,201]);if(subtitle)doc.text(subtitle,210-margin,compact?24:33,{align:'right'});
+ function header(doc,{title='',ref='',subtitle='',margin=17,compact=false,dense=false}={}){
+  const height=compact?29:dense?40:47;doc.setFillColor(...dark);doc.rect(0,0,210,height,'F');logo(doc,margin,compact?8:dense?7:9,compact?47:dense?50:56);
+  doc.setFont('helvetica','bold');doc.setFontSize(compact?10:dense?16:18);color(doc,[255,255,255]);doc.text(title,210-margin,compact?13:dense?16:19,{align:'right'});
+  doc.setFontSize(9);doc.text(ref,210-margin,compact?19:dense?23:26,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);color(doc,[193,188,201]);if(subtitle)doc.text(subtitle,210-margin,compact?24:dense?29:33,{align:'right'});
   accent(doc,0,height-0.7,210);
  }
- function invoice(iv,options){
+ function renderInvoice(iv,options){
   const {company:co={},customer:c={},labels:T={},title='OFFERTE',subtotal=0,vat=0,total=0,advance=null,signed=null}=options;
   const doc=new root.jspdf.jsPDF({unit:'mm',format:'a4'}),M=17,R=193,maxY=264,language=iv.lang==='en'?'en-GB':iv.lang==='fr'?'fr-BE':'nl-BE';
-  let y=0;const isOff=iv.type==='offerte',paid=!isOff&&iv.status==='betaald';
+  const density=options._density||1,dense=density<1;let y=0;const isOff=iv.type==='offerte',paid=!isOff&&iv.status==='betaald';
   const money=v=>'€ '+Number(v||0).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2});
   const date=v=>v?new Date(v+'T00:00:00').toLocaleDateString(language,{day:'numeric',month:'short',year:'numeric'}):'—';
   const clean=v=>String(v??'').replace(/\u00a0/g,' ').replace(/[\u2011\u2013\u2014]/g,'-');
@@ -25,38 +25,39 @@
   function next(){doc.addPage();header(doc,{title,ref:iv.ref||'',compact:true});y=39;}
   function ensure(height){if(y+height>maxY)next();}
   function lines(text,{width=176,x=M,size=8.5,bold=false,line=4.2,tint=ink}={}){
-   doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);
+   size=dense?Math.max(7.2,size*density):size;line*=density;doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);
    const wrapped=doc.splitTextToSize(clean(text),width);
    for(const textLine of wrapped){ensure(line);doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);color(doc,tint);doc.text(textLine,x,y);y+=line;}
   }
   const dueLabel=isOff?T.verval||'Geldig tot':T.verval||'Vervaldag';
-  header(doc,{title,ref:iv.ref||'',subtitle:(T.datum||'Datum')+': '+date(iv.date)});
+  header(doc,{title,ref:iv.ref||'',subtitle:(T.datum||'Datum')+': '+date(iv.date),dense});
   const companyLines=[co.legal||co.name||'Marleo',co.address,[co.zip,co.city].filter(Boolean).join(' '),co.vat].filter(Boolean);
-  companyLines.forEach((text,i)=>{doc.setFont('helvetica','normal');doc.setFontSize(7.3);color(doc,[211,207,217]);doc.text(clean(text),M,27+i*4.2);});
-  if(iv.due){doc.setFontSize(7.5);color(doc,[193,188,201]);doc.text(dueLabel+': '+date(iv.due),R,39,{align:'right'});}
-  y=58;small(T.aan||'OFFERTE VOOR',M,y,7);small(T.tb||'TOTAAL',R,y,7,'right');
-  doc.setFont('helvetica','bold');doc.setFontSize(17);color(doc,orange);doc.text(money(total),R,69,{align:'right'});
-  if(paid)small((iv.lang==='en'?'PAID':iv.lang==='fr'?'PAYÉ':'BETAALD')+(iv.paidDate?' · '+date(iv.paidDate):''),R,75,8,'right');
-  y=65;lines(c.name||'',{width:95,size:11,bold:true,line:5});
+  companyLines.forEach((text,i)=>{doc.setFont('helvetica','normal');doc.setFontSize(7.3);color(doc,[211,207,217]);doc.text(clean(text),M,(dense?23:27)+i*(dense?3.5:4.2));});
+  if(iv.due){doc.setFontSize(7.5);color(doc,[193,188,201]);doc.text(dueLabel+': '+date(iv.due),R,dense?35:39,{align:'right'});}
+  y=dense?50:58;small(T.aan||'OFFERTE VOOR',M,y,7);small(T.tb||'TOTAAL',R,y,7,'right');
+  doc.setFont('helvetica','bold');doc.setFontSize(17);color(doc,orange);doc.text(money(total),R,dense?61:69,{align:'right'});
+  if(paid)small((iv.lang==='en'?'PAID':iv.lang==='fr'?'PAYÉ':'BETAALD')+(iv.paidDate?' · '+date(iv.paidDate):''),R,dense?67:75,8,'right');
+  y=dense?57:65;lines(c.name||'',{width:95,size:11,bold:true,line:5});
   for(const value of [c.contact,c.address&&!/geen gegevens/i.test(c.address)?c.address:'',c.vat].filter(Boolean))lines(value,{width:90,size:8,line:4.2,tint:muted});
-  if(iv.yourref){y+=3;lines(iv.yourref,{width:100,size:8,tint:muted});}
-  y=Math.max(y+9,86);
+  if(iv.yourref){y+=3*density;lines(iv.yourref,{width:100,size:8,tint:muted});}
+  y=Math.max(y+9*density,dense?74:86);
   function tableHead(){ensure(14);doc.setFillColor(...dark);doc.rect(M,y-4,176,8,'F');doc.setFont('helvetica','bold');doc.setFontSize(7);color(doc,[255,255,255]);
-   doc.text(T.oms||'OMSCHRIJVING',M+3,y+1);doc.text(T.aantal||'AANTAL',128,y+1,{align:'right'});doc.text(T.prijs||'PRIJS',155,y+1,{align:'right'});doc.text(T.tot||'TOTAAL',R-3,y+1,{align:'right'});y+=11;}
+   doc.text(T.oms||'OMSCHRIJVING',M+3,y+1);doc.text(T.aantal||'AANTAL',128,y+1,{align:'right'});doc.text(T.prijs||'PRIJS',155,y+1,{align:'right'});doc.text(T.tot||'TOTAAL',R-3,y+1,{align:'right'});y+=dense?9:11;}
   tableHead();
   for(const item of iv.lines||[]){
    if(y+12>maxY){next();tableHead();}
    const parts=clean(item.d).split('\n'),head=parts.shift();
    const firstY=y;doc.setFont('helvetica','normal');doc.setFontSize(8);color(doc,ink);doc.text(String(item.q),128,firstY,{align:'right'});doc.text(money(item.p),155,firstY,{align:'right'});doc.setFont('helvetica','bold');doc.text(money(item.q*item.p),R-3,firstY,{align:'right'});
-   lines(head,{width:95,size:8.5,bold:true});if(parts.length){y+=1;lines(parts.join('\n'),{width:95,size:8,line:4,tint:muted});}
-   y+=3;ensure(4);doc.setDrawColor(226,222,232);doc.setLineWidth(0.25);doc.line(M,y,R,y);y+=7;
+   lines(head,{width:95,size:8.5,bold:true});if(parts.length){y+=density;lines(parts.join(dense?' ':'\n'),{width:95,size:8,line:4,tint:muted});}
+   y+=3*density;ensure(4*density);doc.setDrawColor(226,222,232);doc.setLineWidth(0.25);doc.line(M,y,R,y);y+=7*density;
   }
-  ensure(29);const tx=115;
-  for(const [label,amount] of [[T.sub||'Subtotaal excl. btw',subtotal],[T.btwl||'Btw 21%',vat]]){small(label,tx,y,8);doc.setFont('helvetica','bold');doc.setFontSize(9);color(doc,ink);doc.text(money(amount),R,y,{align:'right'});y+=6;}
-  doc.setDrawColor(...ink);doc.line(tx,y-2,R,y-2);y+=5;doc.setFont('helvetica','bold');doc.setFontSize(10);color(doc,ink);doc.text(paid?(iv.lang==='en'?'Total (paid)':iv.lang==='fr'?'Total (payé)':'Totaal (betaald)'):T.tebet||'Totaal incl. btw',tx,y);doc.text(money(total),R,y,{align:'right'});y+=12;
-  if(advance){ensure(28);lines(advance.title||'Verrekening voorschot',{bold:true});for(const row of advance.rows)lines(row,{size:8,tint:muted});y+=6;}
-  if(iv.note){ensure(14);lines(iv.lang==='en'?'DETAILS & CONDITIONS':iv.lang==='fr'?'DÉTAILS & CONDITIONS':'TOELICHTING & AFSPRAKEN',{size:8,bold:true});y+=2;lines(iv.note,{size:8,line:4.1,tint:muted});y+=7;}
-  if(!isOff){ensure(40);const py=y;doc.setFillColor(246,244,248);doc.rect(M,py,176,35,'F');accent(doc,M,py,176);y=py+8;lines(T.pay||'BETAALGEGEVENS',{x:M+4,bold:true,size:8,line:6});lines(String(co.iban||'').replace(/\s/g,'').replace(/(.{4})/g,'$1 ').trim(),{x:M+4,size:13,bold:true,line:7});lines((T.beg||'BEGUNSTIGDE')+': '+(co.name||'Marleo')+'   '+(T.bic||'BIC')+': '+(co.bic||''),{x:M+4,size:7.5});lines((T.med||'MEDEDELING')+': '+(iv.ref||''),{x:M+4,size:8});y=py+41;}
+  ensure(dense?25:29);const tx=115;
+  for(const [label,amount] of [[T.sub||'Subtotaal excl. btw',subtotal],[T.btwl||'Btw 21%',vat]]){small(label,tx,y,8);doc.setFont('helvetica','bold');doc.setFontSize(9);color(doc,ink);doc.text(money(amount),R,y,{align:'right'});y+=dense?5:6;}
+  doc.setDrawColor(...ink);doc.line(tx,y-2,R,y-2);y+=5;doc.setFont('helvetica','bold');doc.setFontSize(10);color(doc,ink);doc.text(paid?(iv.lang==='en'?'Total (paid)':iv.lang==='fr'?'Total (payé)':'Totaal (betaald)'):T.tebet||'Totaal incl. btw',tx,y);doc.text(money(total),R,y,{align:'right'});y+=12*density;
+  if(advance){ensure(28);lines(advance.title||'Verrekening voorschot',{bold:true});for(const row of advance.rows)lines(row,{size:8,tint:muted});y+=6*density;}
+  if(iv.note){ensure(14);lines(iv.lang==='en'?'DETAILS & CONDITIONS':iv.lang==='fr'?'DÉTAILS & CONDITIONS':'TOELICHTING & AFSPRAKEN',{size:8,bold:true});y+=2*density;lines(dense?iv.note.replace(/\n{2,}/g,'\n'):iv.note,{size:8,line:4.1,tint:muted});y+=7*density;}
+  if(!isOff){const height=dense?28:35;ensure(height+5);const py=y;doc.setFillColor(246,244,248);doc.rect(M,py,176,height,'F');accent(doc,M,py,176);y=py+(dense?6:8);lines(T.pay||'BETAALGEGEVENS',{x:M+4,bold:true,size:8,line:6});lines(String(co.iban||'').replace(/\s/g,'').replace(/(.{4})/g,'$1 ').trim(),{x:M+4,size:13,bold:true,line:7});lines((T.beg||'BEGUNSTIGDE')+': '+(co.name||'Marleo')+(co.bic?'   '+(T.bic||'BIC')+': '+co.bic:''),{x:M+4,size:7.5});lines((T.med||'MEDEDELING')+': '+(iv.ref||''),{x:M+4,size:8});y=py+height+6;}
+
   if(signed){ensure(42);lines('Voor akkoord',{bold:true,size:10,line:6});lines(signed.name||'Naam en handtekening',{size:8});
    if(signed.at)lines(signed.at,{size:8,tint:muted});
    if(signed.image){try{const info=doc.getImageProperties(signed.image),w=55,h=Math.min(22,w*info.height/info.width);doc.addImage(signed.image,'PNG',M,y,w,h);y+=h;}catch{}}
@@ -69,6 +70,14 @@
    const footer=isOff?T.offfoot:typeof T.foot==='function'?T.foot(!iv.due||iv.due===iv.date):'';
    if(footer){doc.setFontSize(6.5);color(doc,muted);doc.text(doc.splitTextToSize(clean(footer),176),M,285,{lineHeightFactor:1.15});}
   }
+  return doc;
+ }
+ function invoice(iv,options){
+  let doc=renderInvoice(iv,options);
+  if(doc.getNumberOfPages()===1)return doc;
+  // Reflow before adding pages. Content and financial values are never dropped;
+  // use readable type at every density, including long invoice descriptions.
+  for(const density of [0.92,0.84,0.76]){const candidate=renderInvoice(iv,{...options,_density:density});doc=candidate;if(doc.getNumberOfPages()===1)break;}
   return doc;
  }
  root.MarleoPDF={wordmark,ratio,logo,header,accent,invoice};
