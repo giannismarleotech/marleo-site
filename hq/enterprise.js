@@ -83,8 +83,8 @@ import("./workspace.js");
 
 import("./sync-dashboard.js?v=storage-quota-20261123");
 
-import("./campaign-audiences.js?v=20261124-editorial").then(()=>import("./campaign-tracking.js?v=20261123"));
-var campaignStyles=document.createElement("link");campaignStyles.rel="stylesheet";campaignStyles.href="campaign-tracking.css?v=20261123";document.head.append(campaignStyles);
+import("./campaign-audiences.js?v=20261124-planning").then(()=>import("./campaign-tracking.js?v=20261124-planning"));
+var campaignStyles=document.createElement("link");campaignStyles.rel="stylesheet";campaignStyles.href="campaign-tracking.css?v=20261124-planning";document.head.append(campaignStyles);
 
 import("./hosting.js?v=vimexx-20261123");
 

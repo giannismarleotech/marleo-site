@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {trackingStats,matchesTracking,csvCell} from '../hq/campaign-tracking.js';
+import {trackingStats,matchesTracking,csvCell,campaignSlots,campaignSchedule,formatSendTime} from '../hq/campaign-tracking.js';
 import {verifySignature,makeHandler} from '../supabase/functions/mailhook/handler.mjs';
 import {inspectProvider,runRequestedMaintenance,EVENTS} from '../supabase/functions/campaign-admin/provider.mjs';
 import {makeHandler as adminHandler} from '../supabase/functions/campaign-admin/handler.mjs';
@@ -18,3 +18,15 @@ test('campaign configuration inspection rejects clients and unauthenticated user
 test('legacy endpoint remains authenticated until a signing secret is available',async()=>{const calls=[];const db={from(){const q={select(){return q;},eq(k,v){q.key=v;return q;},async maybeSingle(){return {data:q.key==='hook_key'?{value:'existing-test-token'}:null};}};return q;},async rpc(name,payload){calls.push(payload);return {};}};const handler=makeHandler({db,now:()=>now});const raw=JSON.stringify(event);assert.equal((await handler(new Request('https://api.test?k=wrong',{method:'POST',body:raw,headers:{'svix-id':'msg_legacy'}}))).status,401);assert.equal((await handler(new Request('https://api.test?k=existing-test-token',{method:'POST',body:raw,headers:{'svix-id':'msg_legacy'}}))).status,200);assert.equal(calls[0].p_id,'msg_legacy');});
 
 test('click history never persists login tokens or password fragments',async()=>{const db=database(),handler=makeHandler({db,now:()=>now}),raw=JSON.stringify({...event,data:{email_id:'provider',click:{link:'https://marleo.tech/portaal/?token=do-not-store#token_hash=also-private'}}});assert.equal((await handler(new Request('https://api.test',{method:'POST',body:raw,headers:await signed(raw)}))).status,200);const link=db.calls[0].payload.p_link;assert.ok(!link.includes('do-not-store'));assert.ok(!link.includes('also-private'));assert.ok(!link.includes('#'));});
+
+
+test('planning is explicit Belgian time across weekends and daylight saving',()=>{
+ const winter=campaignSlots(3,2,new Date('2026-11-27T17:00:00Z'));
+ assert.equal(winter.length,3);assert.equal(winter[0].toISOString(),'2026-11-30T08:05:00.000Z');assert.equal(winter[1].toISOString(),'2026-11-30T15:30:00.000Z');assert.equal(winter[2].toISOString(),'2026-12-01T08:05:00.000Z');
+ const summer=campaignSlots(1,20,new Date('2026-07-05T12:00:00Z'));assert.equal(summer[0].toISOString(),'2026-07-06T07:05:00.000Z');assert.match(formatSendTime(summer[0].toISOString()),/09:05/);
+ assert.deepEqual(campaignSlots(0,20),[]);
+});
+test('campaign summary uses actual pending timestamps and never treats sent rows as a future plan',()=>{
+ const rows=[{status:'sent',send_at:'2026-01-01T08:00:00Z'},{status:'pending',send_at:'2026-11-25T08:05:00Z'},{status:'pending',send_at:'2026-11-26T10:00:00Z'},{status:'cancelled',send_at:'2026-12-30T10:00:00Z'}];
+ const plan=campaignSchedule(rows,Date.parse('2026-11-25T09:00:00Z'));assert.equal(plan.count,2);assert.equal(plan.first,rows[1].send_at);assert.equal(plan.last,rows[2].send_at);assert.equal(plan.overdue,1);
+});

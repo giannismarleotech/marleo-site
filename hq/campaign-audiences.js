@@ -60,7 +60,7 @@ window.cpPrev = function () {
   const all = cpAudienceAll(filters);
   const selected = cpAudience(filters);
   const label = filters.audience === 'customers' ? 'bestaande klanten' : 'potentiële klanten';
-  const limit = Math.max(1, Number(document.getElementById('cp_lim')?.value) || 20);
+  const limit = Math.max(1, Math.min(100, Number(document.getElementById('cp_lim')?.value) || 20));
   counter.innerHTML = '<b>'+selected.length+'</b> van '+all.length+' '+label+' geselecteerd · ongeveer '+Math.ceil(selected.length/limit)+' werkdagen';
   let list = document.getElementById('cp_list');
   if (!list) {list=document.createElement('div');list.id='cp_list';counter.after(list);}
@@ -77,6 +77,11 @@ window.cpPrev = function () {
   document.getElementById('cp_why')?.remove();
   const preview=document.getElementById('cp_pv');
   refreshMarketingPreview();
+  let schedule=document.getElementById('cp-schedule-preview');
+  if(!schedule){schedule=document.createElement('div');schedule.id='cp-schedule-preview';schedule.className='ct-planning';counter.after(schedule);}
+  const slots=window.cpSlots?.(selected.length,Math.max(1,Math.min(100,limit)))||[];
+  const when=value=>window.cpScheduleStamp?.(value?.toISOString())||value?.toLocaleString('nl-BE')||'Nog niet gepland';
+  schedule.innerHTML=slots.length?'<span><b>Eerste verzending</b><strong>'+esc(when(slots[0]))+'</strong></span><span><b>Laatste verzending</b><strong>'+esc(when(slots.at(-1)))+'</strong></span><small>Belgische tijd · op werkdagen gespreid, maximaal '+Math.min(100,limit)+' per dag. Bij bevestiging ziet u de definitieve planning.</small>':'<p>Selecteer ontvangers om de verzendplanning te zien.</p>';
   if(preview)preview.textContent=selected[0]?'Onderwerp: '+cpVars(selected[0],document.getElementById('cp_sub').value)+'\n\n'+cpVars(selected[0],document.getElementById('cp_body').value):'Selecteer ontvangers om een voorbeeld te zien.';
 };
 
@@ -202,7 +207,7 @@ window.rEmails=function(){
   const result=oldEmails.apply(this,arguments);
   const top=main().querySelector('.topbar');
   if(top&&!top.querySelector('[data-open-campaigns]')){
-    const button=document.createElement('button');button.className='btn';button.textContent='Mailcampagnes';button.dataset.openCampaigns='';
+    const button=document.createElement('button');button.className='btn';button.textContent='Planning & resultaten';button.dataset.openCampaigns='';
     button.onclick=()=>go('campagnes');top.append(button);
   }
   if(!document.getElementById('customer-template-library')){
