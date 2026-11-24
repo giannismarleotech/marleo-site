@@ -1,0 +1,128 @@
+/* Compact, readable HQ. Shared overrides deliberately outrank feature styles. */
+html body #appView.active{grid-template-columns:232px minmax(0,1fr)}
+html body #appView #mainArea{max-width:1520px;padding:26px clamp(20px,2.5vw,38px) 60px;min-width:0;font-size:14px;line-height:1.55}
+html body #appView #sidebar{padding:18px 12px;background:var(--bg2);border-right:1px solid var(--line)}
+html body #appView #navmenu{padding:6px 0;scrollbar-width:none}
+html body #appView #navmenu::-webkit-scrollbar{display:none}
+html body #appView #navmenu button{min-height:36px;padding:8px 11px;margin-bottom:2px;font-size:13px;line-height:1.35;border-radius:8px;transform:none}
+html body #appView #navmenu button svg{width:17px;height:17px}
+html body #appView .cc-nav-group{margin-top:14px;padding-top:10px}
+html body #appView .cc-nav-label{padding:6px 11px;font-size:10px;letter-spacing:.07em}
+html body #appView #mainArea .topbar{margin-bottom:20px;gap:12px;align-items:center}
+html body #appView #mainArea .topbar h2{font-size:clamp(22px,2vw,28px);font-weight:650;line-height:1.2}
+html body #appView #mainArea .topbar .sub{font-size:12px;line-height:1.6}
+html body #appView #mainArea .btn{padding:9px 14px;min-height:36px;font-size:12px;border-radius:8px;box-shadow:none;line-height:1.4;transform:none}
+html body #appView #mainArea .btn.sm{padding:6px 10px;min-height:30px;font-size:11px}
+html body #appView #mainArea .btn::after{display:none}
+html body #appView #mainArea input,html body #appView #mainArea select,html body #appView #mainArea textarea{font-size:14px;border-radius:8px;padding:9px 11px;line-height:1.5}
+html body #appView #mainArea .panelbox{padding:18px;margin-bottom:18px;border-radius:12px;box-shadow:none}
+html body #appView #mainArea .panelbox h3{font-size:14px;margin-bottom:14px;line-height:1.4}
+html body #appView #mainArea .stats{gap:12px;margin-bottom:20px}
+html body #appView #mainArea .stat{padding:16px!important;border-radius:12px;box-shadow:none;transform:none;min-width:0}
+html body #appView #mainArea .stat::before{height:2px;opacity:.65}
+html body #appView #mainArea .stat .label{font-size:10px!important;letter-spacing:.04em!important;line-height:1.5}
+html body #appView #mainArea .stat .val{font-size:clamp(22px,2.2vw,29px)!important;line-height:1.25;margin:8px 0}
+html body #appView #mainArea .stat .val.gtext{background:none;color:var(--text)}
+html body #appView #mainArea .stat .hint{font-size:11px;line-height:1.6}
+html body #appView #mainArea .tabs{gap:6px;margin-bottom:18px}
+html body #appView #mainArea .tab{font-size:12px;padding:8px 13px}
+html body #appView #mainArea table{font-size:12px}
+html body #appView #mainArea th{font-size:10px;letter-spacing:.04em;line-height:1.5}
+html body #appView #mainArea td{padding-block:11px;line-height:1.5}
+html body #appView #mainArea .pill{font-size:10px;padding:3px 8px}
+html body #appView #mainArea .hint{line-height:1.65}
+html body #appView #mainArea.viewin>*{animation:none}
+/* Control Center: fewer repeated actions, a quieter hierarchy. */
+html body #appView #mainArea .cc-workspace{max-width:none;font-size:14px;color:var(--text)}
+html body #appView #mainArea .cc-head{gap:20px;margin-bottom:20px}
+html body #appView #mainArea .cc-kicker{font-size:9px!important;letter-spacing:.13em;margin-bottom:8px!important}
+html body #appView #mainArea .cc-head h1{font-size:28px;line-height:1.2;margin-bottom:10px}
+html body #appView #mainArea .cc-head h1 span{font-size:15px;margin-top:6px;color:var(--muted)}
+html body #appView #mainArea .cc-head>div>p:last-child{font-size:12px;margin:0;line-height:1.6}
+html body #appView #mainArea .cc-quick-nav{position:static;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:0 0 16px;margin:0 0 20px;background:none;border-bottom:1px solid var(--line)}
+html body #appView #mainArea .cc-quick-nav button{min-height:32px;padding:6px 8px;font-size:11px;border-radius:7px;background:transparent;color:var(--muted);line-height:1.4}
+html body #appView #mainArea .cc-quick-nav button:hover{color:var(--text);background:var(--track)}
+html body #appView #mainArea .cc-metrics{gap:12px;margin-bottom:24px}
+html body #appView #mainArea .cc-metric{padding:15px 16px;gap:7px;border-radius:11px;background:var(--panel);border-color:var(--line)}
+html body #appView #mainArea .cc-metric>span{font-size:11px;color:var(--muted)}
+html body #appView #mainArea .cc-metric strong{font-size:27px;line-height:1.2;font-weight:650}
+html body #appView #mainArea .cc-metric small{font-size:10px;line-height:1.5;color:var(--muted)}
+html body #appView #mainArea .cc-section{margin-bottom:22px}
+html body #appView #mainArea .cc-section-head{margin-bottom:14px;gap:12px;align-items:center}
+html body #appView #mainArea .cc-section-head h2,html body #appView #mainArea .cc-panel h2{font-size:16px;line-height:1.4}
+html body #appView #mainArea .cc-section-head p{font-size:11px;line-height:1.6;margin-top:6px;max-width:65ch}
+html body #appView #mainArea .cc-sync{font-size:10px}
+html body #appView #mainArea .cc-agents{gap:10px}
+html body #appView #mainArea .cc-agent{padding:14px;border-radius:11px;background:var(--panel);border-color:var(--line)}
+html body #appView #mainArea .cc-agent-icon{width:28px;height:28px;margin-bottom:12px;border-radius:8px}
+html body #appView #mainArea .cc-agent-icon svg{width:17px;height:17px}
+html body #appView #mainArea .cc-agent h3{font-size:12px;margin-bottom:8px;line-height:1.5}
+html body #appView #mainArea .cc-agent p{font-size:11px;line-height:1.6;margin:10px 0;color:var(--muted)}
+html body #appView #mainArea .cc-agent>small{font-size:10px;line-height:1.5}
+html body #appView #mainArea .cc-state{font-size:10px;padding:4px 6px;border-radius:5px}
+html body #appView #mainArea .cc-layout{gap:16px;grid-template-columns:minmax(0,2fr) minmax(230px,1fr)}
+html body #appView #mainArea .cc-panel{padding:18px;border-radius:12px;background:var(--panel);border-color:var(--line)}
+html body #appView #mainArea .cc-job{padding:14px 0;gap:11px;grid-template-columns:28px minmax(0,1fr) auto}
+html body #appView #mainArea .cc-job-status{width:27px;height:29px;border-radius:7px}
+html body #appView #mainArea .cc-job-status svg{width:17px;height:17px}
+html body #appView #mainArea .cc-job strong{font-size:12px;line-height:1.5}
+html body #appView #mainArea .cc-job>span:nth-child(2){gap:5px}
+html body #appView #mainArea .cc-job>span:nth-child(2)>span,html body #appView #mainArea .cc-job small{font-size:10px;line-height:1.6}
+html body #appView #mainArea .cc-attention-item{padding:11px;margin-bottom:8px;gap:5px;background:transparent;border-radius:8px}
+html body #appView #mainArea .cc-attention-item b{font-size:12px}
+html body #appView #mainArea .cc-attention-item span{font-size:11px;line-height:1.6}
+html body #appView #mainArea .cc-job-header h2{font-size:19px;margin:12px 0 8px}
+html body #appView #mainArea .cc-job-header p,html body #appView #mainArea .cc-error{font-size:12px;line-height:1.7}
+html body #appView #mainArea .cc-error-box{font-size:12px;padding:13px;line-height:1.7}
+html body #appView #mainArea .cc-execution-details{margin:18px 0;border-block:1px solid var(--line)}
+html body #appView #mainArea .cc-execution-details>summary{padding:13px 0;cursor:pointer;font-size:12px;color:var(--muted)}
+html body #appView #mainArea .cc-timeline{margin:10px 0}
+html body #appView #mainArea .cc-timeline p{font-size:12px}
+html body #appView #mainArea .cc-results article,html body #appView #mainArea .cc-result-draft{padding:16px;border-radius:10px}
+html body #appView #mainArea .cc-results h3{font-size:15px}
+html body #appView #mainArea .cc-inline-search{margin-top:20px}
+html body #appView #mainArea .cc-form{gap:13px}
+html body #appView #mainArea .cc-form label,html body #appView #mainArea .cc-form p{font-size:12px;line-height:1.7}
+html body #appView #mainArea .cc-form input,html body #appView #mainArea .cc-form select{min-height:38px}
+/* Same compact scale in dossiers, portals and management tools. */
+html body #appView #mainArea :is(.ag-workspace,.ep-workspace,.ws-workspace){font-size:14px}
+html body #appView #mainArea :is(.ag-card,.ag-engine,.ep-note,.ws-card){padding:18px;border-radius:12px}
+html body #appView #mainArea .ag-metrics>div,html body #appView #mainArea .ep-metrics>div{padding:15px;border-radius:10px}
+html body #appView #mainArea .ag-metrics b,html body #appView #mainArea .ep-metrics b{font-size:25px}
+html body #appView #mainArea .ag-metrics span{font-size:11px}
+html body #appView #mainArea .ag-card p,html body #appView #mainArea .ag-card .hint{font-size:12px;line-height:1.7}
+@media(max-width:1150px){html body #appView #mainArea .cc-agents{grid-template-columns:repeat(3,minmax(0,1fr))}html body #appView #mainArea .cc-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:860px){
+ html body #appView.active{display:block}
+ html body #appView #mainArea{padding:18px 14px calc(95px + env(safe-area-inset-bottom))!important;font-size:14px}
+ html body #appView #navmenu button{min-height:44px;font-size:14px}
+ html body #appView #mainArea .btn{min-height:44px;font-size:13px;padding:10px 14px}
+ html body #appView #mainArea input,html body #appView #mainArea select,html body #appView #mainArea textarea{font-size:16px!important;min-height:44px}
+ html body #appView #mainArea .cc-head{display:block}
+ html body #appView #mainArea .cc-head h1{font-size:25px}
+ html body #appView #mainArea .cc-actions{margin-top:15px}
+ html body #appView #mainArea .cc-quick-nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ html body #appView #mainArea .cc-quick-nav button{min-height:44px;font-size:11px}
+ html body #appView #mainArea .cc-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ html body #appView #mainArea .cc-metric{padding:13px}
+ html body #appView #mainArea .cc-metric strong{font-size:25px}
+ html body #appView #mainArea .cc-agents{grid-template-columns:repeat(2,minmax(0,1fr))}
+ html body #appView #mainArea .cc-agent p{font-size:12px}
+ html body #appView #mainArea .cc-panel{padding:15px}
+ html body #appView #mainArea .cc-job{grid-template-columns:26px minmax(0,1fr);gap:10px}
+ html body #appView #mainArea .cc-job-meta{grid-column:2;justify-items:start;display:flex;flex-wrap:wrap;gap:8px}
+ html body #appView #mainArea .cc-section-head{flex-wrap:wrap}
+ html body #appView #mainArea .cc-results{grid-template-columns:1fr}
+ html body #appView #mainArea .cc-timeline li{grid-template-columns:1fr;gap:6px}
+ html body #appView #mainArea .cc-timeline span{margin-left:0;display:block}
+ html body #appView #mainArea .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ html body #appView #mainArea .stat .val{font-size:22px!important}
+ html body #appView #mainArea .panelbox{padding:15px!important}
+}
+@media(max-width:360px){html body #appView #mainArea .cc-agents{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html body #appView #mainArea *{animation:none!important;transition:none!important}}
+:root:not([data-theme="light"]) body:has(#appView.active){background:#100e15;background-attachment:initial}
+html body #appView #mainArea .cc-metric>span,html body #appView #mainArea .cc-agent h3{font-size:12px}
+html body #appView #mainArea .cc-agent p{font-size:12px}
+html body #appView #mainArea .cc-state{font-size:11px}
+@media(max-width:860px){html body #appView #mainArea table{font-size:13px}}
