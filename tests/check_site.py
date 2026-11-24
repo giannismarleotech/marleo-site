@@ -6,12 +6,14 @@ import subprocess, json, tempfile
 ROOT=Path(__file__).resolve().parents[1]
 class Page(HTMLParser):
     def __init__(self):
-        super().__init__();self.links=[];self.ids=set();self.h1=0;self.lang='';self.scripts=[];self.collect=False;self.script='';self.config=[]
+        super().__init__();self.links=[];self.ids=set();self.duplicate_ids=[];self.h1=0;self.lang='';self.scripts=[];self.collect=False;self.script='';self.config=[]
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
         if tag=='html':self.lang=a.get('lang','')
         if tag=='h1':self.h1+=1
-        if 'id' in a:self.ids.add(a['id'])
+        if 'id' in a:
+            if a['id'] in self.ids:self.duplicate_ids.append(a['id'])
+            self.ids.add(a['id'])
         if 'data-config' in a:self.config.append(json.loads(a['data-config']))
         if tag=='script':self.collect='src' not in a and a.get('type','')!='application/ld+json';self.script=''
         for key in ('src','href'):
@@ -29,6 +31,7 @@ for path in ROOT.rglob('*.html'):
 errors=[]
 for path,page in pages.items():
     if 'hq' not in path.relative_to(ROOT).parts:
+        assert not page.duplicate_ids,(str(path),page.duplicate_ids)
         assert not any(urlsplit(u).path.startswith('/hq') for u in page.links),str(path)
     for link in page.links:
         u=urlsplit(link)

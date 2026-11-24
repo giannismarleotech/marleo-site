@@ -141,7 +141,7 @@ def head(lang, slug, title, desc):
             '<meta name="theme-color" content="#09090f"><meta property="og:site_name" content="Marleo"><meta property="og:locale" content="%s">'
             '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">'
             '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>'
-            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124-clean-menu">'
+            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124-quality">'
             '<script defer src="/assets/ai-demo.js"></script><script defer src="/assets/brand-header.js"></script><script defer src="/assets/project-tools.js"></script><script defer src="/assets/systems.js"></script>'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
             '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'
@@ -153,7 +153,7 @@ def header(lang, slug):
     items = []
     for gi, g in enumerate(t['navGroups']):
         if 'keys' in g:
-            on = ' on' if slug in g['keys'] else ''
+            on = ' on' if slug in g['keys'] or slug==g.get('overview') else ''
             menu = ''.join('<a href="%s" data-slug="%s"%s><b>%s</b><span>%s</span></a>' % (
                 url(lang, k), k, ' class="on"' if k == slug else '', E(t['labels'][k]), E(t['navDesc'].get(k, ''))) for k in g['keys'])
             overview=g.get('overview','diensten')
@@ -210,7 +210,17 @@ def footer(lang):
             url(lang), LOGO, E(t['claim']), soc, cols, E(t['legal']), E(u['footerMade']))
 
 def page(lang, slug, title, desc, body):
-    return head(lang, slug, title, desc) + header(lang, slug) + '<main id="main"'+(' class="eu-home"' if not slug else '')+'>' + body + '</main>' + footer(lang)
+    markup = head(lang, slug, title, desc) + header(lang, slug) + '<main id="main" class="'+('eu-home' if not slug else 'eu-inner')+'">' + body + '</main>' + footer(lang)
+    # Repeated inline SVG gradients need their own identifiers.
+    count=0
+    def unique_logo(match):
+        nonlocal count
+        svg=match.group(0)
+        for ident in re.findall(r'<(?:linearGradient|radialGradient)\b[^>]*\bid="([^"]+)"',svg):
+            count+=1;unique='marleo-gradient-%d'%count
+            svg=svg.replace('id="'+ident+'"','id="'+unique+'"').replace('url(#'+ident+')','url(#'+unique+')')
+        return svg
+    return re.sub(r'<svg\b.*?</svg>',unique_logo,markup,flags=re.S)
 
 # ---------------------------------------------------------------- blokken
 def sec_head(eyebrow, title, lead=None, cls='rv'):
@@ -276,7 +286,7 @@ def service(lang, k):
         out += '<section class="sec" style="padding-top:0"><div class="wrap split"><div>%s</div><ul class="checks rv">%s</ul></div></section>' % (
             sec_head(None, u['included']), ''.join('<li>%s</li>' % E(x) for x in dl['included']))
     if k == 'websites':
-        out += '<section class="sec" id="werk" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, PORTFOLIO, eager=2))
+        out += '<section class="sec" id="werk" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, WEBSITE_CARDS + PORTFOLIO, eager=2))
     if dl:
         out += '<section class="sec" style="padding-top:0"><div class="wrap">%s<div class="grid g3">%s</div></div></section>' % (
             sec_head(None, u['outcomes']), ''.join('<div class="card rv d%d"><h3 class="gt" style="font-size:1.3rem">%s</h3><p>%s</p></div>' % (i, E(a), E(b)) for i, (a, b) in enumerate(dl['outcomes'])))
@@ -300,7 +310,11 @@ def service(lang, k):
 def diensten(lang):
     t = COPY[lang]; p = t['pages']['diensten']
     out = phero(lang, 'diensten', p['crumb'], p['title'], p['lead'])
-    out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(None, p['serviceGridTitle']), svc_cards(lang, KEYS + ['domeincheck']))
+    groups={
+        'en':[('AI & business software','Connect knowledge, customer operations and decisions. Start with a focused process and build from there.',['ai-infrastructuur','solutions/custom-crm','product/knowledge-assistants','product/customer-portals','product/integrations','product/dashboards']),('IT, cloud & security','The infrastructure, access and continuity behind your daily operations.',['managed-it','cloud','security','development']),('Websites & digital experiences','A clear digital presence, built around your identity and the people who use it.',['websites','webshop','branding','games','website-audit','domeincheck'])],
+        'nl':[('AI & bedrijfssoftware','Verbind kennis, klantprocessen en beslissingen. Begin bij één gericht proces en bouw van daaruit verder.',['ai-infrastructuur','solutions/custom-crm','product/knowledge-assistants','product/customer-portals','product/integrations','product/dashboards']),('IT, cloud & beveiliging','De infrastructuur, toegang en continuïteit achter je dagelijkse werking.',['managed-it','cloud','security','development']),('Websites & digitale ervaringen','Een duidelijke digitale uitstraling, rond je identiteit en de mensen die ze gebruiken.',['websites','webshop','branding','games','website-audit','domeincheck'])],
+        'fr':[('IA & logiciels métier','Relier connaissances, opérations clients et décisions. Commencer par un processus ciblé, puis élargir.',['ai-infrastructuur','solutions/custom-crm','product/knowledge-assistants','product/customer-portals','product/integrations','product/dashboards']),('IT, cloud & sécurité','L’infrastructure, les accès et la continuité de vos opérations quotidiennes.',['managed-it','cloud','security','development']),('Sites web & expériences numériques','Une présence numérique claire, autour de votre identité et de vos utilisateurs.',['websites','webshop','branding','games','website-audit','domeincheck'])]}
+    out += ''.join('<section class="sec service-directory"><div class="wrap"><div class="directory-heading"><span class="eu-index">%02d</span>%s</div>%s</div></section>'%(i+1,sec_head(None,title,lead),svc_cards(lang,keys)) for i,(title,lead,keys) in enumerate(groups[lang]))
     out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(None, p['stepsTitle']), steps(p['steps']))
     out += '<section class="sec" style="padding-top:0"><div class="wrap split"><div>%s</div>%s</div></section>' % (sec_head(None, p['faqTitle']), faq(p['faq']))
     return page(lang, 'diensten', '%s · Marleo' % p['title'], p['lead'][:158], out + band(lang))
@@ -349,11 +363,12 @@ def overons(lang):
 def contact(lang):
     t = COPY[lang]; u = UI[lang]; p = t['pages']['contact']
     names = ['naam', 'bedrijf', 'email', 'telefoon']; types = ['text', 'text', 'email', 'tel']; ac = ['name', 'organization', 'email', 'tel']
-    fields = ''.join('<div class="fld"><label for="f_%s">%s</label><input id="f_%s" name="%s" type="%s" autocomplete="%s"></div>' % (n, E(l), n, n, ty, a) for n, l, ty, a in zip(names, p['fields'], types, ac))
-    form = ('<form id="cform" class="form rv" novalidate><h2 style="font-size:1.4rem">%s</h2>%s<div class="fld"><label for="f_b">%s</label><textarea id="f_b" name="bericht"></textarea></div>'
+    fields = ''.join('<div class="fld"><label for="f_%s">%s%s</label><input id="f_%s" name="%s" type="%s" autocomplete="%s" maxlength="254"%s aria-describedby="contact-requirements contact-status"></div>' % (n, E(l), ' *' if n=='naam' else '', n, n, ty, a, ' required' if n=='naam' else '') for n, l, ty, a in zip(names, p['fields'], types, ac))
+    requirements={'en':'Your name and either an email address or phone number are required.','nl':'Je naam en een e-mailadres of telefoonnummer zijn verplicht.','fr':'Votre nom et une adresse e-mail ou un numéro de téléphone sont requis.'}[lang]
+    form = ('<form id="cform" class="form rv" novalidate><h2 style="font-size:1.4rem">%s</h2><p class="form-guidance" id="contact-requirements">%s</p><p class="fmsg" id="contact-status" role="status" aria-live="polite"></p>%s<div class="fld"><label for="f_b">%s</label><textarea id="f_b" name="bericht" maxlength="4000" rows="5"></textarea></div>'
             '<input type="text" name="website_url" tabindex="-1" autocomplete="off" style="position:absolute;left:-5000px" aria-hidden="true">'
-            '<label class="chk"><input type="checkbox" name="waopt"> %s</label><button class="btn btn-p" type="submit">%s</button><p class="fmsg" aria-live="polite"></p></form>') % (
-            E(p['formTitle']), fields, E(p['messageLabel']), E(u['waOpt']), E(p['submit']))
+            '<label class="chk"><input type="checkbox" name="waopt"> %s</label><button class="btn btn-p" type="submit">%s</button><p class="form-privacy"><a href="/privacy/?lang=%s">%s</a></p></form>') % (
+            E(p['formTitle']), E(requirements), fields, E(p['messageLabel']), E(u['waOpt']), E(p['submit']),lang, E({'en':'How we handle your information','nl':'Hoe we je gegevens gebruiken','fr':'Comment nous utilisons vos données'}[lang]))
     rows = ''.join('<a class="crow rv" href="%s"><span class="l">%s</span><span class="v">%s</span><span class="n">%s</span></a>' % (
         E(r['href']), E(r['label']), E(r['value']), E(r['note'])) for r in p['contactRows'])
     out = phero(lang, 'contact', p['crumb'], p['title'], p['lead'], acts=False)

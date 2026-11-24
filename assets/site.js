@@ -54,7 +54,16 @@ addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(o
 
 /* Dropdown and mobile navigation: consistent state, keyboard and focus. */
 function closeDropdowns(){ $$('.dd.open').forEach(function(x){x.classList.remove('open');var b=$('button',x);if(b)b.setAttribute('aria-expanded','false')}) }
-$$('.dd>button').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var p=b.parentNode,o=!p.classList.contains('open');closeDropdowns();p.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o))})});
+$$('.dd').forEach(function(p){
+ var b=$('button',p);if(!b)return;
+ function open(){closeDropdowns();p.classList.add('open');b.setAttribute('aria-expanded','true')}
+ function close(){p.classList.remove('open');b.setAttribute('aria-expanded','false')}
+ b.addEventListener('click',function(e){e.stopPropagation();if(p.classList.contains('open'))close();else open()});
+ p.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&!p.contains(d.activeElement))close()});
+ p.addEventListener('focusout',function(e){if(!p.contains(e.relatedTarget))close()});
+ b.addEventListener('keydown',function(e){if(e.key==='ArrowDown'){e.preventDefault();open();var first=$('a',p);if(first)first.focus()}});
+ p.addEventListener('keydown',function(e){if(e.key==='Escape'){e.stopPropagation();close();b.focus()}});
+});
 d.addEventListener('click',closeDropdowns);
 var sh=$('.sheet'),sheetOpener=null;
 if(sh){sh.inert=true;sh.setAttribute('role','dialog');sh.setAttribute('aria-label',L==='fr'?'Navigation':L==='en'?'Navigation':'Navigatie')}
@@ -85,15 +94,16 @@ if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduc
 /* contactformulier -> aanvraag (+ WhatsApp-bevestiging na opt-in) */
 var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/';
 var f=$('#cform');
-if(f)f.addEventListener('submit',async function(e){e.preventDefault();var m=$('.fmsg',f),b=$('button[type=submit]',f),g=function(n){return (f.elements[n]||{}).value||''};
+if(f)f.addEventListener('submit',async function(e){e.preventDefault();if(f.dataset.busy==='true')return;var m=$('.fmsg',f),b=$('button[type=submit]',f),g=function(n){return (f.elements[n]||{}).value||''};
  var data={naam:g('naam'),bedrijf:g('bedrijf'),email:g('email').trim().toLowerCase(),telefoon:g('telefoon'),bericht:g('bericht'),bron:'marleo.tech',website_url:g('website_url')};
- if(data.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)){m.textContent=UI.required;return}
- if(!data.naam.trim()||(!data.email&&!data.telefoon.trim())){m.textContent=UI.required;return}
- var o=b.textContent;b.disabled=true;b.textContent=UI.sending;
- try{var r=await fetch(API+'aanvraag',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});var j=await r.json();if(!r.ok||!j.ok)throw Error('Request failed');
+ $$('[aria-invalid]',f).forEach(function(el){el.removeAttribute('aria-invalid')});
+ if(data.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)){m.textContent=UI.required;f.elements.email.setAttribute('aria-invalid','true');f.elements.email.focus();return}
+ if(!data.naam.trim()||(!data.email&&!data.telefoon.trim())){m.textContent=UI.required;var invalid=!data.naam.trim()?f.elements.naam:f.elements.email;invalid.setAttribute('aria-invalid','true');invalid.focus();return}
+ var o=b.textContent;f.dataset.busy='true';f.setAttribute('aria-busy','true');b.disabled=true;b.textContent=UI.sending;var controller=new AbortController(),timeout=setTimeout(function(){controller.abort()},20000);
+ try{var r=await fetch(API+'aanvraag',{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});var j=await r.json();if(!r.ok||!j.ok)throw Error('Request failed');
   var wa=f.elements.waopt;if(wa&&wa.checked&&data.telefoon.trim())fetch(API+'whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({optin:'lead',email:data.email,telefoon:data.telefoon})}).catch(function(){});
   f.reset();m.textContent=UI.sent}catch(x){m.textContent=UI.err}
- b.disabled=false;b.textContent=o});
+ clearTimeout(timeout);delete f.dataset.busy;f.removeAttribute('aria-busy');b.disabled=false;b.textContent=o});
 
 /* domeincheck */
 var df=$('#domform');
