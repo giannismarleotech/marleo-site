@@ -54,3 +54,15 @@ for name,size in [('assets/marleo-icon-512.png',512),('assets/marleo-icon-192.pn
 assert Image.open(ROOT/'assets/og.jpg').size==(1200,630)
 assert (48,48) in Image.open(ROOT/'favicon.ico').ico.sizes()
 print('European release checks passed: multilingual canonicals/hreflang, structured data, CRM pages, portfolio separation, sitemap and favicon sizes.')
+# Product and solution pages must be translated, linked and crawlable.
+for prefix,lang in [('en/','en'),('','nl'),('fr/','fr')]:
+ for slug in ['product','product/customer-portals','product/integrations','product/dashboards','product/knowledge-assistants','solutions/ai-readiness','solutions']:
+  raw=(ROOT/prefix/slug/'index.html').read_text();p=SEO();p.feed(raw)
+  assert p.h1==1 and p.lang==lang
+  assert len(p.meta['description'])<=180
+  assert len([a for a in p.links if 'hreflang' in a])==4
+  assert 'https://marleo.tech/'+prefix+slug+'/' in locations
+  assert 'mega-intro' in raw and 'mega-links' in raw
+  if slug.startswith('product/') or slug=='solutions/ai-readiness':
+   assert any(n['@type']=='Service' for data in p.json for n in data.get('@graph',[]))
+print('Product release checks passed: all 21 translated routes, navigation, metadata and service schemas.')

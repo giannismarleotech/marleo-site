@@ -39,6 +39,9 @@ for lang in LANGS:
     for key in ('ai-infrastructuur','development','managed-it','cloud','security'):
         t['pages'][key]['lead'] += {'en':' Scoped for growing businesses and larger European organisations, with agreed integrations, controls and delivery responsibilities.','nl':' Afgestemd op groeibedrijven en grotere Europese organisaties, met afgesproken integraties, controles en verantwoordelijkheden.','fr':' Adapté aux entreprises en croissance et aux grandes organisations européennes, avec des intégrations, contrôles et responsabilités convenus.'}[lang]
 
+from catalog import configure as configure_catalog, SLUGS as CATALOG_SLUGS, render as catalog_page, home_products
+configure_catalog(COPY)
+
 SITE = 'https://marleo.tech'
 V = hashlib.sha256((open(os.path.join(ROOT,'assets/site.css'),'rb').read()+open(os.path.join(ROOT,'assets/site.js'),'rb').read())).hexdigest()[:10]
 E = lambda s: html.escape(str(s), quote=True)
@@ -56,6 +59,9 @@ def _audit_nav():
                 g['keys'].append('website-audit')
 
 def url(lang, slug=''):
+    if '#' in slug:
+        path,anchor=slug.split('#',1)
+        return url(lang,path)+'#'+anchor
     # English homepage is canonical at /; preserve all existing service URLs.
     if not slug:
         return {'en':'/', 'nl':'/nl/', 'fr':'/fr/'}[lang]
@@ -118,7 +124,7 @@ def head(lang, slug, title, desc):
     nodes=[{'@type':'WebPage','@id':page_url+'#webpage','url':page_url,'name':title,'description':desc,'inLanguage':lang,'isPartOf':{'@id':SITE+'/#website'},'about':{'@id':SITE+'/#organization'}}]
     if slug:
         nodes.append({'@type':'BreadcrumbList','itemListElement':[{'@type':'ListItem','position':1,'name':{'en':'Home','nl':'Home','fr':'Accueil'}[lang],'item':SITE+url(lang)},{'@type':'ListItem','position':2,'name':title.split(' | ')[0],'item':page_url}]})
-    if slug in ('ai-infrastructuur','development','managed-it','cloud','security','solutions/custom-crm'):
+    if slug in ('ai-infrastructuur','development','managed-it','cloud','security','solutions/custom-crm') or (slug in CATALOG_SLUGS and slug!='product'):
         nodes.append({'@type':'Service','@id':page_url+'#service','name':title.split(' | ')[0],'url':page_url,'description':desc,'provider':{'@id':SITE+'/#organization'},'areaServed':{'@type':'Place','name':'Europe'},'audience':{'@type':'BusinessAudience','audienceType':'Organisations'}})
     page_ld='<script type="application/ld+json">'+json.dumps({'@context':'https://schema.org','@graph':nodes},ensure_ascii=False)+'</script>'
     alts = ''.join('<link rel="alternate" hreflang="%s" href="%s%s">' % (l, SITE, url(l, slug)) for l in LANGS)
@@ -135,7 +141,7 @@ def head(lang, slug, title, desc):
             '<meta name="theme-color" content="#09090f"><meta property="og:site_name" content="Marleo"><meta property="og:locale" content="%s">'
             '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">'
             '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>'
-            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124-brand">'
+            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124-product-motion">'
             '<script defer src="/assets/ai-demo.js"></script><script defer src="/assets/brand-header.js"></script><script defer src="/assets/project-tools.js"></script><script defer src="/assets/systems.js"></script>'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
             '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'
@@ -150,8 +156,9 @@ def header(lang, slug):
             on = ' on' if slug in g['keys'] else ''
             menu = ''.join('<a href="%s" data-slug="%s"%s><b>%s</b><span>%s</span></a>' % (
                 url(lang, k), k, ' class="on"' if k == slug else '', E(t['labels'][k]), E(t['navDesc'].get(k, ''))) for k in g['keys'])
-            menu += '<a href="%s" data-slug="diensten"><b>%s →</b><span>%s</span></a>' % (url(lang, 'diensten'), E(t['allServices']), E(t['labels']['diensten']))
-            items.append('<div class="it dd"><button type="button" class="%s" aria-expanded="false">%s</button><div class="menu">%s</div></div>' % (on.strip(), E(g['label']), menu))
+            overview=g.get('overview','diensten')
+            menu = '<div class="mega-intro"><span class="eyebrow">MARLEO / %s</span><p>%s</p><a href="%s"><b>%s %s</b></a></div><div class="mega-links">%s</div>' % (E(g['label']),E(g.get('intro','')),url(lang,overview),E(t['labels'][overview]),ARROW,menu)
+            items.append('<div class="it dd"><button type="button" class="%s" aria-expanded="false">%s</button><div class="menu mega-menu">%s</div></div>' % (on.strip(), E(g['label']), menu))
         else:
             k = g['key']
             items.append('<div class="it"><a class="lk%s%s" href="%s" data-slug="%s">%s</a></div>' % (' on' if k == slug else '', ' opt' if k == 'over-ons' else '', url(lang, k), k, E(g['label'])))
@@ -163,7 +170,7 @@ def header(lang, slug):
     for g in t['navGroups']:
         if 'keys' in g:
             sheet += '<details%s><summary>%s</summary>%s<a href="%s">%s →</a></details>' % (' open' if slug in g['keys'] else '', E(g['label']), ''.join(
-                '<a href="%s">%s<small>%s</small></a>' % (url(lang, k), E(t['labels'][k]), E(t['navDesc'].get(k, ''))) for k in g['keys']), url(lang, 'diensten'), E(t['allServices']))
+                '<a href="%s">%s<small>%s</small></a>' % (url(lang, k), E(t['labels'][k]), E(t['navDesc'].get(k, ''))) for k in g['keys']), url(lang, g.get('overview','diensten')), E(t['labels'][g.get('overview','diensten')]))
         else:
             sheet += '<a class="sl" href="%s">%s</a>' % (url(lang, g['key']), E(g['label']))
     sheet += '<a class="sl" href="%s">%s</a><a class="sl" href="%s">%s</a>' % (url(lang, 'projecten'), E(u['work']), url(lang, 'contact'), E(t['labels']['contact']))
@@ -440,8 +447,10 @@ def main():
             elif k == 'website-audit': s = audit_page(lang)
             else: s = service(lang, k)
             write(url(lang, k), s); urls.append(url(lang, k))
+        for slug in CATALOG_SLUGS:
+            write(url(lang,slug),catalog_page(lang,slug,globals())); urls.append(url(lang,slug))
         for slug in EXTRA_SLUGS:
-            write(url(lang,slug),extra_page(lang,slug,globals())); urls.append(url(lang,slug))
+            write(url(lang,slug),catalog_page(lang,slug,globals()) if slug=='solutions' else extra_page(lang,slug,globals())); urls.append(url(lang,slug))
         for pp in RECENT:
             if 'slug' in pp and pp['slug'] not in {p['slug'] for p in WEBSITE_CARDS}:
                 sl = 'projecten/' + pp['slug']; write(url(lang,sl), recent_detail(lang,pp,globals())); urls.append(url(lang,sl))

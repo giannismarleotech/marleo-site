@@ -17,7 +17,7 @@ def homepage(lang,g):
  scope='<section class="sec eu-scope" id="europe-scope"><div class="wrap eu-scope-grid"><div><span class="eyebrow">%s</span><h2>%s<br><span>%s</span></h2><p class="lead">%s</p><a class="eu-link" href="%s">%s</a></div><div class="eu-scope-items">%s</div></div></section>'%(e(x['scope']),e(x['scopeTitle'][0]),e(x['scopeTitle'][1]),e(x['scopeBody']),u(lang,'security-deployment'),e(x['security']),''.join('<article><span>%02d</span><div><h3>%s</h3><p>%s</p></div></article>'%(i+1,e(t),e(b)) for i,(t,b) in enumerate(x['scopeItems'])))
  process='<section class="sec eu-approach" id="approach"><div class="wrap"><div class="sec-h"><span class="eyebrow">%s</span><h2>%s</h2></div><div class="eu-steps">%s</div></div></section>'%(e(x['process']),e(x['processTitle']),''.join('<article><span>%02d</span><h3>%s</h3><p>%s</p></article>'%(i+1,e(t),e(b)) for i,(t,b) in enumerate(x['steps'])))
  faq='<section class="sec eu-faq"><div class="wrap split"><div><h2>%s</h2><a class="eu-link" href="%s#website-work">%s</a></div>%s</div></section>'%(e(x['faqTitle']),u(lang,'projecten'),e(x['work']),g['faq']([{'q':q,'a':a} for q,a in x['faq']]))
- return g['page'](lang,'',x['title'],x['desc'],hero+scene+services+scope+process+faq+g['band'](lang))
+ return g['page'](lang,'',x['title'],x['desc'],hero+scene+g['home_products'](lang,g)+g['system_showcase'](lang,u)+scope+process+faq+g['band'](lang))
 
 def crm_page(lang,g):
  x=TEXT[lang];e=g['E'];u=g['url']
