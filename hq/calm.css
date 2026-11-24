@@ -126,3 +126,24 @@ html body #appView #mainArea .cc-metric>span,html body #appView #mainArea .cc-ag
 html body #appView #mainArea .cc-agent p{font-size:12px}
 html body #appView #mainArea .cc-state{font-size:11px}
 @media(max-width:860px){html body #appView #mainArea table{font-size:13px}}
+
+/* Keep the cleaner layout, with comfortable reading sizes. */
+html body #appView #mainArea{font-size:15px}
+html body #appView #navmenu button{font-size:14px;min-height:40px}
+html body #appView #mainArea .btn{font-size:14px;min-height:40px}
+html body #appView #mainArea .btn.sm{font-size:12px;min-height:34px}
+html body #appView #mainArea table{font-size:14px}
+html body #appView #mainArea .stat .label{font-size:12px!important;letter-spacing:0!important}
+html body #appView #mainArea .stat .hint{font-size:12px}
+html body #appView #mainArea .cc-metric>span{font-size:13px}
+html body #appView #mainArea .cc-metric small{font-size:12px}
+html body #appView #mainArea .cc-quick-nav button{font-size:13px;min-height:36px}
+html body #appView #mainArea .cc-agent h3{font-size:14px}
+html body #appView #mainArea .cc-agent p,html body #appView #mainArea .cc-agent>small{font-size:12px}
+html body #appView #mainArea .cc-job strong{font-size:14px}
+html body #appView #mainArea .cc-job>span:nth-child(2)>span,html body #appView #mainArea .cc-job small{font-size:12px}
+html body #appView #mainArea .cc-state{font-size:12px}
+html body #appView #mainArea .cc-head h1{font-size:30px}
+html body #appView #mainArea .cc-head>div>p:last-child{font-size:14px}
+html body #appView #mainArea .cc-section-head p{font-size:13px}
+@media(max-width:860px){html body #appView #mainArea .btn,html body #appView #mainArea .cc-quick-nav button{min-height:44px}html body #appView #mainArea .cc-head h1{font-size:27px}}

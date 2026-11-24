@@ -81,8 +81,8 @@ window.cpPrev = function () {
 };
 
 export const customerTemplates = [
-  {id:'klant-ai',name:'AI & automatisering',category:'AI SYSTEMS',subject:'Meer tijd voor werk dat telt. Ontdek AI op maat.',cta:'Ontdek de mogelijkheden',
-   body:'Meer gedaan. Minder handwerk.\n\nGeef terugkerende taken een slimmere aanpak. Marleo ontwikkelt AI-systemen die aansluiten op de processen en software van uw bedrijf.\n\nVan e-mail naar actie\nLaat informatie uit aanvragen en documenten verzamelen en conceptantwoorden voorbereiden.\n\nSoftware die samenwerkt\nVerbind uw bestaande tools en beperk het overtypen van dezelfde gegevens.\n\nControle bij uw team\nBepaal welke stappen automatisch verlopen en waar een medewerker controleert of goedkeurt.\n\nOntdek waar automatisering binnen uw bedrijf het verschil kan maken. Plan een kennismaking met Marleo.'},
+  {id:'klant-ai',name:'AI & automatisering',category:'AI SYSTEMS',subject:'AI laten aansluiten op uw CRM en werkprocessen',cta:'Bespreek uw werkproces',
+   body:'Uw informatie. Beter verbonden.\n\nVerbind uw CRM, documenten en aanvragen in één systeem. AI bereidt informatie en antwoorden voor; uw team houdt de controle.\n\nEen aanvraag komt binnen\nHet systeem haalt de relevante klantgegevens en goedgekeurde bedrijfsinformatie erbij.\n\nEen concept staat klaar\nDenk aan een antwoord, een bijgewerkt dossier of een volgende taak. We bepalen samen welke stappen zinvol zijn.\n\nUw team beslist\nBelangrijke wijzigingen en berichten blijven ter goedkeuring bij uw medewerkers.\n\nWe bekijken samen één werkproces: welke informatie nodig is, wat automatisch kan en waar uw team controleert.'},
   {id:'klant-bestelmail',name:'Slimme orderverwerking',category:'SMART OPERATIONS',subject:'Van bestelmail naar conceptorder. Zonder dubbel werk.',cta:'Bespreek uw orderproces',
    body:'Van inbox naar overzicht.\n\nBestellingen verwerken hoeft geen eindeloze reeks kopieer- en plakacties te zijn. Breng structuur in inkomende orders met een oplossing op maat.\n\nGegevens verzamelen\nHaal artikelen, aantallen en klantgegevens uit inkomende e-mails en bijlagen.\n\nConceptorders klaarzetten\nLaat gegevens voorbereiden voor uw bedrijfssoftware, afgestemd op de beschikbare koppelingen.\n\nGoedkeuren met overzicht\nLaat uw team de gegevens controleren voordat een order definitief wordt verwerkt.\n\nEen efficiënter orderproces begint met inzicht in uw huidige werkwijze. Ontdek de mogelijkheden.'},
   {id:'klant-offerte',name:'Offertes & opvolging',category:'BUSINESS AUTOMATION',subject:'Meer structuur in aanvragen, offertes en opvolging.',cta:'Ontdek slimmere opvolging',
@@ -111,22 +111,19 @@ window.cpRich=function(key,text,preview){
   const intro=sections.shift()||'';
   const closing=sections.length?sections.pop():'';
   const format=value=>esc(value).replace(/\n/g,'<br>');
-  const cards=sections.map(section=>{
+  const rows=sections.map(section=>{
     const [title,...lines]=section.split('\n');
-    return '<tr><td style="padding:0 0 12px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e9e6ed;border-radius:12px;background:#faf9fc"><tr><td width="4" bgcolor="#ef4056" style="width:4px;background:linear-gradient(180deg,#f97c1f,#e91e7b)"></td><td style="padding:18px 20px"><p style="margin:0 0 6px;color:#17131d;font-size:17px;font-weight:bold">'+esc(title)+'</p><p style="margin:0;font-size:15px;line-height:1.65;color:#605a69">'+format(lines.join('\n'))+'</p></td></tr></table></td></tr>';
+    return '<tr><td class="mail-row" style="padding:19px 0;border-top:1px solid #302a35"><p style="margin:0 0 7px;font-size:16px;line-height:1.4;font-weight:600;color:#f6f1f8">'+esc(title)+'</p><p style="margin:0;font-size:14px;line-height:1.8;color:#b9b1c2">'+format(lines.join('\n'))+'</p></td></tr>';
   }).join('');
-  return '<!doctype html><html lang="nl"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head><body style="margin:0;padding:0;background:#eeeaf0;font-family:Arial,Helvetica,sans-serif"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#eeeaf0"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:18px;overflow:hidden">'+
-    '<tr><td bgcolor="#08080e" style="padding:32px 28px;background:#08080e;background-image:radial-gradient(ellipse at top left,#58270f 0%,transparent 65%),radial-gradient(ellipse at bottom right,#4a092b 0%,transparent 65%)">'+
-    '<a href="https://marleo.tech/" style="text-decoration:none"><img src="https://marleo.tech/marleo-logo-mail-dark.png" width="168" alt="marleo.tech" style="display:block;border:0;width:168px;max-width:100%;height:auto;color:#ffffff;font-size:24px"></a>'+
-    '<p style="margin:38px 0 14px;font-size:11px;line-height:1.5;letter-spacing:3px;font-weight:bold;color:#ff9a4a">'+esc(template.category)+'</p>'+
-    '<h1 style="margin:0;font-size:36px;line-height:1.12;letter-spacing:-1px;font-weight:800;color:#ffffff">'+format(headline)+'</h1>'+
-    '<p style="margin:22px 0 4px;font-size:16px;line-height:1.7;color:#ddd4df">'+format(intro)+'</p></td></tr>'+
-    '<tr><td height="4" bgcolor="#ef4056" style="height:4px;line-height:4px;font-size:0;background:linear-gradient(90deg,#f97c1f,#ef4056,#e91e7b)">&nbsp;</td></tr>'+
-    '<tr><td style="padding:28px 24px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'+cards+'</table></td></tr>'+
-    '<tr><td style="padding:8px 28px 32px"><p style="margin:0 0 24px;font-size:16px;line-height:1.7;color:#514b59">'+format(closing)+'</p>'+
-    '<table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#ed405f" style="border-radius:8px;background:linear-gradient(100deg,#f97c1f,#e91e7b)"><a href="https://marleo.tech/afspraak/" style="display:inline-block;padding:16px 24px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none">'+esc(template.cta)+'</a></td></tr></table></td></tr>'+
-    '<tr><td bgcolor="#08080e" style="padding:26px 28px;color:#aaa2b1;font-size:12px;line-height:1.8"><p style="margin:0 0 8px;color:#ffffff;font-size:16px;font-weight:bold">marleo.tech</p><p style="margin:0;letter-spacing:1px">WEBSITES / AI SYSTEMS / IT</p><p style="margin:14px 0 0"><a href="mailto:info@marleo.tech" style="color:#d8cddd;text-decoration:none">info@marleo.tech</a></p></td></tr>'+
+  return '<!doctype html><html lang="nl"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><style>@media(max-width:480px){.mail-pad{padding-left:22px!important;padding-right:22px!important}.mail-title{font-size:27px!important}.mail-outer{padding:0!important}}</style></head><body style="margin:0;padding:0;background:#09090f;color:#f6f1f8;font-family:Arial,Helvetica,sans-serif">'+
+    '<div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px">'+esc(intro)+'</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#09090f"><tr><td class="mail-outer" align="center" style="padding:20px 10px"><table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#100e16" style="width:100%;max-width:600px;background:#100e16">'+
+    '<tr><td class="mail-pad" style="padding:28px 32px 0"><a href="https://marleo.tech/" style="text-decoration:none"><img src="https://marleo.tech/assets/marleo-email-wordmark.png" width="176" alt="marleo.tech" style="display:block;border:0;width:176px;max-width:100%;height:auto"></a></td></tr>'+
+    '<tr><td class="mail-pad" style="padding:25px 32px 22px"><p style="margin:0 0 12px;font-size:10px;line-height:1.5;letter-spacing:1.8px;color:#db9b80">'+esc(template.category)+'</p><h1 class="mail-title" style="margin:0;font-size:30px;line-height:1.18;letter-spacing:-.8px;font-weight:500;color:#ffffff">'+format(headline)+'</h1><p style="margin:16px 0 0;font-size:15px;line-height:1.75;color:#c0b8c9">'+format(intro)+'</p></td></tr>'+
+    '<tr><td class="mail-pad" style="padding:0 32px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'+rows+'</table></td></tr>'+
+    '<tr><td class="mail-pad" style="padding:18px 32px 28px"><p style="margin:0 0 21px;font-size:14px;line-height:1.8;color:#c0b8c9">'+format(closing)+'</p><table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#f77935" style="background:#f77935;border-radius:5px"><a href="https://marleo.tech/afspraak/?lang=nl" style="display:inline-block;padding:12px 19px;color:#100e16;text-decoration:none;font-size:13px;font-weight:bold;line-height:1.5">'+esc(template.cta)+'</a></td></tr></table></td></tr>'+
+    '<tr><td class="mail-pad" style="padding:0 32px 25px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding-top:19px;border-top:1px solid #302a35;font-size:11px;line-height:1.9;color:#908697"><a href="https://marleo.tech/" style="color:#d1c6d9;text-decoration:none">marleo.tech</a> &nbsp; / &nbsp; AI · CRM · IT<br><a href="mailto:info@marleo.tech" style="color:#a89daf;text-decoration:none">info@marleo.tech</a></td></tr></table></td></tr>'+
     '</table></td></tr></table></body></html>';
+
 };
 function refreshMarketingPreview(){
   const host=document.getElementById('cp_pv');
@@ -135,7 +132,7 @@ function refreshMarketingPreview(){
   const active=!!CPT[CPTPL]?.customerTemplate;
   if(!frame&&active){
     frame=document.createElement('iframe');frame.id='cp_design_preview';frame.title='Ontwerp van de marketingmail';frame.setAttribute('sandbox','allow-same-origin');
-    frame.style.cssText='display:block;width:100%;height:570px;border:1px solid var(--line);border-radius:12px;margin-top:12px;background:#eeeaf0';host.after(frame);
+    frame.style.cssText='display:block;width:100%;height:570px;border:1px solid var(--line);border-radius:12px;margin-top:12px;background:#100e16';host.after(frame);
   }
   if(frame){frame.hidden=!active;frame.style.display=active?'block':'none';if(active)frame.srcdoc=cpRich(CPTPL,document.getElementById('cp_body').value);}
 }
@@ -210,8 +207,8 @@ window.rEmails=function(){
   }
   if(!document.getElementById('customer-template-library')){
     const section=document.createElement('section');section.id='customer-template-library';section.className='panelbox';
-    section.innerHTML='<h3>Marketingmails in Marleo-stijl</h3><p class="hint">Acht complete campagnes met een uitgesproken header, voordeelblokken en een actieknop. Bekijk het ontwerp en bewerk de tekst voordat u inplant.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">'+
-      customerTemplates.map(template=>'<article style="border:1px solid var(--line);border-radius:12px;padding:16px"><h4>'+esc(template.name)+'</h4><p class="hint">'+esc(template.subject)+'</p><details><summary>Ontwerp bekijken</summary><iframe sandbox="allow-same-origin" loading="lazy" title="'+esc(template.name)+'" style="width:100%;height:480px;border:0;margin:12px 0;background:#eeeaf0;border-radius:8px" srcdoc="'+esc(cpRich(template.id,template.body))+'"></iframe></details><button class="btn sm" data-customer-template="'+template.id+'">Deze mail gebruiken</button></article>').join('')+'</div>';
+    section.innerHTML='<h3>Marketingmails in Marleo-stijl</h3><p class="hint">Acht rustige mailontwerpen in de stijl van onze website, met duidelijke tekst en één actieknop. Bekijk het ontwerp en bewerk de tekst voordat u inplant.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">'+
+      customerTemplates.map(template=>'<article style="border:1px solid var(--line);border-radius:12px;padding:16px"><h4>'+esc(template.name)+'</h4><p class="hint">'+esc(template.subject)+'</p><details><summary>Ontwerp bekijken</summary><iframe sandbox="allow-same-origin" loading="lazy" title="'+esc(template.name)+'" style="width:100%;height:480px;border:0;margin:12px 0;background:#100e16;border-radius:8px" srcdoc="'+esc(cpRich(template.id,template.body))+'"></iframe></details><button class="btn sm" data-customer-template="'+template.id+'">Deze mail gebruiken</button></article>').join('')+'</div>';
     main().querySelector('.topbar').after(section);
     section.addEventListener('click',event=>{
       const id=event.target.closest('[data-customer-template]')?.dataset.customerTemplate;
