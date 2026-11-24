@@ -62,6 +62,7 @@ function sheetBackground(disabled){[$('main'),$('.hdr'),$('.ftr')].forEach(funct
 function openSheet(e){if(!sh)return;sheetOpener=e&&e.currentTarget||d.activeElement;sh.inert=false;sh.classList.add('open');sh.setAttribute('aria-hidden','false');sh.setAttribute('aria-modal','true');h.style.overflow='hidden';sheetBackground(true);var x=$('.x',sh);if(x)x.focus()}
 function closeSheet(){if(!sh||!sh.classList.contains('open'))return;sh.classList.remove('open');sh.setAttribute('aria-hidden','true');sh.removeAttribute('aria-modal');sh.inert=true;h.style.overflow='';sheetBackground(false);if(sheetOpener)sheetOpener.focus()}
 $$('.burger').forEach(function(b){b.addEventListener('click',openSheet)});
+$$('.sheet details').forEach(function(item){item.addEventListener('toggle',function(){if(item.open){$$('.sheet details').forEach(function(other){if(other!==item)other.open=false});sh.scrollTop=0}})});
 $$('.sheet .x, .sheet a').forEach(function(b){b.addEventListener('click',closeSheet)});
 d.addEventListener('keydown',function(e){
  if(e.key==='Escape'){closeDropdowns();closeSheet()}
