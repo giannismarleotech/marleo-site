@@ -67,8 +67,9 @@ LOGO = ('<svg viewBox="0 0 28 32" fill="none" aria-hidden="true"><defs><linearGr
         '<path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#lg)" stroke-width="2"/>'
         '<path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#lg)" stroke-width="1.8" stroke-linecap="round"/></svg>')
 
-ARROW = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-EXT = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true" width="12" height="12"><path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+ARROW = '<span class="marleo-mark marleo-mark--next" aria-hidden="true"></span>'
+EXT = '<span class="marleo-mark marleo-mark--external" aria-hidden="true"></span>'
+
 ICONS = {  # simpele lijn-iconen per dienst
  'managed-it': '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
  'cloud': '<path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4.75 4.75 0 0 1-.5 9.5z"/>',
@@ -134,7 +135,7 @@ def head(lang, slug, title, desc):
             '<meta name="theme-color" content="#09090f"><meta property="og:site_name" content="Marleo"><meta property="og:locale" content="%s">'
             '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">'
             '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>'
-            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124">'
+            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124-brand">'
             '<script defer src="/assets/ai-demo.js"></script><script defer src="/assets/brand-header.js"></script><script defer src="/assets/project-tools.js"></script><script defer src="/assets/systems.js"></script>'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
             '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'

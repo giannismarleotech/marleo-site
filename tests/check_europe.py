@@ -42,6 +42,9 @@ for prefix,lang in [('', 'en'),('nl/','nl'),('fr/','fr')]:
  assert any(n['@type']=='WebSite' for n in graph)
  assert not any(token in raw for token in ['/assets/work/','Foamoré','Hair Creations','AB Firestop','Air Masters','OVH Construct'])
  assert 'solutions/custom-crm/' in raw
+ assert 'eu-brand-signature' in raw and 'eu-wordmark word' in raw and '>MARLEO</div>' in raw
+ assert 'class="sec eu-scope"' in raw
+ assert 'background:#eeecef' not in (ROOT/'assets/europe.css').read_text()
 for prefix in ['en/','','fr/']:
  p=SEO();p.feed((ROOT/prefix/'solutions/custom-crm/index.html').read_text());assert p.h1==1
  assert any(n['@type']=='Service' for data in p.json for n in data.get('@graph',[]))
