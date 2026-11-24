@@ -1,5 +1,5 @@
 /* Marleo HQ service worker: push-meldingen + offline cache */
-var CACHE='marleo-hq-workspace-v6-planning';
+var CACHE='marleo-hq-workspace-v7-pdfbrand';
 self.addEventListener('install',function(e){self.skipWaiting()});
 self.addEventListener('activate',function(e){
   e.waitUntil(caches.keys().then(function(keys){

@@ -63,6 +63,7 @@ input[type=text]:focus{outline:none;border-color:#EF4056;box-shadow:0 0 0 3px rg
 <body>
 <div class="wrap" id="app"><div class="center">Offerte laden…</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/assets/pdf-documents.js?v=20261124-brand1"></script>
 <script>
 var API='https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/offerte';
 var T=new URLSearchParams(location.search).get('t')||'';
@@ -132,37 +133,12 @@ async function sign(){
 }
 /* ---- PDF ---- */
 function pdf(){
-  var d=S.data,co=d.company||{},cu=d.customer||{};var doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});var W=210,M=16,y;
-  doc.setFillColor(18,19,28);doc.rect(0,0,W,34,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text((co.name||'MARLEO').toUpperCase(),M,18);
-  doc.setFontSize(12);doc.text('OFFERTE '+(d.ref||''),W-M,15,{align:'right'});doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(200,204,216);
-  doc.text('Datum: '+fmtD(d.date)+(d.valid?'   Geldig tot: '+fmtD(d.valid):''),W-M,21,{align:'right'});
-  y=46;doc.setTextColor(96,102,122);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text('VAN',M,y);doc.text('VOOR',W/2+4,y);
-  doc.setTextColor(27,29,42);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
-  var L=[co.legal||co.name,co.address,[co.zip,co.city].filter(Boolean).join(' '),co.vat?'BTW '+co.vat:'',co.email,co.phone].filter(Boolean);
-  var R=[cu.name,cu.contact?'t.a.v. '+cu.contact:'',cu.address,cu.vat?'BTW '+cu.vat:''].filter(Boolean);
-  L.forEach(function(t,i){doc.text(String(t),M,y+6+i*5)});R.forEach(function(t,i){doc.text(String(t),W/2+4,y+6+i*5)});
-  y+=10+Math.max(L.length,R.length)*5+4;
-  doc.setFillColor(18,19,28);doc.rect(M,y,W-2*M,8,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
-  doc.text('OMSCHRIJVING',M+3,y+5.3);doc.text('AANTAL',128,y+5.3,{align:'right'});doc.text('PRIJS',155,y+5.3,{align:'right'});doc.text('BEDRAG',W-M-3,y+5.3,{align:'right'});y+=13;
-  doc.setTextColor(27,29,42);
-  (d.lines||[]).forEach(function(l){var parts=String(l.d||'').split('\n');doc.setFont('helvetica','bold');doc.setFontSize(9.5);var t=doc.splitTextToSize(parts[0],95);doc.text(t,M+3,y);
-    doc.setFont('helvetica','normal');doc.text(String(l.q),128,y,{align:'right'});doc.text(eur(l.p),155,y,{align:'right'});doc.text(eur(l.q*l.p),W-M-3,y,{align:'right'});y+=t.length*4.6;
-    if(parts.length>1){doc.setFontSize(8.3);doc.setTextColor(96,102,122);var dt=doc.splitTextToSize(parts.slice(1).join('\n'),95);doc.text(dt,M+3,y);y+=dt.length*4;doc.setTextColor(27,29,42)}
-    doc.setDrawColor(227,230,238);doc.line(M,y,W-M,y);y+=6;if(y>250){doc.addPage();y=20}});
-  y+=2;doc.setFontSize(9.5);doc.text('Subtotaal excl. btw',135,y);doc.text(eur(d.sub),W-M-3,y,{align:'right'});y+=6;
-  doc.text('BTW '+Math.round((d.vatRate||0.21)*100)+'%',135,y);doc.text(eur(d.vat),W-M-3,y,{align:'right'});y+=3;doc.setDrawColor(27,29,42);doc.line(135,y,W-M,y);y+=6;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Totaal',135,y);doc.text(eur(d.tot),W-M-3,y,{align:'right'});y+=10;
-  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(96,102,122);
-  if(d.note){var n=doc.splitTextToSize(d.note,W-2*M);doc.text(n,M,y);y+=n.length*4+3}
-  if(d.terms){var tt=doc.splitTextToSize(d.terms,W-2*M);doc.text(tt,M,y);y+=tt.length*4+3}
-  if(y>225){doc.addPage();y=24}
-  y+=4;doc.setTextColor(27,29,42);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Voor akkoord',M,y);y+=5;doc.setFont('helvetica','normal');doc.setFontSize(9);
-  if(S.status==='getekend'){doc.text('Ondertekend door '+S.signed_name+' op '+fmtDT(S.signed_at),M,y);y+=3;
-    if(S.signature){try{var img=new Image();img.src=S.signature;var ratio=(img.naturalHeight||1)/(img.naturalWidth||3);var w=60,h=Math.min(28,w*ratio||20);doc.addImage(S.signature,'PNG',M,y,w,h);y+=h}catch(e){}}}
-  else{doc.setDrawColor(150,150,160);doc.line(M,y+18,M+70,y+18);doc.text('Naam en handtekening',M,y+23)}
+  var d=S.data,co=d.company||{},cu=d.customer||{};
+  var iv={type:'offerte',ref:d.ref,date:d.date,due:d.valid,lang:'nl',lines:d.lines||[],note:[d.note,d.terms].filter(Boolean).join('\n\n')};
+  var doc=MarleoPDF.invoice(iv,{company:co,customer:cu,title:'OFFERTE',subtotal:d.sub,vat:d.vat,total:d.tot,signed:{name:S.status==='getekend'?S.signed_name:'',at:S.status==='getekend'?fmtDT(S.signed_at):'',image:S.status==='getekend'?S.signature:null}});
   doc.save('Offerte-'+(d.ref||'')+(S.status==='getekend'?'-ondertekend':'')+'.pdf');
 }
+
 load();
 </script>
 </body>
