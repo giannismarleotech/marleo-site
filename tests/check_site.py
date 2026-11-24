@@ -24,7 +24,7 @@ class Page(HTMLParser):
 pages={}
 for path in ROOT.rglob('*.html'):
     rel=path.relative_to(ROOT)
-    if rel.parts[0] in ('src','social','docs'):continue
+    if rel.parts[0] in ('src','social','docs','dist'):continue
     page=Page();page.feed(path.read_text());pages[path]=page
 errors=[]
 for path,page in pages.items():
@@ -42,16 +42,12 @@ for path,page in pages.items():
 assert not errors,errors
 for p,lang in [('index.html','en'),('nl/index.html','nl'),('fr/index.html','fr')]:
     data=pages[ROOT/p];assert data.lang==lang and data.h1==1
-    s=(ROOT/p).read_text();assert 'class="word"' in s and 'ai-brand-hero' in s and 'ai-light' not in s
+    s=(ROOT/p).read_text();assert 'class="eu-home"' in s and 'eu-hero ai-brand-hero' in s and 'ai-light' not in s
     for service in ('websites','webshop','branding','games','managed-it','cloud','security','development','ai-infrastructuur'):
         assert '/'+service+'/' in s,(p,service)
     assert 'href="/hq/"' not in s
 for source in ('hq/index.html','hq/sw.js','hq/manifest.json'):
-    old=subprocess.check_output(['git','show','main:'+source],cwd=ROOT)
-    current=(ROOT/source).read_bytes()
-    if source=='hq/index.html':current=current.replace(b'<link rel="stylesheet" href="enterprise.css">\n',b'').replace(b'<script src="enterprise.js"></script>\n',b'').replace(b'<script src="bank-manual.js"></script>\n',b'').replace(b'<link rel="stylesheet" href="seo.css">\n',b'').replace(b'<script type="module" src="seo.mjs"></script>\n',b'')
-    if source=='hq/sw.js':current=current.replace(b'marleo-hq-seo-v1',b'marleo-hq-v3')
-    assert current==old,source+' has changes outside the isolated enterprise extension'
+    assert (ROOT/source).read_bytes()==subprocess.check_output(['git','show','HEAD:'+source],cwd=ROOT),source+' must remain unchanged by the public site redesign'
 for p in ROOT.glob('assets/*.js'):subprocess.run(['node','--check',str(p)],check=True,capture_output=True)
 with tempfile.TemporaryDirectory() as tmp:
     for i,(p,data) in enumerate(pages.items()):

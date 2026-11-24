@@ -1,3 +1,6 @@
 social/_template/node_modules/
 social/_template/package-lock.json
 social/_template/package.json
+
+__pycache__/
+*.py[cod]

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Bouwt marleo.tech als statische pagina's (NL op /, EN op /en/, FR op /fr/).
 Gebruik: python3 src/site/build.py   (vanuit de repo-root)"""
-import json, os, html, sys, datetime
+import json, os, html, sys, datetime, hashlib
 sys.path.insert(0, os.path.dirname(__file__))
 from extra import UI, DEEP, PORTFOLIO
 from audit_txt import CHK as AUD_CHK, P as AUD_P
@@ -23,9 +23,24 @@ from expansion import SLUGS as EXTRA_SLUGS, configure as configure_expansion, re
 configure_expansion(COPY)
 from recent_work import PROJECTS as RECENT, listing as recent_listing, detail as recent_detail, WEBSITE_CARDS, website_case_content
 from operations import COPY as OPS_COPY, showcase as system_showcase, custom as custom_build
+from europe import TEXT as EU_TEXT, homepage as european_home, crm_page
 KEYS = ['ai-infrastructuur', 'development', 'managed-it', 'cloud', 'security', 'websites', 'webshop', 'branding', 'games']
+
+for lang in LANGS:
+    t=COPY[lang]
+    t['labels']['solutions/custom-crm']={'en':'Custom CRM','nl':'CRM op maat','fr':'CRM sur mesure'}[lang]
+    t['navDesc']['solutions/custom-crm']={'en':'Customer operations, portals and integrations','nl':'Klantprocessen, portalen en integraties','fr':'Opérations clients, portails et intégrations'}[lang]
+    for group in t['navGroups']:
+        if 'ai-infrastructuur' in group.get('keys',[]) and 'solutions/custom-crm' not in group['keys']:
+            group['keys'].insert(1,'solutions/custom-crm')
+    for col in t['footer']:
+        if 'ai-infrastructuur' in col.get('keys',[]) and 'solutions/custom-crm' not in col['keys']:
+            col['keys'].insert(1,'solutions/custom-crm')
+    for key in ('ai-infrastructuur','development','managed-it','cloud','security'):
+        t['pages'][key]['lead'] += {'en':' Scoped for growing businesses and larger European organisations, with agreed integrations, controls and delivery responsibilities.','nl':' Afgestemd op groeibedrijven en grotere Europese organisaties, met afgesproken integraties, controles en verantwoordelijkheden.','fr':' Adapté aux entreprises en croissance et aux grandes organisations européennes, avec des intégrations, contrôles et responsabilités convenus.'}[lang]
+
 SITE = 'https://marleo.tech'
-V = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
+V = hashlib.sha256((open(os.path.join(ROOT,'assets/site.css'),'rb').read()+open(os.path.join(ROOT,'assets/site.js'),'rb').read())).hexdigest()[:10]
 E = lambda s: html.escape(str(s), quote=True)
 
 PAGES = ['diensten', 'managed-it', 'cloud', 'security', 'ai-infrastructuur', 'development', 'games',
@@ -51,7 +66,7 @@ LOGO = ('<svg viewBox="0 0 28 32" fill="none" aria-hidden="true"><defs><linearGr
         '<stop offset="0" stop-color="#ff8a2b"/><stop offset="1" stop-color="#ff2a86"/></linearGradient></defs>'
         '<path d="M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z" stroke="url(#lg)" stroke-width="2"/>'
         '<path d="M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10" stroke="url(#lg)" stroke-width="1.8" stroke-linecap="round"/></svg>')
-FAV = ("data:image/svg+xml," + "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff8a2b'/%3E%3Cstop offset='1' stop-color='%23ff2a86'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M14 1.5 26 8.25v15.5L14 30.5 2 23.75V8.25z' fill='%23120d12' stroke='url(%23g)' stroke-width='2'/%3E%3Cpath d='M11 12l-3 4 3 4M17 12l3 4-3 4M15.5 11l-3 10' stroke='url(%23g)' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+
 ARROW = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 EXT = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true" width="12" height="12"><path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 ICONS = {  # simpele lijn-iconen per dienst
@@ -81,14 +96,30 @@ SUB = {'privacy': '/privacy/', 'voorwaarden': '/voorwaarden/', 'nis2': '/nis2/'}
 
 # ---------------------------------------------------------------- layout
 LDJSON = '<script type="application/ld+json">' + json.dumps({
-    "@context": "https://schema.org", "@type": "ProfessionalService", "name": "Marleo", "url": "https://marleo.tech/",
-    "logo": "https://marleo.tech/assets/og.jpg", "image": "https://marleo.tech/assets/og.jpg",
-    "description": "Custom AI systems, automation, software, managed IT and digital platforms for business.",
-    "telephone": "+32456920025", "email": "info@marleo.tech", "vatID": "BE1041196713",
-    "address": {"@type": "PostalAddress", "streetAddress": "Graaf van Hoornestraat 2B", "postalCode": "9850", "addressLocality": "Nevele", "addressCountry": "BE"},
-    "areaServed": ["BE", "NL"], "sameAs": ["https://instagram.com/marleo.tech"]}, ensure_ascii=False) + '</script>'
+ "@context":"https://schema.org", "@graph":[
+ {"@type":"ProfessionalService", "@id":SITE+"/#organization", "name":"Marleo", "alternateName":"marleo.tech", "url":SITE+"/",
+  "logo":{"@type":"ImageObject","url":SITE+"/assets/marleo-icon-512.png","width":512,"height":512}, "image":SITE+"/assets/og.jpg",
+  "description":"Custom AI systems, CRM software and IT engineering for European organisations.",
+  "telephone":"+32456920025","email":"info@marleo.tech","vatID":"BE1041196713",
+  "address":{"@type":"PostalAddress","streetAddress":"Graaf van Hoornestraat 2B","postalCode":"9850","addressLocality":"Nevele","addressCountry":"BE"},
+  "areaServed":{"@type":"Place","name":"Europe"},
+  "contactPoint":{"@type":"ContactPoint","contactType":"sales","email":"info@marleo.tech","availableLanguage":["English","Dutch","French"]},
+  "sameAs":["https://instagram.com/marleo.tech"]},
+ {"@type":"WebSite","@id":SITE+"/#website","name":"Marleo","alternateName":"marleo.tech","url":SITE+"/","inLanguage":["en","nl","fr"],"publisher":{"@id":SITE+"/#organization"}}
+ ]},ensure_ascii=False)+'</script>'
 
 def head(lang, slug, title, desc):
+    if slug in ('ai-infrastructuur','development','managed-it','cloud','security'):
+        service_names={'en':{'ai-infrastructuur':'Custom AI systems & automation','development':'Custom software development','managed-it':'Managed IT services','cloud':'Cloud & Microsoft 365 services','security':'Business IT security'},'nl':{'ai-infrastructuur':'AI-systemen & automatisering op maat','development':'Softwareontwikkeling op maat','managed-it':'IT-beheer voor organisaties','cloud':'Cloud & Microsoft 365','security':'IT-beveiliging voor bedrijven'},'fr':{'ai-infrastructuur':'Systèmes IA & automatisation sur mesure','development':'Développement logiciel sur mesure','managed-it':'Gestion IT pour les organisations','cloud':'Cloud & Microsoft 365','security':'Sécurité IT des entreprises'}}
+        title=service_names[lang][slug]+{'en':' in Europe | Marleo','nl':' in Europa | Marleo','fr':' en Europe | Marleo'}[lang]
+        desc={'en':service_names[lang][slug]+' for European organisations. Scope integrations, access, implementation and ongoing support with Marleo.','nl':service_names[lang][slug]+' voor Europese organisaties. Bespreek integraties, toegang, implementatie en ondersteuning met Marleo.','fr':service_names[lang][slug]+' pour les organisations européennes. Définissez intégrations, accès, déploiement et assistance avec Marleo.'}[lang]
+    page_url=SITE+url(lang,slug)
+    nodes=[{'@type':'WebPage','@id':page_url+'#webpage','url':page_url,'name':title,'description':desc,'inLanguage':lang,'isPartOf':{'@id':SITE+'/#website'},'about':{'@id':SITE+'/#organization'}}]
+    if slug:
+        nodes.append({'@type':'BreadcrumbList','itemListElement':[{'@type':'ListItem','position':1,'name':{'en':'Home','nl':'Home','fr':'Accueil'}[lang],'item':SITE+url(lang)},{'@type':'ListItem','position':2,'name':title.split(' | ')[0],'item':page_url}]})
+    if slug in ('ai-infrastructuur','development','managed-it','cloud','security','solutions/custom-crm'):
+        nodes.append({'@type':'Service','@id':page_url+'#service','name':title.split(' | ')[0],'url':page_url,'description':desc,'provider':{'@id':SITE+'/#organization'},'areaServed':{'@type':'Place','name':'Europe'},'audience':{'@type':'BusinessAudience','audienceType':'Organisations'}})
+    page_ld='<script type="application/ld+json">'+json.dumps({'@context':'https://schema.org','@graph':nodes},ensure_ascii=False)+'</script>'
     alts = ''.join('<link rel="alternate" hreflang="%s" href="%s%s">' % (l, SITE, url(l, slug)) for l in LANGS)
     alts += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, url('en', slug))
     if slug.startswith('kennisbank'): alts = ''
@@ -99,15 +130,16 @@ def head(lang, slug, title, desc):
             '<title>%s</title><meta name="description" content="%s">'
             '<link rel="canonical" href="%s%s">%s'
             '<meta property="og:type" content="website"><meta property="og:title" content="%s"><meta property="og:description" content="%s">'
-            '<meta property="og:url" content="%s%s"><meta property="og:image" content="%s/assets/og.jpg"><meta name="twitter:card" content="summary_large_image">'
-            '<meta name="theme-color" content="#120d12"><link rel="icon" href="%s">'
+            '<meta property="og:url" content="%s%s"><meta property="og:image" content="%s/assets/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Marleo — AI systems, custom CRM and connected IT for Europe"><meta name="twitter:card" content="summary_large_image">'
+            '<meta name="theme-color" content="#09090f"><meta property="og:site_name" content="Marleo"><meta property="og:locale" content="%s">'
+            '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">'
             '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>'
-            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css">'
+            '<link rel="stylesheet" href="/assets/site.css?v=%s"><link rel="stylesheet" href="/assets/ai-positioning.css"><link rel="stylesheet" href="/assets/europe.css?v=20261124">'
             '<script defer src="/assets/ai-demo.js"></script><script defer src="/assets/brand-header.js"></script><script defer src="/assets/project-tools.js"></script><script defer src="/assets/systems.js"></script>'
             '<script>document.documentElement.classList.add("js");window.__UI=%s</script>'
             '<script defer src="/assets/site.js?v=%s"></script><script defer src="https://ufzwdhbrmycjtlewstaw.supabase.co/functions/v1/track?k=mk_e05fe1cf06a17017dd"></script>'
-            '%s</head><body>') % (lang, E(title), E(desc), SITE, url(lang, slug), alts, E(title), E(desc), SITE, url(lang, slug), SITE, FAV, V,
-                                 json.dumps(keep, ensure_ascii=False), V, LDJSON if slug == '' else '')
+            '%s</head><body>') % (lang, E(title), E(desc), SITE, url(lang, slug), alts, E(title), E(desc), SITE, url(lang, slug), SITE, {'en':'en_GB','nl':'nl_BE','fr':'fr_FR'}[lang], V,
+                                 json.dumps(keep, ensure_ascii=False), V, (LDJSON if slug == '' else '')+page_ld)
 
 def header(lang, slug):
     t = COPY[lang]; u = UI[lang]
@@ -170,7 +202,7 @@ def footer(lang):
             url(lang), LOGO, E(t['claim']), soc, cols, E(t['legal']), E(u['footerMade']))
 
 def page(lang, slug, title, desc, body):
-    return head(lang, slug, title, desc) + header(lang, slug) + '<main id="main">' + body + '</main>' + footer(lang)
+    return head(lang, slug, title, desc) + header(lang, slug) + '<main id="main"'+(' class="eu-home"' if not slug else '')+'>' + body + '</main>' + footer(lang)
 
 # ---------------------------------------------------------------- blokken
 def sec_head(eyebrow, title, lead=None, cls='rv'):
@@ -221,30 +253,7 @@ def phero(lang, slug, crumb, title, lead, acts=True):
 
 # ---------------------------------------------------------------- pagina's
 def home(lang):
-    t=COPY[lang];x=AI_TEXT[lang];ops=OPS_COPY[lang]
-    orb=('<div class="orb ai-brand-orb" aria-hidden="true"><div class="glow"></div><div class="ring"></div><div class="ring r2"></div><div class="ball"></div>'
-         '<div class="hex"><svg viewBox="0 0 100 100" fill="none"><path d="M50 6 88 28v44L50 94 12 72V28z" stroke="rgba(255,255,255,.65)" stroke-width="1"/>'
-         '<path d="M50 6v88M12 28l76 44M88 28 12 72" stroke="rgba(255,255,255,.25)" stroke-width=".7"/></svg></div>'
-         '<span class="dot" style="--rr:135px"></span></div>')
-    hero=('<section class="ai-hero ai-brand-hero"><div class="brand-atmosphere" aria-hidden="true"></div><div class="wrap">'
-          '<div class="word" aria-hidden="true">MARLEO</div>'
-          '<div class="ai-brand-content"><div class="ai-hero-copy"><span class="eyebrow">%s</span><h1>%s<br><span class="gt">%s</span></h1><p class="lead">%s</p>'
-          '<div class="acts"><a class="btn btn-p" href="%s">%s %s</a><a class="btn btn-g" href="#systems">%s</a></div></div>%s</div></div></section>') % (
-            E(x['kickerMeta']),E(ops['heroA']),E(ops['heroB']),E(ops['heroBody']),url(lang,'project-intake'),E(ops['heroCta']),ARROW,
-            E(ops['heroSecondary']),orb)
-    groups=[('ai-infrastructuur','development'),('managed-it','cloud','security'),('websites','webshop','branding','games')]
-    group_names={'nl':['AI & software','IT, cloud & security','Web & merk'],'en':['AI & software','IT, cloud & security','Web & brand'],'fr':['IA & logiciels','IT, cloud & sécurité','Web & identité']}[lang]
-    cards=''.join('<div class="ai-service-group"><span class="ai-group-number">%02d</span><h3>%s</h3><ul>%s</ul></div>' % (
-        i+1,E(group_names[i]),''.join('<li><a href="%s">%s <span aria-hidden="true">↗</span></a></li>' % (url(lang,k),E(t['labels'][k])) for k in group)) for i,group in enumerate(groups))
-    services='<section class="sec ai-brand-section" id="diensten"><div class="wrap">%s<div class="ai-service-groups">%s</div></div></section>' % (
-        sec_head(t['allServices'],t['servicesTitle'],t['servicesIntro']),cards)
-    process='<section class="sec ai-brand-section ai-process-section"><div class="wrap">%s%s</div></section>' % (
-        sec_head(None,x['stepsTitle']),steps(t['pages']['ai-infrastructuur']['steps']))
-    proof=('<section class="sec ai-brand-section"><div class="wrap">%s%s'
-        '<a class="btn btn-g" style="margin-top:28px" href="%s">%s %s</a></div></section>') % (
-        sec_head(None,x['proofTitle'],x['proofBody']),work_cards(lang,PORTFOLIO[:2]),url(lang,'projecten'),E(x['proofCta']),ARROW)
-    title='Marleo · '+{'nl':'AI-systemen, automatisering & digitale oplossingen','en':'AI systems, automation & digital solutions','fr':'Systèmes IA, automatisation & solutions numériques'}[lang]
-    return page(lang,'',title,UI[lang]['metaHome'],hero+system_showcase(lang,url)+custom_build(lang,url)+services+process+recent_listing(lang,globals())+proof+home_resources(lang,globals())+band(lang))
+    return european_home(lang, globals())
 
 def service(lang, k):
     t = COPY[lang]; u = UI[lang]; p = t['pages'][k]; dp = DEEP.get(k, {}); dl = dp.get(lang, {})
@@ -292,7 +301,7 @@ def projecten(lang):
     t = COPY[lang]; u = UI[lang]; p = t['pages']['projecten']
     out = phero(lang, 'projecten', p['crumb'], p['title'], p['lead'])
     out += case_section(lang,globals())
-    out += '<section class="sec" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], u['allWork'], u['allWorkLead']), work_cards(lang, WEBSITE_CARDS + PORTFOLIO, eager=2))
+    out += '<section class="sec" id="website-work" style="padding-top:0"><div class="wrap">%s%s</div></section>' % (sec_head(u['work'], {'en':'Website work','nl':'Websitewerk','fr':'Réalisations web'}[lang], u['allWorkLead']), work_cards(lang, WEBSITE_CARDS + PORTFOLIO, eager=2))
     out += recent_listing(lang, globals(), include_websites=False)
     names = {x['name'].lower() for x in PORTFOLIO}
     other = [x for x in p['projects'] if x['title'].lower() not in names and not x['title'].lower().startswith('terraclean')]
@@ -405,16 +414,22 @@ def kb_article(a):
         '<a class="card rv kbcard" href="/kennisbank/%s/"><span class="ab">%s</span><h3>%s</h3><span class="more">Lees →</span></a>' % (x['slug'], E(x['cat']), E(x['title'])) for x in others))
     return page(lang, 'kennisbank/' + a['slug'], '%s · Marleo' % a['title'], a['desc'], hero + art + more + band(lang) + ld)
 
+UPDATED_URLS=set()
+
 def write(path, s):
     full = os.path.join(ROOT, path.lstrip('/'), 'index.html')
     os.makedirs(os.path.dirname(full), exist_ok=True)
-    open(full, 'w', encoding='utf-8').write(s)
+    old=open(full,encoding='utf-8').read() if os.path.exists(full) else None
+    if old!=s:
+        UPDATED_URLS.add(path)
+        open(full,'w',encoding='utf-8').write(s)
 
 def main():
     _audit_nav()
     urls = []
     for lang in LANGS:
         write(url(lang), home(lang)); urls.append(url(lang))
+        write(url(lang,'solutions/custom-crm'),crm_page(lang,globals())); urls.append(url(lang,'solutions/custom-crm'))
         for k in PAGES:
             if k == 'diensten': s = diensten(lang)
             elif k == 'projecten': s = projecten(lang)
@@ -435,11 +450,21 @@ def main():
     for a in KB:
         write('/kennisbank/%s/' % a['slug'], kb_article(a)); urls.append('/kennisbank/%s/' % a['slug'])
     write('/en/', home('en'))
-    today = datetime.date.today().isoformat()
-    sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
-        '<url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (SITE, u, today) for u in urls + ['/afspraak/', '/privacy/', '/voorwaarden/', '/nis2/']) + '</urlset>\n'
-    open(os.path.join(ROOT, 'sitemap.xml'), 'w').write(sm)
-    open(os.path.join(ROOT, 'robots.txt'), 'w').write('User-agent: *\nDisallow: /hq/\nDisallow: /intake/\nDisallow: /uitschrijven/\nDisallow: /offerte/\nDisallow: /src/\nDisallow: /social/\nSitemap: %s/sitemap.xml\n' % SITE)
+    import xml.etree.ElementTree as ET
+    previous={}
+    old_path=os.path.join(ROOT,'sitemap.xml')
+    if os.path.exists(old_path):
+        try:
+            for item in ET.parse(old_path).getroot():
+                loc=item.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc'); date=item.find('{http://www.sitemaps.org/schemas/sitemap/0.9}lastmod')
+                if loc is not None and date is not None: previous[loc.text]=date.text
+        except ET.ParseError: pass
+    today=datetime.date.today().isoformat()
+    public=list(dict.fromkeys(urls+['/afspraak/','/privacy/','/voorwaarden/','/nis2/']))
+    changed=UPDATED_URLS
+    sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('<url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n'%(SITE,path,today if path in changed else previous.get(SITE+path,today)) for path in public)+'</urlset>\n'
+    open(os.path.join(ROOT,'sitemap.xml'),'w').write(sm)
+    open(os.path.join(ROOT,'robots.txt'),'w').write('User-agent: *\nDisallow: /hq/\nDisallow: /portaal/\nDisallow: /seo-intake/\nDisallow: /intake/\nDisallow: /uitschrijven/\nDisallow: /offerte/\nDisallow: /src/\nDisallow: /social/\nSitemap: %s/sitemap.xml\n'%SITE)
     print('pagina\'s:', len(urls))
 
 if __name__ == '__main__':

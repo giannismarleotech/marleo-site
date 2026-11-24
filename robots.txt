@@ -1,5 +1,7 @@
 User-agent: *
 Disallow: /hq/
+Disallow: /portaal/
+Disallow: /seo-intake/
 Disallow: /intake/
 Disallow: /uitschrijven/
 Disallow: /offerte/

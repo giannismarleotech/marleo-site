@@ -1,37 +1,30 @@
-# marleo.tech
+# Marleo.tech
 
-Drietalige bedrijfssite (NL · EN · FR) voor marleo.tech — IT-beheer, cloud, security, AI-infrastructuur, maatwerksoftware, webshops, websites, games en branding.
+Public multilingual company website for AI systems, custom CRM, software and IT services aimed at European organisations. The English homepage is canonical at `/`, Dutch at `/nl/`, and French at `/fr/`. Existing service addresses are retained; `/en/` is an English homepage alias with `/` as its canonical.
 
-## Wat staat waar
+## Public website source
 
-- `index.html` — de volledige site als één zelfstandig bestand. Geen build, geen dependencies: openen = werkt.
-- `CNAME` — custom domain voor GitHub Pages (marleo.tech).
-- `.nojekyll` — schakelt Jekyll-verwerking uit op GitHub Pages.
-- `src/` — bronbestanden waaruit `index.html` gebundeld is. Bewerk hier, niet in index.html.
+- `src/site/build.py`: static page generator, shared navigation, metadata, structured data, sitemap and robots rules.
+- `src/site/europe.py`: European homepage positioning and custom CRM pages in EN/NL/FR.
+- `assets/europe.css`: editorial Marleo visual system, responsive homepage and shared styling.
+- `src/site/brand_assets.py`: exports the existing Marleo code-hexagon as SVG/ICO/PNG browser icons and the sharing image (requires Pillow).
+- Existing service, knowledge and project content remains in `src/site/`. Website cases are displayed under Work (`/en/projecten/`, `/projecten/`, `/fr/projecten/`), not on the homepage.
 
-## Publiceren op GitHub Pages
+Build from the repository root:
 
-De bestaande `index.html` in de repo (oude PWA met push) wordt hierdoor vervangen.
-`marleo-sw.js` en `push/OneSignalSDKWorker.js` laat je staan of verwijder je — de nieuwe site gebruikt ze niet.
+```sh
+python src/site/brand_assets.py
+python src/site/build.py
+python tests/check_europe.py
+python tests/check_site.py
+```
 
-1. Zet de inhoud van deze map in de root van `giannismarleotech/marleo-site` (branch `main`) en overschrijf `index.html`.
-2. Repo → Settings → Pages → Source: *Deploy from a branch*, branch `main`, folder `/ (root)`.
-3. Custom domain: `marleo.tech` (het CNAME-bestand staat er al) → *Enforce HTTPS* aanzetten.
+Commit the source, assets and generated public HTML. GitHub Pages publishes `main` from the repository root using the existing `CNAME`. The generator preserves sitemap modification dates for unchanged pages.
 
-## DNS bij je registrar
+## Private applications
 
-| Type  | Naam | Waarde |
-|-------|------|--------|
-| A     | @    | 185.199.108.153 |
-| A     | @    | 185.199.109.153 |
-| A     | @    | 185.199.110.153 |
-| A     | @    | 185.199.111.153 |
-| CNAME | www  | giannismarleotech.github.io |
+`hq/`, `portaal/` and Supabase functions are separate applications. Public site builds must not modify their data, authentication or source. HQ and private portal routes are excluded from the public sitemap and from crawling.
 
-Certificaat is doorgaans binnen een uur actief; DNS-propagatie kan tot 24 uur duren.
+## SEO scope
 
-## Pagina's
-
-Home · Diensten · Managed IT · Cloud · Security · AI-infrastructuur · Development · Webshops · Websites · Games · Huisstijl & branding · Domeincheck · Projecten · Prijzen · Over ons · Contact
-
-Routing gebeurt via de hash (`#/security`), dus GitHub Pages heeft geen rewrite-regels nodig.
+The site uses generic English, Dutch and French `hreflang` values plus English `x-default`. It does not use an unsupported `EU` language region or create artificial city/country doorway pages. European service positioning describes the intended market; it does not imply European offices, named enterprise customers or certifications. Search visibility and favicon updates depend on search engines recrawling the site.
