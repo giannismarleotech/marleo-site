@@ -1763,12 +1763,12 @@ function rEmails(){
   if(!DATA.emailtemplates.length||DATA.emailtemplates.some(function(t){return t.id==='tpl-welkom'})){var own=DATA.emailtemplates.filter(function(t){return String(t.id).indexOf('tpl-')!==0});DATA.emailtemplates=JSON.parse(JSON.stringify(DEFAULT_TEMPLATES)).concat(own);saveData();}
   var list=DATA.emailtemplates;
   main().innerHTML=
-  '<div class="topbar"><div><h2>E-mailsjablonen</h2><div class="sub">Klaar om te kopi\u00ebren en te versturen</div></div>'+
+  '<div class="topbar"><div><h2>E-mailsjablonen</h2><div class="sub">Kies een sjabloon, selecteer een ontvanger en verstuur vanuit HQ</div></div>'+
   '<button class="btn" onclick="mTemplate()">+ Nieuw sjabloon</button></div>'+
   '<div class="tplgrid">'+list.map(function(t){return '<div class="tplcard"><div class="tplh"><b>'+esc(t.name)+'</b><div class="rowactions"><button class="iconbtn" onclick="mTemplate(\''+t.id+'\')">\u270E</button><button class="iconbtn del" onclick="delTemplate(\''+t.id+'\')">\uD83D\uDDD1</button></div></div>'+
     '<div class="tplsub">'+esc(t.subject)+'</div>'+
     '<pre class="tplbody">'+esc(t.body)+'</pre>'+
-    '<div style="display:flex;gap:8px"><button class="btn sm" onclick="useTemplate(\''+t.id+'\')">Gebruiken \u2192</button><button class="btn subtle sm" onclick="copyTemplate(\''+t.id+'\')">\uD83D\uDCCB Kopieer</button></div></div>';}).join('')+'</div>';
+    '<div style="display:flex;gap:8px"><button class="btn sm" onclick="useTemplate(\''+t.id+'\')">E-mail versturen</button><button class="btn subtle sm" onclick="copyTemplate(\''+t.id+'\')">\uD83D\uDCCB Kopieer</button></div></div>';}).join('')+'</div>';
 }
 function mTemplate(id){
   var t=id?DATA.emailtemplates.find(function(x){return x.id===id}):{name:'',subject:'',body:''};
@@ -6695,5 +6695,6 @@ async function rAnalytics(){
 <script src="bank-manual.js"></script>
 <link rel="stylesheet" href="seo.css">
 <script type="module" src="seo.mjs"></script>
+<script src="template-mail.js?v=20261125-direct"></script>
 </body>
 </html>
