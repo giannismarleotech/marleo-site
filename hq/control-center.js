@@ -1,4 +1,4 @@
-import './autopilot.js?v=20261125';
+import './autopilot.js?v=20261125-office2';
 import {OWNER,ROLES,recordFingerprint} from './agents-core.js?v=20261125-research';
 const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const owner=()=>window.SESSION?.role==='admin'&&window.CLOUD?.uid===OWNER;
