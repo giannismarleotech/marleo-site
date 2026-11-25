@@ -1,7 +1,8 @@
 /* Marleo's grounded voice workspace. No implicit financial or outbound actions. */
 (function(){
  const OWNER='77f6201e-8836-46b8-9c7a-0c118c4db61e';
- const owner=()=>window.SESSION?.role==='admin'&&window.CLOUD?.uid===OWNER;
+ const mobile=window.matchMedia?.('(max-width: 800px)');
+ const owner=()=>!(mobile?.matches??window.innerWidth<=800)&&window.SESSION?.role==='admin'&&window.CLOUD?.uid===OWNER;
  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
  const date=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Brussels'});
  let panel,launcher,log,input,recognition,spoken=true,opened=false,voiceId='',greeted=false;
@@ -41,6 +42,7 @@
  if(!Recognition){mic.disabled=true;status.textContent='Spraakherkenning is niet beschikbaar in deze browser. Je kunt gewoon typen.';}else{recognition=new Recognition();recognition.lang='nl-BE';recognition.continuous=false;recognition.interimResults=false;recognition.onresult=event=>{if(owner())input.value=event.results[0][0].transcript;status.textContent='Controleer je tekst en klik Vraag stellen.';};recognition.onend=()=>{mic.textContent='Spreek in';state('KLAAR VOOR JE OPDRACHT');};recognition.onerror=event=>{status.textContent=event.error==='not-allowed'?'Microfoontoegang geweigerd. Je kunt blijven typen.':'Spraakherkenning gestopt. Probeer opnieuw of typ je vraag.';};mic.onclick=()=>{if(!owner())return;if(mic.textContent==='Stop luisteren'){recognition.stop();return;}window.speechSynthesis?.cancel();try{recognition.start();state('IK LUISTER','listening');mic.textContent='Stop luisteren';status.textContent='Ik luister. Alleen dit spreekmoment wordt opgenomen.';}catch{status.textContent='Microfoon kon niet starten. Probeer opnieuw.';}};}
  document.addEventListener('keydown',event=>{if(opened&&event.key==='Escape')close();});
  const update=()=>{const allowed=owner();launcher.hidden=!allowed;if(allowed&&opened)metrics();if(!allowed){greeted=false;panel.hidden=true;opened=false;log.replaceChildren();input.value='';recognition?.abort();window.speechSynthesis?.cancel();}};
+ mobile?.addEventListener('change',update);
  const app=document.getElementById('appView');if(app)new MutationObserver(update).observe(app,{attributes:true,attributeFilter:['class']});setInterval(update,1500);document.addEventListener('visibilitychange',()=>{if(document.hidden){recognition?.abort();window.speechSynthesis?.cancel();}update();});update();voiceChoices();
  }
  window.MarleoAssistant={answer,briefing,open};mount();
