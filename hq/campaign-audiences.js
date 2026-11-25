@@ -81,7 +81,7 @@ window.cpPrev = function () {
   if(!schedule){schedule=document.createElement('div');schedule.id='cp-schedule-preview';schedule.className='ct-planning';counter.after(schedule);}
   const slots=window.cpSlots?.(selected.length,Math.max(1,Math.min(100,limit)))||[];
   const when=value=>window.cpScheduleStamp?.(value?.toISOString())||value?.toLocaleString('nl-BE')||'Nog niet gepland';
-  schedule.innerHTML=slots.length?'<span><b>Eerste verzending</b><strong>'+esc(when(slots[0]))+'</strong></span><span><b>Laatste verzending</b><strong>'+esc(when(slots.at(-1)))+'</strong></span><small>Belgische tijd · op werkdagen gespreid, maximaal '+Math.min(100,limit)+' per dag. Bij bevestiging ziet u de definitieve planning.</small>':'<p>Selecteer ontvangers om de verzendplanning te zien.</p>';
+  schedule.innerHTML=slots.length?'<span><b>Eerste verzending</b><strong>'+esc(when(slots[0]))+'</strong></span><span><b>Laatste verzending</b><strong>'+esc(when(slots.at(-1)))+'</strong></span><small>Deze planning geldt voor Inplannen. Nu versturen start direct via de wachtrij.<br>Belgische tijd · op werkdagen gespreid, maximaal '+Math.min(100,limit)+' per dag. Bij bevestiging ziet u de definitieve planning.</small>':'<p>Selecteer ontvangers om de verzendplanning te zien.</p>';
   if(preview)preview.textContent=selected[0]?'Onderwerp: '+cpVars(selected[0],document.getElementById('cp_sub').value)+'\n\n'+cpVars(selected[0],document.getElementById('cp_body').value):'Selecteer ontvangers om een voorbeeld te zien.';
 };
 
@@ -212,8 +212,8 @@ window.rEmails=function(){
   }
   if(!document.getElementById('customer-template-library')){
     const section=document.createElement('section');section.id='customer-template-library';section.className='panelbox';
-    section.innerHTML='<h3>Marketingmails in Marleo-stijl</h3><p class="hint">Acht rustige mailontwerpen in de stijl van onze website, met duidelijke tekst en één actieknop. Bekijk het ontwerp en bewerk de tekst voordat u inplant.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">'+
-      customerTemplates.map(template=>'<article style="border:1px solid var(--line);border-radius:12px;padding:16px"><h4>'+esc(template.name)+'</h4><p class="hint">'+esc(template.subject)+'</p><details><summary>Ontwerp bekijken</summary><iframe sandbox="allow-same-origin" loading="lazy" title="'+esc(template.name)+'" style="width:100%;height:480px;border:0;margin:12px 0;background:#100e16;border-radius:8px" srcdoc="'+esc(cpRich(template.id,template.body))+'"></iframe></details><button class="btn sm" data-customer-template="'+template.id+'">Deze mail gebruiken</button></article>').join('')+'</div>';
+    section.innerHTML='<h3>Marketingmails in Marleo-stijl</h3><p class="hint">Acht rustige mailontwerpen in de stijl van onze website, met duidelijke tekst en één actieknop. Bekijk het ontwerp, kies ontvangers en verstuur direct of plan de mail in.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">'+
+      customerTemplates.map(template=>'<article style="border:1px solid var(--line);border-radius:12px;padding:16px"><h4>'+esc(template.name)+'</h4><p class="hint">'+esc(template.subject)+'</p><details><summary>Ontwerp bekijken</summary><iframe sandbox="allow-same-origin" loading="lazy" title="'+esc(template.name)+'" style="width:100%;height:480px;border:0;margin:12px 0;background:#100e16;border-radius:8px" srcdoc="'+esc(cpRich(template.id,template.body))+'"></iframe></details><button class="btn sm" data-customer-template="'+template.id+'">E-mail versturen</button></article>').join('')+'</div>';
     main().querySelector('.topbar').after(section);
     section.addEventListener('click',event=>{
       const id=event.target.closest('[data-customer-template]')?.dataset.customerTemplate;

@@ -5633,7 +5633,7 @@ function mCamp(){
   '<div class="fgroup"><label>Voorbeeld (eerste ontvanger)</label><div id="cp_pv" style="white-space:pre-wrap;background:var(--track);border-radius:10px;padding:10px;font-size:.85rem;color:var(--muted);max-height:140px;overflow:auto"></div></div>'+
   '<div class="frow"><div class="fgroup"><label>Max. per dag</label><input id="cp_lim" type="number" value="20" min="1" max="100" oninput="cpPrev()"></div><div class="fgroup"><label>Testmail naar</label><input id="cp_test" value="giannis@marleo.tech"></div></div>'+
   '<div class="hint">Verstuurd van Marleo &lt;info@marleo.tech&gt; op werkdagen tussen 09:00 en 16:30, gespreid. Elke mail bevat je handtekening en een afmeldlink. Afgemelde adressen krijgen nooit meer een campagne.</div>';
-  openM('📧 Nieuwe campagne',body,'<button class="btn subtle" onclick="cpTest()">📨 Stuur test</button><button class="btn" id="cp_go" onclick="cpSchedule()">🚀 Inplannen</button>',true);
+  openM('📧 Nieuwe campagne',body,'<button class="btn subtle" onclick="cpTest()">📨 Stuur test</button><button class="btn subtle" id="cp_go" onclick="cpSchedule()">Inplannen</button><button class="btn" id="cp_now" onclick="cpSendNow()">Nu versturen</button>',true);
   (async function(){try{if(!CAMP.loaded)await cpLoad()}catch(e){}cpPrev()})()}
 function cpHtml(text){return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1a1a22">'+sigHtmlBody(ensureClose(text))+'<br><br>'+SIG_HTML+'</div>'}
 async function cpTest(){var to=document.getElementById('cp_test').value.trim();if(!to){toast('Vul een testadres in',true);return}var a=cpAudience(cpFilters())[0]||{naam:'Voorbeeldbedrijf',contact:'Sarah',plaats:'Deinze',cat:'Kapper'};
@@ -5648,20 +5648,24 @@ function cpSlots(n,limit){var out=[],now=new Date(),day=new Date(now);day.setSec
         for(var k=0;k<take;k++){var m=Math.round(lo+k*step+(Math.random()*2-1));var t=new Date(day);t.setHours(Math.floor(m/60),m%60,Math.floor(Math.random()*50),0);if(t<new Date(Date.now()+60000))t=new Date(Date.now()+60000+k*240000);out.push(t)}i+=take}}
     day=new Date(day.getFullYear(),day.getMonth(),day.getDate()+1,0,0,0)}
   return out}
-async function cpSchedule(){
+var CP_SENDING=false;
+function cpSendNow(){return cpSchedule(true)}
+async function cpSchedule(sendNow){
+  if(CP_SENDING)return;
   if(!MXSRV.ready){toast('Resend is nog niet actief',true);return}
   var name=document.getElementById('cp_name').value.trim(),sub=document.getElementById('cp_sub').value.trim(),txt=document.getElementById('cp_body').value,lim=Math.max(1,Math.min(100,+document.getElementById('cp_lim').value||20));
   if(!name||!sub||!txt.trim()){toast('Vul naam, onderwerp en bericht in',true);return}
   var f=cpFilters(),aud=cpAudience(f);if(!aud.length){toast('Geen ontvangers met deze filters',true);return}
-  var slots=cpSlots(aud.length,lim),when=function(d){return typeof cpScheduleStamp==='function'?cpScheduleStamp(d.toISOString()):d.toLocaleString('nl-BE')};
-  if(!confirm('Campagne "'+name+'" inplannen voor '+aud.length+' ontvangers:\n'+aud.slice(0,8).map(function(d){return '• '+(d.naam||d.email)}).join('\n')+(aud.length>8?'\n… en '+(aud.length-8)+' anderen':'')+'\n\nEerste verzending: '+when(slots[0])+'\nLaatste verzending: '+when(slots[slots.length-1])+'\nBelgische tijd · maximaal '+lim+' per werkdag.\n\nDeze campagne definitief inplannen?'))return;
-  var btn=document.getElementById('cp_go');btn.disabled=true;btn.textContent='Inplannen…';
+  if(aud.some(function(d){return /\{\w+\}/.test(cpVars(d,sub)+' '+cpVars(d,txt))})){toast('Niet elke ontvanger heeft een volledig ingevuld voorstel. Vul de velden in of vink die ontvanger uit.',true);return}
+  var slots=sendNow?aud.map(function(_,i){return new Date(Date.now()+i*2000)}):cpSlots(aud.length,lim),when=function(d){return typeof cpScheduleStamp==='function'?cpScheduleStamp(d.toISOString()):d.toLocaleString('nl-BE')};
+  if(!confirm('Campagne "'+name+'" '+(sendNow?'nu versturen naar ':'inplannen voor ')+aud.length+' ontvangers:\n'+aud.slice(0,8).map(function(d){return '• '+(d.naam||d.email)}).join('\n')+(aud.length>8?'\n… en '+(aud.length-8)+' anderen':'')+'\n\nEerste verzending: '+when(slots[0])+'\nLaatste verzending: '+when(slots[slots.length-1])+(sendNow?'\nVerzending start via de wachtrij, doorgaans binnen enkele minuten. Het dagmaximum geldt niet voor Nu versturen.':'\nBelgische tijd · maximaal '+lim+' per werkdag.')+'\n\n'+(sendNow?'Deze campagne nu versturen?':'Deze campagne definitief inplannen?')))return;
+  CP_SENDING=true;var btn=document.getElementById(sendNow?'cp_now':'cp_go'),other=document.getElementById(sendNow?'cp_go':'cp_now');btn.disabled=true;if(other)other.disabled=true;btn.textContent=sendNow?'Verzending starten…':'Inplannen…';
   try{var c=await sb.from('campaigns').insert({name:name,subject:sub,body:txt,filters:f,daily_limit:lim,status:'gepland'}).select('id');if(c.error)throw c.error;var cid=c.data[0].id;
     var rows=aud.map(function(d,i){var tx=ensureClose(cpVars(d,txt))+'\n\n'+SIG_TXT;return {send_at:slots[i].toISOString(),to_email:String(d.email).trim(),subject:cpVars(d,sub),html:cpHtml(cpVars(d,txt)),body_text:tx,kind:'campaign',campaign_id:cid,deal_id:d.id||null,status:'pending'}});
     for(var i=0;i<rows.length;i+=50){var r=await sb.from('mail_queue').insert(rows.slice(i,i+50));if(r.error)throw r.error}
     aud.forEach(function(d){if(!d.id)return;(d.log=d.log||[]).push({t:Date.now(),txt:'📧 Ingepland in campagne "'+name+'"'})});saveData();logAct('Campagne ingepland: '+name+' ('+aud.length+')');
-    closeM();toast('✅ Campagne ingepland voor '+aud.length+' ontvangers');rCampagnes()}
-  catch(e){toast('Mislukt: '+(e.message||e),true);btn.disabled=false;btn.textContent='🚀 Inplannen'}}
+    closeM();toast(sendNow?'Campagne staat klaar voor directe verzending naar '+aud.length+' ontvangers':'Campagne ingepland voor '+aud.length+' ontvangers');rCampagnes()}
+  catch(e){toast('Mislukt: '+(e.message||e),true)}finally{CP_SENDING=false;btn.disabled=false;btn.textContent=sendNow?'Nu versturen':'Inplannen';if(other)other.disabled=false}}
 async function cpStop(id){if(!confirm('Alle nog niet verstuurde mails van deze campagne annuleren?'))return;
   await sb.from('mail_queue').update({status:'cancelled',error:'gestopt'}).eq('campaign_id',id).eq('status','pending');toast('Campagne gestopt');rCampagnes()}
 function cpDetail(id){var c=CAMP.list.filter(function(x){return x.id===id})[0];if(!c)return;var r=CAMP.rows.filter(function(x){return x.campaign_id===id}).sort(function(a,b){return (b.clicked_at?2:b.opened_at?1:0)-(a.clicked_at?2:a.opened_at?1:0)});
@@ -5724,7 +5728,7 @@ var _mCamp0=mCamp;mCamp=function(){_mCamp0();var body=document.getElementById('m
   var again=document.getElementById('cp_again');if(again&&again.parentNode)again.parentNode.insertAdjacentHTML('afterend','<div class="fgroup"><label>Extra e-mailadressen <span style="color:var(--muted);font-weight:400">— één per regel, eventueel met voornaam erachter</span></label><textarea id="cp_extra" oninput="cpPrev()" placeholder="info@kapsalon.be Lotte\nzaak@bedrijf.be" style="min-height:80px"></textarea></div>');
   var foot=document.getElementById('mFoot');if(foot)foot.insertAdjacentHTML('afterbegin','<button class="btn subtle" onclick="cpPreviewHtml()">👁 Voorbeeld</button>');CPTPL=''};
 cpHtml=(function(_h){return function(text){return CPTPL?cpRich(CPTPL,text):_h(text)}})(cpHtml);
-var _cpSch0=cpSchedule;cpSchedule=async function(){var f0=cpFilters;cpFilters=function(){var x=f0();x.tpl=CPTPL;return x};try{return await _cpSch0()}finally{cpFilters=f0}};
+var _cpSch0=cpSchedule;cpSchedule=async function(sendNow){var f0=cpFilters;cpFilters=function(){var x=f0();x.tpl=CPTPL;return x};try{return await _cpSch0(sendNow)}finally{cpFilters=f0}};
 
 /* ===== Sector-sjablonen + typen in plaats van selecteren ===== */
 (function(){
@@ -5798,7 +5802,7 @@ cpTest=(function(_t){return async function(){var _h=cpHtml;cpHtml=function(x){re
 var _cpPH=cpPreviewHtml;cpPreviewHtml=function(){var _h=cpHtml;cpHtml=function(x){return cpQ(_h(x),'test')};try{return _cpPH()}finally{cpHtml=_h}};
 /* id vooraf bepalen zodat elke mail een eigen, persoonlijke link krijgt */
 var _cpIns=null;
-cpSchedule=(function(_s){return async function(){var q=sb.from.bind(sb);sb.from=function(tb){var o=q(tb);if(tb==='mail_queue'){var ins=o.insert.bind(o);o.insert=function(rows){if(Array.isArray(rows))rows=rows.map(function(r){var id=(crypto.randomUUID?crypto.randomUUID():null);if(!id||r.kind!=='campaign')return r;r.id=id;r.html=cpQ(r.html,id);return r});return ins(rows)}}return o};try{return await _s()}finally{sb.from=q}}})(cpSchedule);
+cpSchedule=(function(_s){return async function(sendNow){if(CP_SENDING)return;var q=sb.from.bind(sb);sb.from=function(tb){var o=q(tb);if(tb==='mail_queue'){var ins=o.insert.bind(o);o.insert=function(rows){if(Array.isArray(rows))rows=rows.map(function(r){var id=(crypto.randomUUID?crypto.randomUUID():null);if(!id||r.kind!=='campaign')return r;r.id=id;r.html=cpQ(r.html,id);return r});return ins(rows)}}return o};try{return await _s(sendNow)}finally{sb.from=q}}})(cpSchedule);
 /* laden + weergave */
 cpLoad=async function(){if(!sb||!CLOUD||!CLOUD.uid)return;
   var a=await sb.from('campaigns').select('*').order('created_at',{ascending:false});CAMP.list=a.data||[];
@@ -6691,10 +6695,12 @@ async function rAnalytics(){
 }
 (function(){var i=MENU_ADMIN.findIndex(function(m){return m[0]==='analytics'});if(i>=0)MENU_ADMIN[i][1]='Websitestatistieken'})();
 </script>
-<script src="enterprise.js?v=20261125-research"></script>
+<script src="enterprise.js?v=20261125-workstation"></script>
 <script src="bank-manual.js"></script>
 <link rel="stylesheet" href="seo.css">
 <script type="module" src="seo.mjs"></script>
 <script src="template-mail.js?v=20261125-direct"></script>
+<script src="sales-workstation.js?v=20261125"></script>
+<link rel="stylesheet" href="sales-workstation.css?v=20261125">
 </body>
 </html>
