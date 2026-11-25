@@ -30,6 +30,8 @@ function persist() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(DATA)); } catch (_) {}
 }
 function redraw() {
+  // Do not destroy editable agent drafts or reset the job workspace during background sync.
+  if (['agents','controlcenter'].includes(VIEW)) return;
   if (SESSION && VIEW && !document.querySelector('.modal-backdrop.open')) go(VIEW);
 }
 async function readCollection(key) {
