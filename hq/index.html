@@ -4402,12 +4402,13 @@ function offSnapshot(iv){var co=coCfg();var c=customer(iv.customerId)||{};
     terms:(DATA.settings&&DATA.settings.offerTerms)||('Prijzen excl. btw. Bij akkoord ontvang je een voorschotfactuur van 50%, het saldo volgt bij oplevering.'+(iv.due?' Deze offerte is geldig tot '+fmtD(iv.due)+'.':''))};
 }
 function offUrl(tok){return 'https://marleo.tech/offerte/?t='+tok}
-async function offerLink(ivid){var iv=DATA.invoices.find(function(x){return x.id===ivid});if(!iv)return;
+async function offerLink(ivid){var iv=DATA.invoices.find(function(x){return x.id===ivid});if(!iv||iv.type!=='offerte')return;
   if(!sb||!CLOUD.uid){toast('Niet ingelogd in de cloud',true);return}
   var r=await sb.from('offer_links').select('token,status,signed_name,signed_at,viewed_at').eq('user_id',CLOUD.uid).eq('invoice_id',iv.id).order('created_at',{ascending:false}).limit(1);
+  if(r.error){toast('Ondertekenlink laden mislukt: '+r.error.message,true);return}
   var row=(r.data&&r.data[0])||null;
   if(!row){var tok=offToken();var ins=await sb.from('offer_links').insert({token:tok,user_id:CLOUD.uid,invoice_id:iv.id,data:offSnapshot(iv)});if(ins.error){toast(ins.error.message,true);return}row={token:tok,status:'open'}}
-  else if(row.status!=='getekend'){await sb.from('offer_links').update({data:offSnapshot(iv)}).eq('token',row.token)} // altijd de laatste versie tonen
+  else if(row.status!=='getekend'){var updated=await sb.from('offer_links').update({data:offSnapshot(iv)}).eq('user_id',CLOUD.uid).eq('token',row.token).neq('status','getekend').select('token');if(updated.error||!updated.data?.length){toast('De offerte kon niet worden bijgewerkt. Vernieuw de ondertekenstatus en probeer opnieuw.',true);return}} // altijd de laatste versie tonen
   iv.offerToken=row.token;saveData();
   var url=offUrl(row.token);var c=customer(iv.customerId)||{};var vn=c.contact?c.contact.split(' ')[0]:'';
   var txt='Dag'+(vn?' '+vn:'')+', hier is de offerte '+iv.ref+' ('+eur(invTot(iv))+' incl. btw). Je kan ze bekijken, downloaden en meteen online ondertekenen via deze link:\n'+url+'\n\nGroeten, Giannis (Marleo)';
@@ -4415,7 +4416,7 @@ async function offerLink(ivid){var iv=DATA.invoices.find(function(x){return x.id
   openM('🔗 Offerte '+esc(iv.ref)+' laten tekenen',
     st+'<div class="fgroup" style="margin-top:10px"><label>Link voor de klant</label><input readonly value="'+esc(url)+'" onclick="this.select()"></div>'+
     '<div class="fgroup"><label>Bericht</label><textarea id="off_txt" style="min-height:120px">'+esc(txt)+'</textarea></div>'+
-    '<div class="hint">De klant ziet de offerte, kan ze downloaden als PDF en tekent met vinger of muis. Jij krijgt een melding op je gsm zodra de offerte geopend en ondertekend is, en de offerte springt hier automatisch op "getekend".</div>',
+    '<div class="hint">De klant ziet de offerte, kan ze downloaden als PDF en tekent met vinger of muis. HQ haalt de ondertekenstatus automatisch op zolang het geopend is. Na ondertekening wordt de offerte aanvaard; naam en tijdstip blijven zichtbaar.</div>',
     '<button class="btn subtle" onclick="navigator.clipboard.writeText(\''+url+'\');toast(\'Link gekopieerd\')">📋 Kopieer link</button>'+
     (isMobile(c.phone)?'<a class="btn subtle" href="https://wa.me/'+telDigits(c.phone)+'?text='+encodeURIComponent(txt)+'" target="_blank" rel="noopener">💬 WhatsApp</a>':'')+
     '<button class="btn subtle" onclick="window.open(\''+url+'\',\'_blank\')">👁 Bekijk</button>'+
@@ -4426,7 +4427,7 @@ function offMail(ivid){var iv=DATA.invoices.find(function(x){return x.id===ivid}
 /* ondertekende offertes binnenhalen */
 async function offPoll(){if(!sb||!CLOUD.uid)return;try{
   var r=await sb.from('offer_links').select('invoice_id,status,signed_name,signed_at').eq('user_id',CLOUD.uid).eq('status','getekend');
-  var changed=0;(r.data||[]).forEach(function(o){var iv=DATA.invoices.find(function(x){return x.id===o.invoice_id});if(!iv||iv.signed)return;
+  if(r.error)throw r.error;var changed=0;(r.data||[]).forEach(function(o){var iv=DATA.invoices.find(function(x){return x.id===o.invoice_id});if(!iv||iv.signed)return;
     iv.status='aanvaard';iv.signed={name:o.signed_name,at:o.signed_at};(iv.log=iv.log||[]).push({t:Date.now(),txt:'✍️ Online ondertekend door '+o.signed_name});
     logAct('✍️ Offerte '+iv.ref+' ondertekend door '+o.signed_name);changed++;
     var d=DATA.deals.find(function(x){return x.customerId===iv.customerId||(x.naam||'').toLowerCase()===(custName(iv.customerId)||'').toLowerCase()});if(d&&d.stage!=='gewonnen'){d.stage='gewonnen';(d.log=d.log||[]).push({t:Date.now(),txt:'Offerte '+iv.ref+' getekend → klant'})}
@@ -4439,6 +4440,7 @@ setInterval(function(){if(document.visibilityState==='visible')offPoll()},60000)
 (function(){var _e=enterApp;enterApp=function(){_e();setTimeout(offPoll,1500)}})();
 /* knop + status in de offerte-weergave */
 (function(){var _v=vInvoice;vInvoice=function(id){_v(id);var iv=DATA.invoices.find(function(x){return x.id===id});if(!iv||iv.type!=='offerte')return;
+  var body=document.getElementById('mBody');if(body&&!body.querySelector('.offer-signing-panel')){var panel=document.createElement('section');panel.className='notecard offer-signing-panel';panel.style.cssText='margin-bottom:16px;padding:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px';var info=document.createElement('div');info.style.flex='1 1 220px';var title=document.createElement('b');title.textContent='Digitaal ondertekenen';var description=document.createElement('p');description.className='hint';description.textContent=iv.signed?'Deze offerte is online ondertekend. Bekijk de ondertekende versie via de link.':'Maak een ondertekenlink en stuur die naar je klant. De klant tekent online met vinger of muis, zonder account.';info.append(title,description);var button=document.createElement('button');button.className='btn';button.textContent=iv.signed?'Ondertekende offerte bekijken':'Offerte digitaal laten tekenen';button.onclick=async function(){button.disabled=true;try{await offerLink(id)}catch(error){toast('Ondertekenlink niet beschikbaar: '+error.message,true)}finally{button.disabled=false}};var refresh=document.createElement('button');refresh.className='btn subtle';refresh.textContent='Ondertekenstatus vernieuwen';refresh.onclick=async function(){refresh.disabled=true;await offPoll();vInvoice(id)};panel.append(info,button,refresh);body.prepend(panel);}
   var f=document.getElementById('mFoot');if(f&&!f.querySelector('.offlinkbtn'))f.insertAdjacentHTML('afterbegin','<button class="btn offlinkbtn" onclick="offerLink(\''+id+'\')">'+(iv.signed?'✍️ Getekend – bekijk':'🔗 Laten tekenen')+'</button>');
   if(iv.signed){var b=document.getElementById('mBody');if(b)b.insertAdjacentHTML('afterbegin','<div class="notecard" style="border-color:rgba(34,197,94,.5);margin-bottom:12px"><b>✍️ Online ondertekend</b> door '+esc(iv.signed.name)+' op '+new Date(iv.signed.at).toLocaleString('nl-BE')+'</div>')}
 }})();
