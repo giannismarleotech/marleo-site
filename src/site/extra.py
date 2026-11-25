@@ -156,6 +156,14 @@ DEEP = {
 # ---------------------------------------------------------------------------
 # Portfolio: every website we built (live). img = key in shots folder (s_<img>_d.png / _m.png)
 PORTFOLIO = [
+ dict(name='FER Construction', url='https://ferconstruction.be/', img='fer',
+  nl=('Renovatie · Deinze', 'Website op maat voor badkamer- en algemene renovaties, met projectfoto’s, diensten en een heldere contactroute.'),
+  en=('Renovation · Deinze', 'A custom website for bathroom and general renovations, with project photography, services and a clear route to contact.'),
+  fr=('Rénovation · Deinze', 'Un site sur mesure pour la rénovation de salles de bains et de logements, avec réalisations, services et contact direct.')),
+ dict(name='De Frietkazerne', url='https://frietkazerneonwheels.be/', img='friet',
+  nl=('Frituur, traiteur & frietmobiel · Deinze', 'Een herkenbare website met een interactieve mascotte, traiteurassortiment, frietformules en online bestellen via Unipage.'),
+  en=('Food, catering & mobile fries · Deinze', 'A distinctive website with an interactive mascot, catering menus, mobile catering packages and online ordering through Unipage.'),
+  fr=('Friterie, traiteur & friterie mobile · Deinze', 'Un site reconnaissable avec une mascotte interactive, une offre traiteur, des formules et la commande via Unipage.')),
  dict(name='Foamoré Detailing', url='https://foamoredetailing.be', img='foam',
   nl=('Auto detailing · Laarne', 'Premium zwart-goud site met prijzen, voor/na-sliders en offerteaanvraag.'),
   en=('Car detailing · Laarne', 'Premium black & gold site with prices, before/after sliders and quote requests.'),

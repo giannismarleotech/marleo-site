@@ -30,6 +30,7 @@ function office(stations){
  }).join('')+stations.map((t,i)=>{const [x,y]=positions[i];return '<g transform="translate('+(x-62)+' '+(y+199)+')"><rect x="-5" y="-20" width="166" height="49" rx="8" fill="#110e18" stroke="#4c3448"/><text x="6" y="-1" fill="#f5f1f7" font-size="15" font-weight="600">'+e(t.name)+'</text><text x="6" y="17" fill="'+(t.state==='working'?'#ff9c68':'#ac99b5')+'" font-size="11">'+labels[t.state]+'</text></g>';}).join('')+'</svg><div class="ap-legend"><span><i></i> Echt actief</span><span>De beweging volgt de cloudopdracht</span></div></div>';
 }
 function paint(){const el=document.getElementById('hq-autopilot-office');if(!el||!allowed())return;
+const focused=document.activeElement?.closest('#hq-autopilot-office')?document.activeElement:null,focusId=focused?.id,focusStation=focused?.dataset?.station;
 const running=jobs.find(j=>['queued','running'].includes(j.status)),stale=running&&Date.now()-Date.parse(running.updated_at)>180000;
 const stations=team.map(station);
 const latest=jobs.find(j=>j.title?.startsWith('Automatische zoekronde'));
@@ -41,6 +42,7 @@ office(stations)+'<div class="ap-desks">'+stations.map((t,i)=>'<button type="but
 el.querySelector('#ap-toggle').onclick=async()=>{if(busy||!cfg)return;busy=true;paint();try{cfg=await api({action:'configure',enabled:!cfg.enabled});error='';}catch(err){error=err.message;}finally{busy=false;paint();}};
 el.querySelectorAll('[data-station]').forEach(button=>{const t=stations[Number(button.dataset.station)];button.disabled=!t.job;button.onclick=()=>window.MarleoControl?.openJob(t.job.id);});
 el.querySelector('#ap-result')?.addEventListener('click',()=>window.MarleoControl?.openJob(latest.id));
+if(focusId)el.querySelector('#'+focusId)?.focus({preventScroll:true});else if(focusStation!==undefined)el.querySelector('[data-station="'+focusStation+'"]')?.focus({preventScroll:true});
 }
 function mount(){if(!allowed()||window.VIEW!=='controlcenter')return;let el=document.getElementById('hq-autopilot-office');if(!el){const anchor=document.querySelector('.cc-metrics');if(!anchor)return;el=document.createElement('section');el.id='hq-autopilot-office';el.className='cc-panel ap-office';anchor.before(el);}paint();if(Date.now()-last>30000)load();}
 const style=document.createElement('link');style.rel='stylesheet';style.href='autopilot.css?v=20261125-office2';document.head.append(style);

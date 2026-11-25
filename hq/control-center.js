@@ -35,4 +35,4 @@ const previousGo=window.go;window.go=function(v){if(owner()&&v==='dashboard'&&!l
 const previousLogout=window.logout;window.logout=function(){jobs=[];cursor=null;initialLoaded=false;modalJob=null;landed=false;document.body.classList.remove('hq-control-shell');return previousLogout.apply(this,arguments);};
 window.MarleoControl={state:()=>({modalJob}),restore:value=>{modalJob=value?.modalJob||null;},startDossier,openJob,showSearch,refresh:loadJobs};
 if(owner()){buildMenu();if(VIEW==='dashboard')go('controlcenter');}
-setInterval(()=>{if(owner()&&!document.hidden&&(VIEW==='controlcenter'||VIEW==='agents'||active().length||modalJob)&&(active().length||modalJob||++idlePoll%6===0))loadJobs();},5000);
+setInterval(()=>{if(owner()&&!document.hidden&&(VIEW==='controlcenter'||VIEW==='agents'||active().length||modalJob)&&(VIEW==='controlcenter'||active().length||modalJob||++idlePoll%6===0))loadJobs();},5000);

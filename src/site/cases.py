@@ -1,5 +1,8 @@
 # Case-studypagina's: functies per project (enkel wat echt gebouwd is) + vertalingen
 F = {
+ 'emailrequest': ('Contactformulier dat een e-mailaanvraag voorbereidt', 'Contact form that prepares an email enquiry', 'Formulaire préparant une demande par e-mail'),
+ 'mascot': ('Interactieve mascotte in de eigen huisstijl', 'Interactive mascot in the brand’s own style', 'Mascotte interactive aux couleurs de la marque'),
+ 'unipage': ('Online bestellen via de bestaande Unipage-webshop', 'Online ordering through the existing Unipage shop', 'Commande via la boutique Unipage existante'),
  'prices': ('Overzichtelijke prijzen per dienst', 'Clear pricing per service', 'Tarifs clairs par service'),
  'beforeafter': ('Interactieve voor/na-vergelijkers', 'Interactive before/after sliders', 'Comparateurs avant/après interactifs'),
  'quote': ('Offerteaanvraag via een formulier', 'Quote request form', 'Formulaire de demande de devis'),
@@ -32,6 +35,8 @@ F = {
  'ssl': ('Beveiligde verbinding (SSL) en snelle hosting', 'Secure connection (SSL) and fast hosting', 'Connexion sécurisée (SSL) et hébergement rapide'),
 }
 C = {
+ 'fer': ['services', 'gallery', 'emailrequest'],
+ 'friet': ['services', 'menu', 'mascot', 'unipage'],
  'foam': ['prices', 'beforeafter', 'quote', 'onsite'],
  'abdo': ['services', 'prices', 'gallery', 'booking'],
  'jema': ['domains', 'portfolio', 'architects', 'quote'],
