@@ -71,7 +71,7 @@ window.dealToClient=function(id){
  p.customerId=deal.customerId=c.id;save();closeM();mInvoice();
  setTimeout(function(){EDITLINES=[{d:template(p.type).name+' — '+p.title+' (scope en prijs volgens overeengekomen opdracht)',q:1,p:0}];renderLines();calcTot();custPickerSet('i_cust',c.id);toast('Vul de overeengekomen scope en prijs in; de raming is niet automatisch gefactureerd')},250);
 };
-window.MarleoEnterprise={render:render,templates:T,brief:brief};
+window.MarleoEnterprise={render:render,templates:T,brief:brief,open:function(id){if(!admin())return;go("enterprise");detail(id)}};
 var previousGo=window.go;window.go=function(v){if(v!=='enterprise')return previousGo.apply(this,arguments);if(!admin())return previousGo('cportal');VIEW=v;document.querySelectorAll('#navmenu button').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});render();window.scrollTo(0,0)};
 if(!MENU_ADMIN.some(function(m){return m[0]==='enterprise'}))MENU_ADMIN.push(['enterprise','Enterprise & AI',IC.pipe]);
 var previousMenu=window.buildMenu;window.buildMenu=function(){var result=previousMenu.apply(this,arguments);if(!admin())return result;var nav=document.getElementById('navmenu'),button=nav&&nav.querySelector('[data-v="enterprise"]');if(button){var group=document.createElement('div');group.className='navgrp';group.dataset.g='Enterprise';var title=document.createElement('div');title.className='navsec';title.textContent='Enterprise';group.append(title,button);var search=nav.querySelector('.navsearch');if(search)search.after(group);else nav.prepend(group)}return result};
@@ -91,7 +91,7 @@ import("./hosting.js?v=vimexx-20261123");
 import("./portal-admin.js?v=20261123-language1");
 
 // Cloud sales assistants; no local model or automatic outbound messages.
-import("./agents.js?v=20261125-workstation").then(()=>import("./control-center.js?v=20261125-office2")).then(()=>import("./websites.js?v=20261123-sites")).then(()=>import("./agent-mail.js?v=20261125-research")).then(()=>import("./navigation.js?v=20261125-research"));
+import("./agents.js?v=20261125-workstation").then(()=>import("./control-center.js?v=20261125-operations")).then(()=>import("./websites.js?v=20261123-sites")).then(()=>import("./agent-mail.js?v=20261125-research")).then(()=>import("./navigation.js?v=20261125-research"));
 var agentsStyles=document.createElement("link");agentsStyles.rel="stylesheet";agentsStyles.href="agents.css?v=20261125-research";document.head.append(agentsStyles);
 
 var controlStyles=document.createElement("link");controlStyles.rel="stylesheet";controlStyles.href="control-center.css?v=20261123-selection";document.head.append(controlStyles);
