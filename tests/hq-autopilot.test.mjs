@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {criteriaFor,deduplicate} from '../supabase/functions/hq-autopilot/rotation.mjs';
+test('rotation covers ten European markets and ten sectors without changing source limits',()=>{const markets=new Set(),sectors=new Set();for(let i=0;i<100;i++){const c=criteriaFor(i);markets.add(c.region);sectors.add(c.sector);assert.equal(c.limit,4);}assert.equal(markets.size,10);assert.equal(sectors.size,10);assert.match(criteriaFor(0).region,/België/);assert.deepEqual(criteriaFor(100),criteriaFor(0));});
+test('completed historical domains and duplicates in same round are excluded',()=>{const r=deduplicate([{domain:'www.demo.be'},{domain:'fresh.be'},{domain:'fresh.be'}],['demo.be']);assert.deepEqual(r.results,[{domain:'fresh.be'}]);assert.equal(r.duplicateDomains.length,2);});

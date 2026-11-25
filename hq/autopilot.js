@@ -1,0 +1,25 @@
+/* Real cloud schedule and execution state. No simulated staff activity. */
+(function(){
+const OWNER='77f6201e-8836-46b8-9c7a-0c118c4db61e',allowed=()=>window.CLOUD?.uid===OWNER&&window.SESSION?.role==='admin';
+const e=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const when=s=>s?new Date(s).toLocaleString('nl-BE',{timeZone:'Europe/Brussels',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Nog niet gestart';
+let cfg=null,jobs=[],busy=false,error='',loading=false,last=0;
+async function api(body){const r=await sb.functions.invoke('hq-autopilot',{body});if(r.error||!r.data?.ok)throw Error(r.data?.error||'Planning kon niet worden geladen.');return r.data;}
+async function load(){if(loading||!allowed())return;loading=true;try{cfg=await api({action:'status'});error='';last=Date.now();}catch(err){error=err.message;}finally{loading=false;paint();}}
+function paint(){const el=document.getElementById('hq-autopilot-office');if(!el||!allowed())return;
+const running=jobs.find(j=>['queued','running'].includes(j.status)),stale=running&&Date.now()-Date.parse(running.updated_at)>180000;
+const desks=[['Bedrijven zoeken','Lead Scout','Zoekt bedrijfswebsites in Europese markten.'],['Bedrijfswebsites lezen','Websiteonderzoek','Leest activiteit, adres en contactmogelijkheden.'],['Bedrijven selecteren','Kwaliteitscontrole','Filtert artikelen, gidsen en ongeschikte bronnen.']];
+const latest=jobs.find(j=>j.title?.startsWith('Automatische zoekronde'));
+el.innerHTML='<div class="ap-heading"><div><p class="cc-kicker">MARLEO / DIGITAAL KANTOOR</p><h2>Je team werkt in de cloud</h2><p>België en Europa · verschillende sectoren · één ronde per uur</p></div><button class="btn '+(cfg?.enabled?'subtle':'')+'" id="ap-toggle" '+(!cfg||busy?'disabled':'')+'>'+(busy?'Opslaan…':cfg?.enabled?'Automatisering pauzeren':'Automatisering starten')+'</button></div>'+
+'<div class="ap-schedule"><span><b>'+(!cfg?'Status onbekend':cfg.enabled?'Planning actief':'Planning gepauzeerd')+'</b><small>'+(error?e(error):e(cfg?.note||'Planning laden…'))+'</small></span><span><b>'+e(cfg?.enabled?when(cfg.nextRun):'Geen geplande uitvoering')+'</b><small>Volgende ronde · Belgische tijd</small></span><span><b>'+e(cfg?cfg.attempts+' / '+cfg.monthlyLimit:'—')+'</b><small>Automatische pogingen deze maand</small></span></div>'+
+'<div class="ap-desks">'+desks.map(([step,name,description],i)=>{const ev=running?.events?.filter(v=>v.step===step).at(-1);const state=stale?'unknown':running?.step===step?'working':ev?.status==='completed'?'done':'waiting';return '<article class="ap-desk '+state+'"><div class="ap-monitor" aria-hidden="true"><span></span><span></span><span></span></div><small>WERKPLEK 0'+(i+1)+'</small><h3>'+name+'</h3><strong class="ap-status">'+({working:'Bezig',done:'Stap afgerond',waiting:'Wacht op opdracht',unknown:'Geen recente bevestiging'})[state]+'</strong><p>'+description+'</p>'+(state==='working'?'<p class="ap-current">'+e(running.title)+'</p>':'')+'</article>';}).join('')+'</div>'+
+'<div class="ap-bottom"><div><h3>Wat gebeurt er nu?</h3><p>'+e(stale?'De cloudwerker heeft te lang geen update gemeld. Deze uitvoering wordt gecontroleerd.':running?running.step+' · '+running.title:cfg?.enabled?'Wacht op de volgende geplande ronde. Je mag HQ sluiten.':'De automatische zoekrondes staan stil.')+'</p>'+(running?.events?.length?'<ol>'+running.events.slice(-3).map(v=>'<li><time>'+when(v.at)+'</time> '+e(v.step)+' — '+e(v.message||v.status)+'</li>').join('')+'</ol>':'')+'</div><div><h3>Laatste automatische ronde</h3><p>'+e(latest?latest.title:'Nog geen automatische ronde geregistreerd.')+'</p>'+(latest?'<button class="btn subtle sm" id="ap-result">Resultaten en bronbewijs bekijken</button>':'')+'</div></div>'+
+'<p class="hint">Maximaal 600 automatische zoekaanvragen per kalendermaand. Handmatige zoekopdrachten gebruiken daarnaast providerquota. Geen automatische e-mails of betaalde upgrade. Fouten en lege resultaten blijven zichtbaar; een kandidaat is nog geen geïnteresseerde klant.</p>';
+el.querySelector('#ap-toggle').onclick=async()=>{if(busy||!cfg)return;busy=true;paint();try{cfg=await api({action:'configure',enabled:!cfg.enabled});error='';}catch(err){error=err.message;}finally{busy=false;paint();}};
+el.querySelector('#ap-result')?.addEventListener('click',()=>window.MarleoControl?.openJob(latest.id));
+}
+function mount(){if(!allowed()||window.VIEW!=='controlcenter')return;let el=document.getElementById('hq-autopilot-office');if(!el){const anchor=document.querySelector('.cc-metrics');if(!anchor)return;el=document.createElement('section');el.id='hq-autopilot-office';el.className='cc-panel ap-office';anchor.before(el);}paint();if(Date.now()-last>30000)load();}
+const style=document.createElement('link');style.rel='stylesheet';style.href='autopilot.css?v=20261125';document.head.append(style);
+window.MarleoAutopilot={mount,progress:rows=>{jobs=rows;mount();paint();}};
+setInterval(()=>{if(allowed()&&window.VIEW==='controlcenter'&&!document.hidden)load();else if(!allowed()){cfg=null;jobs=[];last=0;}},30000);
+})();
