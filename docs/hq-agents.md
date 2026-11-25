@@ -1,3 +1,12 @@
+## Update 25 November: company research, outreach and navigation
+
+- Dossiers have an explicit official website. **Internetonderzoek starten** runs up to three fixed basic Tavily searches (official site, public LinkedIn company mentions, other company news/projects), reads the site and up to four same-domain pages. Search excerpts remain labelled unverified; no authenticated LinkedIn scraping or automatic identity confirmation.
+- Sources persist in the job before AI generation. Failed AI runs can still have their research imported, and retry reuses acquired sources without new searches. Import requires the original dossier fingerprint to match. Website edits also invalidate prior drafts.
+- Contact preparation produces three distinct service-specific email proposals. Only actual known business activity is used as fact; use cases are hypotheses. Open the chosen proposal, edit recipient/content and approve a schedule. The existing campaign queue sends it, adds unsubscribe handling and receives tracking events. No mail is queued merely by generating a draft. Double-clicks are blocked; a pending duplicate subject/recipient is rejected. Exact schedule is shown in Belgian time; manually entered date/time uses the device timezone with an explicit converted preview.
+- Planning/open/click results appear in the dossier and existing email marketing screen. No measurement does not prove unread status.
+- In-tab Back/Forward restores modules, company dossiers, common filters, scroll and nested dialogs. History stores only random entry IDs; dossier/form content stays in tab memory and clears on logout. Reloads do not retain unsaved forms.
+- Node tests cover bounded search, partial failures/resume, domain redirects, mail variants/scheduling/double submit and Back/Forward with nested dialog handlers. UI/provider endpoints are simulated in tests; no real emails are sent.
+
 > Latest workflow and UI changes: see [hq-websites-selection.md](hq-websites-selection.md).
 
 # Marleo HQ: Control Center and cloud sales agents

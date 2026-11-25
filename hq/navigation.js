@@ -1,0 +1,21 @@
+// Keep route history in the tab. No company data, mail bodies or secrets in URLs/history state.
+const entries=new Map();let sequence=0,restoring=false,explicitCapture=false;
+const globals=['INVFILTER','INVQ','CUSTQ','CUSTVIEW','ORFILTER','PIPEQ'];
+const current=()=>history.state?.marleoNavigation;
+const modalOpen=()=>document.getElementById('mBackdrop')?.classList.contains('open');
+function snapshot(){return {view:window.VIEW,globals:Object.fromEntries(globals.map(k=>[k,window[k]])),agents:window.MarleoAgents?.state?.(),control:window.MarleoControl?.state?.(),scroll:window.scrollY||0,mainScroll:document.getElementById('mainArea')?.scrollTop||0,fields:[...document.querySelectorAll('#mainArea input[type="search"],#mainArea select')].filter(el=>el.id).map(el=>({id:el.id,value:el.value})),modal:modalOpen()?{title:document.getElementById('mTitle').textContent,body:[...document.getElementById('mBody').childNodes],foot:[...document.getElementById('mFoot').childNodes],wide:document.getElementById('mBox').classList.contains('wide')}:null};}
+function capture(){if(restoring)return;const id=current();if(id)entries.set(id,snapshot());explicitCapture=true;}
+function routeKey(s){return JSON.stringify([s.view,s.view==='custpage'?s.globals.CUSTVIEW:null,s.view==='agents'?s.agents?.selected:null,!!s.modal]);}
+function record(force=false){if(restoring||!window.SESSION)return;const s=snapshot(),previous=entries.get(current());if(!force&&previous&&routeKey(previous)===routeKey(s)){entries.set(current(),s);explicitCapture=false;return;}const id=++sequence;entries.set(id,s);history.pushState({marleoNavigation:id},'',location.pathname+location.search);explicitCapture=false;}
+if(window.vCustomer){const previousCustomer=window.vCustomer;window.vCustomer=function(){capture();return previousCustomer.apply(this,arguments);};}
+const originalGo=window.go;window.go=function(){if(restoring)return originalGo.apply(this,arguments);if(!explicitCapture)capture();const result=originalGo.apply(this,arguments);record();return result;};
+const originalOpen=window.openM;window.openM=function(){if(!restoring&&!explicitCapture)capture();const result=originalOpen.apply(this,arguments);if(!restoring)record(true);return result;};
+const originalClose=window.closeM;window.closeM=function(){const wasOpen=modalOpen();const result=originalClose.apply(this,arguments);if(!restoring&&wasOpen&&entries.get(current())?.modal){history.back();}return result;};
+function restore(s){restoring=true;try{originalClose();for(const [key,value] of Object.entries(s.globals))window[key]=value;window.MarleoAgents?.restore?.(s.agents);window.MarleoControl?.restore?.(s.control);originalGo(s.view);for(const field of s.fields){const el=document.getElementById(field.id);if(el&&el.value!==field.value){el.value=field.value;el.dispatchEvent(new Event(el.tagName==='SELECT'?'change':'input',{bubbles:true}));}}if(s.modal){originalOpen(s.modal.title,'','',s.modal.wide);document.getElementById('mBody').replaceChildren(...s.modal.body);document.getElementById('mFoot').replaceChildren(...s.modal.foot);}requestAnimationFrame(()=>{window.scrollTo(0,s.scroll);const main=document.getElementById('mainArea');if(main)main.scrollTop=s.mainScroll;});}finally{restoring=false;explicitCapture=false;}}
+window.addEventListener('popstate',event=>{if(!window.SESSION)return;const saved=entries.get(event.state?.marleoNavigation);if(saved)restore(saved);});
+// Capture filter/scroll changes before a browser Back (which changes history.state first).
+let scheduled=false;function refresh(){if(scheduled||restoring)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;if(!restoring&&current()&&window.SESSION){entries.set(current(),snapshot());}});}
+document.addEventListener('input',refresh);document.addEventListener('change',refresh);window.addEventListener('scroll',refresh,{passive:true});
+const logout=window.logout;window.logout=function(){entries.clear();history.replaceState(null,'',location.pathname+location.search);return logout.apply(this,arguments);};
+const id=++sequence;entries.set(id,snapshot());history.replaceState({marleoNavigation:id},'',location.pathname+location.search);
+window.MarleoNavigation={capture,record,back:()=>history.back()};
