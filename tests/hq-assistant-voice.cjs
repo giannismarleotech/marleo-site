@@ -1,0 +1,11 @@
+const {JSDOM}=require(process.env.HQ_JSDOM_MODULE||'jsdom');
+const fs=require('fs'),assert=require('assert/strict');
+const dom=new JSDOM('<div id="appView"></div>',{url:'https://example.com/hq/',runScripts:'outside-only'}),w=dom.window;
+w.SESSION={role:'admin'};w.CLOUD={uid:'77f6201e-8836-46b8-9c7a-0c118c4db61e'};w.DATA={};w.setInterval=()=>0;
+let calls=[],cancelled=0,changed;
+w.SpeechSynthesisUtterance=function(text){this.text=text;};
+w.speechSynthesis={cancel(){cancelled++},speak(u){calls.push(u);u.onstart()},getVoices(){return [{lang:'nl-BE',name:'Test Belgian',voiceURI:'be'},{lang:'nl-NL',name:'Test Natural',voiceURI:'nl'}]},addEventListener(event,cb){changed=cb}};
+w.eval(fs.readFileSync('hq/assistant.js','utf8'));
+assert.equal(calls.length,0,'must not speak before interaction');w.document.getElementById('marleo-assistant-launcher').click();assert.equal(calls.length,1);assert.equal(calls[0].voice.voiceURI,'nl');assert.equal(w.document.getElementById('marleo-assistant').dataset.state,'speaking');calls[0].onend();assert.equal(w.document.getElementById('marleo-assistant').dataset.state,'ready');
+const select=w.document.getElementById('ma-voice-select');select.value='be';select.dispatchEvent(new w.Event('change'));changed();assert.equal(select.value,'be');w.document.getElementById('ma-voice-test').click();assert.equal(calls.at(-1).voice.voiceURI,'be');
+w.document.getElementById('ma-voice').click();assert.equal(JSON.parse(w.localStorage.getItem('marleo_assistant_voice')).spoken,false);const count=calls.length;w.document.getElementById('ma-brief').click();assert.equal(calls.length,count);w.document.getElementById('ma-close').click();w.MarleoAssistant.open();assert.equal(calls.length,count,'reopening must not repeat greeting');assert.ok(cancelled>0);assert.match(w.document.querySelector('.ma-voice-profile').textContent,/Nog niet gekoppeld/);dom.window.close();console.log('Voice: user-initiated greeting, selection, playback state, saved mute, cancellation and inactive AI disclosure passed.');
